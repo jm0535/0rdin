@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ördin Icon Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2e8b57;
+        }
+        canvas {
+            border: 2px solid #2e8b57;
+            margin: 20px 0;
+            background: white;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background: #2e8b57;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #247047;
+        }
+        .preview {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .preview-item {
+            text-align: center;
+        }
+        .info {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        code {
+            background: #3a3a3a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2e8b57;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ördin Icon Generator</h1>
+        <p>Generate high-quality icons with the Ö character for Windows, macOS, and Linux.</p>
+
+        <div class="info">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Click the size buttons below to generate different icon sizes</li>
+                <li>Right-click on each canvas and "Save image as..."</li>
+                <li>Save with the suggested filename</li>
+                <li>For .ico and .icns conversion, use the online tools mentioned below</li>
+            </ol>
+        </div>
+
+        <div class="controls">
+            <h3>Generate Icons:</h3>
+            <button onclick="generateIcon(16, 'icon-16.png')">16x16</button>
+            <button onclick="generateIcon(32, 'icon-32.png')">32x32</button>
+            <button onclick="generateIcon(48, 'icon-48.png')">48x48</button>
+            <button onclick="generateIcon(64, 'icon-64.png')">64x64</button>
+            <button onclick="generateIcon(128, 'icon-128.png')">128x128</button>
+            <button onclick="generateIcon(256, 'icon-256.png')">256x256</button>
+            <button onclick="generateIcon(512, 'icon-512.png')">512x512</button>
+            <button onclick="generateIcon(1024, 'icon-1024.png')">1024x1024 (Master)</button>
+        </div>
+
+        <div class="preview" id="preview"></div>
+
+        <div class="info">
+            <h3>Next Steps:</h3>
+            <p><strong>For Windows (.ico):</strong></p>
+            <ol>
+                <li>Save the 256x256 PNG</li>
+                <li>Go to <a href="https://convertio.co/png-ico/" target="_blank" style="color: #2e8b57;">convertio.co/png-ico/</a></li>
+                <li>Upload and convert to .ico</li>
+                <li>Save as <code>build/icon.ico</code></li>
+            </ol>
+
+            <p><strong>For macOS (.icns):</strong></p>
+            <ol>
+                <li>Save all sizes (16, 32, 128, 256, 512, 1024)</li>
+                <li>Go to <a href="https://cloudconvert.com/png-to-icns" target="_blank" style="color: #2e8b57;">cloudconvert.com/png-to-icns</a></li>
+                <li>Upload the 1024x1024 PNG</li>
+                <li>Convert and download as <code>build/icon.icns</code></li>
+            </ol>
+
+            <p><strong>For Linux:</strong></p>
+            <ol>
+                <li>Save the 512x512 or 256x256 PNG</li>
+                <li>Save as <code>build/icon.png</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function generateIcon(size, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Forest green gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2e8b57');
+            gradient.addColorStop(1, '#1a5c3a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Add subtle circle background
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size * 0.4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fill();
+
+            // Draw Ö character
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Font size scales with icon size
+            const fontSize = size * 0.6;
+            ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+            
+            // Draw shadow for depth
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = size * 0.02;
+            ctx.shadowOffsetX = size * 0.01;
+            ctx.shadowOffsetY = size * 0.01;
+            
+            ctx.fillText('Ö', size/2, size/2 + size * 0.02);
+
+            // Create preview
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'preview-item';
+            
+            const label = document.createElement('p');
+            label.textContent = `${size}x${size}`;
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download';
+            downloadBtn.onclick = () => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL();
+                link.click();
+            };
+
+            previewDiv.appendChild(canvas);
+            previewDiv.appendChild(label);
+            previewDiv.appendChild(downloadBtn);
+            
+            document.getElementById('preview').appendChild(previewDiv);
+        }
+
+        // Auto-generate 256x256 on load
+        window.onload = () => {
+            generateIcon(256, 'icon-256.png');
+        };
+    </script>
+</body>
+</html>
