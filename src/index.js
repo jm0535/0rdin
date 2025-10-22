@@ -1,0 +1,180 @@
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
+const { spawn } = require('child_process');
+const axios = require('axios');
+
+// Handle creating/removing shortcuts on Windows when installing/uninstalling
+if (require('electron-squirrel-startup')) {
+  app.quit();
+}
+
+let mainWindow;
+let rShinyProcess;
+const SHINY_PORT = 8888;
+const SHINY_HOST = '127.0.0.1';
+
+// Function to find R executable
+function getRPath() {
+  const platform = process.platform;
+  let rPath;
+  
+  if (platform === 'win32') {
+    // Windows - try portable R first, then system R
+    const rWinPath = path.join(__dirname, '..', 'r-win', 'R-Portable', 'App', 'R-Portable', 'bin', 'R.exe');
+    const fs = require('fs');
+    
+    if (fs.existsSync(rWinPath)) {
+      rPath = rWinPath;
+    } else {
+      // Try common system R locations
+      const systemRPaths = [
+        'C:\\Program Files\\R\\R-4.4.1\\bin\\R.exe',
+        'C:\\Program Files\\R\\R-4.3.3\\bin\\R.exe',
+        'C:\\Program Files\\R\\R-4.2.3\\bin\\R.exe',
+      ];
+      
+      for (const testPath of systemRPaths) {
+        if (fs.existsSync(testPath)) {
+          rPath = testPath;
+          break;
+        }
+      }
+      
+      // Fallback to 'R' command
+      if (!rPath) {
+        rPath = 'R';
+      }
+    }
+  } else if (platform === 'darwin') {
+    // macOS
+    const rMacPath = path.join(__dirname, '..', 'r-mac', 'bin', 'R');
+    rPath = rMacPath;
+  } else {
+    // Linux (including WSL)
+    rPath = 'R';  // Use system R from PATH
+  }
+  
+  return rPath;
+}
+
+// Function to start R Shiny server
+function startShiny() {
+  return new Promise((resolve, reject) => {
+    const rPath = getRPath();
+    const scriptPath = path.join(__dirname, 'start-shiny.R');
+    
+    console.log('Starting R Shiny server...');
+    console.log('R Path:', rPath);
+    console.log('Script Path:', scriptPath);
+    
+    rShinyProcess = spawn(rPath, ['--vanilla', '-f', scriptPath], {
+      cwd: path.join(__dirname, '..'),
+      env: process.env
+    });
+    
+    rShinyProcess.stdout.on('data', (data) => {
+      console.log(`R stdout: ${data}`);
+      if (data.toString().includes('Listening on')) {
+        console.log('Shiny server started successfully');
+        resolve();
+      }
+    });
+    
+    rShinyProcess.stderr.on('data', (data) => {
+      console.error(`R stderr: ${data}`);
+    });
+    
+    rShinyProcess.on('error', (error) => {
+      console.error('Failed to start R process:', error);
+      reject(error);
+    });
+    
+    rShinyProcess.on('close', (code) => {
+      console.log(`R process exited with code ${code}`);
+    });
+    
+    // Timeout fallback
+    setTimeout(() => {
+      checkShinyReady().then(resolve).catch(reject);
+    }, 5000);
+  });
+}
+
+// Function to check if Shiny server is ready
+async function checkShinyReady(maxAttempts = 30, interval = 1000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      await axios.get(`http://${SHINY_HOST}:${SHINY_PORT}`);
+      console.log('Shiny server is ready');
+      return true;
+    } catch (error) {
+      console.log(`Waiting for Shiny server... (attempt ${i + 1}/${maxAttempts})`);
+      await new Promise(resolve => setTimeout(resolve, interval));
+    }
+  }
+  throw new Error('Shiny server failed to start');
+}
+
+// Function to create the main window
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    title: 'Ördin - Biodiversity Analysis',
+    icon: path.join(__dirname, '..', 'build', 'icon.png'),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false
+    },
+    backgroundColor: '#222222'
+  });
+  
+  // Load the Shiny app
+  mainWindow.loadURL(`http://${SHINY_HOST}:${SHINY_PORT}`);
+  
+  // Open DevTools in development mode
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
+  
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+// App lifecycle
+app.on('ready', async () => {
+  try {
+    await startShiny();
+    createWindow();
+  } catch (error) {
+    console.error('Failed to start application:', error);
+    app.quit();
+  }
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+
+app.on('will-quit', () => {
+  // Kill R Shiny process
+  if (rShinyProcess) {
+    console.log('Stopping R Shiny server...');
+    rShinyProcess.kill();
+  }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error);
+});
