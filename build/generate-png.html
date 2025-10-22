@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ördin PNG Icon for GitHub</title>
+</head>
+<body>
+    <canvas id="icon" width="512" height="512"></canvas>
+    <script>
+        const canvas = document.getElementById('icon');
+        const ctx = canvas.getContext('2d');
+        const size = 512;
+
+        // Forest green gradient background
+        const gradient = ctx.createLinearGradient(0, 0, size, size);
+        gradient.addColorStop(0, '#2e8b57');
+        gradient.addColorStop(1, '#1a5c3a');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+
+        // Add subtle circle background
+        ctx.beginPath();
+        ctx.arc(size/2, size/2, size * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fill();
+
+        // Draw Ö character
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        const fontSize = size * 0.6;
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        
+        // Draw shadow for depth
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = size * 0.02;
+        ctx.shadowOffsetX = size * 0.01;
+        ctx.shadowOffsetY = size * 0.01;
+        
+        ctx.fillText('Ö', size/2, size/2 + size * 0.02);
+
+        // Auto-download
+        setTimeout(() => {
+            const link = document.createElement('a');
+            link.download = 'icon.png';
+            link.href = canvas.toDataURL();
+            link.click();
+            document.body.innerHTML = '<h1 style="font-family: Arial; color: #2e8b57;">Icon downloaded as icon.png</h1><p>Save it to the build/ folder and commit to GitHub.</p>';
+        }, 100);
+    </script>
+</body>
+</html>

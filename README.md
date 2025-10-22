@@ -1,3 +1,7 @@
+<div align="center">
+
+<img src="build/icon.png" alt="Ördin Logo" width="128" height="128">
+
 # Ördin
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -6,6 +10,8 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18%20%7C%2020-green)](https://nodejs.org/)
 
 **Ördin** - A desktop application for biodiversity analysis, inspired by Odin's wisdom and oversight over ecological data.
+
+</div>
 
 ## Overview
 
