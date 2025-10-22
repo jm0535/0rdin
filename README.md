@@ -19,17 +19,23 @@
 
 ### Features
 
-- **Diversity Estimation**: Calculate species diversity indices using iNEXT
+- **Diversity Estimation**: Calculate species diversity using iNEXT
+  - **Individual-based rarefaction** (abundance data)
+  - **Incidence-based rarefaction** (presence/absence data)
+  - Three visualization types: sample-size, coverage, completeness
   - Rarefaction and extrapolation curves
-  - Shannon, Simpson, and species richness estimates
+  - Hill numbers (q=0, 1, 2): Species richness, Shannon, Simpson
+  - 95% confidence intervals
   
 - **Ordination Analysis**: Perform NMDS ordination using vegan
   - Non-metric multidimensional scaling
   - Bray-Curtis dissimilarity matrices
   - Customizable dimensions
+  - Stress values and quality assessment
 
 - **Modern Interface**: Dark-themed Bootstrap 5 UI with full-screen capabilities
 - **Export Capabilities**: Download summary tables (CSV) and plots (PNG)
+- **Sample Datasets**: Includes real research data (spiders, birds, ciliates, ants)
 - **Cross-Platform**: Works on Windows, macOS, and Linux (Debian/Ubuntu, Fedora/RHEL, Arch)
 
 ## Prerequisites
@@ -240,6 +246,59 @@ npm install
 ### Port Already in Use
 - The app uses port 8888 by default
 - Change it in `src/start-shiny.R`: `options(shiny.port = 8888)`
+
+## Rarefaction Analysis in Ördin
+
+### 📊 Three Types of Rarefaction Supported
+
+Ördin implements all major rarefaction approaches from EstimateS software:
+
+1. **Individual-Based Rarefaction** (Abundance data)
+   - Standardizes by number of individuals
+   - Use for: Population studies, community ecology
+   - Datasets: spider, bird, ciliates
+
+2. **Incidence-Based Rarefaction** (Presence/absence data)
+   - Standardizes by sampling units (e.g., trap-days)
+   - Use for: Trap studies, detection surveys, rare species
+   - Datasets: ant
+
+3. **Coverage-Based Comparison** (iNEXT innovation)
+   - Standardizes by sample completeness
+   - Use for: Fair comparison across different sampling efforts
+   - Best for: Publication-quality analyses
+
+### 📈 Three Visualization Types
+
+- **Type 1: Sample-size-based** - Standard rarefaction curves
+- **Type 2: Sample completeness** - Evaluate survey quality
+- **Type 3: Coverage-based** - Fair comparison at equal completeness
+
+### 📚 Documentation
+
+Detailed guides available in the repository:
+
+- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](ESTIMATES-AND-RAREFACTION-TYPES.md) - Comprehensive theory
+- [`docs/RAREFACTION-QUICK-GUIDE.md`](docs/RAREFACTION-QUICK-GUIDE.md) - Decision tree and examples
+- [`docs/RAREFACTION-IMPLEMENTATION.md`](docs/RAREFACTION-IMPLEMENTATION.md) - Technical details
+- [`INCIDENCE-VS-ABUNDANCE.md`](INCIDENCE-VS-ABUNDANCE.md) - Data format guide
+
+### 🆚 Comparison with EstimateS
+
+Ördin matches and exceeds EstimateS capabilities:
+
+| Feature | EstimateS | Ördin |
+|---------|-----------|-------|
+| Individual-based rarefaction | ✅ | ✅ |
+| Incidence-based rarefaction | ✅ | ✅ |
+| Sample-based rarefaction | ✅ | ⚠️ Partial |
+| Extrapolation | Limited | ✅ Full |
+| Coverage-based | ❌ | ✅ Yes |
+| Hill numbers (q=0,1,2) | Partial | ✅ Full |
+| Confidence intervals | Bootstrap | Analytical + Bootstrap |
+| Cross-platform | Windows/Mac | Windows/Mac/Linux |
+
+---
 
 ## License
 

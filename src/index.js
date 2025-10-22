@@ -16,18 +16,19 @@ const SHINY_HOST = '127.0.0.1';
 // Function to find R executable
 function getRPath() {
   const platform = process.platform;
+  const fs = require('fs');
   let rPath;
   
   if (platform === 'win32') {
     // Windows - try portable R first, then system R
     const rWinPath = path.join(__dirname, '..', 'r-win', 'R-Portable', 'App', 'R-Portable', 'bin', 'R.exe');
-    const fs = require('fs');
     
     if (fs.existsSync(rWinPath)) {
       rPath = rWinPath;
     } else {
       // Try common system R locations
       const systemRPaths = [
+        'C:\\Program Files\\R\\R-4.5.1\\bin\\R.exe',
         'C:\\Program Files\\R\\R-4.4.1\\bin\\R.exe',
         'C:\\Program Files\\R\\R-4.3.3\\bin\\R.exe',
         'C:\\Program Files\\R\\R-4.2.3\\bin\\R.exe',
@@ -36,6 +37,7 @@ function getRPath() {
       for (const testPath of systemRPaths) {
         if (fs.existsSync(testPath)) {
           rPath = testPath;
+          console.log(`Found R at: ${rPath}`);
           break;
         }
       }

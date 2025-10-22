@@ -57,9 +57,10 @@ for (pkg in required_packages) {
       install.packages(
         pkg,
         lib = lib_path,
-        repos = "https://cloud.r-project.org/",
+        repos = "https://cloud.r-project.org/",  # Try: https://cran.rstudio.com/ or https://ftp.osuosl.org/pub/cran/
         dependencies = TRUE,
-        type = pkg_type
+        type = pkg_type,
+        Ncpus = parallel::detectCores() - 1  # Use multiple cores for faster compilation
       )
       cat("✓ Successfully installed:", pkg, "\n")
     }, error = function(e) {
