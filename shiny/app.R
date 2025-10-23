@@ -892,6 +892,7 @@ ui <- tagList(
             "Ordination Settings"
           ),
           card_body(
+            # Method Selection
             selectInput("ordinationMethod", "Method",
                        choices = c(
                          "NMDS" = "nmds",
@@ -902,50 +903,178 @@ ui <- tagList(
                          "RDA" = "rda",
                          "PCoA" = "pcoa"
                        )),
-            numericInput("ordDimensions", "Dimensions", value = 2, min = 1, max = 5),
-            selectInput("distMethod", "Distance",
+            
+            # Ordination Dimensions
+            numericInput("ordDimensions", "Dimensions", value = 2, min = 2, max = 5),
+            
+            # Distance Method (for NMDS, PCoA)
+            conditionalPanel(
+              condition = "input.ordinationMethod == 'nmds' || input.ordinationMethod == 'pcoa'",
+              selectInput("distMethod", "Distance Measure",
+                         choices = c(
+                           "Bray-Curtis" = "bray",
+                           "Jaccard" = "jaccard",
+                           "Euclidean" = "euclidean",
+                           "Manhattan" = "manhattan",
+                           "Canberra" = "canberra",
+                           "Kulczynski" = "kulczynski",
+                           "Gower" = "gower",
+                           "Morisita-Horn" = "horn"
+                         ))
+            ),
+            
+            # NMDS-specific parameters
+            conditionalPanel(
+              condition = "input.ordinationMethod == 'nmds'",
+              accordion(
+                accordion_panel(
+                  title = "NMDS Parameters",
+                  icon = icon("cog"),
+                  numericInput("nmdsK", "Dimensions (k)", value = 2, min = 1, max = 6),
+                  numericInput("nmdsTry", "Random Starts (try)", value = 20, min = 5, max = 100),
+                  numericInput("nmdsTrymax", "Maximum Tries (trymax)", value = 100, min = 20, max = 500),
+                  checkboxInput("nmdsAutotransform", "Auto-transform (Wisconsin double std)", value = TRUE),
+                  selectInput("nmdsEngine", "Engine",
+                             choices = c("monoMDS" = "monoMDS", "isoMDS" = "isoMDS")),
+                  checkboxInput("nmdsWascores", "Expand to species scores", value = TRUE)
+                )
+              )
+            ),
+            
+            # Scaling Options (for CA, CCA, RDA, DCA)
+            conditionalPanel(
+              condition = "input.ordinationMethod == 'ca' || input.ordinationMethod == 'cca' || input.ordinationMethod == 'rda' || input.ordinationMethod == 'dca'",
+              selectInput("scalingType", "Biplot Scaling",
+                         choices = c(
+                           "Type 1 (Distance biplot)" = "1",
+                           "Type 2 (Correlation biplot)" = "2",
+                           "Type 3 (Symmetric)" = "3"
+                         ),
+                         selected = "2"),
+              tags$div(
+                style = "color: #888; font-size: 0.75rem; margin-top: -10px; margin-bottom: 15px; padding-left: 5px;",
+                uiOutput("scalingExplanation")
+              )
+            ),
+            
+            # Transformation Options
+            hr(style = "border-color: #444; margin: 15px 0;"),
+            tags$div(
+              style = "color: #4169e1; font-weight: 600; font-size: 0.9rem; margin-bottom: 10px;",
+              icon("magic"), " Data Transformation"
+            ),
+            selectInput("dataTransform", "Pre-transformation",
                        choices = c(
-                         "Bray-Curtis" = "bray",
-                         "Jaccard" = "jaccard",
-                         "Euclidean" = "euclidean",
-                         "Manhattan" = "manhattan",
-                         "Canberra" = "canberra"
+                         "None" = "none",
+                         "Hellinger" = "hellinger",
+                         "Chi-square" = "chi.square",
+                         "Log(x+1)" = "log",
+                         "Square root" = "sqrt",
+                         "Presence-Absence" = "pa",
+                         "Wisconsin" = "wisconsin"
                        )),
+            tags$div(
+              style = "color: #888; font-size: 0.75rem; margin-top: -10px; margin-bottom: 10px; margin-left: 5px;",
+              "Hellinger recommended for PCA with abundance data"
+            ),
             
             # Biplot Options (CANOCO-style)
             hr(style = "border-color: #444; margin: 15px 0;"),
             tags$div(
               style = "color: #4169e1; font-weight: 600; font-size: 0.9rem; margin-bottom: 10px;",
-              icon("layer-group"), " Biplot Options"
+              icon("layer-group"), " Biplot Overlays"
             ),
             
+            # Environmental Arrows
             checkboxInput(
               "showEnvArrows",
-              HTML("<span style='color: #ccc;'>Environmental arrows</span>"),
+              HTML("<span style='color: #ccc;'><b>Environmental vectors</b></span>"),
               value = FALSE
-            ),
-            tags$div(
-              style = "color: #888; font-size: 0.75rem; margin-top: -10px; margin-bottom: 10px; margin-left: 24px;",
-              "Show continuous variables as vectors"
             ),
             
+            conditionalPanel(
+              condition = "input.showEnvArrows == true",
+              tags$div(
+                style = "margin-left: 24px; margin-top: -10px; margin-bottom: 10px;",
+                sliderInput("arrowScaling", "Arrow scaling",
+                           min = 0.2, max = 2.0, value = 0.8, step = 0.1),
+                numericInput("arrowPvalue", "Significance threshold (p-value)",
+                            value = 0.05, min = 0.001, max = 1, step = 0.01),
+                checkboxInput("arrowShowPvalue", "Show p-values in labels", value = TRUE),
+                selectInput("arrowLabelPos", "Label position",
+                           choices = c("At arrow tip" = "tip", "Along arrow" = "along"))
+              )
+            ),
+            
+            # Factor Ellipses
             checkboxInput(
               "showEnvEllipses",
-              HTML("<span style='color: #ccc;'>Factor ellipses</span>"),
+              HTML("<span style='color: #ccc;'><b>Confidence ellipses</b></span>"),
               value = FALSE
-            ),
-            tags$div(
-              style = "color: #888; font-size: 0.75rem; margin-top: -10px; margin-bottom: 10px; margin-left: 24px;",
-              "Show 95% confidence ellipses for factors"
             ),
             
             conditionalPanel(
               condition = "input.showEnvEllipses == true",
-              selectInput(
-                "ellipseFactor",
-                "Factor Variable",
-                choices = NULL,
-                width = "100%"
+              tags$div(
+                style = "margin-left: 24px; margin-top: -10px; margin-bottom: 10px;",
+                selectInput(
+                  "ellipseFactor",
+                  "Factor variable",
+                  choices = NULL
+                ),
+                sliderInput("ellipseConfidence", "Confidence level",
+                           min = 0.8, max = 0.99, value = 0.95, step = 0.01),
+                selectInput("ellipseType", "Ellipse type",
+                           choices = c(
+                             "Normal (t-distribution)" = "t",
+                             "Norm" = "norm",
+                             "Euclidean" = "euclid"
+                           )),
+                checkboxInput("ellipseFill", "Fill ellipses", value = TRUE),
+                conditionalPanel(
+                  condition = "input.ellipseFill == true",
+                  sliderInput("ellipseAlpha", "Fill transparency",
+                             min = 0.05, max = 0.5, value = 0.15, step = 0.05)
+                )
+              )
+            ),
+            
+            # Species Scores
+            hr(style = "border-color: #444; margin: 10px 0;"),
+            checkboxInput("showSpecies", HTML("<span style='color: #ccc;'><b>Species scores</b></span>"),
+                         value = FALSE),
+            
+            conditionalPanel(
+              condition = "input.showSpecies == true",
+              tags$div(
+                style = "margin-left: 24px; margin-top: -10px; margin-bottom: 10px;",
+                radioButtons("speciesDisplay", "Display as",
+                            choices = c("Points" = "points", "Labels" = "text", "Both" = "both"),
+                            selected = "points", inline = TRUE),
+                numericInput("speciesTopN", "Show top N species (0 = all)",
+                            value = 20, min = 0, max = 100)
+              )
+            ),
+            
+            # Publication Settings
+            hr(style = "border-color: #444; margin: 15px 0;"),
+            tags$div(
+              style = "color: #2e8b57; font-weight: 600; font-size = 0.9rem; margin-bottom: 10px;",
+              icon("file-export"), " Publication Quality"
+            ),
+            
+            checkboxInput("pubQuality", "Enable publication mode", value = FALSE),
+            
+            conditionalPanel(
+              condition = "input.pubQuality == true",
+              tags$div(
+                style = "margin-left: 24px; margin-top: -10px; margin-bottom: 10px;",
+                numericInput("plotWidth", "Width (inches)", value = 8, min = 4, max = 20),
+                numericInput("plotHeight", "Height (inches)", value = 6, min = 4, max = 20),
+                numericInput("baseFontSize", "Base font size (pt)", value = 12, min = 8, max = 20),
+                numericInput("pointSize", "Point size", value = 3, min = 1, max = 8),
+                numericInput("labelSize", "Label size", value = 3.5, min = 2, max = 8),
+                checkboxInput("highContrast", "High contrast (light background)", value = FALSE)
               )
             ),
             
@@ -3451,7 +3580,226 @@ server <- function(input, output, session) {
     }
   })
   
+  # Dynamic scaling explanation
+  output$scalingExplanation <- renderUI({
+    scaling <- input$scalingType
+    
+    explanation <- switch(scaling,
+      "1" = "Preserves distance among sites (rows)",
+      "2" = "Preserves correlation among species/vars (columns)",
+      "3" = "Symmetric scaling (balanced)",
+      "Scaling information"
+    )
+    
+    HTML(explanation)
+  })
+  
   observeEvent(input$runOrdination, {
+    req(data())
+    
+    # Show loading
+    waiter <- Waiter$new(
+      html = tagList(
+        spin_loaders(42, color = "#4169e1"),
+        h3("Running Ordination Analysis", style = "color: #4169e1; margin-top: 30px; font-weight: 700;"),
+        p(paste("Method:", toupper(input$ordinationMethod)), 
+          style = "color: #999; font-size: 1.1rem; margin-top: 10px; font-weight: 600;"),
+        tags$div(
+          style = "margin-top: 20px; padding: 15px; background: rgba(65, 105, 225, 0.1); border-radius: 8px; border-left: 4px solid #4169e1;",
+          tags$p(style = "color: #aaa; font-size: 0.9rem; margin: 0;",
+            icon("project-diagram"), " Computing multivariate ordination with publication-quality settings")
+        )
+      ),
+      color = "rgba(20, 20, 20, 0.95)"
+    )
+    waiter$show()
+    
+    result <- tryCatch({
+      withProgress(message = 'Running ordination...', value = 0, {
+      abund_matrix <- data()$original
+      method <- input$ordinationMethod
+      
+      # Apply data transformation
+      incProgress(0.1, detail = "Applying transformation...")
+      if (!is.null(input$dataTransform) && input$dataTransform != "none") {
+        abund_matrix <- switch(input$dataTransform,
+          "hellinger" = decostand(abund_matrix, "hellinger"),
+          "chi.square" = decostand(abund_matrix, "chi.square"),
+          "log" = log1p(abund_matrix),
+          "sqrt" = sqrt(abund_matrix),
+          "pa" = decostand(abund_matrix, "pa"),
+          "wisconsin" = wisconsin(abund_matrix),
+          abund_matrix
+        )
+      }
+      
+      incProgress(0.3, detail = paste("Calculating", toupper(method), "..."))
+      
+      # Get scaling parameter
+      scaling_val <- if (!is.null(input$scalingType)) as.numeric(input$scalingType) else 2
+      
+      result <- if (method == "nmds") {
+        # Enhanced NMDS with all parameters
+        k_val <- if (!is.null(input$nmdsK)) input$nmdsK else input$ordDimensions
+        try_val <- if (!is.null(input$nmdsTry)) input$nmdsTry else 20
+        trymax_val <- if (!is.null(input$nmdsTrymax)) input$nmdsTrymax else 100
+        autotransform <- if (!is.null(input$nmdsAutotransform)) input$nmdsAutotransform else TRUE
+        engine_val <- if (!is.null(input$nmdsEngine)) input$nmdsEngine else "monoMDS"
+        wascores_val <- if (!is.null(input$nmdsWascores)) input$nmdsWascores else TRUE
+        
+        dist_mat <- vegdist(abund_matrix, method = input$distMethod)
+        ord <- metaMDS(dist_mat, k = k_val, try = try_val, trymax = trymax_val, 
+                      autotransform = autotransform, engine = engine_val, 
+                      wascores = wascores_val, trace = 0)
+        
+        scores_df <- data.frame(Site = rownames(scores(ord, display = "sites")), 
+                               scores(ord, display = "sites"))
+        
+        list(scores = scores_df, stress = ord$stress, method = "NMDS", ord_object = ord,
+             convergence = ord$converged, tries = ord$tries)
+             
+      } else if (method == "pca") {
+        ord <- rda(abund_matrix, scale = FALSE)  # PCA via RDA
+        scores_df <- data.frame(Site = rownames(abund_matrix), 
+                               scores(ord, display = "sites", scaling = scaling_val, 
+                                     choices = 1:min(input$ordDimensions, 2)))
+        
+        # Calculate explained variance
+        eig_vals <- eigenvals(ord)
+        var_explained <- eig_vals / sum(eig_vals) * 100
+        
+        list(scores = scores_df, stress = NULL, method = "PCA", ord_object = ord,
+             variance = var_explained, scaling = scaling_val)
+             
+      } else if (method == "ca") {
+        ord <- cca(abund_matrix)
+        scores_df <- data.frame(Site = rownames(abund_matrix), 
+                               scores(ord, display = "sites", scaling = scaling_val,
+                                     choices = 1:min(input$ordDimensions, 2)))
+        
+        # Calculate inertia
+        total_inertia <- ord$tot.chi
+        eig_vals <- eigenvals(ord)
+        inertia_explained <- eig_vals / total_inertia * 100
+        
+        list(scores = scores_df, stress = NULL, method = "CA", ord_object = ord,
+             inertia = inertia_explained, scaling = scaling_val)
+             
+      } else if (method == "dca") {
+        ord <- decorana(abund_matrix)
+        scores_df <- data.frame(Site = rownames(abund_matrix), 
+                               scores(ord, display = "sites", choices = 1:min(input$ordDimensions, 2)))
+        
+        # Get axis lengths
+        axis_lengths <- ord$evals
+        
+        list(scores = scores_df, stress = NULL, method = "DCA", ord_object = ord,
+             axis_lengths = axis_lengths)
+             
+      } else if (method == "cca") {
+        # Constrained Correspondence Analysis
+        if (is.null(dataManagement$envData)) {
+          stop("CCA requires environment data. Please load environment data in the Data tab.")
+        }
+        env_matrix <- dataManagement$envData[, -1]
+        ord <- cca(abund_matrix ~ ., data = env_matrix)
+        scores_df <- data.frame(Site = rownames(abund_matrix), 
+                               scores(ord, display = "sites", scaling = scaling_val,
+                                     choices = 1:min(input$ordDimensions, 2)))
+        
+        # Get constrained and unconstrained inertia
+        const_inertia <- ord$CCA$tot.chi
+        unconst_inertia <- ord$CA$tot.chi
+        total_inertia <- ord$tot.chi
+        
+        list(scores = scores_df, stress = NULL, method = "CCA", constrained = TRUE, 
+             ord_object = ord, env_data = env_matrix, scaling = scaling_val,
+             constrained_prop = const_inertia / total_inertia * 100)
+             
+      } else if (method == "rda") {
+        # Redundancy Analysis
+        if (is.null(dataManagement$envData)) {
+          stop("RDA requires environment data. Please load environment data in the Data tab.")
+        }
+        env_matrix <- dataManagement$envData[, -1]
+        ord <- rda(abund_matrix ~ ., data = env_matrix)
+        scores_df <- data.frame(Site = rownames(abund_matrix), 
+                               scores(ord, display = "sites", scaling = scaling_val,
+                                     choices = 1:min(input$ordDimensions, 2)))
+        
+        # Calculate R-squared and adjusted R-squared
+        r_squared <- RsquareAdj(ord)$r.squared
+        adj_r_squared <- RsquareAdj(ord)$adj.r.squared
+        
+        list(scores = scores_df, stress = NULL, method = "RDA", constrained = TRUE,
+             ord_object = ord, env_data = env_matrix, scaling = scaling_val,
+             r_squared = r_squared, adj_r_squared = adj_r_squared)
+             
+      } else if (method == "pcoa") {
+        dist_mat <- vegdist(abund_matrix, method = input$distMethod)
+        ord <- cmdscale(dist_mat, k = input$ordDimensions, eig = TRUE, add = TRUE)
+        scores_df <- data.frame(Site = rownames(abund_matrix), 
+                               ord$points[, 1:min(input$ordDimensions, 2)])
+        names(scores_df)[-1] <- paste0("Axis", 1:(ncol(scores_df)-1))
+        
+        # Calculate variance explained
+        eig_vals <- ord$eig[ord$eig > 0]
+        var_explained <- eig_vals / sum(eig_vals) * 100
+        
+        list(scores = scores_df, stress = NULL, method = "PCoA", ord_object = ord,
+             variance = var_explained)
+      }
+      
+      incProgress(0.7, detail = "Creating publication-quality plot...")
+      
+      # Store environment data and original matrix for biplot
+      result$env_data <- if (!is.null(dataManagement$envData)) dataManagement$envData[, -1] else NULL
+      result$species_matrix <- abund_matrix
+      
+      incProgress(1)
+      ordinationResults(result)
+      result
+      })
+    }, error = function(e) {
+      waiter$hide()
+      showNotification(
+        paste("Ordination failed:", e$message),
+        type = "error",
+        duration = 8
+      )
+      return(NULL)
+    })
+    
+    if (!is.null(result)) {
+      waiter$hide()
+      
+      # Show detailed success message with diagnostics
+      diagnostic_msg <- if (result$method == "NMDS") {
+        paste0("✓ NMDS complete! Stress: ", round(result$stress, 3), 
+               " | Converged: ", result$convergence, " | Tries: ", result$tries)
+      } else if (result$method %in% c("PCA", "PCoA")) {
+        paste0("✓ ", result$method, " complete! Axis 1: ", 
+               round(result$variance[1], 1), "%, Axis 2: ", round(result$variance[2], 1), "%")
+      } else if (result$method %in% c("CA", "DCA")) {
+        paste0("✓ ", result$method, " complete!")
+      } else if (result$method == "CCA") {
+        paste0("✓ CCA complete! Constrained: ", round(result$constrained_prop, 1), "%")
+      } else if (result$method == "RDA") {
+        paste0("✓ RDA complete! R²: ", round(result$r_squared, 3), 
+               " | Adj. R²: ", round(result$adj_r_squared, 3))
+      } else {
+        paste0("✓ ", result$method, " analysis complete!")
+      }
+      
+      showNotification(
+        diagnostic_msg,
+        type = "message",
+        duration = 5
+      )
+    } else {
+      waiter$hide()
+    }
+  })
     req(data())
     
     # Show loading
