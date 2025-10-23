@@ -3944,102 +3944,153 @@ server <- function(input, output, session) {
     result <- ordinationResults()
     req(result$scores)
     
-    if (ncol(result$scores) < 3) return(NULL)
-    
-    axis_names <- names(result$scores)[-1]
-    plot_color <- get_color_palette(1)[1]
-    
-    # Base plot
-    plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]]))
-    
-    # Add ellipses for categorical factors if requested
-    if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
-        !is.null(result$env_data) && !is.null(input$ellipseFactor)) {
-      
-      if (input$ellipseFactor %in% names(result$env_data)) {
-        # Add factor column to scores
-        result$scores$FactorGroup <- result$env_data[[input$ellipseFactor]]
-        
-        plot_obj <- plot_obj +
-          stat_ellipse(aes(color = FactorGroup, fill = FactorGroup), 
-                      geom = "polygon", alpha = 0.15, level = 0.95, 
-                      linewidth = 1, show.legend = TRUE)
-      }
+    # Validate we have enough columns
+    if (ncol(result$scores) < 3) {
+      cat("\nWARNING: Insufficient columns in scores data frame\n")
+      return(NULL)
     }
     
-    # Add site points and labels
-    if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
-        "FactorGroup" %in% names(result$scores)) {
-      plot_obj <- plot_obj +
-        geom_point(aes(color = FactorGroup), size = 4, alpha = 0.8) +
-        geom_text(aes(label = Site), vjust = -1, color = "white", size = 3.5)
-    } else {
-      plot_obj <- plot_obj +
-        geom_point(size = 4, color = plot_color, alpha = 0.7) +
-        geom_text(aes(label = Site), vjust = -1, color = "white", size = 4)
-    }
-    
-    # Add environmental arrows for continuous variables if requested
-    if (!is.null(input$showEnvArrows) && input$showEnvArrows && 
-        !is.null(result$ord_object) && !is.null(result$env_data)) {
+    tryCatch({
+      axis_names <- names(result$scores)[-1]
+      cat("\n=== CREATING BIPLOT ===")
+      cat("\nMethod:", result$method)
+      cat("\nAxis names:", paste(axis_names, collapse = ", "))
       
-      # Get continuous variables
-      cont_vars <- names(result$env_data)[sapply(result$env_data, is.numeric)]
+      plot_color <- get_color_palette(1)[1]
       
-      if (length(cont_vars) > 0) {
-        # Fit environmental vectors using envfit
-        env_fit <- tryCatch({
-          envfit(result$ord_object, result$env_data[, cont_vars, drop = FALSE], 
-                choices = 1:2, permutations = 999)
-        }, error = function(e) NULL)
+      # Base plot
+      plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]]))
+      
+      # Add ellipses for categorical factors if requested
+      if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
+          !is.null(result$env_data) && !is.null(input$ellipseFactor)) {
         
-        if (!is.null(env_fit) && !is.null(env_fit$vectors)) {
-          # Extract arrow coordinates
-          arrow_coords <- as.data.frame(scores(env_fit, display = "vectors"))
-          arrow_coords$variable <- rownames(arrow_coords)
+        cat("\nAdding ellipses for factor:", input$ellipseFactor)
+        
+        if (input$ellipseFactor %in% names(result$env_data)) {
+          # Add factor column to scores
+          result$scores$FactorGroup <- result$env_data[[input$ellipseFactor]]
           
-          # Scale arrows to fit plot
-          arrow_scale <- 0.8 * min(
-            diff(range(result$scores[[axis_names[1]]])),
-            diff(range(result$scores[[axis_names[2]]]))
-          ) / max(sqrt(rowSums(arrow_coords[,1:2]^2)))
+          ellipse_level <- if (!is.null(input$ellipseConfidence)) input$ellipseConfidence else 0.95
+          ellipse_alpha <- if (!is.null(input$ellipseAlpha)) input$ellipseAlpha else 0.15
           
-          arrow_coords[,1:2] <- arrow_coords[,1:2] * arrow_scale
-          
-          # Add arrows to plot
           plot_obj <- plot_obj +
-            geom_segment(data = arrow_coords,
-                       aes(x = 0, y = 0, 
-                           xend = .data[[axis_names[1]]], 
-                           yend = .data[[axis_names[2]]]),
-                       arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
-                       color = "#ff8c00", linewidth = 1, alpha = 0.8,
-                       inherit.aes = FALSE) +
-            geom_text(data = arrow_coords,
-                     aes(x = .data[[axis_names[1]]] * 1.15, 
-                         y = .data[[axis_names[2]]] * 1.15, 
-                         label = variable),
-                     color = "#ff8c00", fontface = "bold", size = 4,
-                     inherit.aes = FALSE)
+            stat_ellipse(aes(color = FactorGroup, fill = FactorGroup), 
+                        geom = "polygon", alpha = ellipse_alpha, level = ellipse_level, 
+                        linewidth = 1, show.legend = TRUE)
         }
       }
-    }
-    
-    # Apply theme and labels
-    plot_obj <- plot_obj +
-      get_plot_theme() +
-      theme(panel.background = element_rect(fill = "#222222", color = NA),
-            plot.background = element_rect(fill = "#222222", color = NA),
-            panel.grid = element_line(color = "#444444"),
-            text = element_text(color = "white"),
-            axis.text = element_text(color = "white"),
-            legend.background = element_rect(fill = "#222222", color = "#444444"),
-            legend.text = element_text(color = "white"),
-            legend.title = element_text(color = "white")) +
-      labs(title = paste("Ordination:", result$method),
-           subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "")
-    
-    plot_obj
+      
+      # Add site points and labels
+      point_size <- if (!is.null(input$pointSize)) input$pointSize else 4
+      label_size <- if (!is.null(input$labelSize)) input$labelSize else 3.5
+      
+      if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
+          "FactorGroup" %in% names(result$scores)) {
+        plot_obj <- plot_obj +
+          geom_point(aes(color = FactorGroup), size = point_size, alpha = 0.8) +
+          geom_text(aes(label = Site), vjust = -1, color = "white", size = label_size)
+      } else {
+        plot_obj <- plot_obj +
+          geom_point(size = point_size, color = plot_color, alpha = 0.7) +
+          geom_text(aes(label = Site), vjust = -1, color = "white", size = point_size)
+      }
+      
+      # Add environmental arrows for continuous variables if requested
+      if (!is.null(input$showEnvArrows) && input$showEnvArrows && 
+          !is.null(result$ord_object) && !is.null(result$env_data)) {
+        
+        cat("\nAdding environmental arrows...")
+        
+        # Get continuous variables
+        cont_vars <- names(result$env_data)[sapply(result$env_data, is.numeric)]
+        
+        if (length(cont_vars) > 0) {
+          cat("\nContinuous variables found:", paste(cont_vars, collapse = ", "))
+          
+          # Fit environmental vectors using envfit
+          env_fit <- tryCatch({
+            envfit(result$ord_object, result$env_data[, cont_vars, drop = FALSE], 
+                  choices = 1:2, permutations = 999)
+          }, error = function(e) {
+            cat("\nERROR fitting environmental vectors:", e$message, "\n")
+            NULL
+          })
+          
+          if (!is.null(env_fit) && !is.null(env_fit$vectors)) {
+            # Extract arrow coordinates
+            arrow_coords <- as.data.frame(scores(env_fit, display = "vectors"))
+            arrow_coords$variable <- rownames(arrow_coords)
+            
+            # Get arrow scaling parameter
+            arrow_scale_param <- if (!is.null(input$arrowScaling)) input$arrowScaling else 0.8
+            
+            # Scale arrows to fit plot
+            arrow_scale <- arrow_scale_param * min(
+              diff(range(result$scores[[axis_names[1]]])),
+              diff(range(result$scores[[axis_names[2]]]))
+            ) / max(sqrt(rowSums(arrow_coords[,1:2]^2)))
+            
+            arrow_coords[,1:2] <- arrow_coords[,1:2] * arrow_scale
+            
+            cat("\nArrows scaled by:", arrow_scale, "\n")
+            
+            # Add arrows to plot
+            plot_obj <- plot_obj +
+              geom_segment(data = arrow_coords,
+                         aes(x = 0, y = 0, 
+                             xend = .data[[axis_names[1]]], 
+                             yend = .data[[axis_names[2]]]),
+                         arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
+                         color = "#ff8c00", linewidth = 1, alpha = 0.8,
+                         inherit.aes = FALSE) +
+              geom_text(data = arrow_coords,
+                       aes(x = .data[[axis_names[1]]] * 1.15, 
+                           y = .data[[axis_names[2]]] * 1.15, 
+                           label = variable),
+                       color = "#ff8c00", fontface = "bold", size = 4,
+                       inherit.aes = FALSE)
+          }
+        }
+      }
+      
+      # Determine background color
+      bg_color <- if (!is.null(input$highContrast) && input$highContrast) "#ffffff" else "#222222"
+      text_color <- if (!is.null(input$highContrast) && input$highContrast) "#000000" else "#ffffff"
+      grid_color <- if (!is.null(input$highContrast) && input$highContrast) "#cccccc" else "#444444"
+      
+      # Get base font size
+      base_font <- if (!is.null(input$baseFontSize)) input$baseFontSize else 12
+      
+      # Apply theme and labels
+      plot_obj <- plot_obj +
+        get_plot_theme() +
+        theme(panel.background = element_rect(fill = bg_color, color = NA),
+              plot.background = element_rect(fill = bg_color, color = NA),
+              panel.grid = element_line(color = grid_color),
+              text = element_text(color = text_color, size = base_font),
+              axis.text = element_text(color = text_color),
+              axis.title = element_text(size = base_font + 2),
+              plot.title = element_text(size = base_font + 4, face = "bold"),
+              plot.subtitle = element_text(size = base_font),
+              legend.background = element_rect(fill = bg_color, color = grid_color),
+              legend.text = element_text(color = text_color),
+              legend.title = element_text(color = text_color)) +
+        labs(title = paste("Ordination:", result$method),
+             subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "")
+      
+      cat("\nBiplot created successfully!\n")
+      plot_obj
+      
+    }, error = function(e) {
+      cat("\nERROR creating biplot:", e$message, "\n")
+      # Return a simple error plot
+      ggplot() + 
+        annotate("text", x = 0.5, y = 0.5, 
+                label = paste("Error creating plot:", e$message),
+                size = 6, color = "red") +
+        theme_void()
+    })
   })
   
   output$ordinationPlot <- renderPlot({ 
