@@ -3476,78 +3476,16 @@ server <- function(input, output, session) {
       inext_out <- iNEXT(x = inext_data, q = selected_q, datatype = actual_datatype,
                         knots = input$knots, nboot = input$nboot, conf = input$conf, endpoint = endpoint_value)
       
-      incProgress(0.8, detail = "Generating plot...")
-      
-      # Determine theme colors based on selection
-      plot_theme <- if (!is.null(input$diversityPlotTheme)) input$diversityPlotTheme else "dark"
-      
-      if (plot_theme == "dark") {
-        bg_color <- "#1a1a1a"
-        text_color <- "#ffffff"
-        grid_color <- "#444444"
-        panel_border <- element_blank()
-        line_color <- "#00d9ff"  # Bright cyan for diversity curves
-      } else if (plot_theme == "light") {
-        bg_color <- "#ffffff"
-        text_color <- "#000000"
-        grid_color <- "#d0d0d0"
-        panel_border <- element_blank()
-        line_color <- "#0066cc"  # Strong blue
-      } else if (plot_theme == "classic") {
-        bg_color <- "#fafafa"
-        text_color <- "#000000"
-        grid_color <- "#b0b0b0"
-        panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1)
-        line_color <- "#2c5aa0"  # Classic blue
-      } else if (plot_theme == "minimal") {
-        bg_color <- "#ffffff"
-        text_color <- "#1a1a1a"
-        grid_color <- "#e8e8e8"
-        panel_border <- element_blank()
-        line_color <- "#4a90e2"  # Modern blue
-      } else if (plot_theme == "publication") {
-        bg_color <- "#ffffff"
-        text_color <- "#000000"
-        grid_color <- "#c0c0c0"
-        panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1.5)
-        line_color <- "#000000"  # Black for publication
-      } else {
-        # Fallback to dark
-        bg_color <- "#1a1a1a"
-        text_color <- "#ffffff"
-        grid_color <- "#444444"
-        panel_border <- element_blank()
-        line_color <- "#00d9ff"
-      }
-      
-      plot_obj <- ggiNEXT(inext_out, type = as.numeric(input$plotType), se = TRUE, 
-                         facet.var = "Order.q", color.var = "Assemblage") + 
-        labs(title = "Diversity Estimation (iNEXT)",
-             subtitle = paste0("Hill numbers q=", paste(selected_q, collapse = ", "), " | ", 
-                             input$conf * 100, "% CI")) +
-        theme_minimal(base_size = 14) +
-        theme(
-          plot.background = element_rect(fill = bg_color, color = NA),
-          panel.background = element_rect(fill = bg_color, color = NA),
-          panel.grid.major = element_line(color = grid_color, linewidth = 0.3),
-          panel.grid.minor = element_line(color = grid_color, linewidth = 0.15),
-          panel.border = panel_border,
-          text = element_text(color = text_color, size = 14),
-          axis.text = element_text(color = text_color, size = 12),
-          axis.title = element_text(color = text_color, size = 13, face = "bold"),
-          plot.title = element_text(color = text_color, size = 16, face = "bold", hjust = 0),
-          plot.subtitle = element_text(color = text_color, size = 12, hjust = 0),
-          legend.position = "bottom",
-          legend.background = element_rect(fill = bg_color, color = NA),
-          legend.text = element_text(color = text_color, size = 11),
-          legend.title = element_text(color = text_color, size = 12, face = "bold"),
-          strip.background = element_rect(fill = bg_color, color = grid_color),
-          strip.text = element_text(color = text_color, size = 12, face = "bold")
-        )
-      
       incProgress(1)
         
-        list(summary = inext_out$AsyEst, plot = plot_obj, full_output = inext_out)
+        # Store raw iNEXT output and metadata for reactive plotting
+        list(
+          summary = inext_out$AsyEst, 
+          full_output = inext_out,
+          selected_q = selected_q,
+          plot_type = as.numeric(input$plotType),
+          conf_level = input$conf
+        )
       })
     }, error = function(e) {
       waiter$hide()
@@ -3580,9 +3518,79 @@ server <- function(input, output, session) {
              class = 'display compact stripe hover')
   })
   
+  # Reactive plot that updates when theme changes
+  diversityPlotReactive <- reactive({
+    req(diversityResults())
+    result <- diversityResults()
+    
+    # Determine theme colors based on selection
+    plot_theme <- if (!is.null(input$diversityPlotTheme)) input$diversityPlotTheme else "dark"
+    
+    if (plot_theme == "dark") {
+      bg_color <- "#1a1a1a"
+      text_color <- "#ffffff"
+      grid_color <- "#444444"
+      panel_border <- element_blank()
+    } else if (plot_theme == "light") {
+      bg_color <- "#ffffff"
+      text_color <- "#000000"
+      grid_color <- "#d0d0d0"
+      panel_border <- element_blank()
+    } else if (plot_theme == "classic") {
+      bg_color <- "#fafafa"
+      text_color <- "#000000"
+      grid_color <- "#b0b0b0"
+      panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1)
+    } else if (plot_theme == "minimal") {
+      bg_color <- "#ffffff"
+      text_color <- "#1a1a1a"
+      grid_color <- "#e8e8e8"
+      panel_border <- element_blank()
+    } else if (plot_theme == "publication") {
+      bg_color <- "#ffffff"
+      text_color <- "#000000"
+      grid_color <- "#c0c0c0"
+      panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1.5)
+    } else {
+      # Fallback to dark
+      bg_color <- "#1a1a1a"
+      text_color <- "#ffffff"
+      grid_color <- "#444444"
+      panel_border <- element_blank()
+    }
+    
+    # Generate plot with current theme
+    plot_obj <- ggiNEXT(result$full_output, type = result$plot_type, se = TRUE, 
+                       facet.var = "Order.q", color.var = "Assemblage") + 
+      labs(title = "Diversity Estimation (iNEXT)",
+           subtitle = paste0("Hill numbers q=", paste(result$selected_q, collapse = ", "), " | ", 
+                           result$conf_level * 100, "% CI")) +
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.background = element_rect(fill = bg_color, color = NA),
+        panel.background = element_rect(fill = bg_color, color = NA),
+        panel.grid.major = element_line(color = grid_color, linewidth = 0.3),
+        panel.grid.minor = element_line(color = grid_color, linewidth = 0.15),
+        panel.border = panel_border,
+        text = element_text(color = text_color, size = 14),
+        axis.text = element_text(color = text_color, size = 12),
+        axis.title = element_text(color = text_color, size = 13, face = "bold"),
+        plot.title = element_text(color = text_color, size = 16, face = "bold", hjust = 0),
+        plot.subtitle = element_text(color = text_color, size = 12, hjust = 0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = bg_color, color = NA),
+        legend.text = element_text(color = text_color, size = 11),
+        legend.title = element_text(color = text_color, size = 12, face = "bold"),
+        strip.background = element_rect(fill = bg_color, color = grid_color),
+        strip.text = element_text(color = text_color, size = 12, face = "bold")
+      )
+    
+    return(plot_obj)
+  })
+  
   output$diversityPlot <- renderPlot({ 
-    req(diversityResults()); 
-    diversityResults()$plot 
+    req(diversityPlotReactive())
+    diversityPlotReactive()
   })
   
   output$downloadDiversityTable <- downloadHandler(
@@ -3603,11 +3611,11 @@ server <- function(input, output, session) {
       bg_color <- if (plot_theme == "dark") "#1a1a1a" else "#ffffff"
       
       if (format == "png") {
-        ggsave(file, plot = diversityResults()$plot, device = "png", width = 12, height = 8, dpi = plot_dpi, bg = bg_color)
+        ggsave(file, plot = diversityPlotReactive(), device = "png", width = 12, height = 8, dpi = plot_dpi, bg = bg_color)
       } else if (format == "tiff") {
-        ggsave(file, plot = diversityResults()$plot, device = "tiff", width = 12, height = 8, dpi = plot_dpi, bg = bg_color)
+        ggsave(file, plot = diversityPlotReactive(), device = "tiff", width = 12, height = 8, dpi = plot_dpi, bg = bg_color)
       } else {
-        ggsave(file, plot = diversityResults()$plot, device = "svg", width = 12, height = 8, bg = bg_color)
+        ggsave(file, plot = diversityPlotReactive(), device = "svg", width = 12, height = 8, bg = bg_color)
       }
     }
   )
