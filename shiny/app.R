@@ -78,8 +78,6 @@ ui <- page_sidebar(
       numericInput("conf", "Confidence Level",
                    value = 0.95, min = 0.80, max = 0.99, step = 0.01),
       helpText("Default: 0.95 (95% CI)"),
-      hr(),
-      h5("Extrapolation Control"),
       numericInput("endpoint", "Extrapolation Endpoint",
                    value = NULL, min = 1, step = 1),
       helpText("Leave blank for auto (2× reference sample). Set to a specific number of individuals/sampling units to compare sites at same extrapolation level.")
@@ -88,16 +86,179 @@ ui <- page_sidebar(
       condition = "input.analysisType == 'Ordination (NMDS via vegan)'",
       numericInput("nmdsDimensions", "NMDS Dimensions", value = 2, min = 1, max = 5)
     ),
-    actionButton("runAnalysis", "Run Analysis", class = "btn-primary btn-lg"),
-    hr(),
-    downloadButton("downloadSummary", "Download Summary CSV"),
-    downloadButton("downloadPlot", "Download Plot PNG")
+    actionButton("runAnalysis", "Run Analysis", class = "btn-primary btn-lg")
   ),
   card(
     full_screen = TRUE,
     fill = TRUE,
     card_header("Analysis Results"),
-    uiOutput("resultsUI")
+    # Conditional display: Welcome page OR Results
+    conditionalPanel(
+      condition = "!output.resultsUI",
+      # Welcome Page - shown when no results available
+      tags$div(
+        class = "welcome-container",
+        style = "display: flex; align-items: center; justify-content: center; min-height: 500px; padding: 80px 40px 60px 40px;",
+        tags$div(
+          style = "max-width: 800px; text-align: center;",
+          # Ö Logo
+          tags$div(
+            style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px; font-weight: bold; text-shadow: 0 4px 8px rgba(46, 139, 87, 0.3); line-height: 1.2;",
+            "Ö"
+          ),
+          # Welcome Title
+          tags$h2(
+            style = "color: #2e8b57; margin-bottom: 20px; font-size: 2.2em; font-weight: 600;",
+            "Welcome to Ördin"
+          ),
+          # Subtitle
+          tags$p(
+            style = "color: #aaa; font-size: 1.2em; margin-bottom: 40px; line-height: 1.6;",
+            "Professional biodiversity analysis platform powered by ",
+            tags$strong(style = "color: #2e8b57;", "iNEXT"),
+            " and ",
+            tags$strong(style = "color: #2e8b57;", "vegan"),
+            " packages."
+          ),
+          # Workflow Steps
+          tags$div(
+            style = "display: flex; justify-content: center; gap: 40px; margin: 50px 0;",
+            # Step 1
+            tags$div(
+              style = "flex: 1; max-width: 200px;",
+              tags$div(
+                style = "width: 80px; height: 80px; margin: 0 auto 15px; background: linear-gradient(135deg, #2e8b57 0%, #236b42 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(46, 139, 87, 0.4);",
+                tags$span(style = "font-size: 2.5em; color: white;", "📁")
+              ),
+              tags$div(
+                style = "font-weight: 600; color: #2e8b57; margin-bottom: 8px; font-size: 1.1em;",
+                "1. Upload Data"
+              ),
+              tags$div(
+                style = "color: #888; font-size: 0.9em; line-height: 1.4;",
+                "Select your CSV file with species data"
+              )
+            ),
+            # Arrow
+            tags$div(
+              style = "display: flex; align-items: center; color: #444; font-size: 2em; margin-top: 30px;",
+              "→"
+            ),
+            # Step 2
+            tags$div(
+              style = "flex: 1; max-width: 200px;",
+              tags$div(
+                style = "width: 80px; height: 80px; margin: 0 auto 15px; background: linear-gradient(135deg, #2e8b57 0%, #236b42 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(46, 139, 87, 0.4);",
+                tags$span(style = "font-size: 2.5em; color: white;", "⚙️")
+              ),
+              tags$div(
+                style = "font-weight: 600; color: #2e8b57; margin-bottom: 8px; font-size: 1.1em;",
+                "2. Configure"
+              ),
+              tags$div(
+                style = "color: #888; font-size: 0.9em; line-height: 1.4;",
+                "Choose analysis type and parameters"
+              )
+            ),
+            # Arrow
+            tags$div(
+              style = "display: flex; align-items: center; color: #444; font-size: 2em; margin-top: 30px;",
+              "→"
+            ),
+            # Step 3
+            tags$div(
+              style = "flex: 1; max-width: 200px;",
+              tags$div(
+                style = "width: 80px; height: 80px; margin: 0 auto 15px; background: linear-gradient(135deg, #2e8b57 0%, #236b42 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(46, 139, 87, 0.4);",
+                tags$span(style = "font-size: 2.5em; color: white;", "📊")
+              ),
+              tags$div(
+                style = "font-weight: 600; color: #2e8b57; margin-bottom: 8px; font-size: 1.1em;",
+                "3. Analyze"
+              ),
+              tags$div(
+                style = "color: #888; font-size: 0.9em; line-height: 1.4;",
+                "View results and export publication-quality plots"
+              )
+            )
+          ),
+          # Divider
+          tags$hr(style = "border: none; border-top: 1px solid #333; margin: 50px 0;"),
+          # Features
+          tags$div(
+            style = "display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; text-align: left; margin-top: 40px;",
+            # Feature 1
+            tags$div(
+              style = "padding: 20px; background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%); border-radius: 8px; border: 1px solid #333;",
+              tags$div(
+                style = "color: #2e8b57; font-size: 1.3em; margin-bottom: 8px;",
+                "✨ Auto-Detection"
+              ),
+              tags$div(
+                style = "color: #aaa; font-size: 0.95em;",
+                "Automatically detects data format (abundance, incidence_raw, incidence_freq)"
+              )
+            ),
+            # Feature 2
+            tags$div(
+              style = "padding: 20px; background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%); border-radius: 8px; border: 1px solid #333;",
+              tags$div(
+                style = "color: #2e8b57; font-size: 1.3em; margin-bottom: 8px;",
+                "📈 Advanced Analysis"
+              ),
+              tags$div(
+                style = "color: #aaa; font-size: 0.95em;",
+                "iNEXT rarefaction/extrapolation and vegan NMDS ordination"
+              )
+            ),
+            # Feature 3
+            tags$div(
+              style = "padding: 20px; background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%); border-radius: 8px; border: 1px solid #333;",
+              tags$div(
+                style = "color: #2e8b57; font-size: 1.3em; margin-bottom: 8px;",
+                "🎨 Publication Quality"
+              ),
+              tags$div(
+                style = "color: #aaa; font-size: 0.95em;",
+                "Export plots in PNG, TIFF, JPEG, SVG, or PostScript at 300 DPI"
+              )
+            ),
+            # Feature 4
+            tags$div(
+              style = "padding: 20px; background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%); border-radius: 8px; border: 1px solid #333;",
+              tags$div(
+                style = "color: #2e8b57; font-size: 1.3em; margin-bottom: 8px;",
+                "⚡ Professional UI"
+              ),
+              tags$div(
+                style = "color: #aaa; font-size: 0.95em;",
+                "Modern, enterprise-grade interface with dark theme"
+              )
+            )
+          ),
+          # Footer
+          tags$div(
+            style = "margin-top: 50px; padding-top: 30px; border-top: 1px solid #333; color: #666; font-size: 0.9em;",
+            tags$div(
+              "Built with ",
+              tags$span(style = "color: #2e8b57;", "R Shiny"),
+              " • Powered by ",
+              tags$span(style = "color: #2e8b57;", "iNEXT & vegan")
+            ),
+            tags$div(
+              style = "margin-top: 8px;",
+              "Version 1.0 • ",
+              tags$span(style = "color: #888;", "Inspired by Odin's wisdom")
+            )
+          )
+        )
+      )
+    ),
+    # Results Panel - shown when results available
+    conditionalPanel(
+      condition = "output.resultsUI",
+      uiOutput("resultsUI")
+    )
   )
 )
 
@@ -580,43 +741,157 @@ server <- function(input, output, session) {
     req(results())
     res <- results()
     
+    cat("\n=== RENDERING RESULTS UI ===")
+    cat("\nResults type:", res$type)
+    cat("\nSummary rows:", nrow(res$summary))
+    cat("\n===========================\n")
+    
     tagList(
-      h4("Summary Table"),
-      DTOutput("summaryTable"),
-      if (!is.null(res$stress)) {
+      tags$div(
+        style = "padding: 20px;",
+        tags$h4(
+          style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+          "📊 Summary Table"
+        ),
+        DTOutput("summaryTable"),
+        if (!is.null(res$stress)) {
+          div(
+            class = "alert alert-info mt-3",
+            style = "background-color: #1a3a52; border-color: #2e8b57; color: #fff;",
+            h5(paste("🎯 NMDS Stress:", round(res$stress, 3))),
+            p(ifelse(res$stress < 0.05, "✅ Excellent representation",
+                    ifelse(res$stress < 0.1, "✅ Good representation",
+                          ifelse(res$stress < 0.2, "⚠️ Acceptable representation",
+                                "❌ Poor representation - consider fewer dimensions"))))
+          )
+        },
+        tags$h4(
+          style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin: 30px 0 15px 0;",
+          "📊 Visualization"
+        ),
         div(
-          class = "alert alert-info mt-3",
-          h5(paste("NMDS Stress:", round(res$stress, 3))),
-          p(ifelse(res$stress < 0.05, "Excellent representation",
-                  ifelse(res$stress < 0.1, "Good representation",
-                        ifelse(res$stress < 0.2, "Acceptable representation",
-                              "Poor representation - consider fewer dimensions"))))
-        )
-      },
-      h4("Visualization", class = "mt-4"),
-      plotOutput("analysisPlot", height = "600px")
+          style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background-color: #1a1a1a; border-radius: 5px;",
+          tags$div(
+            style = "color: #aaa;",
+            "💾 Export Format:"
+          ),
+          div(
+            style = "display: flex; gap: 10px; align-items: center;",
+            selectInput(
+              "plotFormat", 
+              NULL,
+              choices = c("PNG" = "png", 
+                          "TIFF" = "tiff", 
+                          "JPEG" = "jpeg", 
+                          "SVG" = "svg", 
+                          "PostScript" = "ps"),
+              selected = "png",
+              width = "140px"
+            ),
+            downloadButton("downloadPlot", "⬇️ Download Plot", class = "btn-success btn-sm")
+          )
+        ),
+        plotOutput("analysisPlot", height = "650px")
+      )
+    )
+  })
+  
+  # Render results UI - shows when analysis is complete
+  output$resultsUI <- renderUI({
+    req(results())  # Return NULL if no results, showing welcome page
+    res <- results()
+    
+    cat("\n=== RENDERING RESULTS UI ===")
+    cat("\nResults type:", res$type)
+    cat("\nSummary rows:", nrow(res$summary))
+    cat("\n===========================\n")
+    
+    tagList(
+      tags$div(
+        style = "padding: 20px;",
+        tags$h4(
+          style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+          "📊 Summary Table"
+        ),
+        DTOutput("summaryTable"),
+        if (!is.null(res$stress)) {
+          div(
+            class = "alert alert-info mt-3",
+            style = "background-color: #1a3a52; border-color: #2e8b57; color: #fff;",
+            h5(paste("🎯 NMDS Stress:", round(res$stress, 3))),
+            p(ifelse(res$stress < 0.05, "✅ Excellent representation",
+                    ifelse(res$stress < 0.1, "✅ Good representation",
+                          ifelse(res$stress < 0.2, "⚠️ Acceptable representation",
+                                "❌ Poor representation - consider fewer dimensions"))))
+          )
+        },
+        tags$h4(
+          style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin: 30px 0 15px 0;",
+          "📊 Visualization"
+        ),
+        div(
+          style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background-color: #1a1a1a; border-radius: 5px;",
+          tags$div(
+            style = "color: #aaa;",
+            "💾 Export Format:"
+          ),
+          div(
+            style = "display: flex; gap: 10px; align-items: center;",
+            selectInput(
+              "plotFormat", 
+              NULL,
+              choices = c("PNG" = "png", 
+                          "TIFF" = "tiff", 
+                          "JPEG" = "jpeg", 
+                          "SVG" = "svg", 
+                          "PostScript" = "ps"),
+              selected = "png",
+              width = "140px"
+            ),
+            downloadButton("downloadPlot", "⬇️ Download Plot", class = "btn-success btn-sm")
+          )
+        ),
+        plotOutput("analysisPlot", height = "650px")
+      )
     )
   })
   
   # Render summary table
   output$summaryTable <- renderDT({
     req(results())
+    
+    cat("\n=== RENDERING SUMMARY TABLE ===")
+    cat("\nRows:", nrow(results()$summary))
+    cat("\nColumns:", ncol(results()$summary))
+    cat("\n==============================\n")
+    
     datatable(
       results()$summary, 
       options = list(
-        pageLength = 10,
+        pageLength = 15,
         scrollX = TRUE,
         dom = 'Bfrtip',
-        buttons = c('copy', 'csv')
+        buttons = c('copy', 'csv', 'excel'),
+        class = 'cell-border stripe',
+        columnDefs = list(
+          list(className = 'dt-center', targets = '_all')
+        )
       ), 
       extensions = 'Buttons',
-      rownames = FALSE
-    )
+      rownames = FALSE,
+      class = 'display'
+    ) %>%
+      formatRound(columns = 2:ncol(results()$summary), digits = 4)
   })
   
   # Render plot
   output$analysisPlot <- renderPlot({
     req(results())
+    
+    cat("\n=== RENDERING PLOT ===")
+    cat("\nPlot type:", class(results()$plot)[1])
+    cat("\n===================\n")
+    
     results()$plot
   })
   
@@ -632,13 +907,54 @@ server <- function(input, output, session) {
   )
   
   output$downloadPlot <- downloadHandler(
-    filename = function() { 
-      paste0("ordin_", tolower(results()$type), "_plot_", Sys.Date(), ".png") 
+    filename = function() {
+      req(results())
+      format <- input$plotFormat
+      paste0("ordin_", tolower(results()$type), "_plot_", Sys.Date(), ".", format)
     },
     content = function(file) {
       req(results())
-      ggsave(file, plot = results()$plot, device = "png", 
-             width = 12, height = 8, dpi = 300, bg = "#222222")
+      format <- input$plotFormat
+      
+      # Publication-quality settings for each format
+      if (format %in% c("png", "tiff", "jpeg")) {
+        # Raster formats: 300 DPI for publication quality
+        ggsave(
+          file, 
+          plot = results()$plot, 
+          device = format,
+          width = 12, 
+          height = 8, 
+          dpi = 300,
+          bg = "#222222",
+          units = "in"
+        )
+      } else if (format == "svg") {
+        # Vector format: SVG (scalable, no DPI needed)
+        ggsave(
+          file, 
+          plot = results()$plot, 
+          device = "svg",
+          width = 12, 
+          height = 8,
+          bg = "#222222",
+          units = "in"
+        )
+      } else if (format == "ps") {
+        # Vector format: PostScript (publication standard)
+        ggsave(
+          file, 
+          plot = results()$plot, 
+          device = "ps",
+          width = 12, 
+          height = 8,
+          bg = "#222222",
+          units = "in",
+          # PostScript-specific options
+          family = "Helvetica",
+          paper = "special"
+        )
+      }
     }
   )
 }
