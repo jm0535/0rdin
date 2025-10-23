@@ -26,14 +26,26 @@ This folder contains example datasets for testing Ördin's biodiversity analysis
 - Multiple sampling sites
 - Great for rarefaction curves
 
-### 4. ciliates-abundance.csv
+### 4. plant-presence.csv
+**Woody plant presence/absence data**  
+- Source: Example incidence_raw dataset
+- African woody plant species across habitat types
+- 6 sites (Rainforest, Savanna, Desert)
+- 57 species
+- **Clean incidence_raw format** (binary 0/1)
+- Perfect for testing incidence-based diversity
+- **Use this for incidence_raw examples** (works immediately!)
+
+### 5. ciliates-abundance.csv
 **Ciliate species from iNEXT package**  
 - Source: Chao et al. (2015)
 - Soil ciliate communities
-- High species richness
-- Ideal for diversity extrapolation
+- High species richness (6,935 species!)
+- **Note**: Very sparse (99.7% zeros), requires filtering
+- See `TROUBLESHOOTING-CILIATES.md` for filtering instructions
+- Use `filter-ciliates-data.R` script to prepare data
 
-### 5. ant-incidence.csv
+### 6. ant-incidence.csv
 **Ant species incidence data from iNEXT package**  
 - Source: iNEXT package example data
 - **Incidence-frequency format** (presence/absence data)

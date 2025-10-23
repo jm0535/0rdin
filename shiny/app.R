@@ -20,11 +20,36 @@ ui <- page_sidebar(
     width = 350,
     fileInput("dataFile", "Upload Species Data CSV", accept = ".csv"),
     helpText("CSV format: First column = Site names, Other columns = Species data"),
+    uiOutput("dataFormatDetected"),
     hr(),
     selectInput("dataType", "Data Type",
-                choices = c("Abundance (counts)" = "abundance",
-                           "Incidence (presence/absence)" = "incidence")),
-    helpText("Abundance: Individual-based rarefaction. Incidence: Incidence-based rarefaction."),
+                choices = c(
+                  "Abundance - Individual counts" = "abundance",
+                  "Incidence_raw - Presence/absence (0/1)" = "incidence_raw",
+                  "Incidence_freq - Sampling units (SamplingUnits column)" = "incidence_freq"
+                )),
+    div(style = "background-color: #1a1a1a; padding: 12px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #333;",
+      tags$div(
+        style = "margin-bottom: 8px;",
+        tags$strong(style = "color: #2e8b57;", "📊 Abundance:"),
+        tags$span(style = "margin-left: 5px;", "Individual counts (0, 1, 2, 3, ...)")
+      ),
+      tags$div(
+        style = "margin-bottom: 8px;",
+        tags$strong(style = "color: #ff8c00;", "✓ Incidence_raw:"),
+        tags$span(style = "margin-left: 5px;", "Binary presence/absence (0 or 1 only)")
+      ),
+      tags$div(
+        style = "margin-bottom: 10px;",
+        tags$strong(style = "color: #4169e1;", "🔢 Incidence_freq:"),
+        tags$span(style = "margin-left: 5px;", "Sampling units (needs SamplingUnits column)")
+      ),
+      tags$hr(style = "margin: 8px 0; border-color: #444;"),
+      tags$div(
+        style = "font-style: italic; color: #aaa; font-size: 0.9em;",
+        "→ Format auto-detected from your data structure"
+      )
+    ),
     hr(),
     selectInput("analysisType", "Select Analysis",
                 choices = c("Diversity Estimation (iNEXT)", "Ordination (NMDS via vegan)")),
@@ -52,7 +77,12 @@ ui <- page_sidebar(
       helpText("More replicates = more accurate CI (default: 50, increase for publication)"),
       numericInput("conf", "Confidence Level",
                    value = 0.95, min = 0.80, max = 0.99, step = 0.01),
-      helpText("Default: 0.95 (95% CI)")
+      helpText("Default: 0.95 (95% CI)"),
+      hr(),
+      h5("Extrapolation Control"),
+      numericInput("endpoint", "Extrapolation Endpoint",
+                   value = NULL, min = 1, step = 1),
+      helpText("Leave blank for auto (2× reference sample). Set to a specific number of individuals/sampling units to compare sites at same extrapolation level.")
     ),
     conditionalPanel(
       condition = "input.analysisType == 'Ordination (NMDS via vegan)'",
@@ -84,25 +114,81 @@ server <- function(input, output, session) {
         need(ncol(df) > 1, "CSV must have at least one site column and one species column.")
       )
       
-      # Extract site names and abundance matrix
-      site_names <- df[[1]]
-      abund_matrix <- as.matrix(df[-1])
-      rownames(abund_matrix) <- site_names
+      # DETECT DATA FORMAT
+      # Check if second column is named "SamplingUnits" (incidence_freq format)
+      has_sampling_units <- ncol(df) >= 2 && tolower(names(df)[2]) == "samplingunits"
       
-      # Check if data is numeric
-      validate(
-        need(all(sapply(df[-1], is.numeric)), "All abundance columns (except first) must be numeric.")
-      )
-      
-      # For iNEXT, transpose the matrix so each column is a site (assemblage)
-      # iNEXT expects: columns = assemblages, rows = species
-      abund_matrix_t <- t(abund_matrix)
-      colnames(abund_matrix_t) <- site_names
-      
-      list(
-        original = abund_matrix,        # For NMDS (sites as rows)
-        transposed = abund_matrix_t     # For iNEXT (sites as columns)
-      )
+      if (has_sampling_units) {
+        # INCIDENCE_FREQ FORMAT (like ant data)
+        # Format: Site, SamplingUnits, Species_1, Species_2, ...
+        # iNEXT needs: list of vectors, first element = # sampling units
+        
+        site_names <- df[[1]]
+        sampling_units <- df[[2]]
+        species_data <- df[, -c(1, 2)]
+        
+        # Check all numeric
+        validate(
+          need(all(sapply(species_data, is.numeric)), "All species columns must be numeric.")
+        )
+        
+        # Create list format for iNEXT incidence_freq
+        # Each site is a vector: c(sampling_units, species_counts...)
+        inext_list <- lapply(1:nrow(df), function(i) {
+          c(sampling_units[i], as.numeric(species_data[i, ]))
+        })
+        names(inext_list) <- site_names
+        
+        # For NMDS, use species matrix only (sites as rows)
+        abund_matrix <- as.matrix(species_data)
+        rownames(abund_matrix) <- site_names
+        
+        list(
+          original = abund_matrix,           # For NMDS (sites as rows)
+          inext_data = inext_list,           # For iNEXT incidence_freq
+          data_format = "incidence_freq",
+          sampling_units = sampling_units
+        )
+        
+      } else {
+        # STANDARD FORMAT (abundance or incidence_raw)
+        # Format: Site, Species_1, Species_2, ...
+        
+        site_names <- df[[1]]
+        abund_matrix <- as.matrix(df[-1])
+        rownames(abund_matrix) <- site_names
+        
+        # Check if data is numeric
+        validate(
+          need(all(sapply(df[-1], is.numeric)), "All abundance columns (except first) must be numeric.")
+        )
+        
+        # Auto-detect if incidence_raw (all 0s and 1s)
+        is_binary <- all(abund_matrix %in% c(0, 1))
+        
+        # DIAGNOSTIC: Show data structure info
+        cat("\n=== ÖRDIN DATA LOADING ===")
+        cat("\nFile loaded:", input$dataFile$name)
+        cat("\nRows (sites):", nrow(abund_matrix))
+        cat("\nColumns (species):", ncol(abund_matrix))
+        cat("\nIs binary (0/1 only):", is_binary)
+        cat("\nSample of first 5 values:", paste(head(as.vector(abund_matrix), 5), collapse=", "))
+        cat("\nRow totals:", paste(rowSums(abund_matrix), collapse=", "))
+        cat("\n============================\n")
+        
+        # For iNEXT, transpose the matrix so each column is a site (assemblage)
+        # iNEXT expects: columns = assemblages, rows = species
+        abund_matrix_t <- t(abund_matrix)
+        colnames(abund_matrix_t) <- site_names
+        
+        list(
+          original = abund_matrix,        # For NMDS (sites as rows)
+          transposed = abund_matrix_t,    # For iNEXT (sites as columns)
+          inext_data = abund_matrix_t,    # For iNEXT (abundance or incidence_raw)
+          data_format = if(is_binary) "incidence_raw" else "abundance",
+          is_binary = is_binary
+        )
+      }
     }, error = function(e) {
       validate(need(FALSE, paste("Error reading CSV:", e$message)))
     })
@@ -111,39 +197,236 @@ server <- function(input, output, session) {
   # Store analysis results
   results <- reactiveVal(NULL)
   
+  # Display detected data format
+  output$dataFormatDetected <- renderUI({
+    req(data())
+    
+    data_format <- data()$data_format
+    
+    # Format-specific icons and descriptions
+    format_info <- if (data_format == "abundance") {
+      list(
+        icon = "📊",
+        name = "Abundance",
+        desc = "Individual counts (0, 1, 2, 3, ...)",
+        color = "#2e8b57"
+      )
+    } else if (data_format == "incidence_raw") {
+      list(
+        icon = "✓",
+        name = "Incidence_raw",
+        desc = "Presence/absence (binary: 0, 1)",
+        color = "#ff8c00"
+      )
+    } else {
+      list(
+        icon = "🔢",
+        name = "Incidence_freq",
+        desc = paste0("Sampling units: ", paste(data()$sampling_units, collapse=", ")),
+        color = "#4169e1"
+      )
+    }
+    
+    div(
+      style = paste0("background-color: ", format_info$color, "22; border-left: 4px solid ", format_info$color, "; padding: 10px; margin-top: 10px; border-radius: 3px;"),
+      tags$strong(format_info$icon, " Detected: ", format_info$name),
+      tags$br(),
+      tags$small(format_info$desc)
+    )
+  })
+  
+  # Auto-update data type selection based on detection
+  observeEvent(data(), {
+    req(data())
+    
+    detected_format <- data()$data_format
+    
+    # Update the selectInput to match detected format
+    updateSelectInput(session, "dataType", selected = detected_format)
+    
+    # Show notification about auto-selection
+    showNotification(
+      paste0("✓ Auto-selected: ", 
+             if(detected_format == "abundance") "Abundance - Individual counts"
+             else if(detected_format == "incidence_raw") "Incidence_raw - Presence/absence (0/1)"
+             else "Incidence_freq - Sampling units (SamplingUnits column)"),
+      type = "message",
+      duration = 4
+    )
+  })
+  
   # Run analysis when button is clicked
   observeEvent(input$runAnalysis, {
     req(data())
     
     withProgress(message = 'Running analysis...', value = 0, {
       if (input$analysisType == "Diversity Estimation (iNEXT)") {
+        incProgress(0.1, detail = "Validating data...")
+        
+        # Get data format info
+        data_format <- data()$data_format
+        inext_data <- data()$inext_data
+        
+        # Determine iNEXT datatype based on user selection and auto-detection
+        user_datatype <- input$dataType
+        
+        # Priority: Auto-detected format > User selection
+        # But warn if mismatch
+        if (data_format == "incidence_freq") {
+          actual_datatype <- "incidence_freq"
+          
+          # Warn if user selected something else
+          if (user_datatype != "incidence_freq") {
+            showNotification(
+              "Auto-detected incidence_freq format (SamplingUnits column found). Overriding user selection.",
+              type = "warning",
+              duration = 5
+            )
+          }
+          
+          # Show info about sampling units
+          sampling_units <- data()$sampling_units
+          message("Detected incidence_freq data with sampling units: ", 
+                  paste(sampling_units, collapse=", "))
+          
+        } else if (data_format == "incidence_raw") {
+          actual_datatype <- "incidence_raw"
+          
+          # Warn if user selected abundance or incidence_freq
+          if (user_datatype == "abundance") {
+            showNotification(
+              "Auto-detected binary data (0/1). Using incidence_raw format instead of abundance.",
+              type = "warning",
+              duration = 5
+            )
+          } else if (user_datatype == "incidence_freq") {
+            showNotification(
+              "No SamplingUnits column found. Using incidence_raw (binary 0/1) instead of incidence_freq.",
+              type = "warning",
+              duration = 5
+            )
+          }
+          
+        } else {
+          # Abundance data detected
+          actual_datatype <- "abundance"
+          
+          # Warn if user selected incidence format
+          if (user_datatype %in% c("incidence_raw", "incidence_freq")) {
+            showNotification(
+              paste0("Data is not binary (has counts >1). Using abundance format instead of ", user_datatype, "."),
+              type = "warning",
+              duration = 5
+            )
+          }
+        }
+        
+        # DATA VALIDATION
+        if (data_format == "incidence_freq") {
+          # Start progress indicator for validation
+          incProgress(0.1, detail = "Validating data...")
+          
+          # For incidence_freq, validate differently
+          num_sites <- length(inext_data)
+          min_sampling_units <- min(sapply(inext_data, function(x) x[1]))
+          
+          validate(
+            need(num_sites >= 2, "Need at least 2 sites for analysis."),
+            need(min_sampling_units >= 3, 
+                 paste0("Insufficient sampling units: minimum = ", min_sampling_units, 
+                       ". Need at least 3 sampling units per site."))
+          )
+          
+        } else {
+          # Start progress indicator for validation
+          incProgress(0.1, detail = "Validating data...")
+          
+          # For abundance/incidence_raw, validate as before
+          site_totals <- colSums(inext_data)
+          min_sample_size <- min(site_totals)
+          species_present <- sum(rowSums(inext_data) > 0)
+          
+          # DIAGNOSTIC OUTPUT - Show what we detected
+          cat("\n=== ÖRDIN DATA DIAGNOSTICS ===")
+          cat("\nData format detected:", data_format)
+          cat("\nActual datatype for iNEXT:", actual_datatype)
+          cat("\nNumber of sites:", ncol(inext_data))
+          cat("\nNumber of species:", nrow(inext_data))
+          cat("\nTotal per site:", paste(site_totals, collapse=", "))
+          cat("\nMin sample size:", min_sample_size)
+          cat("\nSpecies with >0:", species_present)
+          cat("\nData sparsity:", round(sum(inext_data == 0) / length(inext_data) * 100, 1), "%")
+          cat("\n============================\n")
+          
+          # Update progress after diagnostics
+          incProgress(0.05, detail = "Checking data quality...")
+          
+          # Show user-friendly notification with diagnostics
+          showNotification(
+            paste0(
+              "Data loaded: ", ncol(inext_data), " sites, ", nrow(inext_data), " species\n",
+              "Format: ", data_format, " | Min occurrences: ", min_sample_size, " | Species present: ", species_present
+            ),
+            type = "message",
+            duration = 8
+          )
+          
+          # Update progress before validation
+          incProgress(0.05, detail = "Validating requirements...")
+          
+          # Adjust validation for incidence_raw (binary data)
+          min_required <- if (actual_datatype == "incidence_raw") 3 else 5
+          
+          validate(
+            need(min_sample_size >= min_required, 
+                 paste0("Insufficient data: At least one site has only ", min_sample_size, 
+                       " ", if(actual_datatype == "incidence_raw") "occurrences" else "individuals", 
+                       ". Need at least ", min_required, " per site.\n\n",
+                       "Your data: ", ncol(inext_data), " sites, ", nrow(inext_data), " species\n",
+                       "Totals per site: ", paste(site_totals, collapse=", "))),
+            need(species_present >= 3,
+                 paste0("Insufficient diversity: Only ", species_present, 
+                       " species detected. Need at least 3 species.\n\n",
+                       "Your data has ", nrow(inext_data), " species columns, but only ", 
+                       species_present, " have at least one occurrence."))
+          )
+        }
+        
         incProgress(0.3, detail = "Calculating diversity indices...")
-        
-        # Use transposed matrix for iNEXT (sites as columns)
-        abund_matrix_t <- data()$transposed
-        
-        # Determine data type for iNEXT
-        data_type <- input$dataType
         
         # Get selected Hill numbers
         selected_q <- as.numeric(input$hillNumbers)
-        if (length(selected_q) == 0) selected_q <- c(0, 1, 2)  # Default if none selected
+        if (length(selected_q) == 0) selected_q <- c(0, 1, 2)
         
-        # Run iNEXT analysis with custom parameters
-        # Parameters:
-        # - q: Hill numbers (diversity orders)
-        # - datatype: "abundance" (individual-based) or "incidence" (incidence-based)
-        # - knots: number of points for smooth curves (default: 40)
-        # - nboot: bootstrap replicates for confidence intervals (default: 50)
-        # - conf: confidence level (default: 0.95)
-        inext_out <- iNEXT(
-          x = abund_matrix_t, 
-          q = selected_q, 
-          datatype = data_type,
-          knots = input$knots,
-          nboot = input$nboot,
-          conf = input$conf
-        )
+        # Get endpoint parameter (extrapolation cutoff)
+        # If NULL, iNEXT uses default (double reference sample)
+        # If set, all curves extrapolate to this common endpoint
+        endpoint_value <- if (is.null(input$endpoint) || is.na(input$endpoint)) {
+          NULL  # Auto: 2x reference sample
+        } else {
+          input$endpoint
+        }
+        
+        # Run iNEXT analysis with correct datatype
+        inext_out <- tryCatch({
+          iNEXT(
+            x = inext_data, 
+            q = selected_q, 
+            datatype = actual_datatype,
+            knots = input$knots,
+            nboot = input$nboot,
+            conf = input$conf,
+            endpoint = endpoint_value  # NULL = auto, or specific value
+          )
+        }, error = function(e) {
+          # Provide helpful error message
+          validate(need(FALSE, paste0(
+            "iNEXT analysis failed: ", e$message, 
+            "\n\nData format: ", data_format,
+            "\nDatatype used: ", actual_datatype,
+            "\n\nTry: (1) Check data format, (2) Reduce knots/nboot, (3) Select correct data type"
+          )))
+        })
         
         incProgress(0.6, detail = "Generating plots...")
         
@@ -153,8 +436,15 @@ server <- function(input, output, session) {
         # Determine plot type from input
         plot_type_num <- as.numeric(input$plotType)
         
-        # Create plot title based on data type and plot type
-        rarefaction_type <- if (data_type == "abundance") "Individual-based" else "Incidence-based"
+        # Create plot title based on actual datatype and plot type
+        rarefaction_type <- if (actual_datatype == "abundance") {
+          "Individual-based"
+        } else if (actual_datatype == "incidence_freq") {
+          "Incidence-based (frequency)"
+        } else {
+          "Incidence-based (raw)"
+        }
+        
         plot_type_label <- c(
           "1" = "Sample-size-based R/E",
           "2" = "Sample Completeness",
@@ -163,92 +453,40 @@ server <- function(input, output, session) {
         
         plot_title <- paste0("Ördin: ", rarefaction_type, " Rarefaction (", plot_type_label, ")")
         
-        # Create plot with shaded confidence intervals
-        # BYPASS ggiNEXT() and use manual ggplot2 to ensure proper geom_ribbon()
-        # This guarantees shaded CI regions instead of jagged lines
-        
-        # Extract plotting data from iNEXT object
-        plot_data <- inext_out$iNextEst
-        
-        # Determine plot type from input
-        plot_type_num <- as.numeric(input$plotType)
-        
-        # Prepare data based on plot type
-        if (plot_type_num == 1) {
-          # Type 1: Sample-size-based
-          df <- plot_data %>%
-            filter(Method != "Observed") %>%
-            mutate(
-              x = ifelse(Method == "Rarefaction", m, m),
-              Method_label = Method
-            )
-          x_lab <- ifelse(data_type == "abundance", "Number of individuals", "Number of sampling units")
-          y_lab <- "Species diversity"
-          
-        } else if (plot_type_num == 2) {
-          # Type 2: Sample completeness
-          df <- plot_data %>%
-            filter(Method != "Observed") %>%
-            mutate(
-              x = m,
-              qD = SC,
-              qD.LCL = SC.LCL,
-              qD.UCL = SC.UCL,
-              Method_label = Method
-            )
-          x_lab <- ifelse(data_type == "abundance", "Number of individuals", "Number of sampling units")
-          y_lab <- "Sample coverage"
-          
+        # Get site names for subtitle
+        if (data_format == "incidence_freq") {
+          site_list <- paste(names(inext_data), collapse = ", ")
         } else {
-          # Type 3: Coverage-based
-          df <- plot_data %>%
-            filter(Method != "Observed") %>%
-            mutate(
-              x = SC,
-              Method_label = Method
-            )
-          x_lab <- "Sample coverage"
-          y_lab <- "Species diversity"
+          site_list <- paste(colnames(inext_data), collapse = ", ")
         }
         
-        # Create the plot manually with proper geom_ribbon for SHADED CI
-        plot_obj <- ggplot(df, aes(x = x, y = qD, color = Assemblage, fill = Assemblage)) +
-          # SHADED confidence intervals as ribbons
-          geom_ribbon(
-            aes(ymin = qD.LCL, ymax = qD.UCL),
-            alpha = 0.2,           # Semi-transparent shading
-            color = NA,            # No border on ribbon
-            show.legend = FALSE
-          ) +
-          # Point estimate lines
-          geom_line(
-            aes(linetype = Method_label),
-            linewidth = 1.2
-          ) +
-          # Styling
-          scale_linetype_manual(
-            values = c("Rarefaction" = "solid", "Extrapolation" = "dashed"),
-            name = "Method"
-          ) +
-          facet_wrap(~ Order.q, scales = "free_y", 
-                     labeller = labeller(Order.q = c(
-                       "0" = "q=0 (Species Richness)",
-                       "1" = "q=1 (Shannon Diversity)",
-                       "2" = "q=2 (Simpson Diversity)"
-                     ))) +
+        # Build subtitle with endpoint info
+        endpoint_text <- if (is.null(endpoint_value)) {
+          "auto (2× reference)"
+        } else {
+          paste0(endpoint_value, " ", if(actual_datatype == "abundance") "individuals" else "sampling units")
+        }
+        
+        # Create plot with shaded confidence intervals
+        # Use ggiNEXT directly - it's designed to work properly
+        plot_obj <- ggiNEXT(
+          x = inext_out, 
+          type = plot_type_num,
+          se = TRUE,                  # Shaded confidence intervals
+          facet.var = "Order.q",      # Separate panels for q=0, 1, 2
+          color.var = "Assemblage"    # Color by site
+        ) + 
           labs(
             title = plot_title,
             subtitle = paste0(
-              "Sites: ", paste(colnames(abund_matrix_t), collapse = ", "),
+              "Sites: ", site_list,
               " | Hill numbers q=", paste(selected_q, collapse = ", "),
-              " | ", input$conf * 100, "% CI (nboot=", input$nboot, ")"
-            ),
-            x = x_lab,
-            y = y_lab,
-            color = "Site",
-            fill = "Site"
+              " | ", input$conf * 100, "% CI (nboot=", input$nboot, ")",
+              " | Format: ", data_format,
+              " | Endpoint: ", endpoint_text
+            )
           ) +
-          theme_minimal(base_size = 14) +
+          theme_bw(base_size = 14) +
           theme(
             plot.title = element_text(size = 16, face = "bold"),
             legend.position = "bottom",
