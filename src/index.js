@@ -307,8 +307,13 @@ function createWindow() {
       enableRemoteModule: false
     },
     backgroundColor: '#222222',
-    show: false  // Don't show until ready
+    show: false,  // Don't show until ready
+    autoHideMenuBar: true  // Automatically hide menu bar
   });
+  
+  // Completely remove the menu bar
+  mainWindow.setMenuBarVisibility(false);
+  mainWindow.removeMenu();
   
   // Load the Shiny app
   mainWindow.loadURL(`http://${SHINY_HOST}:${SHINY_PORT}`);

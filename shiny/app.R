@@ -124,7 +124,7 @@ ui <- tagList(
         }
       });
       
-      // Theme toggle functionality
+      // Theme toggle functionality (for Ctrl+T shortcut)
       function toggleTheme() {
         const body = document.body;
         const currentTheme = body.classList.contains("light-theme") ? "light" : "dark";
@@ -141,16 +141,105 @@ ui <- tagList(
         
         localStorage.setItem("ordin-theme", newTheme);
         
-        // Update toggle button icon
-        const btn = document.getElementById("theme-toggle-btn");
-        if (btn) {
-          btn.innerHTML = newTheme === "dark" ? "☀️" : "🌙";
-          btn.title = newTheme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme";
+        // Update theme selector in settings
+        const themeSelector = document.getElementById("themeSelector");
+        if (themeSelector) {
+          themeSelector.value = newTheme;
         }
+      }
+      
+      // Handle theme change from settings dropdown
+      function handleThemeChange(theme) {
+        const body = document.body;
+        
+        if (theme === "auto") {
+          // Use system preference
+          const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          theme = prefersDark ? "dark" : "light";
+        }
+        
+        if (theme === "light") {
+          body.classList.add("light-theme");
+          body.classList.remove("dark-theme");
+        } else {
+          body.classList.add("dark-theme");
+          body.classList.remove("light-theme");
+        }
+        
+        localStorage.setItem("ordin-theme", theme);
+        
+        // Send to Shiny
+        Shiny.setInputValue("settingsTheme", theme);
+      }
+      
+      // Handle font size change
+      function handleFontSizeChange(size) {
+        const body = document.body;
+        body.classList.remove("font-small", "font-medium", "font-large");
+        body.classList.add("font-" + size);
+        localStorage.setItem("ordin-font-size", size);
+        Shiny.setInputValue("settingsFontSize", size);
+      }
+      
+      // Save settings to localStorage when changed
+      function saveSettingToLocalStorage(key, value) {
+        localStorage.setItem("ordin-" + key, value);
+      }
+      
+      // Toggle settings sidebar
+      function toggleSettingsSidebar() {
+        const sidebar = document.getElementById("settings-sidebar");
+        const overlay = document.getElementById("settings-overlay");
+        const isOpen = sidebar.style.right === "0px";
+        
+        if (isOpen) {
+          // Close sidebar
+          sidebar.style.right = "-400px";
+          overlay.style.display = "none";
+          overlay.style.opacity = "0";
+          document.body.style.overflow = "auto";
+        } else {
+          // Open sidebar
+          sidebar.style.right = "0px";
+          overlay.style.display = "block";
+          setTimeout(() => { overlay.style.opacity = "1"; }, 10);
+          document.body.style.overflow = "hidden";
+        }
+      }
+      
+      // Reset all settings to defaults
+      function resetAllSettings() {
+        // Clear localStorage
+        localStorage.removeItem("ordin-theme");
+        localStorage.removeItem("ordin-font-size");
+        localStorage.removeItem("ordin-autosave-timestamp");
+        
+        // Reset theme to dark
+        handleThemeChange("dark");
+        
+        // Reset font size to medium
+        handleFontSizeChange("medium");
+        
+        // Reset toggles
+        document.getElementById("autoSaveToggle").checked = true;
+        document.getElementById("notificationsToggle").checked = true;
+        
+        // Reset selects
+        document.getElementById("themeSelector").value = "dark";
+        document.getElementById("fontSizeSelector").value = "medium";
+        document.getElementById("exportFormatSelector").value = "csv";
+        document.getElementById("decimalPrecisionSelector").value = "3";
+        
+        // Notify user
+        alert("Settings reset to defaults!");
+        
+        // Notify Shiny
+        Shiny.setInputValue("settingsReset", Date.now());
       }
       
       // Load saved theme on startup
       document.addEventListener("DOMContentLoaded", function() {
+        // Load saved theme
         const savedTheme = localStorage.getItem("ordin-theme") || "dark";
         const body = document.body;
         
@@ -162,11 +251,43 @@ ui <- tagList(
           body.classList.remove("light-theme");
         }
         
-        const btn = document.getElementById("theme-toggle-btn");
-        if (btn) {
-          btn.innerHTML = savedTheme === "dark" ? "☀️" : "🌙";
-          btn.title = savedTheme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme";
-        }
+        // Load saved font size
+        const savedFontSize = localStorage.getItem("ordin-font-size") || "medium";
+        body.classList.add("font-" + savedFontSize);
+        
+        // Load settings into dropdown (with delay to ensure elements exist)
+        setTimeout(function() {
+          const themeSelector = document.getElementById("themeSelector");
+          if (themeSelector) themeSelector.value = savedTheme;
+          
+          const fontSizeSelector = document.getElementById("fontSizeSelector");
+          if (fontSizeSelector) fontSizeSelector.value = savedFontSize;
+          
+          // Load other settings from localStorage
+          const autoSaveEnabled = localStorage.getItem("ordin-autosave-enabled");
+          if (autoSaveEnabled !== null) {
+            const toggle = document.getElementById("autoSaveToggle");
+            if (toggle) toggle.checked = autoSaveEnabled === "true";
+          }
+          
+          const notificationsEnabled = localStorage.getItem("ordin-notifications-enabled");
+          if (notificationsEnabled !== null) {
+            const toggle = document.getElementById("notificationsToggle");
+            if (toggle) toggle.checked = notificationsEnabled === "true";
+          }
+          
+          const exportFormat = localStorage.getItem("ordin-export-format");
+          if (exportFormat) {
+            const selector = document.getElementById("exportFormatSelector");
+            if (selector) selector.value = exportFormat;
+          }
+          
+          const decimalPrecision = localStorage.getItem("ordin-decimal-precision");
+          if (decimalPrecision) {
+            const selector = document.getElementById("decimalPrecisionSelector");
+            if (selector) selector.value = decimalPrecision;
+          }
+        }, 500);
         
         // Set window title to just "Ördin"
         document.title = "Ördin";
@@ -179,23 +300,6 @@ ui <- tagList(
           indicator.style.cssText = "position: fixed; top: 10px; right: 70px; background: #2e8b57; color: white; padding: 5px 12px; border-radius: 3px; font-size: 0.75rem; opacity: 0; transition: opacity 0.3s; z-index: 9999;";
           indicator.innerHTML = "💾 Auto-saved";
           document.body.appendChild(indicator);
-        }
-        
-        // Insert VS Code style menu bar
-        const navbar = document.querySelector(".navbar");
-        if (navbar && !document.querySelector(".vscode-menubar")) {
-          const menuBar = document.createElement("div");
-          menuBar.className = "vscode-menubar";
-          menuBar.innerHTML = `
-            <div class="menu-bar">
-              <div class="menu-item">File</div>
-              <div class="menu-item">Edit</div>
-              <div class="menu-item">View</div>
-              <div class="menu-item">Window</div>
-              <div class="menu-item">Help</div>
-            </div>
-          `;
-          navbar.insertBefore(menuBar, navbar.firstChild);
         }
       });
     '))
@@ -704,19 +808,253 @@ ui <- tagList(
     )
   ),
   
-  # Theme Toggle Button (far right)
+  # Settings Button (far right)
   nav_spacer(),
+  
+  # Settings Button to open sidebar
   nav_item(
     tags$button(
-      id = "theme-toggle-btn",
+      id = "settings-btn",
       class = "btn",
-      onclick = "toggleTheme()",
-      title = "Switch to Light Theme",
-      style = "border: none; background: transparent; font-size: 1.1rem; padding: 4px 10px; cursor: pointer;",
-      "☀️"  # Sun emoji (will show in dark mode)
+      onclick = "toggleSettingsSidebar()",
+      title = "Settings",
+      style = "border: none; background: transparent; font-size: 1.1rem; padding: 4px 10px; cursor: pointer; color: #cccccc;",
+      icon("cog")
     )
   )
-  )  # End page_navbar
+  ),  # End page_navbar
+  
+  # Settings Sidebar (overlay)
+  tags$div(
+    id = "settings-sidebar",
+    class = "settings-sidebar",
+    style = "position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background: #252526; border-left: 1px solid #3e3e42; z-index: 10000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);",
+    
+    # Header
+    tags$div(
+      style = "position: sticky; top: 0; background: #2d2d30; color: #2e8b57; font-weight: 700; font-size: 1.1rem; padding: 20px; border-bottom: 1px solid #3e3e42; display: flex; justify-content: space-between; align-items: center; z-index: 1;",
+      tags$div(
+        icon("sliders-h"), " Application Settings"
+      ),
+      tags$button(
+        onclick = "toggleSettingsSidebar()",
+        style = "background: transparent; border: none; color: #cccccc; font-size: 1.2rem; cursor: pointer; padding: 4px 8px; transition: color 0.2s;",
+        onmouseover = "this.style.color='#ffffff'",
+        onmouseout = "this.style.color='#cccccc'",
+        "×"
+      )
+    ),
+    
+    # Content container
+    tags$div(
+      style = "padding: 20px;",
+      
+      # General Settings Section
+      tags$div(
+        class = "settings-section",
+        style = "margin-bottom: 24px;",
+        tags$div(
+          class = "settings-section-title",
+          style = "color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;",
+          "General"
+        ),
+        
+        # Auto-save toggle
+        tags$div(
+          class = "form-check form-switch mb-3",
+          style = "display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$div(
+            tags$label(
+              class = "form-check-label",
+              `for` = "autoSaveToggle",
+              style = "color: #cccccc; font-size: 0.9rem; cursor: pointer;",
+              icon("save", style = "margin-right: 8px; color: #2e8b57;"),
+              "Auto-save"
+            ),
+            tags$div(
+              style = "color: #666; font-size: 0.75rem; margin-top: 2px;",
+              "Save every 30s"
+            )
+          ),
+          tags$input(
+            class = "form-check-input",
+            type = "checkbox",
+            id = "autoSaveToggle",
+            checked = "checked",
+            style = "cursor: pointer; width: 40px; height: 20px;",
+            onchange = "Shiny.setInputValue('settingsAutoSave', this.checked);"
+          )
+        ),
+        
+        # Notifications toggle
+        tags$div(
+          class = "form-check form-switch mb-3",
+          style = "display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$div(
+            tags$label(
+              class = "form-check-label",
+              `for` = "notificationsToggle",
+              style = "color: #cccccc; font-size: 0.9rem; cursor: pointer;",
+              icon("bell", style = "margin-right: 8px; color: #2e8b57;"),
+              "Notifications"
+            ),
+            tags$div(
+              style = "color: #666; font-size: 0.75rem; margin-top: 2px;",
+              "Show alerts"
+            )
+          ),
+          tags$input(
+            class = "form-check-input",
+            type = "checkbox",
+            id = "notificationsToggle",
+            checked = "checked",
+            style = "cursor: pointer; width: 40px; height: 20px;",
+            onchange = "Shiny.setInputValue('settingsNotifications', this.checked);"
+          )
+        )
+      ),
+      
+      # Appearance Settings Section
+      tags$div(
+        class = "settings-section",
+        style = "margin-bottom: 24px;",
+        tags$div(
+          class = "settings-section-title",
+          style = "color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;",
+          "Appearance"
+        ),
+        
+        # Theme selector
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("palette", style = "margin-right: 8px; color: #2e8b57;"),
+            "Theme"
+          ),
+          tags$select(
+            id = "themeSelector",
+            class = "form-select form-select-sm",
+            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
+            onchange = "handleThemeChange(this.value);",
+            tags$option(value = "dark", selected = "selected", "Dark"),
+            tags$option(value = "light", "Light"),
+            tags$option(value = "auto", "Auto (System)")
+          )
+        ),
+        
+        # Font size
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("text-height", style = "margin-right: 8px; color: #2e8b57;"),
+            "Font Size"
+          ),
+          tags$select(
+            id = "fontSizeSelector",
+            class = "form-select form-select-sm",
+            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
+            onchange = "handleFontSizeChange(this.value);",
+            tags$option(value = "small", "Small"),
+            tags$option(value = "medium", selected = "selected", "Medium"),
+            tags$option(value = "large", "Large")
+          )
+        )
+      ),
+      
+      # Data Settings Section
+      tags$div(
+        class = "settings-section",
+        style = "margin-bottom: 24px;",
+        tags$div(
+          class = "settings-section-title",
+          style = "color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;",
+          "Data"
+        ),
+        
+        # Default export format
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("file-export", style = "margin-right: 8px; color: #2e8b57;"),
+            "Default Export Format"
+          ),
+          tags$select(
+            id = "exportFormatSelector",
+            class = "form-select form-select-sm",
+            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
+            onchange = "Shiny.setInputValue('settingsExportFormat', this.value);",
+            tags$option(value = "csv", selected = "selected", "CSV"),
+            tags$option(value = "xlsx", "Excel (.xlsx)"),
+            tags$option(value = "json", "JSON")
+          )
+        ),
+        
+        # Decimal precision
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("hashtag", style = "margin-right: 8px; color: #2e8b57;"),
+            "Decimal Precision"
+          ),
+          tags$select(
+            id = "decimalPrecisionSelector",
+            class = "form-select form-select-sm",
+            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
+            onchange = "Shiny.setInputValue('settingsDecimalPrecision', this.value);",
+            tags$option(value = "2", "2 digits"),
+            tags$option(value = "3", selected = "selected", "3 digits"),
+            tags$option(value = "4", "4 digits"),
+            tags$option(value = "5", "5 digits")
+          )
+        )
+      ),
+      
+      # Actions Section
+      tags$div(
+        class = "settings-section",
+        style = "margin-bottom: 24px;",
+        
+        # Clear cache button
+        actionButton(
+          "clearCacheBtn",
+          label = tagList(icon("trash-alt"), " Clear Cache"),
+          class = "btn btn-sm btn-outline-secondary w-100 mb-3",
+          style = "font-size: 0.85rem; border-color: #3e3e42; color: #cccccc; padding: 10px;",
+          onclick = "localStorage.clear(); sessionStorage.clear(); alert('Cache cleared successfully!');"
+        ),
+        
+        # Reset settings button
+        actionButton(
+          "resetSettingsBtn",
+          label = tagList(icon("undo"), " Reset to Defaults"),
+          class = "btn btn-sm btn-outline-warning w-100",
+          style = "font-size: 0.85rem; border-color: #ff8c00; color: #ff8c00; padding: 10px;",
+          onclick = "if(confirm('Reset all settings to default?')) { resetAllSettings(); }"
+        )
+      ),
+      
+      # Footer
+      tags$div(
+        style = "text-align: center; padding: 16px; border-top: 1px solid #3e3e42; color: #666; font-size: 0.75rem; margin-top: 20px;",
+        "Ördin v3.0 • Enterprise Edition"
+      )
+    )
+  ),
+  
+  # Sidebar overlay backdrop
+  tags$div(
+    id = "settings-overlay",
+    style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: none; opacity: 0; transition: opacity 0.3s ease;",
+    onclick = "toggleSettingsSidebar()"
+  )
 )  # End tagList
 
 # Server Logic
@@ -738,6 +1076,122 @@ server <- function(input, output, session) {
     updateNavbarPage(session, "main_nav", selected = "Diversity Analysis")
     # Trigger file input click
     shinyjs::runjs("document.getElementById('dataFile').click();")
+  })
+  
+  # ========================================
+  # SETTINGS HANDLERS - Enterprise Grade
+  # ========================================
+  
+  # Reactive values for settings
+  settings <- reactiveValues(
+    autoSave = TRUE,
+    notifications = TRUE,
+    theme = "dark",
+    fontSize = "medium",
+    exportFormat = "csv",
+    decimalPrecision = 3
+  )
+  
+  # Auto-save toggle
+  observeEvent(input$settingsAutoSave, {
+    settings$autoSave <- input$settingsAutoSave
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-autosave-enabled', '%s');",
+      tolower(as.character(input$settingsAutoSave))
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Auto-save", ifelse(input$settingsAutoSave, "enabled", "disabled")),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Notifications toggle
+  observeEvent(input$settingsNotifications, {
+    settings$notifications <- input$settingsNotifications
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-notifications-enabled', '%s');",
+      tolower(as.character(input$settingsNotifications))
+    ))
+  })
+  
+  # Theme change
+  observeEvent(input$settingsTheme, {
+    settings$theme <- input$settingsTheme
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Theme changed to", input$settingsTheme),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Font size change
+  observeEvent(input$settingsFontSize, {
+    settings$fontSize <- input$settingsFontSize
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Font size changed to", input$settingsFontSize),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Export format change
+  observeEvent(input$settingsExportFormat, {
+    settings$exportFormat <- input$settingsExportFormat
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-export-format', '%s');",
+      input$settingsExportFormat
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Default export format:", toupper(input$settingsExportFormat)),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Decimal precision change
+  observeEvent(input$settingsDecimalPrecision, {
+    settings$decimalPrecision <- as.numeric(input$settingsDecimalPrecision)
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-decimal-precision', '%s');",
+      input$settingsDecimalPrecision
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Decimal precision set to", input$settingsDecimalPrecision, "digits"),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Settings reset handler
+  observeEvent(input$settingsReset, {
+    settings$autoSave <- TRUE
+    settings$notifications <- TRUE
+    settings$theme <- "dark"
+    settings$fontSize <- "medium"
+    settings$exportFormat <- "csv"
+    settings$decimalPrecision <- 3
+    
+    showNotification(
+      "All settings reset to defaults",
+      type = "message",
+      duration = 3
+    )
   })
   
   # Auto-save state management

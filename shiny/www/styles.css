@@ -37,52 +37,6 @@ body.light-theme {
 }
 
 /* ========================================
-   THEME TOGGLE BUTTON
-   ======================================== */
-#theme-toggle-btn {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--ordin-text);
-  font-size: 1.1rem;
-  padding: 4px 10px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 0;
-  position: relative;
-}
-
-#theme-toggle-btn::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: var(--ordin-green);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateX(-50%);
-}
-
-#theme-toggle-btn:hover::after {
-  width: 80%;
-}
-
-#theme-toggle-btn:hover {
-  background: #37373d;
-  border-color: #3e3e42;
-  transform: translateY(-2px);
-}
-
-body.light-theme #theme-toggle-btn {
-  color: #424242;
-}
-
-body.light-theme #theme-toggle-btn:hover {
-  background: #e8e8e8;
-  border-color: var(--ordin-light-border);
-}
-
-/* ========================================
    VS CODE MENU BAR
    ======================================== */
 .vscode-menubar {
@@ -568,3 +522,169 @@ body.light-theme .waiter-overlay {
 .form-select:focus {
   box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15) !important;
 }
+
+/* ========================================
+   SETTINGS SIDEBAR - Enterprise Grade
+   ======================================== */
+#settings-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ordin-text);
+  font-size: 1.1rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0;
+  position: relative;
+}
+
+#settings-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--ordin-green);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+}
+
+#settings-btn:hover::after {
+  width: 80%;
+}
+
+#settings-btn:hover {
+  background: #37373d;
+  border-color: #3e3e42;
+  transform: translateY(-2px);
+}
+
+body.light-theme #settings-btn {
+  color: #424242;
+}
+
+body.light-theme #settings-btn:hover {
+  background: #e8e8e8;
+  border-color: var(--ordin-light-border);
+}
+
+/* Settings sidebar panel */
+.settings-sidebar {
+  scrollbar-width: thin;
+}
+
+.settings-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-sidebar::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.settings-sidebar::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+.settings-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--ordin-green);
+}
+
+/* Light theme sidebar */
+body.light-theme .settings-sidebar {
+  background: #ffffff !important;
+  border-left: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme .settings-sidebar .settings-section-title {
+  color: #666 !important;
+}
+
+body.light-theme .settings-sidebar label {
+  color: #1e1e1e !important;
+}
+
+body.light-theme .settings-sidebar .form-check-input {
+  background-color: #e8e8e8;
+  border-color: #d0d0d0;
+}
+
+body.light-theme .settings-sidebar .form-check-input:checked {
+  background-color: var(--ordin-green);
+  border-color: var(--ordin-green);
+}
+
+/* Settings overlay */
+#settings-overlay {
+  backdrop-filter: blur(2px);
+}
+
+/* Settings section spacing */
+.settings-section {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   FONT SIZE SYSTEM
+   ======================================== */
+/* Default (medium) is already set in body */
+
+body.font-small {
+  font-size: 0.8rem !important;
+}
+
+body.font-small .nav-link {
+  font-size: 0.75rem !important;
+}
+
+body.font-small .card-header {
+  font-size: 0.75rem !important;
+}
+
+body.font-small .btn {
+  font-size: 0.75rem !important;
+}
+
+body.font-small h1 { font-size: 1.8rem !important; }
+body.font-small h2 { font-size: 1.5rem !important; }
+body.font-small h3 { font-size: 1.3rem !important; }
+body.font-small h4 { font-size: 1.1rem !important; }
+body.font-small h5 { font-size: 0.95rem !important; }
+
+body.font-medium {
+  font-size: 0.9rem !important;
+}
+
+body.font-large {
+  font-size: 1.0rem !important;
+}
+
+body.font-large .nav-link {
+  font-size: 0.95rem !important;
+}
+
+body.font-large .card-header {
+  font-size: 0.95rem !important;
+}
+
+body.font-large .btn {
+  font-size: 0.95rem !important;
+}
+
+body.font-large h1 { font-size: 2.5rem !important; }
+body.font-large h2 { font-size: 2.0rem !important; }
+body.font-large h3 { font-size: 1.7rem !important; }
+body.font-large h4 { font-size: 1.4rem !important; }
+body.font-large h5 { font-size: 1.15rem !important; }
