@@ -1105,89 +1105,778 @@ ui <- tagList(
   nav_panel(
     title = "Help",
     icon = icon("question-circle"),
-    card(
-      full_screen = TRUE,
-      card_header(
-        "Ördin User Guide"
-      ),
-      card_body(
+    div(
+      class = "container-fluid",
+      style = "padding: 20px; height: 100%;",
+      
+      div(
+        class = "row",
+        style = "height: 100%;",
+        
+        # Sidebar Navigation
         div(
-          class = "container",
-          style = "max-width: 900px; padding: 30px;",
+          class = "col-md-3 col-lg-2 d-md-block bg-dark sidebar",
+          style = "background-color: #252526; border-right: 1px solid #3e3e42; min-height: 100vh; padding: 20px 0;",
           
-          # Header
+          # Sidebar Header
           div(
-            class = "text-center mb-5",
-            div(style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px;", "Ö"),
-            h2(style = "color: #2e8b57; font-weight: 700;", "Ördin v3.0"),
-            p(class = "lead", style = "color: #aaa;", "Community Ecology Analysis Platform")
-          ),
-          
-          # Modules
-          card(
-            class = "mb-4",
-            card_header(icon("layer-group"), " Analysis Modules", class = "fw-bold"),
-            card_body(
-              div(class = "row",
-                 div(class = "col-md-6 mb-3",
-                    div(class = "d-flex align-items-start",
-                       div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("chart-line")),
-                       div(
-                         h5(class = "fw-bold", "Diversity Estimation (iNEXT)"),
-                         p(class = "text-muted small mb-0", "Rarefaction, extrapolation & Hill numbers for community diversity")
-                       )
-                    )
-                 ),
-                 div(class = "col-md-6 mb-3",
-                    div(class = "d-flex align-items-start",
-                       div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("calculator")),
-                       div(
-                         h5(class = "fw-bold", "Diversity Indices (vegan)"),
-                         p(class = "text-muted small mb-0", "Shannon, Simpson, evenness & ecological indices")
-                       )
-                    )
-                 ),
-                 div(class = "col-md-6 mb-3",
-                    div(class = "d-flex align-items-start",
-                       div(class = "me-3", style = "font-size: 2em; color: #4169e1;", icon("project-diagram")),
-                       div(
-                         h5(class = "fw-bold", "Ordination Analysis (vegan)"),
-                         p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, CCA, RDA, PCoA for community patterns")
-                       )
-                    )
-                 )
-              )
+            style = "padding: 0 20px 20px 20px; border-bottom: 1px solid #3e3e42; margin-bottom: 20px;",
+            div(
+              style = "font-size: 2.5em; color: #2e8b57; font-weight: bold; text-align: center; margin-bottom: 10px;",
+              "Ö"
+            ),
+            h4(
+              style = "color: #cccccc; text-align: center; margin: 0;",
+              "Ördin Help"
+            ),
+            p(
+              style = "color: #888; font-size: 0.85em; text-align: center; margin: 5px 0 0 0;",
+              "v3.0 Documentation"
             )
           ),
           
-          # Quick Start
-          card(
-            card_header(icon("rocket"), " Quick Start", class = "fw-bold"),
-            card_body(
-              tags$ol(
-                class = "mb-0",
-                tags$li("Upload CSV file (first column = site names, others = species/taxa data)"),
-                tags$li("Select analysis type in sidebar (Estimation, Indices, or Ordination)"),
-                tags$li("Configure parameters and click Run"),
-                tags$li("Download results as CSV or publication-quality images")
+          # Navigation Menu
+          div(
+            class = "list-group list-group-flush",
+            style = "width: 100%;",
+            
+            # Main Sections
+            tags$a(
+              href = "#about", 
+              class = "list-group-item list-group-item-action bg-transparent text-light border-0 py-2 px-3 mb-1 help-nav-item active",
+              style = "border-radius: 4px; margin: 0 10px;",
+              icon("info-circle", style = "margin-right: 10px;"),
+              "About Ördin"
+            ),
+            
+            tags$a(
+              href = "#faq", 
+              class = "list-group-item list-group-item-action bg-transparent text-light border-0 py-2 px-3 mb-1 help-nav-item",
+              style = "border-radius: 4px; margin: 0 10px;",
+              icon("question-circle", style = "margin-right: 10px;"),
+              "FAQs"
+            ),
+            
+            tags$a(
+              href = "#guides", 
+              class = "list-group-item list-group-item-action bg-transparent text-light border-0 py-2 px-3 mb-1 help-nav-item",
+              style = "border-radius: 4px; margin: 0 10px;",
+              icon("book", style = "margin-right: 10px;"),
+              "User Guides"
+            ),
+            
+            tags$a(
+              href = "#changelog", 
+              class = "list-group-item list-group-item-action bg-transparent text-light border-0 py-2 px-3 mb-1 help-nav-item",
+              style = "border-radius: 4px; margin: 0 10px;",
+              icon("history", style = "margin-right: 10px;"),
+              "Changelog"
+            ),
+            
+            # Divider
+            hr(style = "border-color: #3e3e42; margin: 20px 10px;"),
+            
+            # Technical Sections
+            tags$a(
+              href = "#tech-specs", 
+              class = "list-group-item list-group-item-action bg-transparent text-light border-0 py-2 px-3 mb-1 help-nav-item",
+              style = "border-radius: 4px; margin: 0 10px;",
+              icon("cogs", style = "margin-right: 10px;"),
+              "Technical Specs"
+            ),
+            
+            tags$a(
+              href = "#author", 
+              class = "list-group-item list-group-item-action bg-transparent text-light border-0 py-2 px-3 mb-1 help-nav-item",
+              style = "border-radius: 4px; margin: 0 10px;",
+              icon("user", style = "margin-right: 10px;"),
+              "Author & Credits"
+            ),
+            
+            tags$a(
+              href = "#references", 
+              class = "list-group-item list-group-item-action bg-transparent text-light border-0 py-2 px-3 mb-1 help-nav-item",
+              style = "border-radius: 4px; margin: 0 10px;",
+              icon("graduation-cap", style = "margin-right: 10px;"),
+              "References"
+            )
+          )
+        ),
+        
+        # Main Content Area
+        div(
+          class = "col-md-9 col-lg-10 ms-sm-auto px-md-4",
+          style = "height: 100%; overflow-y: auto; padding: 20px;",
+          
+          # Content Sections (Initially showing About)
+          div(
+            id = "help-content-area",
+            style = "max-width: 900px; margin: 0 auto;",
+            
+            # About Section
+            div(
+              id = "about",
+              class = "help-section active",
+              style = "display: block;",
+              
+              h2(
+                style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+                icon("info-circle", style = "margin-right: 10px;"),
+                "About Ördin"
+              ),
+              
+              p(
+                class = "lead",
+                style = "font-size: 1.2em; color: #cccccc; margin-bottom: 30px;",
+                "Ördin is an enterprise-grade community ecology analysis platform that combines the analytical power of R with modern desktop application design."
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("flask"), " Platform Overview", class = "fw-bold"),
+                card_body(
+                  p(
+                    style = "color: #aaa; line-height: 1.7;",
+                    "Ördin provides ecologists, researchers, and students with professional tools for analyzing community composition, diversity patterns, ordination, and ecological indices through an intuitive, cross-platform interface. The platform integrates powerful R packages like vegan and iNEXT with a modern, responsive user interface built using Shiny and Bootstrap 5."
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("layer-group"), " Core Modules", class = "fw-bold"),
+                card_body(
+                  div(class = "row",
+                    div(class = "col-md-6 mb-3",
+                      div(
+                        class = "d-flex align-items-start",
+                        div(class = "me-3", style = "font-size: 1.5em; color: #2e8b57;", icon("chart-line")),
+                        div(
+                          h5(class = "fw-bold", style = "color: #cccccc;", "Diversity Estimation (iNEXT)"),
+                          p(class = "text-muted small mb-0", "Rarefaction, extrapolation & Hill numbers for community diversity")
+                        )
+                      )
+                    ),
+                    div(class = "col-md-6 mb-3",
+                      div(
+                        class = "d-flex align-items-start",
+                        div(class = "me-3", style = "font-size: 1.5em; color: #2e8b57;", icon("calculator")),
+                        div(
+                          h5(class = "fw-bold", style = "color: #cccccc;", "Diversity Indices (vegan)"),
+                          p(class = "text-muted small mb-0", "Shannon, Simpson, evenness & ecological indices")
+                        )
+                      )
+                    ),
+                    div(class = "col-md-6 mb-3",
+                      div(
+                        class = "d-flex align-items-start",
+                        div(class = "me-3", style = "font-size: 1.5em; color: #4169e1;", icon("project-diagram")),
+                        div(
+                          h5(class = "fw-bold", style = "color: #cccccc;", "Ordination Analysis (vegan)"),
+                          p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, CCA, RDA, PCoA for community patterns")
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              
+              card(
+                card_header(icon("shield-alt"), " Enterprise Features", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    class = "mb-0",
+                    style = "color: #aaa;",
+                    tags$li("Professional dark/light theme with persistent preferences"),
+                    tags$li("Publication-quality exports in multiple formats (PNG, TIFF, SVG)"),
+                    tags$li("Modular architecture with independent analysis modules"),
+                    tags$li("Cross-platform support (Windows, macOS, Linux)"),
+                    tags$li("Self-contained portable R installation"),
+                    tags$li("Advanced data management and validation"),
+                    tags$li("Comprehensive documentation and user guides")
+                  )
+                )
+              )
+            ),
+            
+            # FAQ Section (Initially hidden)
+            div(
+              id = "faq",
+              class = "help-section",
+              style = "display: none;",
+              
+              h2(
+                style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+                icon("question-circle", style = "margin-right: 10px;"),
+                "Frequently Asked Questions"
+              ),
+              
+              accordion(
+                class = "mb-3",
+                accordion_panel(
+                  title = "What data format does Ördin require?",
+                  icon = icon("file-csv"),
+                  p(
+                    style = "color: #aaa;",
+                    "Ördin requires CSV files with the first column containing site names and subsequent columns containing species/taxa abundance or presence/absence data. The platform supports three data types:",
+                    tags$ul(
+                      style = "color: #aaa;",
+                      tags$li(strong("Abundance:"), " Numeric counts of individuals per species"),
+                      tags$li(strong("Incidence (Binary):"), " Presence/absence data (1/0)"),
+                      tags$li(strong("Incidence (Freq):"), " Frequency of occurrence data")
+                    )
+                  )
+                ),
+                accordion_panel(
+                  title = "What ordination methods are supported?",
+                  icon = icon("project-diagram"),
+                  p(
+                    style = "color: #aaa;",
+                    "Ördin supports 7 ordination methods with comprehensive visualization features:",
+                    tags$ul(
+                      style = "color: #aaa;",
+                      tags$li("NMDS - Non-metric Multidimensional Scaling"),
+                      tags$li("PCA - Principal Components Analysis"),
+                      tags$li("CA - Correspondence Analysis"),
+                      tags$li("DCA - Detrended Correspondence Analysis"),
+                      tags$li("CCA - Canonical Correspondence Analysis (constrained)"),
+                      tags$li("RDA - Redundancy Analysis (constrained)"),
+                      tags$li("PCoA - Principal Coordinates Analysis")
+                    ),
+                    "Each method supports customizable dimensions, distance measures, and advanced visualization options including confidence ellipses, species scores, and environmental vectors."
+                  )
+                ),
+                accordion_panel(
+                  title = "What diversity indices are available?",
+                  icon = icon("calculator"),
+                  p(
+                    style = "color: #aaa;",
+                    "Ördin provides comprehensive diversity analysis through two main modules:",
+                    tags$ul(
+                      style = "color: #aaa;",
+                      tags$li(strong("Diversity Estimation:"), " iNEXT-based rarefaction and extrapolation with Hill numbers (q=0, 1, 2)"),
+                      tags$li(strong("Diversity Indices:"), " 8 classic diversity and evenness metrics including Shannon, Simpson, Pielou's evenness, and species accumulation curves")
+                    )
+                  )
+                ),
+                accordion_panel(
+                  title = "How do I export results?",
+                  icon = icon("download"),
+                  p(
+                    style = "color: #aaa;",
+                    "Ördin offers multiple export options for professional use:",
+                    tags$ul(
+                      style = "color: #aaa;",
+                      tags$li(strong("Tables:"), " Download summary results as CSV, Excel, or JSON"),
+                      tags$li(strong("Plots:"), " Export visualizations in 5 formats (PNG, TIFF, SVG) at publication quality (300 DPI)"),
+                      tags$li(strong("Themes:"), " Choose from 5 plot themes (Dark, Light, Classic, Minimal, Publication) for consistent styling")
+                    )
+                  )
+                ),
+                accordion_panel(
+                  title = "Is Ördin free to use?",
+                  icon = icon("dollar-sign"),
+                  p(
+                    style = "color: #aaa;",
+                    "Yes, Ördin is completely free and open-source software released under the MIT License. The platform is self-contained with a portable R installation, so users don't need to install R separately."
+                  )
+                ),
+                accordion_panel(
+                  title = "What platforms does Ördin support?",
+                  icon = icon("desktop"),
+                  p(
+                    style = "color: #aaa;",
+                    "Ördin is cross-platform and supports:",
+                    tags$ul(
+                      style = "color: #aaa;",
+                      tags$li("Windows 10/11 (64-bit)"),
+                      tags$li("macOS 10.15+ (Intel and Apple Silicon)"),
+                      tags$li("Linux (Debian/Ubuntu, Fedora/RHEL, Arch)"),
+                      tags$li("Portable installation - no system dependencies required")
+                    )
+                  )
+                )
+              )
+            ),
+            
+            # User Guides Section (Initially hidden)
+            div(
+              id = "guides",
+              class = "help-section",
+              style = "display: none;",
+              
+              h2(
+                style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+                icon("book", style = "margin-right: 10px;"),
+                "User Guides"
+              ),
+              
+              p(
+                style = "color: #aaa; margin-bottom: 25px;",
+                "Comprehensive guides for using Ördin's features and capabilities."
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("chart-line"), " Diversity Estimation Guide", class = "fw-bold"),
+                card_body(
+                  p(
+                    style = "color: #aaa;",
+                    "The Diversity Estimation module uses the iNEXT package to perform rarefaction and extrapolation analysis. It supports three data types (abundance, incidence binary, incidence frequency) and three visualization types (sample-size, completeness, coverage). The module calculates Hill numbers (q=0, 1, 2) with confidence intervals and provides publication-quality plots."
+                  ),
+                  tags$a(
+                    href = "https://github.com/jm0535/0rdin/blob/main/ESTIMATES-AND-RAREFACTION-TYPES.md",
+                    target = "_blank",
+                    class = "btn btn-outline-success btn-sm mt-2",
+                    icon("external-link-alt", style = "margin-right: 5px;"),
+                    "View Detailed Guide"
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("project-diagram"), " Ordination Analysis Guide", class = "fw-bold"),
+                card_body(
+                  p(
+                    style = "color: #aaa;",
+                    "The Ordination Analysis module implements 7 ordination methods from the vegan package. Features include customizable dimensions, 5 distance measures, confidence ellipses, species scores overlay, environmental vectors, and multiple scaling options. Advanced visualization options include 5 plot themes and publication-quality exports."
+                  ),
+                  tags$a(
+                    href = "https://github.com/jm0535/0rdin/blob/main/ENTERPRISE_ORDINATION_GUIDE.md",
+                    target = "_blank",
+                    class = "btn btn-outline-primary btn-sm mt-2",
+                    icon("external-link-alt", style = "margin-right: 5px;"),
+                    "View Detailed Guide"
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("calculator"), " Diversity Indices Guide", class = "fw-bold"),
+                card_body(
+                  p(
+                    style = "color: #aaa;",
+                    "The Diversity Indices module calculates 8 classic diversity and evenness metrics using the vegan package. Includes alpha diversity indices (Shannon, Simpson, richness) and evenness measures (Pielou, Simpson E, Evar). Also features rarefaction and species accumulation curves with permutation-based confidence intervals."
+                  ),
+                  tags$a(
+                    href = "https://github.com/jm0535/0rdin/blob/main/DATA_MANAGEMENT_GUIDE.md",
+                    target = "_blank",
+                    class = "btn btn-outline-warning btn-sm mt-2",
+                    icon("external-link-alt", style = "margin-right: 5px;"),
+                    "View Detailed Guide"
+                  )
+                )
+              ),
+              
+              card(
+                card_header(icon("palette"), " Theme and Visualization Guide", class = "fw-bold"),
+                card_body(
+                  p(
+                    style = "color: #aaa;",
+                    "Ördin features a professional theme system with 5 plot themes (Dark, Light, Classic, Minimal, Publication) and dynamic theme switching. All plots support publication-quality exports with consistent styling across modules. The interface includes dark/light mode toggle with persistent preferences."
+                  ),
+                  tags$a(
+                    href = "https://github.com/jm0535/0rdin/blob/main/VISUAL-GUIDE-THEME-TOGGLE.md",
+                    target = "_blank",
+                    class = "btn btn-outline-info btn-sm mt-2",
+                    icon("external-link-alt", style = "margin-right: 5px;"),
+                    "View Detailed Guide"
+                  )
+                )
+              )
+            ),
+            
+            # Changelog Section (Initially hidden)
+            div(
+              id = "changelog",
+              class = "help-section",
+              style = "display: none;",
+              
+              h2(
+                style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+                icon("history", style = "margin-right: 10px;"),
+                "Changelog"
+              ),
+              
+              p(
+                style = "color: #aaa; margin-bottom: 25px;",
+                "Key updates and improvements in Ördin v3.0. For complete history, see the full changelog."
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("star"), " Version 3.0 Highlights", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    style = "color: #aaa;",
+                    tags$li("Enhanced ordination analysis with 7 methods (NMDS, PCA, CA, DCA, CCA, RDA, PCoA)"),
+                    tags$li("Advanced visualization features: confidence ellipses, species scores, environmental vectors"),
+                    tags$li("5 plot themes with dynamic switching (no re-run required)"),
+                    tags$li("Publication-quality exports with consistent styling"),
+                    tags$li("Improved data management and validation"),
+                    tags$li("Enhanced UI/UX with professional design patterns")
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("code-branch"), " Version 2.3 Features", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    style = "color: #aaa;",
+                    tags$li("Professional dark/light theme toggle with persistent preferences"),
+                    tags$li("Complete CSS architecture refactor for reliability"),
+                    tags$li("Smooth transitions and theme-responsive UI elements"),
+                    tags$li("localStorage persistence for theme settings")
+                  )
+                )
+              ),
+              
+              card(
+                card_header(icon("layer-group"), " Version 2.2 Features", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    style = "color: #aaa;",
+                    tags$li("Complete modular architecture with tab-based navigation"),
+                    tags$li("5 ordination methods (NMDS, PCA, CA, DCA, PCoA)"),
+                    tags$li("8 diversity indices with rarefaction and accumulation curves"),
+                    tags$li("Professional UI with dedicated modules"),
+                    tags$li("Enhanced vegan package integration (9.5% coverage)"),
+                    tags$li("Publication-quality plot exports")
+                  )
+                )
+              ),
+              
+              div(
+                class = "text-center mt-4",
+                tags$a(
+                  href = "https://github.com/jm0535/0rdin/blob/main/CHANGELOG.md",
+                  target = "_blank",
+                  class = "btn btn-success",
+                  icon("book", style = "margin-right: 5px;"),
+                  "View Full Changelog"
+                )
+              )
+            ),
+            
+            # Technical Specifications Section (Initially hidden)
+            div(
+              id = "tech-specs",
+              class = "help-section",
+              style = "display: none;",
+              
+              h2(
+                style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+                icon("cogs", style = "margin-right: 10px;"),
+                "Technical Specifications"
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("microchip"), " System Requirements", class = "fw-bold"),
+                card_body(
+                  div(class = "row",
+                    div(class = "col-md-6",
+                      tags$ul(
+                        style = "color: #aaa;",
+                        tags$li(strong("Operating System:"), " Windows 10+, macOS 10.15+, Linux"),
+                        tags$li(strong("Processor:"), " Intel/AMD x64 or Apple Silicon"),
+                        tags$li(strong("Memory:"), " 4 GB RAM (8 GB recommended)"),
+                        tags$li(strong("Storage:"), " 500 MB available space")
+                      )
+                    ),
+                    div(class = "col-md-6",
+                      tags$ul(
+                        style = "color: #aaa;",
+                        tags$li(strong("Display:"), " 1280×720 minimum resolution"),
+                        tags$li(strong("Internet:"), " Not required (offline capable)"),
+                        tags$li(strong("Dependencies:"), " None (self-contained)"),
+                        tags$li(strong("License:"), " MIT Open Source")
+                      )
+                    )
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("code"), " Technology Stack", class = "fw-bold"),
+                card_body(
+                  h5("Frontend", style = "color: #cccccc; border-bottom: 1px solid #3e3e42; padding-bottom: 10px; margin-bottom: 15px;"),
+                  div(class = "row mb-4",
+                    div(class = "col-md-4 mb-3",
+                      div(
+                        class = "text-center p-3",
+                        style = "background: #252526; border-radius: 8px;",
+                        div(style = "font-size: 2em; color: #2e8b57; margin-bottom: 10px;", icon("desktop")),
+                        h6("Electron", style = "color: #cccccc; margin-bottom: 5px;"),
+                        p("Desktop Framework", style = "color: #888; font-size: 0.85em;")
+                      )
+                    ),
+                    div(class = "col-md-4 mb-3",
+                      div(
+                        class = "text-center p-3",
+                        style = "background: #252526; border-radius: 8px;",
+                        div(style = "font-size: 2em; color: #4ec9b0; margin-bottom: 10px;", icon("code")),
+                        h6("Shiny", style = "color: #cccccc; margin-bottom: 5px;"),
+                        p("Web Application", style = "color: #888; font-size: 0.85em;")
+                      )
+                    ),
+                    div(class = "col-md-4 mb-3",
+                      div(
+                        class = "text-center p-3",
+                        style = "background: #252526; border-radius: 8px;",
+                        div(style = "font-size: 2em; color: #007acc; margin-bottom: 10px;", icon("palette")),
+                        h6("Bootstrap 5", style = "color: #cccccc; margin-bottom: 5px;"),
+                        p("UI Components", style = "color: #888; font-size: 0.85em;")
+                      )
+                    )
+                  ),
+                  
+                  h5("Backend", style = "color: #cccccc; border-bottom: 1px solid #3e3e42; padding-bottom: 10px; margin-bottom: 15px;"),
+                  div(class = "row",
+                    div(class = "col-md-4 mb-3",
+                      div(
+                        class = "text-center p-3",
+                        style = "background: #252526; border-radius: 8px;",
+                        div(style = "font-size: 2em; color: #2b8e4e; margin-bottom: 10px;", icon("r-project")),
+                        h6("R 4.4+", style = "color: #cccccc; margin-bottom: 5px;"),
+                        p("Statistical Engine", style = "color: #888; font-size: 0.85em;")
+                      )
+                    ),
+                    div(class = "col-md-4 mb-3",
+                      div(
+                        class = "text-center p-3",
+                        style = "background: #252526; border-radius: 8px;",
+                        div(style = "font-size: 2em; color: #4169e1; margin-bottom: 10px;", icon("chart-bar")),
+                        h6("vegan 2.6+", style = "color: #cccccc; margin-bottom: 5px;"),
+                        p("Ordination Analysis", style = "color: #888; font-size: 0.85em;")
+                      )
+                    ),
+                    div(class = "col-md-4 mb-3",
+                      div(
+                        class = "text-center p-3",
+                        style = "background: #252526; border-radius: 8px;",
+                        div(style = "font-size: 2em; color: #ff8c00; margin-bottom: 10px;", icon("calculator")),
+                        h6("iNEXT 3.0+", style = "color: #cccccc; margin-bottom: 5px;"),
+                        p("Diversity Estimation", style = "color: #888; font-size: 0.85em;")
+                      )
+                    )
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("folder"), " Project Structure", class = "fw-bold"),
+                card_body(
+                  pre(
+                    style = "background: #1e1e1e; color: #cccccc; padding: 15px; border-radius: 5px; font-size: 0.85em; overflow-x: auto;",
+                    "ordin/
+├── src/                 # Electron main process
+│   ├── index.js         # Application entry point
+│   └── start-shiny.R    # R Shiny server starter
+├── shiny/              # Shiny application
+│   └── app.R           # Main application logic
+├── build/              # Build assets and icons
+├── docs/               # Documentation guides
+├── sample-data/        # Example datasets
+├── package.json        # Node.js configuration
+└── README.md           # Project documentation"
+                  )
+                )
+              ),
+              
+              div(
+                class = "text-center mt-4",
+                tags$a(
+                  href = "https://github.com/jm0535/0rdin",
+                  target = "_blank",
+                  class = "btn btn-success",
+                  icon("github", style = "margin-right: 5px;"),
+                  "View on GitHub"
+                )
+              )
+            ),
+            
+            # Author Section (Initially hidden)
+            div(
+              id = "author",
+              class = "help-section",
+              style = "display: none;",
+              
+              h2(
+                style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+                icon("user", style = "margin-right: 10px;"),
+                "Author & Credits"
+              ),
+              
+              div(
+                class = "text-center mb-4",
+                div(
+                  style = "width: 120px; height: 120px; border-radius: 50%; background: #252526; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 3em; color: #2e8b57; border: 2px solid #3e3e42;",
+                  icon("user-astronaut")
+                ),
+                h3(style = "color: #cccccc;", "Jimmy Moses"),
+                p(style = "color: #888;", "Lead Developer & Ecologist"),
+                p(style = "color: #aaa; max-width: 600px; margin: 0 auto 25px;",
+                  "Jimmy is a computational ecologist with expertise in community ecology analysis and statistical computing. He developed Ördin to bridge the gap between powerful ecological analysis tools and accessible, user-friendly interfaces."
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("heart"), " Acknowledgments", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    style = "color: #aaa;",
+                    tags$li("Inspired by Odin's wisdom from Norse mythology"),
+                    tags$li("Built with Electron, R Shiny, Bootstrap 5"),
+                    tags$li("Powered by vegan and iNEXT R packages"),
+                    tags$li("Community ecology research and open science advocates"),
+                    tags$li("Users and contributors who provided feedback")
+                  )
+                )
+              ),
+              
+              card(
+                card_header(icon("envelope"), " Contact", class = "fw-bold"),
+                card_body(
+                  p(style = "color: #aaa;",
+                    "For support, feedback, or collaboration opportunities:",
+                    tags$br(), tags$br(),
+                    strong("Email: "), "jmoses@pnguot.ac.pg", tags$br(),
+                    strong("GitHub: "), tags$a(href = "https://github.com/jm0535/0rdin", target = "_blank", "github.com/jm0535/0rdin")
+                  )
+                )
+              )
+            ),
+            
+            # References Section (Initially hidden)
+            div(
+              id = "references",
+              class = "help-section",
+              style = "display: none;",
+              
+              h2(
+                style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+                icon("graduation-cap", style = "margin-right: 10px;"),
+                "References & Citations"
+              ),
+              
+              p(
+                style = "color: #aaa; margin-bottom: 25px;",
+                "Ördin builds upon and integrates several foundational works in community ecology and statistical computing."
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("book"), " Core R Packages", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    style = "color: #aaa;",
+                    tags$li(
+                      strong("vegan: "), "Oksanen, J., et al. (2023). vegan: Community Ecology Package. R package version 2.6-4. https://CRAN.R-project.org/package=vegan"
+                    ),
+                    tags$li(
+                      strong("iNEXT: "), "Hsieh, T. C., Ma, K. H., & Chao, A. (2016). iNEXT: Interpolation and Extrapolation for Species Diversity. R package version 2.0.20. https://CRAN.R-project.org/package=iNEXT"
+                    ),
+                    tags$li(
+                      strong("ggplot2: "), "Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York."
+                    )
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("flask"), " Foundational Research", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    style = "color: #aaa;",
+                    tags$li(
+                      "Chao, A., Gotelli, N. J., Hsieh, T. C., Sander, E. L., Ma, K. H., Colwell, R. K., & Ellison, A. M. (2014). Rarefaction and extrapolation with Hill numbers: a framework for sampling and estimation in species diversity studies. Ecological Monographs, 84(1), 45-67."
+                    ),
+                    tags$li(
+                      "Chao, A., & Jost, L. (2012). Coverage-based rarefaction and extrapolation: standardizing samples by completeness rather than size. Ecology, 93(12), 2533-2547."
+                    ),
+                    tags$li(
+                      "Oksanen, J. (2022). Multivariate Analysis of Ecological Communities in R: vegan Tutorial. Comprehensive R Archive Network."
+                    )
+                  )
+                )
+              ),
+              
+              card(
+                class = "mb-4",
+                card_header(icon("code"), " Platform Technologies", class = "fw-bold"),
+                card_body(
+                  tags$ul(
+                    style = "color: #aaa;",
+                    tags$li(
+                      strong("Electron: "), "Electron Team. (2023). Electron: Build cross-platform desktop apps with JavaScript, HTML, and CSS. https://electronjs.org"
+                    ),
+                    tags$li(
+                      strong("Shiny: "), "Chang, W., Cheng, J., Allaire, J. J., Xie, Y., & McPherson, J. (2023). shiny: Web Application Framework for R. R package version 1.7.4. https://shiny.rstudio.com/"
+                    ),
+                    tags$li(
+                      strong("Bootstrap: "), "Bootstrap Team. (2023). Bootstrap: The most popular HTML, CSS, and JavaScript framework. https://getbootstrap.com"
+                    )
+                  )
+                )
+              ),
+              
+              card(
+                card_header(icon("quote-right"), " Citing Ördin", class = "fw-bold"),
+                card_body(
+                  p(
+                    style = "color: #aaa; background: #252526; padding: 15px; border-radius: 5px; font-family: monospace;",
+                    "Moses, J. (2025). Ördin: A cross-platform desktop application for community ecology analysis. GitHub repository: https://github.com/jm0535/0rdin"
+                  ),
+                  p(
+                    style = "color: #aaa; margin-top: 15px;",
+                    "If you use Ördin in your research, please cite the software and the underlying R packages that make the analysis possible."
+                  )
+                )
               )
             )
-          ),
-          
-          # Footer
-          hr(class = "my-4"),
-          div(
-            class = "text-center text-muted",
-            p(tags$small(
-              "Built with R Shiny + iNEXT + vegan | ",
-              strong("© 2025 Jimmy Moses"),
-              " | MIT License"
-            ))
           )
         )
       )
     )
   ),
+  
+  # JavaScript for sidebar navigation
+  tags$script(HTML('
+    // Help navigation
+    document.addEventListener("DOMContentLoaded", function() {
+      const navItems = document.querySelectorAll(".help-nav-item");
+      const sections = document.querySelectorAll(".help-section");
+      
+      navItems.forEach(item => {
+        item.addEventListener("click", function(e) {
+          e.preventDefault();
+          
+          // Update active nav item
+          navItems.forEach(nav => nav.classList.remove("active"));
+          this.classList.add("active");
+          
+          // Show corresponding section
+          const targetId = this.getAttribute("href").substring(1);
+          sections.forEach(section => {
+            if (section.id === targetId) {
+              section.style.display = "block";
+            } else {
+              section.style.display = "none";
+            }
+          });
+        });
+      });
+    });
+  '))
   
   # Settings Button (far right)
   nav_spacer(),
@@ -1203,7 +1892,7 @@ ui <- tagList(
       icon("cog")
     )
   )
-  ),  # End page_navbar
+),  # End page_navbar
   
   # Settings Sidebar (overlay)
   tags$div(
@@ -2135,10 +2824,10 @@ server <- function(input, output, session) {
             class = "form-select form-select-sm",
             style = "font-size: 0.75rem;",
             onchange = sprintf("Shiny.setInputValue('colType_%s', this.value, {priority: 'event'});", col_name),
-            tags$option(value = "numeric", selected = if (current_type %in% c("numeric", "integer", "double")) "selected" else NULL, "Numeric"),
-            tags$option(value = "character", selected = if (current_type == "character") "selected" else NULL, "Text"),
-            tags$option(value = "factor", selected = if (current_type == "factor") "selected" else NULL, "Categorical"),
-            tags$option(value = "logical", selected = if (current_type == "logical") "selected" else NULL, "Logical")
+            tags$option(value = "numeric", selected = if (current_type %in% c("numeric", "integer", "double")) "selected" else NULL, label = "Numeric"),
+            tags$option(value = "character", selected = if (current_type == "character") "selected" else NULL, label = "Text"),
+            tags$option(value = "factor", selected = if (current_type == "factor") "selected" else NULL, label = "Categorical"),
+            tags$option(value = "logical", selected = if (current_type == "logical") "selected" else NULL, label = "Logical")
           )
         )
       )
@@ -2768,8 +3457,8 @@ server <- function(input, output, session) {
         
         cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format: incidence_freq\n")
         return(list(
-          original = abund_matrix, 
-          inext_data = inext_list, 
+          original = abund_matrix,
+          inext_data = inext_list,
           data_format = "incidence_freq",
           sampling_units = sampling_units
         ))
@@ -2798,10 +3487,10 @@ server <- function(input, output, session) {
         
         cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format:", if(is_binary) "incidence_raw" else "abundance", "\n")
         return(list(
-          original = abund_matrix, 
-          transposed = abund_matrix_t, 
+          original = abund_matrix,
+          transposed = abund_matrix_t,
           inext_data = abund_matrix_t,
-          data_format = if(is_binary) "incidence_raw" else "abundance", 
+          data_format = if(is_binary) "incidence_raw" else "abundance",
           is_binary = is_binary
         ))
       }
@@ -2884,7 +3573,7 @@ server <- function(input, output, session) {
       abund_matrix <- as.matrix(species_data)
       rownames(abund_matrix) <- site_names
       
-      list(original = abund_matrix, inext_data = inext_list, data_format = "incidence_freq", 
+      list(original = abund_matrix, inext_data = inext_list, data_format = "incidence_freq",
            sampling_units = sampling_units)
     } else {
       site_names <- df[[1]]

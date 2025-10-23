@@ -5,9 +5,9 @@
 # Ördin
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/jm0535/0rdin/releases)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/jm0535/0rdin/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](https://github.com/jm0535/0rdin)
-[![R](https://img.shields.io/badge/R-%E2%89%A54.0-blue)](https://www.r-project.org/)
+[![R](https://img.shields.io/badge/R-%E2%89%A54.4-blue)](https://www.r-project.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%20%7C%2020-green)](https://nodejs.org/)
 
 **Ördin** - Enterprise-grade desktop application for community ecology analysis, combining the power of R with modern UX design. Complete modular architecture with diversity estimation, ordination, and ecological indices!
@@ -17,6 +17,18 @@
 ## Overview
 
 Ördin is an enterprise-grade Electron-based desktop application that combines R's powerful community ecology packages (`vegan`, `iNEXT`) with a modern, professional interface built using Shiny and Bootstrap 5. Analyze community composition, diversity patterns, ordination, and ecological indices with publication-quality exports and a professional user experience.
+
+### ✨ What's New in v3.0
+
+- **📊 Enhanced Ordination Analysis**: 7 methods (NMDS, PCA, CA, DCA, CCA, RDA, PCoA) with advanced visualization
+- **🎨 Advanced Plot Themes**: 5 themes (Dark, Light, Classic, Minimal, Publication) with dynamic switching
+- **📉 Confidence Ellipses**: Statistical ellipses for site groups with automatic validation
+- **pecies Scores**: Overlay species scores on ordination plots with customizable display
+- ** environmental Vectors**: Display environmental variables as arrows with biplot interpretation
+- **📊 Comprehensive Legends**: Detailed legends explaining all plot elements (sites, species, arrows, ellipses)
+- **💾 Dynamic Theme Updates**: Change themes without re-running analyses
+- **📤 Enhanced Exports**: Download scores, eigenvalues, and publication-quality plots
+- **📈 Improved Data Management**: Better validation and handling of environmental data
 
 ### ✨ What's New in v2.3
 
@@ -35,41 +47,67 @@
 - **📊 Enhanced vegan Integration**: 19 vegan functions (~9.5% coverage, up from 0.5%)
 - **🎨 Enterprise UX**: Clean, organized interface with dedicated modules
 
-### What's New in v2.0
-
-- **🎨 Professional Splash Screen**: Enterprise-grade loading experience with animated Ö logo
-- **📊 Publication-Quality Exports**: 5 formats (PNG, TIFF, JPEG, SVG, PostScript) at 300 DPI
-- **🔄 Enhanced Progress Indicators**: Real-time feedback for all analysis steps
-- **🎯 Improved UI/UX**: Contextual controls, better organization, no redundancy
-- **🐛 Critical Fixes**: Reliable results display, logo rendering, progress feedback
-- **📚 Comprehensive Documentation**: 4,500+ lines of technical guides
-
 ### Core Features
 
-- **Diversity Estimation**: Calculate species diversity using iNEXT
-  - **Individual-based rarefaction** (abundance data)
-  - **Incidence-based rarefaction** (presence/absence data)
+#### 🧬 **Diversity Analysis**
+- **Diversity Estimation**: iNEXT-based rarefaction and extrapolation
+  - Individual-based and incidence-based data support
   - Three visualization types: sample-size, coverage, completeness
-  - Rarefaction and extrapolation curves
-  - Hill numbers (q=0, 1, 2): Species richness, Shannon, Simpson
-  - 95% confidence intervals
-  
-- **Ordination Analysis**: Perform NMDS ordination using vegan
-  - Non-metric multidimensional scaling
-  - Bray-Curtis dissimilarity matrices
-  - Customizable dimensions
-  - Stress values and quality assessment
+  - Hill numbers (q=0, 1, 2): Species richness, Shannon, Simpson diversity
+  - Bootstrap confidence intervals (95% default)
+- **Diversity Indices**: Classic diversity and evenness metrics
+  - Alpha diversity: Shannon, Simpson, Inverse Simpson, Fisher's Alpha, Richness
+  - Evenness indices: Pielou's J', Simpson's E, Evar
+  - Rarefaction to specified sample sizes
+  - Species accumulation curves with permutation-based CI
 
-- **Modern Interface**: VS Code-inspired flat design with dark/light theme toggle and full-screen capabilities
-- **Theme Toggle**: Switch between dark and light themes with one click (preference saved automatically)
-- **Publication-Ready Exports**: 
-  - **5 format options**: PNG, TIFF, JPEG (300 DPI), SVG, PostScript (vector)
-  - **Consistent dimensions**: 12"×8" professional standard
-  - **Format selector**: Contextual dropdown above each plot
-  - Download summary tables (CSV) directly from interactive tables
-- **Sample Datasets**: Includes real research data (spiders, birds, ciliates, ants)
-- **Cross-Platform**: Works on Windows, macOS, and Linux (Debian/Ubuntu, Fedora/RHEL, Arch)
-- **Professional UX**: Progress indicators, welcome screen, organized controls
+#### 🗺️ **Ordination Analysis**
+- **7 Ordination Methods**:
+  - **NMDS**: Non-metric Multidimensional Scaling
+  - **PCA**: Principal Components Analysis
+  - **CA**: Correspondence Analysis
+  - **DCA**: Detrended Correspondence Analysis
+  - **CCA**: Canonical Correspondence Analysis (constrained)
+  - **RDA**: Redundancy Analysis (constrained)
+  - **PCoA**: Principal Coordinates Analysis
+- **Advanced Visualization**:
+  - 5 Distance measures: Bray-Curtis, Jaccard, Euclidean, Manhattan, Canberra
+  - Confidence ellipses for site groups with automatic validation
+  - Species scores overlay with customizable display options
+  - Environmental vectors (biplot arrows) for interpretation
+  - 5 Plot themes: Dark, Light, Classic, Minimal, Publication
+  - Dynamic theme switching without re-running analyses
+  - Comprehensive legends explaining all plot elements
+- **Technical Features**:
+  - 1-5 dimensions support
+  - Multiple scaling options (1, 2, 3)
+  - Data transformations: Hellinger, Chi-square, Log, Sqrt, PA, Wisconsin
+  - Stress values and quality assessment (NMDS)
+  - Eigenvalue percentages on axes
+  - Downloadable scores and eigenvalues (CSV)
+
+#### 🎨 **Enterprise-Grade Interface**
+- **Modern Design**: VS Code-inspired flat design with professional aesthetics
+- **Theme System**: Dark/light theme toggle with persistent preferences
+- **Responsive Layout**: Adapts to different screen sizes and resolutions
+- **Modular Navigation**: Tab-based interface with clear module separation
+- **Interactive Elements**: Enhanced widgets, accordions, and form controls
+- **Loading States**: Professional progress indicators and loading screens
+- **Help System**: Comprehensive sidebar navigation with detailed documentation
+
+#### 📤 **Publication-Ready Exports**
+- **Multiple Formats**: PNG, TIFF, SVG at publication quality (300 DPI)
+- **Consistent Dimensions**: 12"×8" professional standard sizes
+- **Theme Support**: Exports respect selected plot themes
+- **Data Exports**: CSV, Excel, JSON for all analysis results
+- **Plot Components**: Download scores, eigenvalues, and summary statistics
+
+#### 🛠️ **Data Management**
+- **Flexible Input**: CSV files with automatic data type detection
+- **Environmental Data**: Separate upload for environmental variables
+- **Data Validation**: Automatic checking for common issues
+- **Sample Datasets**: Included research data (spiders, birds, ciliates, ants)
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ## Prerequisites
 
@@ -83,7 +121,7 @@ Before building Ördin, ensure you have:
    - Download from [git-scm.com](https://git-scm.com)
    - Verify: `git --version`
 
-3. **R** (version 4.0 or higher)
+3. **R** (version 4.4 or higher)
    - Download from [r-project.org](https://www.r-project.org/)
    - Verify: `R --version`
 
@@ -110,7 +148,7 @@ Before building Ördin, ensure you have:
 ### 1. Clone or Download the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/jm0535/0rdin.git
 cd ordin
 ```
 
@@ -149,7 +187,7 @@ chmod +x setup-linux.sh
 ### 4. Install R Packages
 
 ```bash
-Rscript add-cran-binary-pkgs.R
+Rscript install-v3-packages.R
 ```
 
 This installs the required R packages into the portable R installation:
@@ -160,6 +198,21 @@ This installs the required R packages into the portable R installation:
 - ggplot2
 - DT
 - readr
+- readxl
+- dplyr
+- tidyr
+- shinyjs
+- waiter
+- shinyFeedback
+- shinycssloaders
+- shinyWidgets
+- openxlsx
+- jsonlite
+- clipr
+- shinyBS
+- shinyalert
+- viridis
+- RColorBrewer
 
 ## Development
 
@@ -179,11 +232,14 @@ This launches the Electron app in development mode with DevTools available.
 
 2. Select analysis type:
    - **Diversity Estimation**: Uses iNEXT for rarefaction curves
-   - **Ordination**: Uses vegan for NMDS analysis
+   - **Ordination**: Uses vegan for multivariate analysis
+   - **Diversity Indices**: Calculates classic diversity metrics
 
-3. Click "Run Analysis" to generate results
+3. Configure parameters and click Run
 
-4. Download summary tables and plots using the download buttons
+4. Explore results with dynamic theme switching
+
+5. Download summary tables and plots using the download buttons
 
 ## Building for Distribution
 
@@ -195,11 +251,11 @@ npm run make
 
 This creates platform-specific installers in the `out/` directory:
 
-- **Windows**: `out/make/squirrel.windows/x64/Ördin-2.0.0 Setup.exe`
-- **macOS**: `out/make/zip/darwin/x64/Ordin-darwin-x64-2.0.0.zip`
-- **Linux (Debian/Ubuntu)**: `out/make/deb/x64/ordin_2.0.0_amd64.deb`
-- **Linux (Fedora/RHEL)**: `out/make/rpm/x64/ordin-2.0.0-1.x86_64.rpm`
-- **Linux (Generic)**: `out/make/zip/linux/x64/ordin-linux-x64-2.0.0.zip`
+- **Windows**: `out/make/squirrel.windows/x64/Ördin-3.0.0 Setup.exe`
+- **macOS**: `out/make/zip/darwin/x64/Ordin-darwin-x64-3.0.0.zip`
+- **Linux (Debian/Ubuntu)**: `out/make/deb/x64/ordin_3.0.0_amd64.deb`
+- **Linux (Fedora/RHEL)**: `out/make/rpm/x64/ordin-3.0.0-1.x86_64.rpm`
+- **Linux (Generic)**: `out/make/zip/linux/x64/ordin-linux-x64-3.0.0.zip`
 
 ### Distribution
 
@@ -208,8 +264,8 @@ Share the generated installer with users. The app includes a portable R installa
 **Installation:**
 - **Windows**: Run `.exe` installer - includes splash screen on first launch
 - **macOS**: Unzip and drag `.app` to Applications
-- **Debian/Ubuntu**: `sudo dpkg -i ordin_2.0.0_amd64.deb`
-- **Fedora/RHEL**: `sudo dnf install ordin-2.0.0-1.x86_64.rpm`
+- **Debian/Ubuntu**: `sudo dpkg -i ordin_3.0.0_amd64.deb`
+- **Fedora/RHEL**: `sudo dnf install ordin-3.0.0-1.x86_64.rpm`
 - **Other Linux**: Extract `.zip` and run `./ordin`
 
 ## Project Structure
@@ -226,9 +282,11 @@ ordin/
 ├── build/
 │   ├── icon.ico          # Windows icon
 │   └── icon.icns         # macOS icon
+├── docs/                 # Comprehensive documentation
+├── sample-data/          # Example datasets
 ├── get-r-win.sh          # Windows R installation script
 ├── get-r-mac.sh          # macOS R installation script
-├── add-cran-binary-pkgs.R # R package installation script
+├── install-v3-packages.R # R package installation script
 └── package.json          # Node.js configuration
 
 ```
@@ -237,7 +295,7 @@ ordin/
 
 ### Toggle Between Dark and Light Themes
 
-**Ördin v2.3** includes a professional theme toggle button on the far right of the navbar:
+**Ördin v2.3+** includes a professional theme toggle button on the far right of the navbar:
 - Click the **☀️ (sun)** icon in dark mode to switch to light theme
 - Click the **🌙 (moon)** icon in light mode to switch to dark theme
 - Your preference is automatically saved and persists across app restarts
@@ -252,24 +310,16 @@ ordin/
 - Sidebar: #f8f8f8  
 - Text: #1e1e1e
 
-### Changing the Theme Colors
+### Changing Plot Themes
 
-Edit `shiny/app.R` and modify the `bs_theme()` parameters:
+**Ördin v3.0** introduces advanced plot theming:
+- **Dark**: High-contrast dark background with bright colors
+- **Light**: Clean white background with strong colors
+- **Classic**: Traditional academic styling
+- **Minimal**: Subtle grids and clean presentation
+- **Publication**: Black-and-white for journal submissions
 
-```r
-bs_theme(
-  version = 5,
-  preset = "shiny",  # Base preset (can also try: "bootstrap", "shiny")
-  bg = "#1e1e1e",    # Background color (dark)
-  fg = "#cccccc",    # Foreground/text color
-  primary = "#007acc",  # Primary accent color (VS Code blue)
-  secondary = "#2d2d30",  # Secondary color
-  "enable-rounded" = FALSE,  # Keep flat design (no rounded corners)
-  "enable-shadows" = FALSE   # Keep flat design (no shadows)
-)
-```
-
-**Note**: The theme toggle uses custom CSS classes that override these base colors for light mode.
+Themes can be changed dynamically without re-running analyses.
 
 ### Adding Custom Branding
 
@@ -292,7 +342,7 @@ npm install
 
 ### R Package Installation Fails
 - Ensure `automagic` is installed: `install.packages("automagic")`
-- Check R version compatibility (4.0+)
+- Check R version compatibility (4.4+)
 - Try installing packages manually in RStudio
 
 ### Electron Build Issues
@@ -303,84 +353,86 @@ npm install
 - The app uses port 8888 by default
 - Change it in `src/start-shiny.R`: `options(shiny.port = 8888)`
 
-## Rarefaction Analysis in Ördin
+## Community Ecology Analysis in Ördin
 
-### 📊 Three Types of Rarefaction Supported
+### 📊 Diversity Analysis Approaches
 
-Ördin implements all major rarefaction approaches from EstimateS software:
+Ördin implements comprehensive diversity analysis following modern ecological standards:
 
-1. **Individual-Based Rarefaction** (Abundance data)
-   - Standardizes by number of individuals
-   - Use for: Population studies, community ecology
-   - Datasets: spider, bird, ciliates
+**Diversity Estimation (iNEXT)**:
+- Individual-based rarefaction (abundance data)
+- Incidence-based rarefaction (presence/absence data)
+- Coverage-based comparison (standardizes by sample completeness)
+- Hill numbers (q=0, 1, 2) for true diversity measures
+- Bootstrap confidence intervals for robust inference
 
-2. **Incidence-Based Rarefaction** (Presence/absence data)
-   - Standardizes by sampling units (e.g., trap-days)
-   - Use for: Trap studies, detection surveys, rare species
-   - Datasets: ant
+**Diversity Indices (vegan)**:
+- Alpha diversity metrics for within-community diversity
+- Evenness measures for distribution uniformity
+- Rarefaction for standardized comparisons
+- Species accumulation curves for sampling sufficiency
 
-3. **Coverage-Based Comparison** (iNEXT innovation)
-   - Standardizes by sample completeness
-   - Use for: Fair comparison across different sampling efforts
-   - Best for: Publication-quality analyses
+### 🗺️ Ordination Methods
 
-### 📈 Three Visualization Types
+Ördin provides 7 ordination methods for community pattern analysis:
 
-- **Type 1: Sample-size-based** - Standard rarefaction curves
-- **Type 2: Sample completeness** - Evaluate survey quality
-- **Type 3: Coverage-based** - Fair comparison at equal completeness
+1. **NMDS**: Non-metric dimensional scaling for non-linear relationships
+2. **PCA**: Principal components analysis for linear relationships
+3. **CA**: Correspondence analysis for unimodal species responses
+4. **DCA**: Detrended correspondence analysis to remove arch effect
+5. **CCA**: Canonical correspondence analysis for constrained ordination
+6. **RDA**: Redundancy analysis for linear constrained ordination
+7. **PCoA**: Principal coordinates analysis for distance-based methods
 
-### 💾 Publication-Quality Exports (v2.0)
+### 📈 Advanced Visualization Features
 
-Ördin v2.0 provides professional export options for all plots:
+**Ördin v3.0** introduces professional visualization capabilities:
+
+- **Confidence Ellipses**: Statistical ellipses for site groups with validation
+- **Species Scores**: Overlay species positions with customizable display
+- **Environmental Vectors**: Biplot arrows showing environmental relationships
+- **Dynamic Theming**: 5 plot themes with instant switching
+- **Comprehensive Legends**: Clear explanation of all plot elements
+- **Axis Labels**: Variance percentages for interpretability
+- **Export Options**: Publication-quality images and data downloads
+
+### 💾 Publication-Quality Exports
+
+Ördin provides professional export options for all analyses:
 
 **Raster Formats** (300 DPI - publication standard):
 - **PNG** - Universal compatibility, lossless compression
 - **TIFF** - Journal submission standard, archival quality
-- **JPEG** - Presentations, smaller file size
+- **SVG** - Vector format for scalable graphics
 
-**Vector Formats** (infinite resolution):
-- **SVG** - Web, presentations, scalable graphics
-- **PostScript** - LaTeX documents, academic publishing
+**Data Exports**:
+- **CSV** - Universal data format
+- **Excel** - Spreadsheet compatibility
+- **JSON** - Structured data for programming
 
 **Export Settings**:
 - Dimensions: 12" × 8" (standard publication size)
 - DPI: 300 for raster formats (journal requirement)
-- Background: Dark (#222222) preserved in all formats
-- Font: Helvetica family for PostScript compatibility
+- Theme consistency: Respects selected plot themes
+- Background: Theme-appropriate backgrounds preserved
 
-**How to Export**:
-1. Run your analysis to generate plots
-2. Above each plot, use the format selector dropdown
-3. Choose your desired format (PNG, TIFF, JPEG, SVG, or PS)
-4. Click "Download Plot" button
-5. File saved as: `ordin_[analysis-type]_plot_[date].[format]`
+## Documentation
 
-### 📚 Documentation
+### 📚 User Guides
 
 Detailed guides available in the repository:
 
-- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](ESTIMATES-AND-RAREFACTION-TYPES.md) - Comprehensive theory
-- [`docs/RAREFACTION-QUICK-GUIDE.md`](docs/RAREFACTION-QUICK-GUIDE.md) - Decision tree and examples
-- [`docs/RAREFACTION-IMPLEMENTATION.md`](docs/RAREFACTION-IMPLEMENTATION.md) - Technical details
-- [`INCIDENCE-VS-ABUNDANCE.md`](INCIDENCE-VS-ABUNDANCE.md) - Data format guide
+- [`ENTERPRISE_ORDINATION_GUIDE.md`](ENTERPRISE_ORDINATION_GUIDE.md) - Comprehensive ordination analysis
+- [`DATA_MANAGEMENT_GUIDE.md`](DATA_MANAGEMENT_GUIDE.md) - Data handling and validation
+- [`SETTINGS_GUIDE.md`](SETTINGS_GUIDE.md) - Application configuration
+- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](ESTIMATES-AND-RAREFACTION-TYPES.md) - Diversity estimation theory
 
-### 🆚 Comparison with EstimateS
+### 📘 Technical Documentation
 
-Ördin matches and exceeds EstimateS capabilities:
-
-| Feature | EstimateS | Ördin |
-|---------|-----------|-------|
-| Individual-based rarefaction | ✅ | ✅ |
-| Incidence-based rarefaction | ✅ | ✅ |
-| Sample-based rarefaction | ✅ | ⚠️ Partial |
-| Extrapolation | Limited | ✅ Full |
-| Coverage-based | ❌ | ✅ Yes |
-| Hill numbers (q=0,1,2) | Partial | ✅ Full |
-| Confidence intervals | Bootstrap | Analytical + Bootstrap |
-| Cross-platform | Windows/Mac | Windows/Mac/Linux |
-
----
+- [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md) - Architecture and technology stack
+- [`CHANGELOG.md`](CHANGELOG.md) - Complete version history
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) - Development guidelines
+- [`docs/`](docs/) - Comprehensive technical guides
 
 ## License
 

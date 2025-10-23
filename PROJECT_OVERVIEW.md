@@ -29,7 +29,7 @@ ordin/
 │   ├── setup.sh                     # macOS/Linux setup script
 │   ├── get-r-win.sh                # Windows portable R installer
 │   ├── get-r-mac.sh                # macOS portable R installer
-│   └── add-cran-binary-pkgs.R      # R package installer
+│   └── install-v3-packages.R       # R package installer
 │
 ├── 💻 Application Code
 │   ├── src/
@@ -70,17 +70,19 @@ ordin/
   - Theme persistence via localStorage
   - Bootstrap 5 custom theme (bslib)
   - iNEXT diversity estimation and rarefaction
-  - vegan ordination (NMDS, PCA, CA, DCA, PCoA)
+  - vegan ordination (NMDS, PCA, CA, DCA, CCA, RDA, PCoA)
   - vegan diversity indices (Shannon, Simpson, evenness, etc.)
-  - Interactive plots (ggplot2)
-  - Data tables (DT)
-  - CSV upload/download
+  - Advanced visualization (confidence ellipses, species scores, env vectors)
+  - Interactive plots (ggplot2) with 5 plot themes
+  - Data tables (DT) with export capabilities
+  - CSV upload/download with validation
   - Multi-format plot export (PNG, TIFF, SVG, etc.)
+  - Dynamic theme switching without re-running analyses
 
 ### 3. Portable R Setup
 - **Windows**: `get-r-win.sh` (requires Cygwin)
 - **macOS**: `get-r-mac.sh`
-- **Packages**: `add-cran-binary-pkgs.R`
+- **Packages**: `install-v3-packages.R`
 - **Purpose**: Creates self-contained R installation
 - **Benefits**:
   - No system R installation needed
@@ -151,8 +153,8 @@ ordin/
 - Server logic:
   - `data()`: Reactive CSV loading
   - `results()`: Stores analysis outputs
-  - `observeEvent(runAnalysis)`: Performs iNEXT or NMDS
-  - Download handlers for CSV and PNG
+  - `observeEvent(runAnalysis)`: Performs iNEXT or ordination
+  - Download handlers for CSV, Excel, JSON, and plots
 
 ## Data Flow
 
@@ -161,27 +163,33 @@ User uploads CSV
     ↓
 shiny/app.R reads file (readr::read_csv)
     ↓
-User selects analysis type
+User selects analysis type and configures parameters
     ↓
 User clicks "Run Analysis"
     ↓
-    ├── iNEXT path:
+    ├── Diversity Estimation path:
     │   ├── iNEXT::iNEXT() → diversity calculations
     │   ├── iNEXT::ggiNEXT() → rarefaction plot
-    │   └── Store in results()
+    │   └── Store in diversityResults()
     │
-    └── NMDS path:
+    ├── Diversity Indices path:
+    │   ├── vegan::diversity() → diversity metrics
+    │   ├── vegan::specaccum() → accumulation curves
+    │   └── Store in indicesResults()
+    │
+    └── Ordination path:
         ├── vegan::vegdist() → dissimilarity matrix
-        ├── vegan::metaMDS() → ordination
-        ├── ggplot2 → custom plot
-        └── Store in results()
+        ├── vegan::metaMDS()/rda()/cca()/decorana() → ordination
+        ├── Advanced visualization (ellipses, species scores, env vectors)
+        ├── ggplot2 with theme system
+        └── Store in ordinationResults()
     ↓
 Display summary table (DT::datatable)
-Display plot (renderPlot)
+Display plot (renderPlot) with theme
     ↓
 User downloads results
-    ├── CSV: write_csv()
-    └── PNG: ggsave()
+    ├── Data: CSV, Excel, JSON
+    └── Plots: PNG, TIFF, SVG (theme-consistent)
 ```
 
 ## Build Process
@@ -212,7 +220,7 @@ Output to out/make/
 2. ./get-r-win.sh or ./get-r-mac.sh
    └── Download and extract portable R
 
-3. Rscript add-cran-binary-pkgs.R
+3. Rscript install-v3-packages.R
    └── Install R packages into portable R
 
 4. npm start
@@ -235,12 +243,12 @@ Output to out/make/
 ### For End Users (No R Required)
 
 **Windows:**
-1. Download `Ördin-1.0.0 Setup.exe`
+1. Download `Ördin-3.0.0 Setup.exe`
 2. Run installer
 3. Launch from Start Menu or Desktop
 
 **macOS:**
-1. Download `Ordin-darwin-x64-1.0.0.zip`
+1. Download `Ordin-darwin-x64-3.0.0.zip`
 2. Unzip to get `Ördin.app`
 3. Drag to Applications folder
 4. Launch like any Mac app
@@ -276,6 +284,12 @@ Output to out/make/
 - Themeable UI (bslib)
 - Well-documented for contributors
 
+### 5. Professional
+- Enterprise-grade UX design
+- Publication-quality outputs
+- Comprehensive documentation
+- Advanced visualization features
+
 ## Performance Characteristics
 
 ### Startup Time
@@ -283,15 +297,19 @@ Output to out/make/
 - Subsequent launches: ~3-5 seconds
 
 ### Analysis Speed
-- **iNEXT**: 1-30 seconds (depends on dataset size)
+- **Diversity Estimation**: 1-30 seconds (depends on dataset size)
   - Small (10 sites): < 5 seconds
   - Medium (50 sites): 10-15 seconds
   - Large (100+ sites): 20-30 seconds
 
-- **NMDS**: 5-60 seconds (depends on sites, species, dimensions)
-  - 2D with 20 sites: ~5 seconds
-  - 3D with 50 sites: ~20 seconds
-  - 5D with 100 sites: ~60 seconds
+- **Ordination Analysis**: 5-60 seconds (depends on method, sites, species, dimensions)
+  - NMDS 2D with 20 sites: ~5 seconds
+  - PCA 3D with 50 sites: ~15 seconds
+  - CCA with 100 sites: ~30 seconds
+
+- **Diversity Indices**: 2-10 seconds (depends on indices selected)
+  - Basic indices: ~2 seconds
+  - Full suite with accumulation: ~10 seconds
 
 ### Memory Usage
 - Base app: ~200 MB
@@ -312,13 +330,23 @@ Output to out/make/
 
 ## Future Roadmap
 
-See [CHANGELOG.md](CHANGELOG.md) for planned features:
-- Additional ordination methods (PCA, CCA)
-- More diversity indices
-- Batch processing
-- PDF export
-- R Markdown reports
-- Auto-updates
+### Short Term (v3.1-v3.2)
+- Additional ordination visualization features
+- Enhanced data management capabilities
+- More diversity indices and metrics
+- Improved export options
+
+### Medium Term (v4.0)
+- Batch processing for multiple datasets
+- Advanced statistical modeling
+- Interactive plot manipulation
+- Custom analysis workflows
+
+### Long Term (v5.0+)
+- Machine learning integration
+- Cloud synchronization
+- Collaborative features
+- Mobile companion app
 
 ## Maintenance
 
@@ -332,8 +360,8 @@ See [CHANGELOG.md](CHANGELOG.md) for planned features:
 # Node.js packages
 npm update
 
-# R packages (edit add-cran-binary-pkgs.R to add/remove)
-Rscript add-cran-binary-pkgs.R
+# R packages (edit install-v3-packages.R to add/remove)
+Rscript install-v3-packages.R
 ```
 
 ### Updating Electron
@@ -351,6 +379,6 @@ npm install @electron-forge/cli@latest --save-dev
 
 ---
 
-**Project Version**: 1.0.0  
-**Last Updated**: 2025-10-22  
+**Project Version**: 3.0.0  
+**Last Updated**: 2025-10-24  
 **Status**: Production Ready ✅
