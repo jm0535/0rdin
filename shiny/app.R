@@ -19,6 +19,8 @@ library(jsonlite)        # JSON export
 library(clipr)           # Clipboard functionality
 library(shinyBS)         # Bootstrap components
 library(shinyalert)      # Alert dialogs
+library(viridis)         # Viridis color palettes
+library(RColorBrewer)    # ColorBrewer palettes
 
 # UI Definition
 ui <- tagList(
@@ -207,18 +209,55 @@ ui <- tagList(
         }
       }
       
+      // Zoom functionality
+      let currentZoom = 100;
+      
+      function zoomIn() {
+        if (currentZoom < 200) {
+          currentZoom += 10;
+          applyZoom();
+        }
+      }
+      
+      function zoomOut() {
+        if (currentZoom > 50) {
+          currentZoom -= 10;
+          applyZoom();
+        }
+      }
+      
+      function zoomReset() {
+        currentZoom = 100;
+        applyZoom();
+      }
+      
+      function applyZoom() {
+        document.body.style.zoom = currentZoom + "%";
+        document.getElementById("zoom-level").textContent = currentZoom + "%";
+        localStorage.setItem("ordin-zoom-level", currentZoom);
+        Shiny.setInputValue("settingsZoomLevel", currentZoom);
+      }
+      
       // Reset all settings to defaults
       function resetAllSettings() {
         // Clear localStorage
         localStorage.removeItem("ordin-theme");
         localStorage.removeItem("ordin-font-size");
         localStorage.removeItem("ordin-autosave-timestamp");
+        localStorage.removeItem("ordin-zoom-level");
+        localStorage.removeItem("ordin-ggplot-theme");
+        localStorage.removeItem("ordin-plot-dpi");
+        localStorage.removeItem("ordin-color-palette");
         
         // Reset theme to dark
         handleThemeChange("dark");
         
         // Reset font size to medium
         handleFontSizeChange("medium");
+        
+        // Reset zoom to 100%
+        currentZoom = 100;
+        applyZoom();
         
         // Reset toggles
         document.getElementById("autoSaveToggle").checked = true;
@@ -229,6 +268,9 @@ ui <- tagList(
         document.getElementById("fontSizeSelector").value = "medium";
         document.getElementById("exportFormatSelector").value = "csv";
         document.getElementById("decimalPrecisionSelector").value = "3";
+        document.getElementById("ggplotThemeSelector").value = "minimal";
+        document.getElementById("plotDpiSelector").value = "300";
+        document.getElementById("colorPaletteSelector").value = "ordin";
         
         // Notify user
         alert("Settings reset to defaults!");
@@ -254,6 +296,17 @@ ui <- tagList(
         // Load saved font size
         const savedFontSize = localStorage.getItem("ordin-font-size") || "medium";
         body.classList.add("font-" + savedFontSize);
+        
+        // Load saved zoom level
+        const savedZoom = localStorage.getItem("ordin-zoom-level");
+        if (savedZoom) {
+          currentZoom = parseInt(savedZoom);
+          document.body.style.zoom = currentZoom + "%";
+          const zoomElement = document.getElementById("zoom-level");
+          if (zoomElement) {
+            zoomElement.textContent = currentZoom + "%";
+          }
+        }
         
         // Load settings into dropdown (with delay to ensure elements exist)
         setTimeout(function() {
@@ -286,6 +339,25 @@ ui <- tagList(
           if (decimalPrecision) {
             const selector = document.getElementById("decimalPrecisionSelector");
             if (selector) selector.value = decimalPrecision;
+          }
+          
+          // Load plot settings
+          const ggplotTheme = localStorage.getItem("ordin-ggplot-theme");
+          if (ggplotTheme) {
+            const selector = document.getElementById("ggplotThemeSelector");
+            if (selector) selector.value = ggplotTheme;
+          }
+          
+          const plotDpi = localStorage.getItem("ordin-plot-dpi");
+          if (plotDpi) {
+            const selector = document.getElementById("plotDpiSelector");
+            if (selector) selector.value = plotDpi;
+          }
+          
+          const colorPalette = localStorage.getItem("ordin-color-palette");
+          if (colorPalette) {
+            const selector = document.getElementById("colorPaletteSelector");
+            if (selector) selector.value = colorPalette;
           }
         }, 500);
         
@@ -972,7 +1044,7 @@ ui <- tagList(
         tags$div(
           class = "settings-section-title",
           style = "color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;",
-          "Data"
+          "Data & Export"
         ),
         
         # Default export format
@@ -1013,6 +1085,159 @@ ui <- tagList(
             tags$option(value = "3", selected = "selected", "3 digits"),
             tags$option(value = "4", "4 digits"),
             tags$option(value = "5", "5 digits")
+          )
+        )
+      ),
+      
+      # Plot & Visualization Settings Section
+      tags$div(
+        class = "settings-section",
+        style = "margin-bottom: 24px;",
+        tags$div(
+          class = "settings-section-title",
+          style = "color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;",
+          "Plots & Visualization"
+        ),
+        
+        # ggplot2 theme
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("chart-bar", style = "margin-right: 8px; color: #2e8b57;"),
+            "ggplot2 Theme"
+          ),
+          tags$select(
+            id = "ggplotThemeSelector",
+            class = "form-select form-select-sm",
+            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
+            onchange = "Shiny.setInputValue('settingsGgplotTheme', this.value);",
+            tags$option(value = "minimal", selected = "selected", "Minimal (Default)"),
+            tags$option(value = "bw", "Black & White"),
+            tags$option(value = "classic", "Classic"),
+            tags$option(value = "grey", "Grey"),
+            tags$option(value = "light", "Light"),
+            tags$option(value = "dark", "Dark"),
+            tags$option(value = "void", "Void")
+          )
+        ),
+        
+        # Plot DPI
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("image", style = "margin-right: 8px; color: #2e8b57;"),
+            "Plot DPI (Export Quality)"
+          ),
+          tags$select(
+            id = "plotDpiSelector",
+            class = "form-select form-select-sm",
+            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
+            onchange = "Shiny.setInputValue('settingsPlotDpi', this.value);",
+            tags$option(value = "150", "150 DPI (Screen)"),
+            tags$option(value = "300", selected = "selected", "300 DPI (Publication)"),
+            tags$option(value = "600", "600 DPI (High Quality)")
+          )
+        ),
+        
+        # Color palette
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("swatchbook", style = "margin-right: 8px; color: #2e8b57;"),
+            "Color Palette"
+          ),
+          tags$select(
+            id = "colorPaletteSelector",
+            class = "form-select form-select-sm",
+            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
+            onchange = "Shiny.setInputValue('settingsColorPalette', this.value);",
+            tags$option(value = "ordin", selected = "selected", "Ördin Green"),
+            tags$option(value = "viridis", "Viridis"),
+            tags$option(value = "colorblind", "Colorblind-Safe"),
+            tags$option(value = "set1", "Set1 (Bright)"),
+            tags$option(value = "set2", "Set2 (Pastel)")
+          )
+        )
+      ),
+      
+      # Zoom & Display Settings Section
+      tags$div(
+        class = "settings-section",
+        style = "margin-bottom: 24px;",
+        tags$div(
+          class = "settings-section-title",
+          style = "color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;",
+          "Zoom & Display"
+        ),
+        
+        # Page zoom
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
+          tags$label(
+            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
+            icon("search-plus", style = "margin-right: 8px; color: #2e8b57;"),
+            "Page Zoom"
+          ),
+          tags$div(
+            style = "display: flex; align-items: center; gap: 10px;",
+            tags$button(
+              onclick = "zoomOut()",
+              class = "btn btn-sm btn-outline-secondary",
+              style = "font-size: 0.8rem; padding: 4px 12px;",
+              "-"
+            ),
+            tags$span(
+              id = "zoom-level",
+              style = "color: #cccccc; min-width: 60px; text-align: center;",
+              "100%"
+            ),
+            tags$button(
+              onclick = "zoomIn()",
+              class = "btn btn-sm btn-outline-secondary",
+              style = "font-size: 0.8rem; padding: 4px 12px;",
+              "+"
+            ),
+            tags$button(
+              onclick = "zoomReset()",
+              class = "btn btn-sm btn-outline-secondary",
+              style = "font-size: 0.8rem; padding: 4px 12px;",
+              "Reset"
+            )
+          )
+        )
+      ),
+      
+      # Citations & References Section
+      tags$div(
+        class = "settings-section",
+        style = "margin-bottom: 24px;",
+        tags$div(
+          class = "settings-section-title",
+          style = "color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;",
+          "Citations & References"
+        ),
+        
+        # Citations button
+        tags$div(
+          class = "mb-3",
+          style = "padding: 12px 0;",
+          actionButton(
+            "showCitationsBtn",
+            label = tagList(icon("quote-right"), " View Citations"),
+            class = "btn btn-sm btn-outline-info w-100",
+            style = "font-size: 0.85rem; border-color: #4ec9b0; color: #4ec9b0; padding: 10px;",
+            onclick = "Shiny.setInputValue('showCitations', Math.random());"
+          ),
+          tags$div(
+            style = "margin-top: 8px; color: #666; font-size: 0.75rem; text-align: center;",
+            "R Core Team, iNEXT, vegan, ggplot2, Ördin"
           )
         )
       ),
@@ -1079,6 +1304,51 @@ server <- function(input, output, session) {
   })
   
   # ========================================
+  # HELPER FUNCTIONS FOR SETTINGS
+  # ========================================
+  
+  # Get ggplot2 theme based on settings
+  get_plot_theme <- function() {
+    theme_name <- settings$ggplotTheme
+    base_size <- 14
+    
+    theme_obj <- switch(theme_name,
+      "minimal" = theme_minimal(base_size = base_size),
+      "bw" = theme_bw(base_size = base_size),
+      "classic" = theme_classic(base_size = base_size),
+      "grey" = theme_grey(base_size = base_size),
+      "gray" = theme_gray(base_size = base_size),
+      "light" = theme_light(base_size = base_size),
+      "dark" = theme_dark(base_size = base_size),
+      "void" = theme_void(base_size = base_size),
+      theme_minimal(base_size = base_size)  # default
+    )
+    
+    return(theme_obj)
+  }
+  
+  # Get color palette based on settings
+  get_color_palette <- function(n = 8) {
+    palette_name <- settings$colorPalette
+    
+    colors <- switch(palette_name,
+      "ordin" = rep("#2e8b57", n),  # Ördin green
+      "viridis" = viridis::viridis(n),
+      "colorblind" = c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")[1:n],
+      "set1" = RColorBrewer::brewer.pal(min(n, 9), "Set1"),
+      "set2" = RColorBrewer::brewer.pal(min(n, 8), "Set2"),
+      rep("#2e8b57", n)  # default
+    )
+    
+    return(colors)
+  }
+  
+  # Get plot DPI for exports
+  get_plot_dpi <- function() {
+    return(settings$plotDpi)
+  }
+  
+  # ========================================
   # SETTINGS HANDLERS - Enterprise Grade
   # ========================================
   
@@ -1089,7 +1359,11 @@ server <- function(input, output, session) {
     theme = "dark",
     fontSize = "medium",
     exportFormat = "csv",
-    decimalPrecision = 3
+    decimalPrecision = 3,
+    ggplotTheme = "minimal",
+    plotDpi = 300,
+    colorPalette = "ordin",
+    zoomLevel = 100
   )
   
   # Auto-save toggle
@@ -1178,6 +1452,164 @@ server <- function(input, output, session) {
     }
   })
   
+  # ggplot2 theme change
+  observeEvent(input$settingsGgplotTheme, {
+    settings$ggplotTheme <- input$settingsGgplotTheme
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-ggplot-theme', '%s');",
+      input$settingsGgplotTheme
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("ggplot2 theme changed to:", input$settingsGgplotTheme),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Plot DPI change
+  observeEvent(input$settingsPlotDpi, {
+    settings$plotDpi <- as.numeric(input$settingsPlotDpi)
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-plot-dpi', '%s');",
+      input$settingsPlotDpi
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Plot quality set to", input$settingsPlotDpi, "DPI"),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Color palette change
+  observeEvent(input$settingsColorPalette, {
+    settings$colorPalette <- input$settingsColorPalette
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-color-palette', '%s');",
+      input$settingsColorPalette
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Color palette changed to:", input$settingsColorPalette),
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Zoom level change
+  observeEvent(input$settingsZoomLevel, {
+    settings$zoomLevel <- as.numeric(input$settingsZoomLevel)
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Page zoom:", input$settingsZoomLevel, "%"),
+        type = "message",
+        duration = 1
+      )
+    }
+  })
+  
+  # Show citations modal
+  observeEvent(input$showCitations, {
+    citation_html <- HTML(
+      '<div style="text-align: left; font-family: monospace; font-size: 0.85rem; line-height: 1.6;">
+      
+      <h4 style="color: #2e8b57; margin-bottom: 15px;"><i class="fas fa-quote-left"></i> R Core Team</h4>
+      <p style="background: #f5f5f5; padding: 12px; border-left: 3px solid #2e8b57; margin-bottom: 20px;">
+      R Core Team (2025). <i>R: A Language and Environment for Statistical Computing</i>. 
+      R Foundation for Statistical Computing, Vienna, Austria.
+      <br><strong>URL:</strong> <a href="https://www.R-project.org/" target="_blank">https://www.R-project.org/</a>
+      </p>
+      
+      <h4 style="color: #2e8b57; margin-bottom: 15px;"><i class="fas fa-cube"></i> iNEXT Package</h4>
+      <p style="background: #f5f5f5; padding: 12px; border-left: 3px solid #2e8b57; margin-bottom: 20px;">
+      Hsieh, T. C., Ma, K. H., & Chao, A. (2016). iNEXT: An R package for rarefaction and extrapolation 
+      of species diversity (Hill numbers). <i>Methods in Ecology and Evolution</i>, 7(12), 1451-1456.
+      <br><strong>DOI:</strong> <a href="https://doi.org/10.1111/2041-210X.12613" target="_blank">10.1111/2041-210X.12613</a>
+      </p>
+      
+      <h4 style="color: #2e8b57; margin-bottom: 15px;"><i class="fas fa-cube"></i> vegan Package</h4>
+      <p style="background: #f5f5f5; padding: 12px; border-left: 3px solid #2e8b57; margin-bottom: 20px;">
+      Oksanen, J., Simpson, G. L., Blanchet, F. G., Kindt, R., Legendre, P., Minchin, P. R., ... & Wagner, H. (2024). 
+      <i>vegan: Community Ecology Package</i>. R package version 2.6-6.1.
+      <br><strong>URL:</strong> <a href="https://CRAN.R-project.org/package=vegan" target="_blank">https://CRAN.R-project.org/package=vegan</a>
+      </p>
+      
+      <h4 style="color: #2e8b57; margin-bottom: 15px;"><i class="fas fa-cube"></i> ggplot2 Package</h4>
+      <p style="background: #f5f5f5; padding: 12px; border-left: 3px solid #2e8b57; margin-bottom: 20px;">
+      Wickham, H. (2016). <i>ggplot2: Elegant Graphics for Data Analysis</i>. Springer-Verlag New York.
+      <br><strong>ISBN:</strong> 978-3-319-24277-4
+      <br><strong>URL:</strong> <a href="https://ggplot2.tidyverse.org" target="_blank">https://ggplot2.tidyverse.org</a>
+      </p>
+      
+      <h4 style="color: #2e8b57; margin-bottom: 15px;"><i class="fas fa-leaf"></i> Ördin Application</h4>
+      <p style="background: #f5f5f5; padding: 12px; border-left: 3px solid #2e8b57; margin-bottom: 20px;">
+      Moses, J. (2025). <i>Ördin: An Interactive Platform for Biodiversity Analysis and Ordination</i>. Version 3.0.
+      <br><strong>Author:</strong> Jimmy Moses
+      <br><strong>License:</strong> MIT
+      </p>
+      
+      <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+      
+      <p style="text-align: center; color: #666; font-size: 0.8rem;">
+      <i class="fas fa-info-circle"></i> Click outside this box or press ESC to close
+      </p>
+      
+      </div>'
+    )
+    
+    shinyalert(
+      title = HTML('<span style="color: #2e8b57;"><i class="fas fa-book"></i> Citations & References</span>'),
+      text = citation_html,
+      html = TRUE,
+      type = "",
+      showConfirmButton = TRUE,
+      confirmButtonText = "Copy All Citations",
+      confirmButtonCol = "#2e8b57",
+      showCancelButton = TRUE,
+      cancelButtonText = "Close",
+      size = "l",
+      closeOnEsc = TRUE,
+      closeOnClickOutside = TRUE,
+      animation = TRUE,
+      callbackR = function(value) {
+        if (value) {
+          # Copy citations to clipboard
+          citations_text <- paste(
+            "R Core Team (2025). R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing, Vienna, Austria. URL: https://www.R-project.org/",
+            "",
+            "Hsieh, T. C., Ma, K. H., & Chao, A. (2016). iNEXT: An R package for rarefaction and extrapolation of species diversity (Hill numbers). Methods in Ecology and Evolution, 7(12), 1451-1456. DOI: 10.1111/2041-210X.12613",
+            "",
+            "Oksanen, J., Simpson, G. L., Blanchet, F. G., Kindt, R., Legendre, P., Minchin, P. R., ... & Wagner, H. (2024). vegan: Community Ecology Package. R package version 2.6-6.1. URL: https://CRAN.R-project.org/package=vegan",
+            "",
+            "Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York. ISBN: 978-3-319-24277-4. URL: https://ggplot2.tidyverse.org",
+            "",
+            "Moses, J. (2025). Ördin: An Interactive Platform for Biodiversity Analysis and Ordination. Version 3.0.",
+            sep = "\n"
+          )
+          
+          shinyjs::runjs(sprintf(
+            "navigator.clipboard.writeText(%s);",
+            jsonlite::toJSON(citations_text, auto_unbox = TRUE)
+          ))
+          
+          showNotification(
+            "All citations copied to clipboard!",
+            type = "message",
+            duration = 3
+          )
+        }
+      }
+    )
+  })
+  
   # Settings reset handler
   observeEvent(input$settingsReset, {
     settings$autoSave <- TRUE
@@ -1186,6 +1618,10 @@ server <- function(input, output, session) {
     settings$fontSize <- "medium"
     settings$exportFormat <- "csv"
     settings$decimalPrecision <- 3
+    settings$ggplotTheme <- "minimal"
+    settings$plotDpi <- 300
+    settings$colorPalette <- "ordin"
+    settings$zoomLevel <- 100
     
     showNotification(
       "All settings reset to defaults",
@@ -1731,7 +2167,7 @@ server <- function(input, output, session) {
         labs(title = "Diversity Estimation (iNEXT)",
              subtitle = paste0("Hill numbers q=", paste(selected_q, collapse = ", "), " | ", 
                              input$conf * 100, "% CI")) +
-        theme_bw(base_size = 14) +
+        get_plot_theme() +
         theme(plot.title = element_text(size = 16, face = "bold"), legend.position = "bottom")
       
       incProgress(1)
@@ -1785,10 +2221,12 @@ server <- function(input, output, session) {
     filename = function() paste0("diversity_plot_", Sys.Date(), ".", input$diversityPlotFormat),
     content = function(file) {
       format <- input$diversityPlotFormat
+      plot_dpi <- get_plot_dpi()
+      
       if (format == "png") {
-        ggsave(file, plot = diversityResults()$plot, device = "png", width = 12, height = 8, dpi = 300, bg = "white")
+        ggsave(file, plot = diversityResults()$plot, device = "png", width = 12, height = 8, dpi = plot_dpi, bg = "white")
       } else if (format == "tiff") {
-        ggsave(file, plot = diversityResults()$plot, device = "tiff", width = 12, height = 8, dpi = 300, bg = "white")
+        ggsave(file, plot = diversityResults()$plot, device = "tiff", width = 12, height = 8, dpi = plot_dpi, bg = "white")
       } else {
         ggsave(file, plot = diversityResults()$plot, device = "svg", width = 12, height = 8, bg = "white")
       }
@@ -1912,10 +2350,14 @@ server <- function(input, output, session) {
       
       if (ncol(result$scores) >= 3) {
         axis_names <- names(result$scores)[-1]
+        
+        # Get primary color from palette
+        plot_color <- get_color_palette(1)[1]
+        
         plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]])) +
-          geom_point(size = 4, color = "#2e8b57", alpha = 0.7) +
+          geom_point(size = 4, color = plot_color, alpha = 0.7) +
           geom_text(aes(label = Site), vjust = -1, color = "white", size = 4) +
-          theme_minimal(base_size = 14) +
+          get_plot_theme() +
           theme(panel.background = element_rect(fill = "#222222", color = NA),
                 plot.background = element_rect(fill = "#222222", color = NA),
                 panel.grid = element_line(color = "#444444"),
@@ -2084,8 +2526,10 @@ server <- function(input, output, session) {
     filename = function() paste0("ordination_", Sys.Date(), ".", input$ordinationPlotFormat),
     content = function(file) {
       format <- input$ordinationPlotFormat
+      plot_dpi <- get_plot_dpi()
+      
       if (format == "png") {
-        ggsave(file, plot = ordinationResults()$plot, device = "png", width = 12, height = 8, dpi = 300, bg = "#222222")
+        ggsave(file, plot = ordinationResults()$plot, device = "png", width = 12, height = 8, dpi = plot_dpi, bg = "#222222")
       } else {
         ggsave(file, plot = ordinationResults()$plot, device = "svg", width = 12, height = 8, bg = "#222222")
       }
