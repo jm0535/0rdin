@@ -92,10 +92,110 @@ ui <- page_sidebar(
     full_screen = TRUE,
     fill = TRUE,
     card_header("Analysis Results"),
-    # Conditional display: Welcome page OR Results
-    conditionalPanel(
-      condition = "!output.resultsUI",
-      # Welcome Page - shown when no results available
+    uiOutput("mainContent")
+  )
+)
+
+server <- function(input, output, session) {
+  # Reactive data loading
+  data <- reactive({
+    req(input$dataFile)
+    
+    tryCatch({
+      df <- read_csv(input$dataFile$datapath, show_col_types = FALSE)
+      
+      # Validation
+      validate(
+        need(ncol(df) > 1, "CSV must have at least one site column and one species column.")
+      )
+      
+      # DETECT DATA FORMAT
+      # Check if second column is named "SamplingUnits" (incidence_freq format)
+      has_sampling_units <- ncol(df) >= 2 && tolower(names(df)[2]) == "samplingunits"
+      
+      if (has_sampling_units) {
+        # INCIDENCE_FREQ FORMAT (like ant data)
+        # Format: Site, SamplingUnits, Species_1, Species_2, ...
+        # iNEXT needs: list of vectors, first element = # sampling units
+        
+        site_names <- df[[1]]
+        sampling_units <- df[[2]]
+        species_data <- df[, -c(1, 2)]
+        
+        # Check all numeric
+        validate(
+          need(all(sapply(species_data, is.numeric)), "All species columns must be numeric.")
+        )
+        
+        # Create list format for iNEXT incidence_freq
+        # Each site is a vector: c(sampling_units, species_counts...)
+        inext_list <- lapply(1:nrow(df), function(i) {
+          c(sampling_units[i], as.numeric(species_data[i, ]))
+        })
+        names(inext_list) <- site_names
+        
+        # For NMDS, use species matrix only (sites as rows)
+        abund_matrix <- as.matrix(species_data)
+        rownames(abund_matrix) <- site_names
+        
+        list(
+          original = abund_matrix,           # For NMDS (sites as rows)
+          inext_data = inext_list,           # For iNEXT incidence_freq
+          data_format = "incidence_freq",
+          sampling_units = sampling_units
+        )
+        
+      } else {
+        # STANDARD FORMAT (abundance or incidence_raw)
+        # Format: Site, Species_1, Species_2, ...
+        
+        site_names <- df[[1]]
+        abund_matrix <- as.matrix(df[-1])
+        rownames(abund_matrix) <- site_names
+        
+        # Check if data is numeric
+        validate(
+          need(all(sapply(df[-1], is.numeric)), "All abundance columns (except first) must be numeric.")
+        )
+        
+        # Auto-detect if incidence_raw (all 0s and 1s)
+        is_binary <- all(abund_matrix %in% c(0, 1))
+        
+        # DIAGNOSTIC: Show data structure info
+        cat("\n=== ÖRDIN DATA LOADING ===")
+        cat("\nFile loaded:", input$dataFile$name)
+        cat("\nRows (sites):", nrow(abund_matrix))
+        cat("\nColumns (species):", ncol(abund_matrix))
+        cat("\nIs binary (0/1 only):", is_binary)
+        cat("\nSample of first 5 values:", paste(head(as.vector(abund_matrix), 5), collapse=", "))
+        cat("\nRow totals:", paste(rowSums(abund_matrix), collapse=", "))
+        cat("\n============================\n")
+        
+        # For iNEXT, transpose the matrix so each column is a site (assemblage)
+        # iNEXT expects: columns = assemblages, rows = species
+        abund_matrix_t <- t(abund_matrix)
+        colnames(abund_matrix_t) <- site_names
+        
+        list(
+          original = abund_matrix,        # For NMDS (sites as rows)
+          transposed = abund_matrix_t,    # For iNEXT (sites as columns)
+          inext_data = abund_matrix_t,    # For iNEXT (abundance or incidence_raw)
+          data_format = if(is_binary) "incidence_raw" else "abundance",
+          is_binary = is_binary
+        )
+      }
+    }, error = function(e) {
+      validate(need(FALSE, paste("Error reading CSV:", e$message)))
+    })
+  })
+  
+  # Store analysis results
+  results <- reactiveVal(NULL)
+  
+  # Main content switcher - Welcome page OR Results
+  output$mainContent <- renderUI({
+    if (is.null(results())) {
+      # WELCOME PAGE - No results yet
       tags$div(
         class = "welcome-container",
         style = "display: flex; align-items: center; justify-content: center; min-height: 500px; padding: 80px 40px 60px 40px;",
@@ -253,110 +353,66 @@ ui <- page_sidebar(
           )
         )
       )
-    ),
-    # Results Panel - shown when results available
-    conditionalPanel(
-      condition = "output.resultsUI",
-      uiOutput("resultsUI")
-    )
-  )
-)
-
-server <- function(input, output, session) {
-  # Reactive data loading
-  data <- reactive({
-    req(input$dataFile)
-    
-    tryCatch({
-      df <- read_csv(input$dataFile$datapath, show_col_types = FALSE)
+    } else {
+      # RESULTS PAGE - Analysis complete
+      res <- results()
       
-      # Validation
-      validate(
-        need(ncol(df) > 1, "CSV must have at least one site column and one species column.")
+      cat("\n=== RENDERING RESULTS UI ===")
+      cat("\nResults type:", res$type)
+      cat("\nSummary rows:", nrow(res$summary))
+      cat("\n===========================\n")
+      
+      tagList(
+        tags$div(
+          style = "padding: 20px;",
+          tags$h4(
+            style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
+            "📊 Summary Table"
+          ),
+          DTOutput("summaryTable"),
+          if (!is.null(res$stress)) {
+            div(
+              class = "alert alert-info mt-3",
+              style = "background-color: #1a3a52; border-color: #2e8b57; color: #fff;",
+              h5(paste("🎯 NMDS Stress:", round(res$stress, 3))),
+              p(ifelse(res$stress < 0.05, "✅ Excellent representation",
+                      ifelse(res$stress < 0.1, "✅ Good representation",
+                            ifelse(res$stress < 0.2, "⚠️ Acceptable representation",
+                                  "❌ Poor representation - consider fewer dimensions"))))
+            )
+          },
+          tags$h4(
+            style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin: 30px 0 15px 0;",
+            "📊 Visualization"
+          ),
+          div(
+            style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; background-color: #1a1a1a; border-radius: 8px; border: 1px solid #333;",
+            tags$div(
+              style = "display: flex; align-items: center; gap: 10px; color: #aaa; font-weight: 500;",
+              tags$span(style = "font-size: 1.1em;", "💾"),
+              "Export Format:"
+            ),
+            div(
+              style = "display: flex; gap: 12px; align-items: center;",
+              selectInput(
+                "plotFormat", 
+                NULL,
+                choices = c("PNG" = "png", 
+                            "TIFF" = "tiff", 
+                            "JPEG" = "jpeg", 
+                            "SVG" = "svg", 
+                            "PostScript" = "ps"),
+                selected = "png",
+                width = "150px"
+              ),
+              downloadButton("downloadPlot", "Download Plot", class = "btn-success", style = "height: 38px; padding: 6px 20px; font-weight: 500;")
+            )
+          ),
+          plotOutput("analysisPlot", height = "650px")
+        )
       )
-      
-      # DETECT DATA FORMAT
-      # Check if second column is named "SamplingUnits" (incidence_freq format)
-      has_sampling_units <- ncol(df) >= 2 && tolower(names(df)[2]) == "samplingunits"
-      
-      if (has_sampling_units) {
-        # INCIDENCE_FREQ FORMAT (like ant data)
-        # Format: Site, SamplingUnits, Species_1, Species_2, ...
-        # iNEXT needs: list of vectors, first element = # sampling units
-        
-        site_names <- df[[1]]
-        sampling_units <- df[[2]]
-        species_data <- df[, -c(1, 2)]
-        
-        # Check all numeric
-        validate(
-          need(all(sapply(species_data, is.numeric)), "All species columns must be numeric.")
-        )
-        
-        # Create list format for iNEXT incidence_freq
-        # Each site is a vector: c(sampling_units, species_counts...)
-        inext_list <- lapply(1:nrow(df), function(i) {
-          c(sampling_units[i], as.numeric(species_data[i, ]))
-        })
-        names(inext_list) <- site_names
-        
-        # For NMDS, use species matrix only (sites as rows)
-        abund_matrix <- as.matrix(species_data)
-        rownames(abund_matrix) <- site_names
-        
-        list(
-          original = abund_matrix,           # For NMDS (sites as rows)
-          inext_data = inext_list,           # For iNEXT incidence_freq
-          data_format = "incidence_freq",
-          sampling_units = sampling_units
-        )
-        
-      } else {
-        # STANDARD FORMAT (abundance or incidence_raw)
-        # Format: Site, Species_1, Species_2, ...
-        
-        site_names <- df[[1]]
-        abund_matrix <- as.matrix(df[-1])
-        rownames(abund_matrix) <- site_names
-        
-        # Check if data is numeric
-        validate(
-          need(all(sapply(df[-1], is.numeric)), "All abundance columns (except first) must be numeric.")
-        )
-        
-        # Auto-detect if incidence_raw (all 0s and 1s)
-        is_binary <- all(abund_matrix %in% c(0, 1))
-        
-        # DIAGNOSTIC: Show data structure info
-        cat("\n=== ÖRDIN DATA LOADING ===")
-        cat("\nFile loaded:", input$dataFile$name)
-        cat("\nRows (sites):", nrow(abund_matrix))
-        cat("\nColumns (species):", ncol(abund_matrix))
-        cat("\nIs binary (0/1 only):", is_binary)
-        cat("\nSample of first 5 values:", paste(head(as.vector(abund_matrix), 5), collapse=", "))
-        cat("\nRow totals:", paste(rowSums(abund_matrix), collapse=", "))
-        cat("\n============================\n")
-        
-        # For iNEXT, transpose the matrix so each column is a site (assemblage)
-        # iNEXT expects: columns = assemblages, rows = species
-        abund_matrix_t <- t(abund_matrix)
-        colnames(abund_matrix_t) <- site_names
-        
-        list(
-          original = abund_matrix,        # For NMDS (sites as rows)
-          transposed = abund_matrix_t,    # For iNEXT (sites as columns)
-          inext_data = abund_matrix_t,    # For iNEXT (abundance or incidence_raw)
-          data_format = if(is_binary) "incidence_raw" else "abundance",
-          is_binary = is_binary
-        )
-      }
-    }, error = function(e) {
-      validate(need(FALSE, paste("Error reading CSV:", e$message)))
-    })
+    }
   })
-  
-  # Store analysis results
-  results <- reactiveVal(NULL)
   
   # Display detected data format
   output$dataFormatDetected <- renderUI({
@@ -739,66 +795,6 @@ server <- function(input, output, session) {
   # Render results UI
   output$resultsUI <- renderUI({
     req(results())
-    res <- results()
-    
-    cat("\n=== RENDERING RESULTS UI ===")
-    cat("\nResults type:", res$type)
-    cat("\nSummary rows:", nrow(res$summary))
-    cat("\n===========================\n")
-    
-    tagList(
-      tags$div(
-        style = "padding: 20px;",
-        tags$h4(
-          style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin-bottom: 20px;",
-          "📊 Summary Table"
-        ),
-        DTOutput("summaryTable"),
-        if (!is.null(res$stress)) {
-          div(
-            class = "alert alert-info mt-3",
-            style = "background-color: #1a3a52; border-color: #2e8b57; color: #fff;",
-            h5(paste("🎯 NMDS Stress:", round(res$stress, 3))),
-            p(ifelse(res$stress < 0.05, "✅ Excellent representation",
-                    ifelse(res$stress < 0.1, "✅ Good representation",
-                          ifelse(res$stress < 0.2, "⚠️ Acceptable representation",
-                                "❌ Poor representation - consider fewer dimensions"))))
-          )
-        },
-        tags$h4(
-          style = "color: #2e8b57; border-bottom: 2px solid #2e8b57; padding-bottom: 10px; margin: 30px 0 15px 0;",
-          "📊 Visualization"
-        ),
-        div(
-          style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background-color: #1a1a1a; border-radius: 5px;",
-          tags$div(
-            style = "color: #aaa;",
-            "💾 Export Format:"
-          ),
-          div(
-            style = "display: flex; gap: 10px; align-items: center;",
-            selectInput(
-              "plotFormat", 
-              NULL,
-              choices = c("PNG" = "png", 
-                          "TIFF" = "tiff", 
-                          "JPEG" = "jpeg", 
-                          "SVG" = "svg", 
-                          "PostScript" = "ps"),
-              selected = "png",
-              width = "140px"
-            ),
-            downloadButton("downloadPlot", "⬇️ Download Plot", class = "btn-success btn-sm")
-          )
-        ),
-        plotOutput("analysisPlot", height = "650px")
-      )
-    )
-  })
-  
-  # Render results UI - shows when analysis is complete
-  output$resultsUI <- renderUI({
-    req(results())  # Return NULL if no results, showing welcome page
     res <- results()
     
     cat("\n=== RENDERING RESULTS UI ===")
