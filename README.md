@@ -440,7 +440,7 @@ MIT License - See LICENSE file for details
 
 ## Author
 
-Jimmy Moses (jmoses@pnguot.ac.pg)
+Jimmy Moses (jimmy.moses@pnguot.ac.pg)
 
 ## Acknowledgments
 
