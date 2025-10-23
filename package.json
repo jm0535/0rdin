@@ -1,8 +1,8 @@
 {
   "name": "ordin",
   "productName": "Ördin",
-  "version": "1.0.0",
-  "description": "Desktop app for biodiversity analysis - diversity estimation and ordination",
+  "version": "2.0.0",
+  "description": "Enterprise-Grade Biodiversity Analysis Desktop Application with iNEXT and vegan Integration",
   "main": "src/index.js",
   "author": "Jimmy Moses <jmoses@pnguot.ac.pg>",
   "license": "MIT",

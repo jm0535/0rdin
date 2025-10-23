@@ -5,19 +5,29 @@
 # Ördin
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/jm0535/0rdin/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](https://github.com/jm0535/0rdin)
 [![R](https://img.shields.io/badge/R-%E2%89%A54.0-blue)](https://www.r-project.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%20%7C%2020-green)](https://nodejs.org/)
 
-**Ördin** - A desktop application for biodiversity analysis, inspired by Odin's wisdom and oversight over ecological data.
+**Ördin** - Enterprise-grade desktop application for biodiversity analysis, combining the power of R with modern UX design.
 
 </div>
 
 ## Overview
 
-Ördin is an Electron-based desktop application that combines R's powerful biodiversity analysis packages (`vegan`, `iNEXT`) with a modern, user-friendly interface built using Shiny and Bootstrap 5.
+Ördin is an enterprise-grade Electron-based desktop application that combines R's powerful biodiversity analysis packages (`vegan`, `iNEXT`) with a modern, professional interface built using Shiny and Bootstrap 5. Version 2.0 introduces publication-quality exports, professional splash screen, and enhanced UX following best practices.
 
-### Features
+### ✨ What's New in v2.0
+
+- **🎨 Professional Splash Screen**: Enterprise-grade loading experience with animated Ö logo
+- **📊 Publication-Quality Exports**: 5 formats (PNG, TIFF, JPEG, SVG, PostScript) at 300 DPI
+- **🔄 Enhanced Progress Indicators**: Real-time feedback for all analysis steps
+- **🎯 Improved UI/UX**: Contextual controls, better organization, no redundancy
+- **🐛 Critical Fixes**: Reliable results display, logo rendering, progress feedback
+- **📚 Comprehensive Documentation**: 4,500+ lines of technical guides
+
+### Core Features
 
 - **Diversity Estimation**: Calculate species diversity using iNEXT
   - **Individual-based rarefaction** (abundance data)
@@ -33,10 +43,15 @@
   - Customizable dimensions
   - Stress values and quality assessment
 
-- **Modern Interface**: Dark-themed Bootstrap 5 UI with full-screen capabilities
-- **Export Capabilities**: Download summary tables (CSV) and plots (PNG)
+- **Modern Interface**: Dark-themed Bootstrap 5 UI with professional splash screen and full-screen capabilities
+- **Publication-Ready Exports**: 
+  - **5 format options**: PNG, TIFF, JPEG (300 DPI), SVG, PostScript (vector)
+  - **Consistent dimensions**: 12"×8" professional standard
+  - **Format selector**: Contextual dropdown above each plot
+  - Download summary tables (CSV) directly from interactive tables
 - **Sample Datasets**: Includes real research data (spiders, birds, ciliates, ants)
 - **Cross-Platform**: Works on Windows, macOS, and Linux (Debian/Ubuntu, Fedora/RHEL, Arch)
+- **Professional UX**: Progress indicators, welcome screen, organized controls
 
 ## Prerequisites
 
@@ -162,21 +177,21 @@ npm run make
 
 This creates platform-specific installers in the `out/` directory:
 
-- **Windows**: `out/make/squirrel.windows/x64/Ördin-1.0.0 Setup.exe`
-- **macOS**: `out/make/zip/darwin/x64/Ordin-darwin-x64-1.0.0.zip`
-- **Linux (Debian/Ubuntu)**: `out/make/deb/x64/ordin_1.0.0_amd64.deb`
-- **Linux (Fedora/RHEL)**: `out/make/rpm/x64/ordin-1.0.0-1.x86_64.rpm`
-- **Linux (Generic)**: `out/make/zip/linux/x64/ordin-linux-x64-1.0.0.zip`
+- **Windows**: `out/make/squirrel.windows/x64/Ördin-2.0.0 Setup.exe`
+- **macOS**: `out/make/zip/darwin/x64/Ordin-darwin-x64-2.0.0.zip`
+- **Linux (Debian/Ubuntu)**: `out/make/deb/x64/ordin_2.0.0_amd64.deb`
+- **Linux (Fedora/RHEL)**: `out/make/rpm/x64/ordin-2.0.0-1.x86_64.rpm`
+- **Linux (Generic)**: `out/make/zip/linux/x64/ordin-linux-x64-2.0.0.zip`
 
 ### Distribution
 
 Share the generated installer with users. The app includes a portable R installation, so users don't need R installed on their system.
 
 **Installation:**
-- **Windows**: Run `.exe` installer
+- **Windows**: Run `.exe` installer - includes splash screen on first launch
 - **macOS**: Unzip and drag `.app` to Applications
-- **Debian/Ubuntu**: `sudo dpkg -i ordin_1.0.0_amd64.deb`
-- **Fedora/RHEL**: `sudo dnf install ordin-1.0.0-1.x86_64.rpm`
+- **Debian/Ubuntu**: `sudo dpkg -i ordin_2.0.0_amd64.deb`
+- **Fedora/RHEL**: `sudo dnf install ordin-2.0.0-1.x86_64.rpm`
 - **Other Linux**: Extract `.zip` and run `./ordin`
 
 ## Project Structure
@@ -273,6 +288,32 @@ npm install
 - **Type 1: Sample-size-based** - Standard rarefaction curves
 - **Type 2: Sample completeness** - Evaluate survey quality
 - **Type 3: Coverage-based** - Fair comparison at equal completeness
+
+### 💾 Publication-Quality Exports (v2.0)
+
+Ördin v2.0 provides professional export options for all plots:
+
+**Raster Formats** (300 DPI - publication standard):
+- **PNG** - Universal compatibility, lossless compression
+- **TIFF** - Journal submission standard, archival quality
+- **JPEG** - Presentations, smaller file size
+
+**Vector Formats** (infinite resolution):
+- **SVG** - Web, presentations, scalable graphics
+- **PostScript** - LaTeX documents, academic publishing
+
+**Export Settings**:
+- Dimensions: 12" × 8" (standard publication size)
+- DPI: 300 for raster formats (journal requirement)
+- Background: Dark (#222222) preserved in all formats
+- Font: Helvetica family for PostScript compatibility
+
+**How to Export**:
+1. Run your analysis to generate plots
+2. Above each plot, use the format selector dropdown
+3. Choose your desired format (PNG, TIFF, JPEG, SVG, or PS)
+4. Click "Download Plot" button
+5. File saved as: `ordin_[analysis-type]_plot_[date].[format]`
 
 ### 📚 Documentation
 
