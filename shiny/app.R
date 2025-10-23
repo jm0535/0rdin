@@ -1069,12 +1069,18 @@ ui <- tagList(
               condition = "input.pubQuality == true",
               tags$div(
                 style = "margin-left: 24px; margin-top: -10px; margin-bottom: 10px;",
+                selectInput("plotTheme", "Plot theme",
+                           choices = c("Dark (default)" = "dark",
+                                      "Light" = "light",
+                                      "Classic" = "classic",
+                                      "Minimal" = "minimal",
+                                      "Publication" = "publication"),
+                           selected = "dark"),
                 numericInput("plotWidth", "Width (inches)", value = 8, min = 4, max = 20),
                 numericInput("plotHeight", "Height (inches)", value = 6, min = 4, max = 20),
                 numericInput("baseFontSize", "Base font size (pt)", value = 12, min = 8, max = 20),
                 numericInput("pointSize", "Point size", value = 3, min = 1, max = 8),
-                numericInput("labelSize", "Label size", value = 3.5, min = 2, max = 8),
-                checkboxInput("highContrast", "High contrast (light background)", value = FALSE)
+                numericInput("labelSize", "Label size", value = 3.5, min = 2, max = 8)
               )
             ),
             
@@ -3713,10 +3719,15 @@ server <- function(input, output, session) {
         total_inertia <- ord$tot.chi
         eig_vals <- eigenvals(ord)
         
+        # Calculate percentage for CONSTRAINED axes only
+        cca_eigs <- eig_vals[grepl("^CCA", names(eig_vals))]
+        cca_var_explained <- (cca_eigs / const_inertia) * 100
+        
         list(scores = scores_df, stress = NULL, method = "CCA", constrained = TRUE, 
              ord_object = ord, env_data = env_matrix, scaling = scaling_val,
              constrained_prop = const_inertia / total_inertia * 100,
-             eigenvalues = eig_vals)
+             eigenvalues = eig_vals,
+             variance = cca_var_explained)  # Add constrained variance percentages
              
       } else if (method == "rda") {
         # Redundancy Analysis
@@ -3734,10 +3745,16 @@ server <- function(input, output, session) {
         adj_r_squared <- RsquareAdj(ord)$adj.r.squared
         eig_vals <- eigenvals(ord)
         
+        # Calculate percentage for CONSTRAINED axes only
+        rda_eigs <- eig_vals[grepl("^RDA", names(eig_vals))]
+        total_constrained <- sum(rda_eigs)
+        rda_var_explained <- (rda_eigs / total_constrained) * 100
+        
         list(scores = scores_df, stress = NULL, method = "RDA", constrained = TRUE,
              ord_object = ord, env_data = env_matrix, scaling = scaling_val,
              r_squared = r_squared, adj_r_squared = adj_r_squared,
-             eigenvalues = eig_vals)
+             eigenvalues = eig_vals,
+             variance = rda_var_explained)  # Add constrained variance percentages
              
       } else if (method == "pcoa") {
         dist_mat <- vegdist(abund_matrix, method = input$distMethod)
@@ -4000,6 +4017,67 @@ server <- function(input, output, session) {
       cat("\nMethod:", result$method)
       cat("\nAxis names:", paste(axis_names, collapse = ", "))
       
+      # Determine background color and theme based on selection FIRST
+      plot_theme <- if (!is.null(input$plotTheme)) input$plotTheme else "dark"
+      
+      # Set theme colors with improved contrast
+      if (plot_theme == "dark") {
+        bg_color <- "#1a1a1a"  # Darker for better contrast
+        text_color <- "#ffffff"
+        grid_color <- "#3a3a3a"  # More visible grid
+        panel_border <- element_blank()
+        site_color <- "#00d9ff"  # Bright cyan for visibility
+        species_color <- "#ff6b9d"  # Bright pink for species
+        arrow_color <- "#ffa500"  # Bright orange for arrows
+        grid_linewidth <- 0.3
+      } else if (plot_theme == "light") {
+        bg_color <- "#ffffff"
+        text_color <- "#000000"
+        grid_color <- "#d0d0d0"  # More visible grid
+        panel_border <- element_blank()
+        site_color <- "#0066cc"  # Strong blue for sites
+        species_color <- "#cc0033"  # Strong red for species
+        arrow_color <- "#ff8000"  # Strong orange for arrows
+        grid_linewidth <- 0.4
+      } else if (plot_theme == "classic") {
+        bg_color <- "#fafafa"  # Slightly off-white
+        text_color <- "#000000"
+        grid_color <- "#b0b0b0"  # Darker grid
+        panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1)
+        site_color <- "#2c5aa0"  # Classic blue
+        species_color <- "#c92a2a"  # Classic red
+        arrow_color <- "#e67700"  # Classic orange
+        grid_linewidth <- 0.5
+      } else if (plot_theme == "minimal") {
+        bg_color <- "#ffffff"
+        text_color <- "#1a1a1a"  # Dark gray for softer contrast
+        grid_color <- "#e8e8e8"  # Very subtle grid
+        panel_border <- element_blank()
+        site_color <- "#4a90e2"  # Modern blue
+        species_color <- "#e24a90"  # Modern magenta
+        arrow_color <- "#f5a623"  # Modern amber
+        grid_linewidth <- 0.2
+      } else if (plot_theme == "publication") {
+        bg_color <- "#ffffff"
+        text_color <- "#000000"
+        grid_color <- "#c0c0c0"  # Strong grid for clarity
+        panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1.2)
+        site_color <- "#005a9c"  # Professional blue
+        species_color <- "#9c0045"  # Professional burgundy
+        arrow_color <- "#d97500"  # Professional orange
+        grid_linewidth <- 0.6
+      } else {
+        # Default to dark
+        bg_color <- "#1a1a1a"
+        text_color <- "#ffffff"
+        grid_color <- "#3a3a3a"
+        panel_border <- element_blank()
+        site_color <- "#00d9ff"
+        species_color <- "#ff6b9d"
+        arrow_color <- "#ffa500"
+        grid_linewidth <- 0.3
+      }
+      
       plot_color <- get_color_palette(1)[1]
       
       # Flag to track if ellipses will be added
@@ -4066,13 +4144,129 @@ server <- function(input, output, session) {
       label_size <- if (!is.null(input$labelSize)) input$labelSize else 3.5
       
       if (use_ellipses) {
+        # Create vibrant color palette for site groups
+        n_groups <- length(unique(result$scores$FactorGroup))
+        
+        # Use high-contrast colors based on theme
+        if (plot_theme == "dark") {
+          group_colors <- c("#00d9ff", "#ff6b9d", "#7fff00", "#ffa500", 
+                           "#ff1493", "#00ff7f", "#ffff00", "#ff69b4")[1:n_groups]
+        } else {
+          group_colors <- c("#0066cc", "#cc0033", "#00aa00", "#ff8000",
+                           "#9900cc", "#009999", "#cc9900", "#cc0066")[1:n_groups]
+        }
+        
         plot_obj <- plot_obj +
-          geom_point(aes(color = FactorGroup), size = point_size, alpha = 0.8) +
-          geom_text(aes(label = Site), vjust = -1, color = "white", size = label_size)
+          geom_point(aes(color = FactorGroup, fill = FactorGroup), 
+                    size = point_size + 1, alpha = 0.9, stroke = 1.5, shape = 21) +
+          geom_text(aes(label = Site), vjust = -1.3, color = text_color, 
+                   size = label_size, fontface = "bold") +
+          scale_color_manual(name = "Site groups", values = group_colors) +
+          scale_fill_manual(name = "Site groups", values = group_colors) +
+          guides(color = guide_legend(override.aes = list(size = 5, alpha = 1)),
+                fill = guide_legend(override.aes = list(size = 5, alpha = 0.3)))
       } else {
+        # Add sites with manual legend entry and theme color
         plot_obj <- plot_obj +
-          geom_point(size = point_size, color = plot_color, alpha = 0.7) +
-          geom_text(aes(label = Site), vjust = -1, color = "white", size = point_size)
+          geom_point(aes(shape = "Sites", color = "Sites"), 
+                    size = point_size + 0.5, alpha = 0.85, stroke = 1.5) +
+          geom_text(aes(label = Site), vjust = -1.2, color = text_color, 
+                   size = label_size, fontface = "bold") +
+          scale_shape_manual(name = "",
+                            values = c("Sites" = 16),
+                            labels = c("Sites" = "Site scores")) +
+          scale_color_manual(name = "",
+                            values = c("Sites" = site_color),
+                            labels = c("Sites" = "Site scores"))
+      }
+      
+      # Add species scores if requested
+      if (!is.null(input$showSpecies) && input$showSpecies && !is.null(result$ord_object)) {
+        
+        cat("\nAdding species scores...")
+        
+        # Extract species scores from ordination object
+        species_scores <- tryCatch({
+          if (result$method == "NMDS") {
+            # For NMDS, use wascores or species scores if available
+            if (!is.null(result$ord_object$species)) {
+              data.frame(result$ord_object$species)
+            } else {
+              scores(result$ord_object, display = "species")
+            }
+          } else if (result$method %in% c("PCA", "CA", "DCA")) {
+            # For unconstrained ordination
+            scores(result$ord_object, display = "species", choices = 1:2)
+          } else if (result$method %in% c("CCA", "RDA")) {
+            # For constrained ordination, get species scores
+            scores(result$ord_object, display = "species", choices = 1:2)
+          } else if (result$method == "PCoA") {
+            # PCoA doesn't have species scores - skip
+            NULL
+          } else {
+            NULL
+          }
+        }, error = function(e) {
+          cat("\nWARNING: Could not extract species scores:", e$message, "\n")
+          NULL
+        })
+        
+        if (!is.null(species_scores)) {
+          # Convert to data frame if matrix
+          if (is.matrix(species_scores)) {
+            species_scores <- as.data.frame(species_scores)
+          }
+          
+          # Ensure we have the right column names
+          if (ncol(species_scores) >= 2) {
+            names(species_scores)[1:2] <- axis_names[1:2]
+            species_scores$Species <- rownames(species_scores)
+            
+            # Filter top N species if requested
+            top_n <- if (!is.null(input$speciesTopN)) input$speciesTopN else 20
+            
+            if (top_n > 0 && nrow(species_scores) > top_n) {
+              # Calculate distance from origin to select most influential species
+              species_scores$dist <- sqrt(species_scores[[axis_names[1]]]^2 + 
+                                         species_scores[[axis_names[2]]]^2)
+              species_scores <- species_scores[order(species_scores$dist, decreasing = TRUE)[1:top_n], ]
+              species_scores$dist <- NULL
+              cat("\nShowing top", top_n, "species")
+            }
+            
+            cat("\nAdding", nrow(species_scores), "species to plot")
+            
+            # Determine display type
+            display_type <- if (!is.null(input$speciesDisplay)) input$speciesDisplay else "points"
+            
+            # Add species to plot with legend
+            if (display_type %in% c("points", "both")) {
+              plot_obj <- plot_obj +
+                geom_point(data = species_scores,
+                          aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]],
+                              shape = "Species", color = "Species"),
+                          size = 3, alpha = 0.8, stroke = 1.2,
+                          inherit.aes = FALSE) +
+                scale_shape_manual(name = "",
+                                  values = c("Species" = 17),
+                                  labels = c("Species" = "Species scores")) +
+                scale_color_manual(name = "",
+                                  values = c("Species" = species_color),
+                                  labels = c("Species" = "Species scores"))
+            }
+            
+            if (display_type %in% c("text", "both")) {
+              plot_obj <- plot_obj +
+                geom_text(data = species_scores,
+                         aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]],
+                             label = Species),
+                         color = species_color, size = 3.2, fontface = "italic", 
+                         alpha = 0.9, inherit.aes = FALSE, hjust = -0.1, vjust = -0.1)
+            }
+          }
+        } else {
+          cat("\nNo species scores available for", result$method, "\n")
+        }
       }
       
       # Add environmental arrows for continuous variables if requested
@@ -4131,23 +4325,18 @@ server <- function(input, output, session) {
                          aes(x = 0, y = 0, 
                              xend = .data[[axis_names[1]]], 
                              yend = .data[[axis_names[2]]]),
-                         arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
-                         color = "#ff8c00", linewidth = 1, alpha = 0.8,
+                         arrow = arrow(length = unit(0.4, "cm"), type = "closed"),
+                         color = arrow_color, linewidth = 1.5, alpha = 0.9,
                          inherit.aes = FALSE) +
               geom_text(data = arrow_coords,
                        aes(x = .data[[axis_names[1]]] * 1.15, 
                            y = .data[[axis_names[2]]] * 1.15, 
                            label = variable),
-                       color = "#ff8c00", fontface = "bold", size = 4,
-                       inherit.aes = FALSE)
+                       color = arrow_color, fontface = "bold", size = 4.5,
+                       alpha = 0.95, inherit.aes = FALSE)
           }
         }
       }
-      
-      # Determine background color
-      bg_color <- if (!is.null(input$highContrast) && input$highContrast) "#ffffff" else "#222222"
-      text_color <- if (!is.null(input$highContrast) && input$highContrast) "#000000" else "#ffffff"
-      grid_color <- if (!is.null(input$highContrast) && input$highContrast) "#cccccc" else "#444444"
       
       # Get base font size
       base_font <- if (!is.null(input$baseFontSize)) input$baseFontSize else 12
@@ -4158,8 +4347,23 @@ server <- function(input, output, session) {
       y_label <- axis_names[2]
       
       # Calculate percentage variance from eigenvalues if available
-      if (!is.null(result$eigenvalues) && length(result$eigenvalues) >= 2) {
-        # Convert eigenvalues to percentages
+      # PRIORITY: Use pre-calculated variance percentages FIRST (for CCA/RDA)
+      if (!is.null(result$variance) && length(result$variance) >= 2) {
+        # Use pre-calculated variance percentages (CCA/RDA constrained, PCA, PCoA)
+        x_label <- paste0(axis_names[1], " [", round(result$variance[1], 1), "%]")
+        y_label <- paste0(axis_names[2], " [", round(result$variance[2], 1), "%]")
+        
+        cat("\nAxis percentages from pre-calculated variance:")
+        cat("\n", axis_names[1], ":", round(result$variance[1], 1), "%")
+        cat("\n", axis_names[2], ":", round(result$variance[2], 1), "%\n")
+        
+      } else if (!is.null(result$inertia) && length(result$inertia) >= 2) {
+        # Use pre-calculated inertia percentages (CA)
+        x_label <- paste0(axis_names[1], " [", round(result$inertia[1], 1), "%]")
+        y_label <- paste0(axis_names[2], " [", round(result$inertia[2], 1), "%]")
+        
+      } else if (!is.null(result$eigenvalues) && length(result$eigenvalues) >= 2) {
+        # Fallback: Calculate from eigenvalues total
         total_inertia <- sum(result$eigenvalues)
         axis1_pct <- (result$eigenvalues[1] / total_inertia) * 100
         axis2_pct <- (result$eigenvalues[2] / total_inertia) * 100
@@ -4167,38 +4371,53 @@ server <- function(input, output, session) {
         x_label <- paste0(axis_names[1], " [", round(axis1_pct, 1), "%]")
         y_label <- paste0(axis_names[2], " [", round(axis2_pct, 1), "%]")
         
-        cat("\nAxis percentages from eigenvalues:")
+        cat("\nAxis percentages calculated from eigenvalues:")
         cat("\n", axis_names[1], ":", round(axis1_pct, 1), "%")
         cat("\n", axis_names[2], ":", round(axis2_pct, 1), "%\n")
-        
-      } else if (!is.null(result$variance) && length(result$variance) >= 2) {
-        # Use pre-calculated variance percentages
-        x_label <- paste0(axis_names[1], " [", round(result$variance[1], 1), "%]")
-        y_label <- paste0(axis_names[2], " [", round(result$variance[2], 1), "%]")
-        
-      } else if (!is.null(result$inertia) && length(result$inertia) >= 2) {
-        # Use pre-calculated inertia percentages
-        x_label <- paste0(axis_names[1], " [", round(result$inertia[1], 1), "%]")
-        y_label <- paste0(axis_names[2], " [", round(result$inertia[2], 1), "%]")
       }
+      
       
       plot_obj <- plot_obj +
         get_plot_theme() +
         theme(panel.background = element_rect(fill = bg_color, color = NA),
               plot.background = element_rect(fill = bg_color, color = NA),
-              panel.grid = element_line(color = grid_color),
-              text = element_text(color = text_color, size = base_font),
-              axis.text = element_text(color = text_color),
-              axis.title = element_text(size = base_font + 2),
-              plot.title = element_text(size = base_font + 4, face = "bold"),
-              plot.subtitle = element_text(size = base_font),
-              legend.background = element_rect(fill = bg_color, color = grid_color),
-              legend.text = element_text(color = text_color),
-              legend.title = element_text(color = text_color)) +
+              panel.border = panel_border,
+              panel.grid.major = element_line(color = grid_color, linewidth = grid_linewidth),
+              panel.grid.minor = element_line(color = grid_color, linewidth = grid_linewidth * 0.5),
+              text = element_text(color = text_color, size = base_font, face = "plain"),
+              axis.text = element_text(color = text_color, size = base_font - 1, face = "bold"),
+              axis.title = element_text(color = text_color, size = base_font + 3, face = "bold"),
+              axis.ticks = element_line(color = text_color, linewidth = 0.5),
+              axis.ticks.length = unit(0.15, "cm"),
+              axis.line = if (plot_theme %in% c("minimal", "publication")) {
+                element_line(color = text_color, linewidth = 0.8)
+              } else {
+                element_blank()
+              },
+              plot.title = element_text(color = text_color, size = base_font + 5, 
+                                       face = "bold", hjust = 0),
+              plot.subtitle = element_text(color = text_color, size = base_font + 1, 
+                                          face = "italic", hjust = 0),
+              plot.caption = element_text(color = text_color, size = base_font - 1, 
+                                         hjust = 0, face = "italic"),
+              legend.background = element_rect(fill = bg_color, 
+                                              color = if (plot_theme == "classic") text_color else NA,
+                                              linewidth = if (plot_theme == "classic") 0.5 else 0),
+              legend.text = element_text(color = text_color, size = base_font, face = "plain"),
+              legend.title = element_text(color = text_color, size = base_font + 1, face = "bold"),
+              legend.position = "right",
+              legend.key = element_rect(fill = bg_color, color = NA),
+              legend.key.size = unit(1.2, "lines"),
+              plot.margin = margin(15, 15, 15, 15)) +
         labs(title = paste("Ordination:", result$method),
              subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "",
              x = x_label,
-             y = y_label)
+             y = y_label,
+             caption = paste(
+               if (!is.null(input$showEnvArrows) && input$showEnvArrows && !is.null(result$env_data)) "Orange arrows = Environmental gradients  " else "",
+               if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && use_ellipses) "Ellipses = 95% confidence intervals" else "",
+               sep = ""
+             ))
       
       cat("\nBiplot created successfully!\n")
       plot_obj
