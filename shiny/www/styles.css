@@ -502,11 +502,70 @@ body.light-theme .nav-pills .nav-link:hover:not(.active) {
    LOADING SCREENS (waiter package)
    ======================================== */
 .waiter-overlay {
-  background: rgba(30, 30, 30, 0.95) !important;
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(8px);
 }
 
 body.light-theme .waiter-overlay {
   background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Professional spinner container */
+.waiter-container {
+  text-align: center;
+  padding: 40px;
+  animation: fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Spinner animation enhancement */
+.waiter-container .spinner {
+  filter: drop-shadow(0 0 20px currentColor);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px currentColor);
+    opacity: 1;
+  }
+  50% {
+    filter: drop-shadow(0 0 25px currentColor);
+    opacity: 0.9;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Loading text styling */
+.waiter-container h3 {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: slideInUp 0.5s ease-out 0.2s both;
+}
+
+.waiter-container p {
+  animation: slideInUp 0.5s ease-out 0.3s both;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ========================================

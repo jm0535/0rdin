@@ -29,10 +29,15 @@ ui <- tagList(
   useShinyFeedback(),  # Initialize shinyFeedback
   waiter_show_on_load(
     html = tagList(
-      spin_flower(),
-      h3("Loading Ördin...", style = "color: #2e8b57; margin-top: 20px;")
+      spin_loaders(42, color = "#2e8b57"),  # Professional spinner with Ördin green
+      h2("Ördin", style = "color: #2e8b57; margin-top: 30px; font-weight: 800; font-size: 3em; letter-spacing: 2px;"),
+      p("Community Ecology Analysis Platform", style = "color: #999; font-size: 1.1rem; margin-top: 10px; letter-spacing: 1px;"),
+      tags$div(
+        style = "margin-top: 30px; color: #666; font-size: 0.9rem;",
+        icon("flask"), " Loading modules and initializing environment..."
+      )
     ),
-    color = "#1e1e1e"
+    color = "#1a1a1a"
   ),
   
   page_navbar(
@@ -1725,13 +1730,15 @@ server <- function(input, output, session) {
   data <- reactive({
     req(input$dataFile)
     
-    # Show loading spinner
+    # Show professional loading spinner
     waiter <- Waiter$new(
       html = tagList(
-        spin_flower(),
-        h4("Loading data...", style = "color: #2e8b57; margin-top: 20px;")
+        spin_loaders(42, color = "#2e8b57"),  # Professional spinner
+        h3("Loading Your Data...", style = "color: #2e8b57; margin-top: 30px; font-weight: 700;"),
+        p("Validating structure and preparing for analysis", 
+          style = "color: #999; font-size: 1rem; margin-top: 10px;")
       ),
-      color = "rgba(30, 30, 30, 0.9)"
+      color = "rgba(20, 20, 20, 0.95)"
     )
     waiter$show()
     
@@ -2134,12 +2141,17 @@ server <- function(input, output, session) {
     # Show loading screen with waiter
     waiter <- Waiter$new(
       html = tagList(
-        spin_flower(),
-        h3("Running iNEXT Diversity Estimation...", style = "color: #2e8b57; margin-top: 20px;"),
-        p("This may take a moment depending on data size and bootstrap iterations", 
-          style = "color: #ccc; font-size: 0.9rem;")
+        spin_loaders(42, color = "#2e8b57"),  # Professional circular loader
+        h3("Running iNEXT Analysis", style = "color: #2e8b57; margin-top: 30px; font-weight: 700;"),
+        p("Estimating species diversity with bootstrap confidence intervals", 
+          style = "color: #999; font-size: 1rem; margin-top: 10px;"),
+        tags$div(
+          style = "margin-top: 20px; padding: 15px; background: rgba(46, 139, 87, 0.1); border-radius: 8px; border-left: 4px solid #2e8b57;",
+          tags$p(style = "color: #aaa; font-size: 0.9rem; margin: 0;",
+            icon("info-circle"), " This may take a moment depending on data size and bootstrap iterations")
+        )
       ),
-      color = "rgba(30, 30, 30, 0.95)"
+      color = "rgba(20, 20, 20, 0.95)"
     )
     waiter$show()
     
@@ -2305,12 +2317,17 @@ server <- function(input, output, session) {
     # Show loading
     waiter <- Waiter$new(
       html = tagList(
-        spin_flower(),
-        h3("Running Ordination Analysis...", style = "color: #2e8b57; margin-top: 20px;"),
+        spin_loaders(42, color = "#4169e1"),  # Professional blue spinner for ordination
+        h3("Running Ordination Analysis", style = "color: #4169e1; margin-top: 30px; font-weight: 700;"),
         p(paste("Method:", toupper(input$ordinationMethod)), 
-          style = "color: #ccc; font-size: 0.9rem;")
+          style = "color: #999; font-size: 1.1rem; margin-top: 10px; font-weight: 600;"),
+        tags$div(
+          style = "margin-top: 20px; padding: 15px; background: rgba(65, 105, 225, 0.1); border-radius: 8px; border-left: 4px solid #4169e1;",
+          tags$p(style = "color: #aaa; font-size: 0.9rem; margin: 0;",
+            icon("project-diagram"), " Computing multivariate ordination and generating visualization")
+        )
       ),
-      color = "rgba(30, 30, 30, 0.95)"
+      color = "rgba(20, 20, 20, 0.95)"
     )
     waiter$show()
     
@@ -2555,12 +2572,17 @@ server <- function(input, output, session) {
     # Show loading
     waiter <- Waiter$new(
       html = tagList(
-        spin_flower(),
-        h3("Calculating Diversity Indices...", style = "color: #2e8b57; margin-top: 20px;"),
+        spin_loaders(42, color = "#ff8c00"),  # Professional orange spinner for indices
+        h3("Calculating Diversity Indices", style = "color: #ff8c00; margin-top: 30px; font-weight: 700;"),
         p("Computing alpha diversity and evenness metrics", 
-          style = "color: #ccc; font-size: 0.9rem;")
+          style = "color: #999; font-size: 1rem; margin-top: 10px;"),
+        tags$div(
+          style = "margin-top: 20px; padding: 15px; background: rgba(255, 140, 0, 0.1); border-radius: 8px; border-left: 4px solid #ff8c00;",
+          tags$p(style = "color: #aaa; font-size: 0.9rem; margin: 0;",
+            icon("calculator"), " Processing community metrics with vegan package")
+        )
       ),
-      color = "rgba(30, 30, 30, 0.95)"
+      color = "rgba(20, 20, 20, 0.95)"
     )
     waiter$show()
     
