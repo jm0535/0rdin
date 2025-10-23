@@ -201,6 +201,255 @@ ui <- tagList(
     '))
   ),  # End header
   
+  # HOME / LANDING PAGE
+  nav_panel(
+    title = "Home",
+    icon = icon("home"),
+    # Landing page content
+    div(
+      class = "landing-page",
+      style = "min-height: 100vh; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 60px 20px;",
+      
+      # Hero Section
+      div(
+        class = "container",
+        style = "max-width: 1200px; margin: 0 auto;",
+        
+        # Animated Logo & Title
+        div(
+          class = "text-center mb-5",
+          style = "animation: fadeInDown 0.8s ease-out;",
+          div(
+            style = "font-size: 8em; color: #2e8b57; margin-bottom: 20px; font-weight: bold; text-shadow: 0 0 30px rgba(46, 139, 87, 0.5); animation: pulse 2s infinite;",
+            "Ö"
+          ),
+          h1(
+            style = "font-size: 3.5em; font-weight: 800; background: linear-gradient(135deg, #2e8b57 0%, #3fa869 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px;",
+            "Ördin v3.0"
+          ),
+          p(
+            class = "lead",
+            style = "font-size: 1.5em; color: #999; font-weight: 300; letter-spacing: 2px;",
+            "COMMUNITY ECOLOGY ANALYSIS PLATFORM"
+          ),
+          p(
+            style = "color: #666; font-size: 1.1em; margin-top: 20px;",
+            icon("flask"), " Enterprise-Grade Statistical Computing  ",
+            icon("chart-bar"), " Advanced Visualization  ",
+            icon("database"), " Multi-Format Export"
+          )
+        ),
+        
+        # Interactive Module Cards
+        div(
+          class = "row mt-5",
+          style = "gap: 30px; justify-content: center;",
+          
+          # Card 1: Diversity Estimation
+          div(
+            class = "col-md-3",
+            style = "animation: fadeInUp 0.8s ease-out 0.1s both;",
+            actionButton(
+              "navToDiversity",
+              div(
+                style = "text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #2e8b57; border-radius: 15px; transition: all 0.3s; cursor: pointer; height: 100%;",
+                onmouseover = "this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 40px rgba(46, 139, 87, 0.4)'; this.style.borderColor='#3fa869';",
+                onmouseout = "this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'; this.style.borderColor='#2e8b57';",
+                div(
+                  style = "font-size: 4em; color: #2e8b57; margin-bottom: 20px;",
+                  icon("chart-line")
+                ),
+                h4(
+                  style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;",
+                  "Diversity Estimation"
+                ),
+                p(
+                  style = "color: #999; font-size: 0.95em; line-height: 1.6;",
+                  "iNEXT rarefaction & extrapolation with Hill numbers and bootstrap confidence intervals"
+                ),
+                div(
+                  style = "margin-top: 20px; padding: 8px 16px; background: #2e8b5722; color: #2e8b57; border-radius: 20px; display: inline-block; font-size: 0.85em; font-weight: 600;",
+                  "START ANALYSIS →"
+                )
+              ),
+              class = "btn",
+              style = "border: none; background: transparent; width: 100%; padding: 0;"
+            )
+          ),
+          
+          # Card 2: Ordination
+          div(
+            class = "col-md-3",
+            style = "animation: fadeInUp 0.8s ease-out 0.2s both;",
+            actionButton(
+              "navToOrdination",
+              div(
+                style = "text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #4169e1; border-radius: 15px; transition: all 0.3s; cursor: pointer; height: 100%;",
+                onmouseover = "this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 40px rgba(65, 105, 225, 0.4)'; this.style.borderColor='#5179f1';",
+                onmouseout = "this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'; this.style.borderColor='#4169e1';",
+                div(
+                  style = "font-size: 4em; color: #4169e1; margin-bottom: 20px;",
+                  icon("project-diagram")
+                ),
+                h4(
+                  style = "color: #4169e1; font-weight: 700; margin-bottom: 15px;",
+                  "Ordination Analysis"
+                ),
+                p(
+                  style = "color: #999; font-size: 0.95em; line-height: 1.6;",
+                  "NMDS, PCA, CA, DCA & PCoA for community composition patterns"
+                ),
+                div(
+                  style = "margin-top: 20px; padding: 8px 16px; background: #4169e122; color: #4169e1; border-radius: 20px; display: inline-block; font-size: 0.85em; font-weight: 600;",
+                  "EXPLORE →"
+                )
+              ),
+              class = "btn",
+              style = "border: none; background: transparent; width: 100%; padding: 0;"
+            )
+          ),
+          
+          # Card 3: Diversity Indices
+          div(
+            class = "col-md-3",
+            style = "animation: fadeInUp 0.8s ease-out 0.3s both;",
+            div(
+              style = "text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #ff8c00; border-radius: 15px; transition: all 0.3s; cursor: pointer; height: 100%;",
+              onmouseover = "this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 40px rgba(255, 140, 0, 0.4)'; this.style.borderColor='#ff9c10';",
+              onmouseout = "this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'; this.style.borderColor='#ff8c00';",
+              onclick = "Shiny.setInputValue('main_nav', 'Diversity Analysis'); Shiny.setInputValue('analysisType', 'indices', {priority: 'event'});",
+              div(
+                style = "font-size: 4em; color: #ff8c00; margin-bottom: 20px;",
+                icon("calculator")
+              ),
+              h4(
+                style = "color: #ff8c00; font-weight: 700; margin-bottom: 15px;",
+                "Diversity Indices"
+              ),
+              p(
+                style = "color: #999; font-size: 0.95em; line-height: 1.6;",
+                "Shannon, Simpson, Fisher's α, Pielou's evenness & rarefied richness"
+              ),
+              div(
+                style = "margin-top: 20px; padding: 8px 16px; background: #ff8c0022; color: #ff8c00; border-radius: 20px; display: inline-block; font-size: 0.85em; font-weight: 600;",
+                "CALCULATE →"
+              )
+            )
+          )
+        ),
+        
+        # Features Grid
+        div(
+          class = "mt-5",
+          style = "animation: fadeInUp 0.8s ease-out 0.4s both;",
+          h3(
+            class = "text-center mb-4",
+            style = "color: #2e8b57; font-weight: 700; font-size: 2em;",
+            "Enterprise Features"
+          ),
+          div(
+            class = "row",
+            div(
+              class = "col-md-4 mb-3",
+              div(
+                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s;",
+                onmouseover = "this.style.borderColor='#2e8b57'; this.style.background='#1a1a1a';",
+                onmouseout = "this.style.borderColor='#333'; this.style.background='#1a1a1a';",
+                div(style = "font-size: 3em; color: #2e8b57; margin-bottom: 15px;", icon("keyboard")),
+                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px;", "Keyboard Shortcuts"),
+                p(style = "color: #888; font-size: 0.9em;", "Ctrl+O Open • Ctrl+S Save • Ctrl+T Theme • Ctrl+1/2/3 Tabs")
+              )
+            ),
+            div(
+              class = "col-md-4 mb-3",
+              div(
+                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s;",
+                onmouseover = "this.style.borderColor='#2e8b57'; this.style.background='#1a1a1a';",
+                onmouseout = "this.style.borderColor='#333'; this.style.background='#1a1a1a';",
+                div(style = "font-size: 3em; color: #2e8b57; margin-bottom: 15px;", icon("file-export")),
+                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px;", "Multi-Format Export"),
+                p(style = "color: #888; font-size: 0.9em;", "CSV, Excel, JSON exports with publication-quality plots")
+              )
+            ),
+            div(
+              class = "col-md-4 mb-3",
+              div(
+                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s;",
+                onmouseover = "this.style.borderColor='#2e8b57'; this.style.background='#1a1a1a';",
+                onmouseout = "this.style.borderColor='#333'; this.style.background='#1a1a1a';",
+                div(style = "font-size: 3em; color: #2e8b57; margin-bottom: 15px;", icon("save")),
+                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px;", "Auto-Save"),
+                p(style = "color: #888; font-size: 0.9em;", "Session recovery with auto-save every 30 seconds")
+              )
+            )
+          )
+        ),
+        
+        # Quick Start Section
+        div(
+          class = "mt-5",
+          style = "animation: fadeInUp 0.8s ease-out 0.5s both;",
+          div(
+            style = "background: linear-gradient(135deg, #2e8b57 0%, #1f6d42 100%); border-radius: 15px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(46, 139, 87, 0.3);",
+            h3(
+              style = "color: #fff; font-weight: 700; font-size: 2em; margin-bottom: 20px;",
+              icon("rocket"), " Ready to Begin?"
+            ),
+            p(
+              style = "color: rgba(255,255,255,0.9); font-size: 1.2em; margin-bottom: 30px;",
+              "Upload your community ecology data and start analyzing with enterprise-grade tools"
+            ),
+            actionButton(
+              "quickStartUpload",
+              div(
+                style = "padding: 15px 40px; font-size: 1.1em; font-weight: 700;",
+                icon("upload"), " UPLOAD DATA & START"
+              ),
+              class = "btn",
+              style = "background: #fff; color: #2e8b57; border: none; border-radius: 30px; transition: all 0.3s; font-weight: 700;",
+              onmouseover = "this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.3)';",
+              onmouseout = "this.style.transform='scale(1)'; this.style.boxShadow='none';"
+            )
+          )
+        )
+      ),
+      
+      # CSS Animations
+      tags$style(HTML("
+        @keyframes fadeInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+      "))
+    )
+  ),
+  
   # DIVERSITY ANALYSIS
   nav_panel(
     title = "Diversity Analysis",
@@ -476,6 +725,21 @@ server <- function(input, output, session) {
   # Hide loading screen after app is ready
   waiter_hide()
   
+  # Navigation button handlers
+  observeEvent(input$navToDiversity, {
+    updateNavbarPage(session, "main_nav", selected = "Diversity Analysis")
+  })
+  
+  observeEvent(input$navToOrdination, {
+    updateNavbarPage(session, "main_nav", selected = "Ordination")
+  })
+  
+  observeEvent(input$quickStartUpload, {
+    updateNavbarPage(session, "main_nav", selected = "Diversity Analysis")
+    # Trigger file input click
+    shinyjs::runjs("document.getElementById('dataFile').click();")
+  })
+  
   # Auto-save state management
   autoSaveState <- reactiveVal(list())
   
@@ -702,46 +966,107 @@ server <- function(input, output, session) {
     if (is.null(analysis_type) || analysis_type == "estimation") {
       # Show Estimation Results
       if (is.null(diversityResults())) {
-        # Welcome message for Estimation
+        # Enhanced welcome message for Estimation
         card(
           full_screen = TRUE,
           height = "100%",
           card_body(
             class = "d-flex align-items-center justify-content-center",
+            style = "background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);",
             div(
               class = "text-center",
-              style = "max-width: 650px;",
-              div(style = "font-size: 4.5em; color: #2e8b57; margin-bottom: 25px;", "Ö"),
-              h3(class = "fw-bold", style = "color: #2e8b57; margin-bottom: 20px;", "Diversity Estimation (iNEXT)"),
-              card(
-                class = "text-start",
-                style = "background: #252525; border: 1px solid #333;",
-                card_body(
-                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Rarefaction & Extrapolation: "), "Estimate community diversity across sampling efforts"),
-                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Hill Numbers: "), "q=0 (richness), q=1 (Shannon), q=2 (Simpson)"),
-                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Coverage-based: "), "Sample completeness curves and asymptotic estimators"),
-                  p(class = "mb-0", icon("check-circle", class = "text-success"), 
-                    strong(" Bootstrap CI: "), "Robust confidence intervals for statistical inference")
+              style = "max-width: 750px; animation: fadeInScale 0.6s ease-out;",
+              
+              # Animated icon
+              div(
+                style = "font-size: 6em; color: #2e8b57; margin-bottom: 30px; animation: float 3s ease-in-out infinite;",
+                icon("chart-line")
+              ),
+              
+              # Title
+              h2(
+                class = "fw-bold",
+                style = "background: linear-gradient(135deg, #2e8b57 0%, #3fa869 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; font-size: 2.5em;",
+                "Diversity Estimation"
+              ),
+              
+              p(
+                class = "lead",
+                style = "color: #999; font-size: 1.2em; margin-bottom: 35px;",
+                "Powered by iNEXT • Rarefaction & Extrapolation Analysis"
+              ),
+              
+              # Feature cards
+              div(
+                class = "row",
+                style = "gap: 15px; margin-bottom: 35px;",
+                div(
+                  class = "col-md-5",
+                  style = "background: #1a3a52; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                  onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#3fa869';",
+                  onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#2e8b57';",
+                  div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 10px;", icon("chart-area")),
+                  h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 8px;", "Coverage-Based Curves"),
+                  p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "Sample completeness analysis with asymptotic diversity estimators")
+                ),
+                div(
+                  class = "col-md-5",
+                  style = "background: #1a3a52; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                  onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#3fa869';",
+                  onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#2e8b57';",
+                  div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 10px;", icon("layer-group")),
+                  h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 8px;", "Hill Numbers"),
+                  p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "q=0 (Richness), q=1 (Shannon), q=2 (Simpson) with bootstrap CI")
                 )
               ),
+              
+              # Call to action
               div(
-                class = "alert alert-info mt-4",
-                style = "background: #1a3a52; border: 1px solid #2e5c7a;",
-                icon("info-circle"), " Upload community data and configure settings in the sidebar, then click ",
-                strong("Run Estimation"), " to begin diversity analysis."
+                class = "alert",
+                style = "background: linear-gradient(135deg, #2e8b57 0%, #1f6d42 100%); border: none; border-radius: 10px; padding: 25px;",
+                div(style = "font-size: 2.5em; color: #fff; margin-bottom: 15px;", icon("upload")),
+                h4(style = "color: #fff; font-weight: 700; margin-bottom: 10px;", "Ready to Analyze?"),
+                p(style = "color: rgba(255,255,255,0.9); margin-bottom: 20px;", "Upload your community data in the sidebar to begin diversity estimation"),
+                div(
+                  style = "color: #fff; font-size: 0.9em;",
+                  icon("info-circle"), " Supports: Abundance, Incidence (Binary), Incidence (Frequency) data types"
+                )
               ),
+              
+              # Keyboard shortcuts
               div(
-                class = "mt-3",
-                style = "font-size: 0.85rem; color: #888;",
-                icon("keyboard"), " Shortcuts: ",
-                tags$kbd("Ctrl+O"), " Open | ",
-                tags$kbd("Ctrl+S"), " Save | ",
-                tags$kbd("Ctrl+T"), " Theme | ",
-                tags$kbd("Ctrl+1/2/3"), " Tabs"
-              )
+                style = "margin-top: 25px; padding: 15px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px;",
+                p(
+                  style = "color: #666; font-size: 0.85em; margin: 0;",
+                  icon("keyboard"), " ",
+                  tags$kbd("Ctrl+O"), " Open • ",
+                  tags$kbd("Ctrl+S"), " Save • ",
+                  tags$kbd("Ctrl+1"), " This Tab"
+                )
+              ),
+              
+              # CSS Animation
+              tags$style(HTML("
+                @keyframes fadeInScale {
+                  from {
+                    opacity: 0;
+                    transform: scale(0.95);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: scale(1);
+                  }
+                }
+                
+                @keyframes float {
+                  0%, 100% {
+                    transform: translateY(0);
+                  }
+                  50% {
+                    transform: translateY(-15px);
+                  }
+                }
+              "))
             )
           )
         )
@@ -780,44 +1105,89 @@ server <- function(input, output, session) {
     } else {
       # Show Indices Results  
       if (is.null(indicesResults())) {
-        # Welcome message for Indices
+        # Enhanced welcome message for Indices
         card(
           full_screen = TRUE,
           height = "100%",
           card_body(
             class = "d-flex align-items-center justify-content-center",
+            style = "background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);",
             div(
               class = "text-center",
-              style = "max-width: 650px;",
-              div(style = "font-size: 4.5em; color: #2e8b57; margin-bottom: 25px;", "Ö"),
-              h3(class = "fw-bold", style = "color: #2e8b57; margin-bottom: 20px;", "Diversity Indices (vegan)"),
-              card(
-                class = "text-start",
-                style = "background: #252525; border: 1px solid #333;",
-                card_body(
-                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Alpha Diversity: "), "Shannon, Simpson, Fisher, Richness for community diversity"),
-                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Evenness: "), "Pielou's J, Simpson's E, Evar for community structure"),
-                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Tabular Output: "), "Export-ready tables for Excel, GraphPad, or R"),
-                  p(class = "mb-0", icon("check-circle", class = "text-success"), 
-                    strong(" CSV Export: "), "Download results for further community analysis")
+              style = "max-width: 750px; animation: fadeInScale 0.6s ease-out;",
+              
+              # Animated icon
+              div(
+                style = "font-size: 6em; color: #ff8c00; margin-bottom: 30px; animation: float 3s ease-in-out infinite;",
+                icon("calculator")
+              ),
+              
+              # Title
+              h2(
+                class = "fw-bold",
+                style = "background: linear-gradient(135deg, #ff8c00 0%, #ff9c10 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; font-size: 2.5em;",
+                "Diversity Indices"
+              ),
+              
+              p(
+                class = "lead",
+                style = "color: #999; font-size: 1.2em; margin-bottom: 35px;",
+                "Powered by vegan • Classic Community Metrics"
+              ),
+              
+              # Feature cards in rows
+              div(
+                class = "mb-4",
+                div(
+                  class = "row",
+                  style = "gap: 15px; margin-bottom: 15px;",
+                  div(
+                    class = "col-md-5",
+                    style = "background: #1a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                    onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#ff9c10'; this.style.boxShadow='0 10px 25px rgba(255,140,0,0.3)';",
+                    onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#ff8c00'; this.style.boxShadow='none';",
+                    div(style = "font-size: 2.5em; color: #ff8c00; margin-bottom: 10px;", icon("chart-pie")),
+                    h5(style = "color: #ff8c00; font-weight: 700; margin-bottom: 8px;", "Alpha Diversity"),
+                    p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "Shannon, Simpson, Fisher, Richness")
+                  ),
+                  div(
+                    class = "col-md-5",
+                    style = "background: #1a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                    onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#ff9c10'; this.style.boxShadow='0 10px 25px rgba(255,140,0,0.3)';",
+                    onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#ff8c00'; this.style.boxShadow='none';",
+                    div(style = "font-size: 2.5em; color: #ff8c00; margin-bottom: 10px;", icon("balance-scale")),
+                    h5(style = "color: #ff8c00; font-weight: 700; margin-bottom: 8px;", "Evenness Metrics"),
+                    p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "Pielou's J, Simpson's E, Evar")
+                  )
                 )
               ),
+              
+              # Export capabilities
               div(
-                class = "alert alert-info mt-4",
-                style = "background: #1a3a52; border: 1px solid #2e5c7a;",
-                icon("info-circle"), " Select indices in the sidebar, then click ",
-                strong("Calculate Indices"), " to compute metrics."
+                style = "background: #1a1a1a; border: 2px solid #4169e1; border-radius: 12px; padding: 25px; margin-bottom: 30px;",
+                div(style = "font-size: 2.5em; color: #4169e1; margin-bottom: 15px;", icon("file-export")),
+                h5(style = "color: #4169e1; font-weight: 700; margin-bottom: 10px;", "Multi-Format Export"),
+                p(style = "color: #aaa; font-size: 0.95em; margin: 0;", "Export results as CSV, Excel, or JSON for further analysis in GraphPad, SPSS, or R")
               ),
+              
+              # Call to action
               div(
-                class = "mt-3",
-                style = "font-size: 0.85rem; color: #888;",
-                icon("keyboard"), " Shortcuts: ",
-                tags$kbd("Ctrl+O"), " Open | ",
-                tags$kbd("Ctrl+S"), " Save | ",
-                tags$kbd("F1"), " Help"
+                class = "alert",
+                style = "background: linear-gradient(135deg, #ff8c00 0%, #ff7000 100%); border: none; border-radius: 10px; padding: 25px;",
+                div(style = "font-size: 2.5em; color: #fff; margin-bottom: 15px;", icon("play-circle")),
+                h4(style = "color: #fff; font-weight: 700; margin-bottom: 10px;", "Calculate Indices Now"),
+                p(style = "color: rgba(255,255,255,0.9); margin: 0;", "Select indices in the sidebar and click Calculate to compute diversity metrics")
+              ),
+              
+              # Keyboard shortcuts
+              div(
+                style = "margin-top: 25px; padding: 15px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px;",
+                p(
+                  style = "color: #666; font-size: 0.85em; margin: 0;",
+                  icon("keyboard"), " ",
+                  tags$kbd("Ctrl+S"), " Save Results • ",
+                  tags$kbd("F1"), " Help"
+                )
               )
             )
           )
@@ -1131,35 +1501,99 @@ server <- function(input, output, session) {
   
   output$ordinationContent <- renderUI({
     if (is.null(ordinationResults())) {
-      # WELCOME PAGE
+      # Enhanced WELCOME PAGE for Ordination
       tags$div(
-        style = "display: flex; align-items: center; justify-content: center; min-height: 500px; padding: 60px 40px;",
+        style = "display: flex; align-items: center; justify-content: center; min-height: 500px; padding: 60px 40px; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);",
         tags$div(
-          style = "max-width: 700px; text-align: center;",
-          tags$div(style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px; font-weight: bold;", "Ö"),
-          tags$h2(style = "color: #2e8b57; margin-bottom: 20px;", "Ordination Analysis (vegan)"),
+          style = "max-width: 800px; text-align: center; animation: fadeInScale 0.6s ease-out;",
+          
+          # Animated icon
           tags$div(
-            style = "background: #1a1a1a; padding: 25px; border-radius: 10px; border: 1px solid #333; text-align: left;",
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("What it does:"), " Multivariate ordination for community ecology analysis"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Shows:"), " Community composition patterns in reduced dimensions"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Methods:"), " NMDS, PCA, CA, DCA, PCoA - 5 ordination techniques"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Features:"), " 5 distance measures, 1-5 dimensions, stress values"),
-            tags$hr(style = "border-color: #333;"),
-            tags$p(style = "color: #888; font-style: italic;",
-                  "💡 Best for visualizing community similarity patterns and ecological gradients")
+            style = "font-size: 6em; color: #4169e1; margin-bottom: 30px; animation: float 3s ease-in-out infinite;",
+            icon("project-diagram")
           ),
+          
+          # Title
+          tags$h2(
+            style = "background: linear-gradient(135deg, #4169e1 0%, #5179f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; font-size: 2.5em; font-weight: 700;",
+            "Ordination Analysis"
+          ),
+          
+          tags$p(
+            class = "lead",
+            style = "color: #999; font-size: 1.2em; margin-bottom: 35px;",
+            "Powered by vegan • Multivariate Community Patterns"
+          ),
+          
+          # Method cards grid
           tags$div(
-            style = "margin-top: 25px; padding: 15px; background: #1a3a52; border-radius: 8px;",
-            tags$strong(style = "color: #2e8b57;", "🚀 Quick Start:"),
-            tags$p(style = "color: #aaa; margin: 10px 0 0 0; text-align: left;",
-                  "1. Upload community data in 'Diversity Analysis' tab first" , tags$br(),
-                  "2. Select ordination method (NMDS recommended for ecology)", tags$br(),
-                  "3. Choose distance method (Bray-Curtis for community data)", tags$br(),
-                  "4. Click 'Run Ordination' to visualize community patterns")
+            class = "row",
+            style = "gap: 15px; margin-bottom: 35px; justify-content: center;",
+            
+            # NMDS
+            tags$div(
+              class = "col-md-3",
+              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+              onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#5179f1'; this.style.boxShadow='0 10px 25px rgba(65,105,225,0.3)';",
+              onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#4169e1'; this.style.boxShadow='none';",
+              tags$div(style = "font-size: 2em; color: #4169e1; margin-bottom: 10px;", "NMDS"),
+              tags$h6(style = "color: #fff; font-weight: 700; margin-bottom: 8px;", "Non-metric MDS"),
+              tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Flexible, robust")
+            ),
+            
+            # PCA
+            tags$div(
+              class = "col-md-3",
+              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+              onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#5179f1'; this.style.boxShadow='0 10px 25px rgba(65,105,225,0.3)';",
+              onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#4169e1'; this.style.boxShadow='none';",
+              tags$div(style = "font-size: 2em; color: #4169e1; margin-bottom: 10px;", "PCA"),
+              tags$h6(style = "color: #fff; font-weight: 700; margin-bottom: 8px;", "Principal Components"),
+              tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Linear method")
+            ),
+            
+            # CA/DCA/PCoA
+            tags$div(
+              class = "col-md-3",
+              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+              onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#5179f1'; this.style.boxShadow='0 10px 25px rgba(65,105,225,0.3)';",
+              onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#4169e1'; this.style.boxShadow='none';",
+              tags$div(style = "font-size: 2em; color: #4169e1; margin-bottom: 10px;", "CA/DCA/PCoA"),
+              tags$h6(style = "color: #fff; font-weight: 700; margin-bottom: 8px;", "Advanced Methods"),
+              tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Specialized analyses")
+            )
+          ),
+          
+          # Distance methods
+          tags$div(
+            style = "background: #1a1a1a; border: 2px solid #2e8b57; border-radius: 12px; padding: 25px; margin-bottom: 30px;",
+            tags$div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 15px;", icon("ruler-combined")),
+            tags$h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 10px;", "Distance Measures"),
+            tags$p(style = "color: #aaa; font-size: 0.95em; margin: 0;", "Bray-Curtis • Jaccard • Euclidean • Manhattan • Canberra")
+          ),
+          
+          # Call to action
+          tags$div(
+            class = "alert",
+            style = "background: linear-gradient(135deg, #4169e1 0%, #2050d1 100%); border: none; border-radius: 10px; padding: 25px;",
+            tags$div(style = "font-size: 2.5em; color: #fff; margin-bottom: 15px;", icon("play-circle")),
+            tags$h4(style = "color: #fff; font-weight: 700; margin-bottom: 10px;", "Visualize Community Patterns"),
+            tags$p(style = "color: rgba(255,255,255,0.9); margin-bottom: 15px;", "Upload data in Diversity Analysis tab, then configure ordination settings and run analysis"),
+            tags$div(
+              style = "color: rgba(255,255,255,0.8); font-size: 0.9em;",
+              icon("lightbulb"), " Tip: NMDS with Bray-Curtis is recommended for ecological community data"
+            )
+          ),
+          
+          # Keyboard shortcuts
+          tags$div(
+            style = "margin-top: 25px; padding: 15px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px;",
+            tags$p(
+              style = "color: #666; font-size: 0.85em; margin: 0;",
+              icon("keyboard"), " ",
+              tags$kbd("Ctrl+2"), " This Tab • ",
+              tags$kbd("Ctrl+S"), " Save Plot"
+            )
           )
         )
       )
