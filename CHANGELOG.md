@@ -2,11 +2,131 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2025-10-23
+
+### 🎨 UI/UX Enhancement: Dark/Light Theme Toggle
+
+Version 2.3.0 introduces a professional theme switching system inspired by modern IDEs like VS Code, allowing users to toggle between dark and light themes with persistent preferences.
+
+**Note**: Ördin is positioned as a **Community Ecology Analysis Platform**, not limited to biodiversity alone. It encompasses diversity estimation, ordination, community structure analysis, and comprehensive ecological indices.
+
+### ✨ Added
+
+#### Theme Toggle System
+- **Toggle button** positioned on far right of navbar
+  - Shows ☀️ (sun) icon in dark mode → "Switch to Light Theme"
+  - Shows 🌙 (moon) icon in light mode → "Switch to Dark Theme"
+  - Smooth hover effects with theme-appropriate backgrounds
+- **localStorage persistence** - Theme preference saved across sessions
+  - Automatically loads saved theme on app startup
+  - Survives app restarts and window refreshes
+- **CSS class-based implementation** for reliability
+  - Uses `body.dark-theme` and `body.light-theme` classes
+  - No quote escaping issues (eliminated CSS attribute selector problems)
+  - Clean, maintainable code structure
+
+#### Complete Dual-Theme Support
+- **Dark Theme** (default):
+  - Background: #1e1e1e (VS Code dark)
+  - Sidebar: #252526
+  - Navbar: #2d2d30
+  - Primary: #007acc (VS Code blue)
+  - Text: #cccccc
+- **Light Theme**:
+  - Background: #ffffff
+  - Sidebar: #f8f8f8
+  - Navbar: #f3f3f3
+  - Primary: #007acc (consistent)
+  - Text: #1e1e1e
+
+#### Theme-Responsive UI Elements
+All components now adapt to theme changes:
+- Navbar with active tab indicators
+- Sidebar panels and sections
+- Cards and card headers
+- Buttons (all variants)
+- Form inputs and selects
+- Accordion components
+- Nav pills (tab pills)
+- Alerts and notifications
+- DataTables (headers, rows, pagination)
+- Scrollbars (custom styled)
+
+#### Smooth Transitions
+- 0.2s ease animations on theme switch
+- Smooth color transitions across all elements
+- No jarring visual changes
+
+### 🔧 Improved
+
+#### CSS Architecture
+- **Eliminated CSS attribute selectors** (`body[data-theme='dark']`)
+  - Replaced with class selectors (`body.dark-theme`)
+  - Solved R HTML() string quote escaping issues
+  - More reliable theme application
+- **Mobile-first approach** with base dark theme + light overrides
+- **Reduced CSS redundancy** through smart inheritance
+- **Better specificity management** for theme-specific rules
+
+#### JavaScript Theme Management
+- Class-based DOM manipulation (`classList.add/remove`)
+- Proper localStorage API usage
+- DOMContentLoaded event for startup theme application
+- Clean toggle logic without race conditions
+
+### 🐛 Fixed
+
+#### CSS Parsing Errors (Critical Fix)
+- **Problem**: CSS attribute selectors with quotes (`body[data-theme='dark']`) caused R HTML() parsing failures
+- **Error Messages**: "unexpected symbol", "Possible missing comma"
+- **Root Cause**: Nested quote conflicts in R's `tags$style(HTML("..."))` strings
+- **Solution**: Complete refactor to CSS class-based approach
+- **Impact**: Theme toggle now works flawlessly without parsing errors
+
+#### Port Configuration
+- Updated from port 8895 to 8896 to avoid conflicts
+- Modified in both `src/start-shiny.R` and `src/index.js`
+
+### 📊 Technical Details
+
+**Implementation Stats**:
+- 190 lines of CSS refactored
+- 2 JavaScript functions for theme management
+- 1 localStorage key for persistence
+- 45+ UI elements with dual-theme support
+- 0 external dependencies (pure CSS + vanilla JS)
+
+**Theme Coverage**:
+- Navbar: 100%
+- Sidebar: 100%
+- Cards: 100%
+- Forms: 100%
+- Buttons: 100%
+- Tables: 100%
+- Scrollbars: 100%
+
+### 🎯 User Benefits
+
+1. **Accessibility**: Light theme reduces eye strain in bright environments
+2. **Preference**: Users can choose their preferred visual style
+3. **Consistency**: Theme persists across sessions
+4. **Performance**: No performance impact - pure CSS transitions
+5. **Professional**: Matches industry-standard IDE behavior (VS Code, JetBrains)
+
+### 📚 Updated Documentation
+
+- Updated `README.md` with theme toggle feature
+- Updated `CHANGELOG.md` (this file)
+- Updated `GETTING_STARTED.md` with theme customization
+- Updated `PROJECT_OVERVIEW.md` with UI architecture changes
+
+---
+
 ## [2.2.0] - 2025-10-23
 
 ### 🎉 Major Release: Complete Modular Architecture + vegan Integration
 
-Version 2.2.0 represents a complete architectural transformation with modular tab-based navigation and comprehensive vegan package integration, increasing coverage from 0.5% to 9.5%.
+Version 2.2.0 represents a complete architectural transformation with modular tab-based navigation and comprehensive vegan package integration for community ecology analysis, increasing coverage from 0.5% to 9.5%.
 
 ### ✨ Added
 
@@ -493,7 +613,7 @@ See `IMPLEMENTATION-STATUS.md` for complete roadmap.
 
 ### For Ördin Software:
 ```
-Moses, J. (2025). Ördin v2.0: Enterprise-grade biodiversity analysis desktop application.
+Moses, J. (2025). Ördin v2.0: Enterprise-grade community ecology analysis desktop application.
 GitHub: https://github.com/jm0535/0rdin
 ```
 

@@ -1,15 +1,15 @@
 # 🌿 Getting Started with Ördin
 
-Welcome to **Ördin** - your desktop companion for biodiversity analysis! This guide will get you up and running in just a few minutes.
+Welcome to **Ördin** - your desktop companion for community ecology analysis! This guide will get you up and running in just a few minutes.
 
 ## What is Ördin?
 
-Ördin (inspired by Odin from Norse mythology) is a desktop application that makes biodiversity analysis accessible and beautiful. It combines:
+Ördin (inspired by Odin from Norse mythology) is a desktop application that makes community ecology analysis accessible and beautiful. It combines:
 
-- **iNEXT** for diversity estimation
-- **vegan** for ordination analysis (NMDS)
-- A modern, dark-themed interface
-- Cross-platform support (Windows & macOS)
+- **iNEXT** for diversity estimation and rarefaction
+- **vegan** for ordination, diversity indices, and community analysis
+- A modern, VS Code-inspired flat interface with dark/light theme toggle
+- Cross-platform support (Windows, macOS & Linux)
 
 No command-line expertise needed - just upload your data and explore!
 
@@ -136,19 +136,45 @@ You should see:
 
 ## 🎨 Customization
 
-### Change the Theme
+### Toggle Dark/Light Theme (NEW in v2.3!)
+
+Ördin now includes a professional theme toggle:
+
+1. Look at the **far right of the navbar**
+2. Click the **☀️ (sun)** icon to switch to light theme
+3. Click the **🌙 (moon)** icon to switch back to dark theme
+4. Your preference is **automatically saved** and will persist when you restart the app!
+
+**Benefits**:
+- 🌞 **Light theme** for bright environments (reduces eye strain)
+- 🌙 **Dark theme** for low-light work (default, easier on eyes)
+- 💾 **Persistent** - your choice is remembered
+- ⚡ **Smooth** - transitions are animated
+
+### Change Theme Colors
 
 Edit `shiny/app.R` and modify:
 
 ```r
 bs_theme(
-  version = 5, 
-  bootswatch = "flatly",  # Try: darkly, cosmo, united, etc.
-  primary = "#3498db"     # Your favorite color
+  version = 5,
+  preset = "shiny",
+  bg = "#1e1e1e",      # Dark background
+  fg = "#cccccc",      # Light text
+  primary = "#007acc", # VS Code blue (change to your color!)
+  "enable-rounded" = FALSE,  # Flat design (no rounded corners)
+  "enable-shadows" = FALSE   # Flat design (no shadows)
 )
 ```
 
-Available themes: darkly, flatly, cosmo, united, sandstone, cerulean, journal, and more!
+**Popular primary colors**:
+- `#007acc` - VS Code blue (default)
+- `#2e8b57` - Sea green
+- `#e74c3c` - Red
+- `#3498db` - Sky blue
+- `#9b59b6` - Purple
+
+**Note**: The built-in theme toggle will override these for light mode automatically!
 
 ### Add Your Logo
 
@@ -232,9 +258,10 @@ setTimeout(() => {
 
 ## 💡 Tips
 
+- **Toggle theme**: Click sun/moon icon on far right of navbar
+- **Theme persists**: Your light/dark choice is saved automatically
 - **Faster NMDS**: Use fewer dimensions (1 or 2)
-- **Better plots**: Increase DPI in `ggsave()` calls
-- **Dark mode plots**: Already enabled! Check the NMDS plot background
+- **Better plots**: Plots automatically match your theme (dark or light backgrounds)
 - **Interactive tables**: Click column headers to sort in the summary table
 
 ---
@@ -259,7 +286,7 @@ Now that you have Ördin running:
 
 **Happy analyzing!** 🦅📊🌿
 
-*Ördin - Bringing wisdom to ecological data*
+*Ördin - Bringing wisdom to community ecology data*
 
 ---
 

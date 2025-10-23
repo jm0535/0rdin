@@ -5,18 +5,27 @@
 # Ördin
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/jm0535/0rdin/releases)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/jm0535/0rdin/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](https://github.com/jm0535/0rdin)
 [![R](https://img.shields.io/badge/R-%E2%89%A54.0-blue)](https://www.r-project.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%20%7C%2020-green)](https://nodejs.org/)
 
-**Ördin** - Enterprise-grade desktop application for biodiversity analysis, combining the power of R with modern UX design. Now with complete modular architecture and comprehensive vegan integration!
+**Ördin** - Enterprise-grade desktop application for community ecology analysis, combining the power of R with modern UX design. Complete modular architecture with diversity estimation, ordination, and ecological indices!
 
 </div>
 
 ## Overview
 
-Ördin is an enterprise-grade Electron-based desktop application that combines R's powerful biodiversity analysis packages (`vegan`, `iNEXT`) with a modern, professional interface built using Shiny and Bootstrap 5. Version 2.0 introduces publication-quality exports, professional splash screen, and enhanced UX following best practices.
+Ördin is an enterprise-grade Electron-based desktop application that combines R's powerful community ecology packages (`vegan`, `iNEXT`) with a modern, professional interface built using Shiny and Bootstrap 5. Analyze community composition, diversity patterns, ordination, and ecological indices with publication-quality exports and a professional user experience.
+
+### ✨ What's New in v2.3
+
+- **🎨 Dark/Light Theme Toggle**: Professional theme switching with persistent preferences
+- **☀️ Theme Button**: Positioned on far right of navbar (sun/moon icons)
+- **💾 localStorage Persistence**: Theme preference saved across sessions
+- **🎨 Complete UI Adaptation**: All elements respond to theme changes
+- **⚡ Smooth Transitions**: 0.2s ease animations on theme switch
+- **🐛 CSS Architecture Fix**: Eliminated quote escaping issues with class-based approach
 
 ### ✨ What's New in v2.2
 
@@ -51,7 +60,8 @@
   - Customizable dimensions
   - Stress values and quality assessment
 
-- **Modern Interface**: Dark-themed Bootstrap 5 UI with professional splash screen and full-screen capabilities
+- **Modern Interface**: VS Code-inspired flat design with dark/light theme toggle and full-screen capabilities
+- **Theme Toggle**: Switch between dark and light themes with one click (preference saved automatically)
 - **Publication-Ready Exports**: 
   - **5 format options**: PNG, TIFF, JPEG (300 DPI), SVG, PostScript (vector)
   - **Consistent dimensions**: 12"×8" professional standard
@@ -225,18 +235,41 @@ ordin/
 
 ## Customization
 
-### Changing the Theme
+### Toggle Between Dark and Light Themes
+
+**Ördin v2.3** includes a professional theme toggle button on the far right of the navbar:
+- Click the **☀️ (sun)** icon in dark mode to switch to light theme
+- Click the **🌙 (moon)** icon in light mode to switch to dark theme
+- Your preference is automatically saved and persists across app restarts
+
+**Dark Theme** (default):
+- Background: #1e1e1e (VS Code dark)
+- Sidebar: #252526
+- Text: #cccccc
+
+**Light Theme**:
+- Background: #ffffff
+- Sidebar: #f8f8f8  
+- Text: #1e1e1e
+
+### Changing the Theme Colors
 
 Edit `shiny/app.R` and modify the `bs_theme()` parameters:
 
 ```r
 bs_theme(
-  version = 5, 
-  bootswatch = "darkly",  # Try: flatly, cosmo, united, etc.
-  primary = "#2e8b57",    # Change primary color
-  "font-scale" = 1.1
+  version = 5,
+  preset = "shiny",  # Base preset (can also try: "bootstrap", "shiny")
+  bg = "#1e1e1e",    # Background color (dark)
+  fg = "#cccccc",    # Foreground/text color
+  primary = "#007acc",  # Primary accent color (VS Code blue)
+  secondary = "#2d2d30",  # Secondary color
+  "enable-rounded" = FALSE,  # Keep flat design (no rounded corners)
+  "enable-shadows" = FALSE   # Keep flat design (no shadows)
 )
 ```
+
+**Note**: The theme toggle uses custom CSS classes that override these base colors for light mode.
 
 ### Adding Custom Branding
 
@@ -381,6 +414,6 @@ If you find Ördin useful, please consider giving it a ⭐️ on GitHub!
 If you use Ördin in your research, please cite:
 
 ```
-Moses, J. (2025). Ördin: A cross-platform desktop application for biodiversity analysis. 
+Moses, J. (2025). Ördin: A cross-platform desktop application for community ecology analysis. 
 GitHub repository: https://github.com/jm0535/0rdin
 ```

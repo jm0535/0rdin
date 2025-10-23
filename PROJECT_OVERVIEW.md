@@ -1,5 +1,9 @@
 # Ördin Project Overview
 
+## Project Mission
+
+Ördin is an **enterprise-grade community ecology analysis platform** that combines the analytical power of R with modern desktop application design. It provides ecologists, researchers, and students with professional tools for analyzing community composition, diversity patterns, ordination, and ecological indices through an intuitive, cross-platform interface.
+
 ## Project Structure
 
 ```
@@ -60,15 +64,18 @@ ordin/
 
 ### 2. R Shiny Layer (Application Logic)
 - **Entry Point**: `shiny/app.R`
-- **Purpose**: Provides biodiversity analysis interface and computations
+- **Purpose**: Provides community ecology analysis interface and computations
 - **Key Features**:
-  - Bootstrap 5 dark theme (bslib)
-  - iNEXT diversity estimation
-  - vegan NMDS ordination
+  - VS Code-inspired flat design with dark/light theme toggle
+  - Theme persistence via localStorage
+  - Bootstrap 5 custom theme (bslib)
+  - iNEXT diversity estimation and rarefaction
+  - vegan ordination (NMDS, PCA, CA, DCA, PCoA)
+  - vegan diversity indices (Shannon, Simpson, evenness, etc.)
   - Interactive plots (ggplot2)
   - Data tables (DT)
   - CSV upload/download
-  - PNG plot export
+  - Multi-format plot export (PNG, TIFF, SVG, etc.)
 
 ### 3. Portable R Setup
 - **Windows**: `get-r-win.sh` (requires Cygwin)
@@ -94,6 +101,8 @@ ordin/
 | R Shiny | Latest | Web application framework |
 | bslib | Latest | Bootstrap 5 theming |
 | Bootstrap | 5.x | UI components |
+| Custom CSS | - | VS Code flat design + dual themes |
+| Vanilla JS | - | Theme toggle & localStorage |
 | DT | Latest | Interactive tables |
 
 ### Backend

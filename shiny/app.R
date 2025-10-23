@@ -30,6 +30,8 @@ ui <- page_navbar(
   
   # Custom CSS for flat VSCode-style design with theme support
   header = tags$head(
+    # Favicon with Ö symbol
+    tags$link(rel = "icon", type = "image/svg+xml", href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='75' font-size='80' font-family='Arial, sans-serif' fill='%232e8b57'%3E%C3%96%3C/text%3E%3C/svg%3E"),
     tags$script(HTML('
       // Theme toggle functionality
       function toggleTheme() {
@@ -135,8 +137,8 @@ ui <- page_navbar(
       .navbar-brand {
         color: #ffffff !important;
         font-weight: 600 !important;
-        font-size: 0.95rem !important;
-        padding: 8px 16px !important;
+        font-size: 1.3rem !important;
+        padding: 6px 16px !important;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -476,10 +478,10 @@ ui <- page_navbar(
     '))
   ),
   
-  title = div(
-    style = "display: flex; align-items: center; gap: 10px; font-size: 0.95rem;",
-    span(style = "font-size: 1.1em; font-weight: 700; color: #007acc;", "Ö"),
-    span(style = "font-weight: 600;", "rdin")
+  title = span(
+    style = "font-size: 1.3em; font-weight: 700; color: #2e8b57;",
+    title = "Ördin - Community Ecology Analysis Platform",
+    "Ö"
   ),
   id = "main_nav",
   
@@ -659,8 +661,8 @@ ui <- page_navbar(
           div(
             class = "text-center mb-5",
             div(style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px;", "Ö"),
-            h2(style = "color: #2e8b57; font-weight: 700;", "Ördin v2.2"),
-            p(class = "lead", style = "color: #aaa;", "Enterprise-grade biodiversity analysis platform")
+            h2(style = "color: #2e8b57; font-weight: 700;", "Ördin v2.3"),
+            p(class = "lead", style = "color: #aaa;", "Community Ecology Analysis Platform")
           ),
           
           # Modules
@@ -674,7 +676,7 @@ ui <- page_navbar(
                        div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("chart-line")),
                        div(
                          h5(class = "fw-bold", "Diversity Estimation (iNEXT)"),
-                         p(class = "text-muted small mb-0", "Rarefaction & extrapolation curves with Hill numbers")
+                         p(class = "text-muted small mb-0", "Rarefaction, extrapolation & Hill numbers for community diversity")
                        )
                     )
                  ),
@@ -683,7 +685,7 @@ ui <- page_navbar(
                        div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("calculator")),
                        div(
                          h5(class = "fw-bold", "Diversity Indices (vegan)"),
-                         p(class = "text-muted small mb-0", "Classic metrics: Shannon, Simpson, evenness")
+                         p(class = "text-muted small mb-0", "Shannon, Simpson, evenness & ecological indices")
                        )
                     )
                  ),
@@ -691,8 +693,8 @@ ui <- page_navbar(
                     div(class = "d-flex align-items-start",
                        div(class = "me-3", style = "font-size: 2em; color: #4169e1;", icon("project-diagram")),
                        div(
-                         h5(class = "fw-bold", "Ordination Analysis"),
-                         p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, PCoA visualizations")
+                         h5(class = "fw-bold", "Ordination Analysis (vegan)"),
+                         p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, PCoA for community composition patterns")
                        )
                     )
                  )
@@ -706,10 +708,10 @@ ui <- page_navbar(
             card_body(
               tags$ol(
                 class = "mb-0",
-                tags$li("Upload CSV file (first column = site names, others = species data)"),
-                tags$li("Select analysis type in sidebar (Estimation or Indices)"),
+                tags$li("Upload CSV file (first column = site names, others = species/taxa data)"),
+                tags$li("Select analysis type in sidebar (Estimation, Indices, or Ordination)"),
                 tags$li("Configure parameters and click Run"),
-                tags$li("Download results as CSV or images")
+                tags$li("Download results as CSV or publication-quality images")
               )
             )
           ),
@@ -824,20 +826,20 @@ server <- function(input, output, session) {
                 style = "background: #252525; border: 1px solid #333;",
                 card_body(
                   p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Rarefaction & Extrapolation: "), "Interpolate and extrapolate diversity"),
+                    strong(" Rarefaction & Extrapolation: "), "Estimate community diversity across sampling efforts"),
                   p(class = "mb-2", icon("check-circle", class = "text-success"), 
                     strong(" Hill Numbers: "), "q=0 (richness), q=1 (Shannon), q=2 (Simpson)"),
                   p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Coverage-based: "), "Sample completeness curves and estimators"),
+                    strong(" Coverage-based: "), "Sample completeness curves and asymptotic estimators"),
                   p(class = "mb-0", icon("check-circle", class = "text-success"), 
-                    strong(" Bootstrap CI: "), "Confidence intervals for robust inference")
+                    strong(" Bootstrap CI: "), "Robust confidence intervals for statistical inference")
                 )
               ),
               div(
                 class = "alert alert-info mt-4",
                 style = "background: #1a3a52; border: 1px solid #2e5c7a;",
-                icon("info-circle"), " Upload data and configure settings in the sidebar, then click ",
-                strong("Run Estimation"), " to begin analysis."
+                icon("info-circle"), " Upload community data and configure settings in the sidebar, then click ",
+                strong("Run Estimation"), " to begin diversity analysis."
               )
             )
           )
@@ -891,13 +893,13 @@ server <- function(input, output, session) {
                 style = "background: #252525; border: 1px solid #333;",
                 card_body(
                   p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Alpha Diversity: "), "Shannon, Simpson, Fisher, Richness"),
+                    strong(" Alpha Diversity: "), "Shannon, Simpson, Fisher, Richness for community diversity"),
                   p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Evenness: "), "Pielou's J, Simpson's E, Evar"),
+                    strong(" Evenness: "), "Pielou's J, Simpson's E, Evar for community structure"),
                   p(class = "mb-2", icon("check-circle", class = "text-success"), 
-                    strong(" Tabular Output: "), "Ready for Excel, GraphPad, or custom plotting"),
+                    strong(" Tabular Output: "), "Export-ready tables for Excel, GraphPad, or R"),
                   p(class = "mb-0", icon("check-circle", class = "text-success"), 
-                    strong(" CSV Export: "), "Download results for further analysis")
+                    strong(" CSV Export: "), "Download results for further community analysis")
                 )
               ),
               div(
@@ -922,7 +924,7 @@ server <- function(input, output, session) {
             div(
               class = "alert alert-light mb-4",
               style = "background: #2a2a2a; border: 1px solid #3a3a3a;",
-              icon("download"), " Download the table as CSV and create custom visualizations in Excel, GraphPad, or other software."
+              icon("download"), " Download the table as CSV and create custom visualizations in Excel, GraphPad, or statistical software."
             ),
             downloadButton("downloadIndicesTable", 
                          span(icon("file-csv"), " Download Results (CSV)"),
@@ -1075,25 +1077,25 @@ server <- function(input, output, session) {
           tags$div(
             style = "background: #1a1a1a; padding: 25px; border-radius: 10px; border: 1px solid #333; text-align: left;",
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("What it does:"), " Multivariate ordination using vegan package"),
+                  tags$strong("What it does:"), " Multivariate ordination for community ecology analysis"),
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Shows:"), " Community composition patterns in reduced dimensions (ordination PLOTS)"),
+                  tags$strong("Shows:"), " Community composition patterns in reduced dimensions"),
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
                   tags$strong("Methods:"), " NMDS, PCA, CA, DCA, PCoA - 5 ordination techniques"),
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
                   tags$strong("Features:"), " 5 distance measures, 1-5 dimensions, stress values"),
             tags$hr(style = "border-color: #333;"),
             tags$p(style = "color: #888; font-style: italic;",
-                  "💡 Best for visualizing how similar/different your sites are based on species composition")
+                  "💡 Best for visualizing community similarity patterns and ecological gradients")
           ),
           tags$div(
             style = "margin-top: 25px; padding: 15px; background: #1a3a52; border-radius: 8px;",
             tags$strong(style = "color: #2e8b57;", "🚀 Quick Start:"),
             tags$p(style = "color: #aaa; margin: 10px 0 0 0; text-align: left;",
-                  "1. Upload data in 'Diversity Estimation' tab first" , tags$br(),
-                  "2. Select ordination method (NMDS recommended)", tags$br(),
-                  "3. Choose distance method (Bray-Curtis for ecology)", tags$br(),
-                  "4. Click 'Run Ordination' to visualize patterns")
+                  "1. Upload community data in 'Diversity Analysis' tab first" , tags$br(),
+                  "2. Select ordination method (NMDS recommended for ecology)", tags$br(),
+                  "3. Choose distance method (Bray-Curtis for community data)", tags$br(),
+                  "4. Click 'Run Ordination' to visualize community patterns")
           )
         )
       )

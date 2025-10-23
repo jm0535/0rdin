@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ö Icon Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1e1e1e;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2e8b57;
+            margin-bottom: 30px;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #2e8b57;
+            background: #2d2d30;
+        }
+        .icon-16 { width: 16px; height: 16px; font-size: 12px; }
+        .icon-32 { width: 32px; height: 32px; font-size: 24px; }
+        .icon-48 { width: 48px; height: 48px; font-size: 36px; }
+        .icon-64 { width: 64px; height: 64px; font-size: 48px; }
+        .icon-128 { width: 128px; height: 128px; font-size: 96px; }
+        .icon-256 { width: 256px; height: 256px; font-size: 192px; }
+        .icon-512 { width: 512px; height: 512px; font-size: 384px; }
+        canvas {
+            display: none;
+        }
+        .downloads {
+            margin-top: 40px;
+            padding: 20px;
+            background: #252526;
+            border: 1px solid #333;
+        }
+        .download-btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #2e8b57;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background: #257048;
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #1a3a52;
+            border: 1px solid #2e5c7a;
+        }
+        code {
+            background: #1e1e1e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #4ec9b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ö Icon Generator for Ördin</h1>
+        
+        <h2>Preview</h2>
+        <div class="icon-preview">
+            <div class="icon icon-16">Ö</div>
+            <div>16×16</div>
+        </div>
+        <div class="icon-preview">
+            <div class="icon icon-32">Ö</div>
+            <div>32×32</div>
+        </div>
+        <div class="icon-preview">
+            <div class="icon icon-48">Ö</div>
+            <div>48×48</div>
+        </div>
+        <div class="icon-preview">
+            <div class="icon icon-64">Ö</div>
+            <div>64×64</div>
+        </div>
+        <div class="icon-preview">
+            <div class="icon icon-128">Ö</div>
+            <div>128×128</div>
+        </div>
+        <div class="icon-preview">
+            <div class="icon icon-256">Ö</div>
+            <div>256×256</div>
+        </div>
+        
+        <canvas id="canvas-16" width="16" height="16"></canvas>
+        <canvas id="canvas-32" width="32" height="32"></canvas>
+        <canvas id="canvas-48" width="48" height="48"></canvas>
+        <canvas id="canvas-64" width="64" height="64"></canvas>
+        <canvas id="canvas-128" width="128" height="128"></canvas>
+        <canvas id="canvas-256" width="256" height="256"></canvas>
+        <canvas id="canvas-512" width="512" height="512"></canvas>
+        <canvas id="canvas-1024" width="1024" height="1024"></canvas>
+        
+        <div class="downloads">
+            <h2>Download Icons</h2>
+            <p>Click the buttons below to download each icon size:</p>
+            <a class="download-btn" id="download-16">Download 16×16</a>
+            <a class="download-btn" id="download-32">Download 32×32</a>
+            <a class="download-btn" id="download-48">Download 48×48</a>
+            <a class="download-btn" id="download-64">Download 64×64</a>
+            <a class="download-btn" id="download-128">Download 128×128</a>
+            <a class="download-btn" id="download-256">Download 256×256</a>
+            <a class="download-btn" id="download-512">Download 512×512</a>
+            <a class="download-btn" id="download-1024">Download 1024×1024</a>
+        </div>
+        
+        <div class="instructions">
+            <h2>Instructions</h2>
+            <ol>
+                <li>Download the <code>icon.png</code> file (256×256 recommended for general use)</li>
+                <li>Download the <code>icon-512.png</code> for high-resolution displays</li>
+                <li>Replace the existing files in the <code>build/</code> directory</li>
+                <li>For Windows taskbar, the 256×256 PNG works best</li>
+                <li>For macOS dock, use 512×512 or 1024×1024</li>
+                <li>Rebuild the app: <code>npm run make</code></li>
+            </ol>
+            <p><strong>Note:</strong> The icon uses green (#2e8b57) on dark background (#2d2d30)</p>
+        </div>
+    </div>
+    
+    <script>
+        function generateIcon(size, canvasId, fontSize) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Fill background
+            ctx.fillStyle = '#2d2d30';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Draw Ö symbol
+            ctx.fillStyle = '#2e8b57';
+            ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Ö', size / 2, size / 2);
+            
+            return canvas;
+        }
+        
+        // Generate all icon sizes
+        const sizes = [
+            { size: 16, fontSize: 12, id: 'canvas-16' },
+            { size: 32, fontSize: 24, id: 'canvas-32' },
+            { size: 48, fontSize: 36, id: 'canvas-48' },
+            { size: 64, fontSize: 48, id: 'canvas-64' },
+            { size: 128, fontSize: 96, id: 'canvas-128' },
+            { size: 256, fontSize: 192, id: 'canvas-256' },
+            { size: 512, fontSize: 384, id: 'canvas-512' },
+            { size: 1024, fontSize: 768, id: 'canvas-1024' }
+        ];
+        
+        sizes.forEach(config => {
+            generateIcon(config.size, config.id, config.fontSize);
+        });
+        
+        // Setup download buttons
+        function setupDownload(btnId, canvasId, filename) {
+            const btn = document.getElementById(btnId);
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const canvas = document.getElementById(canvasId);
+                const dataURL = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = dataURL;
+                link.click();
+            });
+        }
+        
+        setupDownload('download-16', 'canvas-16', 'icon-16.png');
+        setupDownload('download-32', 'canvas-32', 'icon-32.png');
+        setupDownload('download-48', 'canvas-48', 'icon-48.png');
+        setupDownload('download-64', 'canvas-64', 'icon-64.png');
+        setupDownload('download-128', 'canvas-128', 'icon-128.png');
+        setupDownload('download-256', 'canvas-256', 'icon.png');  // Main icon
+        setupDownload('download-512', 'canvas-512', 'icon-512.png');
+        setupDownload('download-1024', 'canvas-1024', 'icon-1024.png');
+        
+        // Auto-generate and log
+        console.log('Icons generated! Click the download buttons to save them.');
+        console.log('Recommended: Download icon.png (256×256) and icon-512.png for best results.');
+    </script>
+</body>
+</html>
