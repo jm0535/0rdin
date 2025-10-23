@@ -9,6 +9,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 let mainWindow;
+let splashWindow;
 let rShinyProcess;
 const SHINY_PORT = 8888;
 const SHINY_HOST = '127.0.0.1';
@@ -117,6 +118,182 @@ async function checkShinyReady(maxAttempts = 30, interval = 1000) {
   throw new Error('Shiny server failed to start');
 }
 
+// Function to create splash screen
+function createSplashScreen() {
+  splashWindow = new BrowserWindow({
+    width: 500,
+    height: 400,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    center: true,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+  
+  // Create splash screen HTML
+  const splashHTML = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+          background: transparent;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          overflow: hidden;
+        }
+        .splash-container {
+          background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+          border-radius: 20px;
+          padding: 60px 40px;
+          text-align: center;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+          border: 2px solid #333;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .logo {
+          font-size: 120px;
+          color: #2e8b57;
+          font-weight: bold;
+          margin-bottom: 20px;
+          text-shadow: 0 4px 12px rgba(46, 139, 87, 0.4);
+          animation: pulse 2s ease-in-out infinite;
+        }
+        .app-name {
+          font-size: 32px;
+          color: #2e8b57;
+          font-weight: 600;
+          margin-bottom: 10px;
+          letter-spacing: 1px;
+        }
+        .tagline {
+          font-size: 14px;
+          color: #aaa;
+          margin-bottom: 40px;
+          font-weight: 400;
+        }
+        .loading-container {
+          width: 100%;
+          max-width: 300px;
+          margin-top: 20px;
+        }
+        .loading-bar {
+          width: 100%;
+          height: 4px;
+          background: #333;
+          border-radius: 2px;
+          overflow: hidden;
+          position: relative;
+        }
+        .loading-bar::before {
+          content: '';
+          position: absolute;
+          left: -50%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, #2e8b57, transparent);
+          animation: loading 1.5s ease-in-out infinite;
+        }
+        .loading-text {
+          margin-top: 15px;
+          font-size: 13px;
+          color: #888;
+          font-weight: 400;
+        }
+        .status-dot {
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #2e8b57;
+          margin-right: 8px;
+          animation: blink 1s ease-in-out infinite;
+        }
+        .version {
+          position: absolute;
+          bottom: 20px;
+          font-size: 11px;
+          color: #666;
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        @keyframes loading {
+          0% { left: -50%; }
+          100% { left: 100%; }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="splash-container">
+        <div class="logo">Ö</div>
+        <div class="app-name">Ördin</div>
+        <div class="tagline">Biodiversity Analysis Platform</div>
+        <div class="loading-container">
+          <div class="loading-bar"></div>
+          <div class="loading-text">
+            <span class="status-dot"></span>
+            <span id="status">Initializing...</span>
+          </div>
+        </div>
+        <div class="version">Version 1.0</div>
+      </div>
+      <script>
+        const statusMessages = [
+          'Initializing...',
+          'Loading R environment...',
+          'Starting Shiny server...',
+          'Preparing analysis tools...',
+          'Almost ready...'
+        ];
+        let currentStatus = 0;
+        
+        setInterval(() => {
+          currentStatus = (currentStatus + 1) % statusMessages.length;
+          document.getElementById('status').textContent = statusMessages[currentStatus];
+        }, 2000);
+      </script>
+    </body>
+    </html>
+  `;
+  
+  splashWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(splashHTML)}`);
+  
+  // Remove menu bar
+  splashWindow.setMenuBarVisibility(false);
+}
+
+// Function to close splash screen
+function closeSplashScreen() {
+  if (splashWindow) {
+    splashWindow.close();
+    splashWindow = null;
+  }
+}
+
 // Function to create the main window
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -129,11 +306,21 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false
     },
-    backgroundColor: '#222222'
+    backgroundColor: '#222222',
+    show: false  // Don't show until ready
   });
   
   // Load the Shiny app
   mainWindow.loadURL(`http://${SHINY_HOST}:${SHINY_PORT}`);
+  
+  // Show window when ready and close splash screen
+  mainWindow.once('ready-to-show', () => {
+    setTimeout(() => {
+      closeSplashScreen();
+      mainWindow.show();
+      mainWindow.focus();
+    }, 500);  // Small delay for smooth transition
+  });
   
   // Open DevTools in development mode
   if (process.env.NODE_ENV === 'development') {
@@ -148,10 +335,17 @@ function createWindow() {
 // App lifecycle
 app.on('ready', async () => {
   try {
+    // Show splash screen immediately
+    createSplashScreen();
+    
+    // Start Shiny server in background
     await startShiny();
+    
+    // Create main window (hidden initially)
     createWindow();
   } catch (error) {
     console.error('Failed to start application:', error);
+    closeSplashScreen();
     app.quit();
   }
 });
