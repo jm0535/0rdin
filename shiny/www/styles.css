@@ -48,13 +48,28 @@ body.light-theme {
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 0;
-  border-bottom: 2px solid transparent;
+  position: relative;
+}
+
+#theme-toggle-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--ordin-green);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+}
+
+#theme-toggle-btn:hover::after {
+  width: 80%;
 }
 
 #theme-toggle-btn:hover {
   background: #37373d;
   border-color: #3e3e42;
-  border-bottom-color: var(--ordin-green);
   transform: translateY(-2px);
 }
 
@@ -65,7 +80,57 @@ body.light-theme #theme-toggle-btn {
 body.light-theme #theme-toggle-btn:hover {
   background: #e8e8e8;
   border-color: var(--ordin-light-border);
-  border-bottom-color: var(--ordin-green);
+}
+
+/* ========================================
+   VS CODE MENU BAR
+   ======================================== */
+.vscode-menubar {
+  width: 100%;
+  background: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+  display: none !important; /* Hide the duplicate menu bar */
+  flex-direction: row;
+  order: -1;
+  padding: 0;
+}
+
+body.light-theme .vscode-menubar {
+  background: #f3f3f3;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.menu-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  background: #2d2d30;
+}
+
+body.light-theme .menu-bar {
+  background: #f3f3f3;
+}
+
+.menu-item {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  color: #cccccc;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  border-radius: 0;
+}
+
+body.light-theme .menu-item {
+  color: #424242;
+}
+
+.menu-item:hover {
+  background: #37373d;
+}
+
+body.light-theme .menu-item:hover {
+  background: #e8e8e8;
 }
 
 /* ========================================
@@ -393,6 +458,90 @@ body.light-theme ::-webkit-scrollbar-thumb:hover {
   opacity: 0;
   transition: opacity 0.3s;
   z-index: 9999;
+}
+
+/* ========================================
+   FLAT ACCORDION
+   ======================================== */
+.accordion-button {
+  background: #2d2d30 !important;
+  color: #cccccc !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-size: 0.85rem !important;
+  padding: 8px 12px !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme .accordion-button {
+  background: #f3f3f3 !important;
+  color: #1e1e1e !important;
+}
+
+.accordion-button:not(.collapsed) {
+  background: #37373d !important;
+  color: var(--ordin-green) !important;
+}
+
+body.light-theme .accordion-button:not(.collapsed) {
+  background: #e8e8e8 !important;
+}
+
+.accordion-body {
+  background: #252526 !important;
+  border-top: 1px solid #3e3e42 !important;
+  padding: 12px !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme .accordion-body {
+  background: #ffffff !important;
+  border-top: 1px solid #d0d0d0 !important;
+}
+
+/* ========================================
+   FLAT NAV PILLS
+   ======================================== */
+.nav-pills .nav-link {
+  background: #2d2d30 !important;
+  color: #cccccc !important;
+  border-radius: 0 !important;
+  margin-right: 2px !important;
+  padding: 8px 16px !important;
+  font-size: 0.85rem !important;
+}
+
+body.light-theme .nav-pills .nav-link {
+  background: #f3f3f3 !important;
+  color: #424242 !important;
+}
+
+.nav-pills .nav-link.active {
+  background: var(--ordin-green) !important;
+  color: #ffffff !important;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+  background: #37373d !important;
+}
+
+body.light-theme .nav-pills .nav-link:hover:not(.active) {
+  background: #e8e8e8 !important;
+}
+
+/* ========================================
+   FEEDBACK MESSAGES
+   ======================================== */
+.shiny-input-container.has-feedback .form-control {
+  padding-right: 40px;
+}
+
+.shiny-input-container .form-control-feedback {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
 }
 
 /* ========================================

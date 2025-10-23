@@ -21,22 +21,8 @@ library(shinyBS)         # Bootstrap components
 library(shinyalert)      # Alert dialogs
 
 # UI Definition
-ui <- tagList(
-  useShinyjs(),  # Initialize shinyjs
-  use_waiter(),  # Initialize waiter
-  useShinyFeedback(),  # Initialize shinyFeedback
-  waiter_show_on_load(
-    html = tagList(
-      spin_flower(),
-      h3("Loading Ördin...", style = "color: #2e8b57; margin-top: 20px;")
-    ),
-    color = "#1e1e1e"
-  ),
-  
-  page_navbar(
-    title = "Ördin v3.0",
-    id = "main_nav",
-    theme = bs_theme(
+ui <- page_navbar(
+  theme = bs_theme(
     version = 5,
     preset = "shiny",
     bg = "#1e1e1e",
@@ -55,9 +41,24 @@ ui <- tagList(
     "enable-shadows" = FALSE
   ),
   
-  # Link external CSS and JavaScript
+  # Initialize shinyjs for interactivity
+  useShinyjs(),
+  
+  # Initialize waiter for loading screens
+  use_waiter(),
+  waiter_show_on_load(
+    html = tagList(
+      spin_flower(),
+      h3("Loading Ördin...", style = "color: #2e8b57; margin-top: 20px;")
+    ),
+    color = "#1e1e1e"
+  ),
+  
+  # Initialize shinyFeedback for validation
+  useShinyFeedback(),
+  
+  # Custom CSS for flat VSCode-style design with theme support
   header = tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
     tags$script(HTML('
       // Auto-save functionality
       let autoSaveInterval = null;
@@ -198,8 +199,557 @@ ui <- tagList(
           navbar.insertBefore(menuBar, navbar.firstChild);
         }
       });
+    ')),
+    tags$style(HTML('
+      /* ENTERPRISE COLOR PALETTE - GREEN BRANDING */
+      :root {
+        --ordin-green: #2e8b57;
+        --ordin-green-dark: #1f6d42;
+        --ordin-green-light: #3fa869;
+        --ordin-dark-bg: #1e1e1e;
+        --ordin-sidebar: #252526;
+        --ordin-navbar: #2d2d30;
+        --ordin-border: #3e3e42;
+        --ordin-text: #cccccc;
+        --ordin-light-bg: #ffffff;
+        --ordin-light-sidebar: #f8f8f8;
+        --ordin-light-navbar: #f3f3f3;
+        --ordin-light-border: #d0d0d0;
+        --ordin-light-text: #1e1e1e;
+      }
+      
+      /* Base styles - Default to DARK theme */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+        background: var(--ordin-dark-bg);
+        color: var(--ordin-text);
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+      
+      /* LIGHT THEME overrides */
+      body.light-theme {
+        background: var(--ordin-light-bg) !important;
+        color: var(--ordin-light-text) !important;
+      }
+      
+      /* Theme toggle button - MICRO-INTERACTION */
+      #theme-toggle-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--ordin-text);
+        font-size: 1.1rem;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 0;
+        position: relative;
+      }
+      
+      #theme-toggle-btn::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: var(--ordin-green);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateX(-50%);
+      }
+      
+      #theme-toggle-btn:hover::after {
+        width: 80%;
+      }
+      
+      #theme-toggle-btn:hover {
+        background: #37373d;
+        border-color: #3e3e42;
+        transform: translateY(-2px);
+      }
+      
+      body.light-theme #theme-toggle-btn {
+        color: #424242;
+      }
+      
+      body.light-theme #theme-toggle-btn:hover {
+        background: #e8e8e8;
+        border-color: var(--ordin-light-border);
+      }
+      
+      /* VS Code style menu bar structure */
+      .vscode-menubar {
+        width: 100%;
+        background: #2d2d30;
+        border-bottom: 1px solid #3e3e42;
+        display: flex;
+        flex-direction: row;
+        order: -1;
+        padding: 0;
+      }
+      
+      body.light-theme .vscode-menubar {
+        background: #f3f3f3;
+        border-bottom: 1px solid #d0d0d0;
+      }
+      
+      /* Menu bar with File, Edit, View, Window, Help */
+      .menu-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0;
+        background: #2d2d30;
+      }
+      
+      body.light-theme .menu-bar {
+        background: #f3f3f3;
+      }
+      
+      /* Individual menu items */
+      .menu-item {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+        color: #cccccc;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        border-radius: 0;
+      }
+      
+      body.light-theme .menu-item {
+        color: #424242;
+      }
+      
+      .menu-item:hover {
+        background: #37373d;
+      }
+      
+      body.light-theme .menu-item:hover {
+        background: #e8e8e8;
+      }
+      
+      /* Flat navbar - DARK - VS Code style */
+      .navbar {
+        background: #2d2d30 !important;
+        border-bottom: 1px solid #3e3e42 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        min-height: auto !important;
+        transition: all 0.2s ease;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+      
+      body.light-theme .navbar {
+        background: #f3f3f3 !important;
+        border-bottom: 1px solid #d0d0d0 !important;
+      }
+      
+      /* Menu items container */
+      .navbar-nav {
+        order: 1;
+        display: flex;
+        flex-direction: row !important;
+        width: 100%;
+      }
+      
+      /* Hide default navbar brand */
+      .navbar-brand {
+        display: none !important;
+      }
+      
+      /* Ensure navbar collapse shows items in row */
+      .navbar-collapse {
+        order: 1;
+      }
+      
+      /* Flat nav items - GREEN ACTIVE STATE */
+      .nav-link {
+        color: var(--ordin-text) !important;
+        padding: 8px 16px !important;
+        border: none !important;
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-bottom: 2px solid transparent !important;
+        position: relative;
+      }
+      
+      body.light-theme .nav-link {
+        color: #424242 !important;
+      }
+      
+      .nav-link:hover {
+        background: #37373d !important;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+      }
+      
+      body.light-theme .nav-link:hover {
+        background: #e8e8e8 !important;
+        color: var(--ordin-light-text) !important;
+      }
+      
+      .nav-link.active {
+        background: var(--ordin-dark-bg) !important;
+        color: var(--ordin-green) !important;
+        border-bottom: 2px solid var(--ordin-green) !important;
+      }
+      
+      body.light-theme .nav-link.active {
+        background: var(--ordin-light-bg) !important;
+      }
+      
+      /* Hide the duplicate VS Code menu bar that appears below */
+      .vscode-menubar {
+        display: none !important;
+      }
+      
+      /* Flat sidebar */
+      .bslib-sidebar-layout > .sidebar {
+        background: #252526 !important;
+        border-right: 1px solid #3e3e42 !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .bslib-sidebar-layout > .sidebar {
+        background: #f8f8f8 !important;
+        border-right: 1px solid #d0d0d0 !important;
+      }
+      
+      /* Flat cards */
+      .card {
+        background: #252526 !important;
+        border: 1px solid #3e3e42 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .card {
+        background: #ffffff !important;
+        border: 1px solid #d0d0d0 !important;
+      }
+      
+      .card-header {
+        background: #2d2d30 !important;
+        border-bottom: 1px solid #3e3e42 !important;
+        color: #cccccc !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        padding: 8px 12px !important;
+        border-radius: 0 !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .card-header {
+        background: #f3f3f3 !important;
+        border-bottom: 1px solid #d0d0d0 !important;
+        color: #1e1e1e !important;
+      }
+      
+      /* Flat buttons - GREEN PRIMARY WITH MICRO-INTERACTIONS */
+      .btn {
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        padding: 6px 14px !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #3e3e42 !important;
+        position: relative;
+      }
+      
+      body.light-theme .btn {
+        border: 1px solid var(--ordin-light-border) !important;
+      }
+      
+      .btn-success {
+        background: var(--ordin-green) !important;
+        border-color: var(--ordin-green) !important;
+        color: #ffffff !important;
+      }
+      
+      .btn-success:hover {
+        background: var(--ordin-green-dark) !important;
+        border-color: var(--ordin-green-dark) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3) !important;
+      }
+      
+      .btn-success:active {
+        transform: translateY(0);
+      }
+      
+      .btn-lg {
+        padding: 10px 20px !important;
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+      }
+      
+      /* Flat inputs - FOCUS STATE WITH GREEN ACCENT */
+      .form-control,
+      .form-select {
+        background: #3c3c3c !important;
+        border: 1px solid #3e3e42 !important;
+        color: var(--ordin-text) !important;
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      body.light-theme .form-control,
+      body.light-theme .form-select {
+        background: var(--ordin-light-bg) !important;
+        border: 1px solid var(--ordin-light-border) !important;
+        color: var(--ordin-light-text) !important;
+      }
+      
+      .form-control:focus,
+      .form-select:focus {
+        background: #3c3c3c !important;
+        border-color: var(--ordin-green) !important;
+        box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15) !important;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+      }
+      
+      body.light-theme .form-control:focus,
+      body.light-theme .form-select:focus {
+        background: var(--ordin-light-bg) !important;
+        color: var(--ordin-light-text) !important;
+      }
+      
+      /* Flat accordion */
+      .accordion-button {
+        background: #2d2d30 !important;
+        color: #cccccc !important;
+        border: none !important;
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        padding: 8px 12px !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .accordion-button {
+        background: #f3f3f3 !important;
+        color: #1e1e1e !important;
+      }
+      
+      .accordion-button:not(.collapsed) {
+        background: #37373d !important;
+        color: #007acc !important;
+      }
+      
+      body.light-theme .accordion-button:not(.collapsed) {
+        background: #e8e8e8 !important;
+      }
+      
+      .accordion-body {
+        background: #252526 !important;
+        border-top: 1px solid #3e3e42 !important;
+        padding: 12px !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .accordion-body {
+        background: #ffffff !important;
+        border-top: 1px solid #d0d0d0 !important;
+      }
+      
+      /* Flat nav pills */
+      .nav-pills .nav-link {
+        background: #2d2d30 !important;
+        color: #cccccc !important;
+        border-radius: 0 !important;
+        margin-right: 2px !important;
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+      }
+      
+      body.light-theme .nav-pills .nav-link {
+        background: #f3f3f3 !important;
+        color: #424242 !important;
+      }
+      
+      .nav-pills .nav-link.active {
+        background: var(--ordin-green) !important;
+        color: #ffffff !important;
+      }
+      
+      .nav-pills .nav-link:hover:not(.active) {
+        background: #37373d !important;
+      }
+      
+      body.light-theme .nav-pills .nav-link:hover:not(.active) {
+        background: #e8e8e8 !important;
+      }
+      
+      /* Flat alerts */
+      .alert {
+        border-radius: 0 !important;
+        border: 1px solid #3e3e42 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .alert {
+        border: 1px solid #d0d0d0 !important;
+      }
+      
+      /* DataTable styling */
+      .dataTables_wrapper {
+        color: #cccccc !important;
+      }
+      
+      body.light-theme .dataTables_wrapper {
+        color: #1e1e1e !important;
+      }
+      
+      .dataTables_wrapper .dataTables_length,
+      .dataTables_wrapper .dataTables_filter,
+      .dataTables_wrapper .dataTables_info,
+      .dataTables_wrapper .dataTables_paginate {
+        color: #cccccc !important;
+      }
+      
+      body.light-theme .dataTables_wrapper .dataTables_length,
+      body.light-theme .dataTables_wrapper .dataTables_filter,
+      body.light-theme .dataTables_wrapper .dataTables_info,
+      body.light-theme .dataTables_wrapper .dataTables_paginate {
+        color: #1e1e1e !important;
+      }
+      
+      table.dataTable {
+        border: 1px solid #3e3e42 !important;
+        background: #252526 !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme table.dataTable {
+        border: 1px solid #d0d0d0 !important;
+        background: #ffffff !important;
+      }
+      
+      table.dataTable thead th {
+        background: #2d2d30 !important;
+        color: #cccccc !important;
+        border-bottom: 1px solid #3e3e42 !important;
+        font-weight: 600 !important;
+      }
+      
+      body.light-theme table.dataTable thead th {
+        background: #f3f3f3 !important;
+        color: #1e1e1e !important;
+        border-bottom: 1px solid #d0d0d0 !important;
+      }
+      
+      table.dataTable tbody tr {
+        background: #252526 !important;
+        color: #cccccc !important;
+      }
+      
+      body.light-theme table.dataTable tbody tr {
+        background: #ffffff !important;
+        color: #1e1e1e !important;
+      }
+      
+      table.dataTable tbody tr:hover {
+        background: #2d2d30 !important;
+      }
+      
+      body.light-theme table.dataTable tbody tr:hover {
+        background: #f8f8f8 !important;
+      }
+      
+      /* Loading spinner overlay */
+      .waiter-overlay {
+        background: rgba(30, 30, 30, 0.95) !important;
+      }
+      
+      body.light-theme .waiter-overlay {
+        background: rgba(255, 255, 255, 0.95) !important;
+      }
+      
+      /* Feedback messages */
+      .shiny-input-container.has-feedback .form-control {
+        padding-right: 40px;
+      }
+      
+      .shiny-input-container .form-control-feedback {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+      }
+      
+      /* High contrast theme support */
+      @media (prefers-contrast: high) {
+        body {
+          border: 2px solid var(--ordin-green);
+        }
+        
+        .btn-success {
+          border: 2px solid #ffffff !important;
+        }
+        
+        .nav-link.active {
+          border-bottom-width: 4px !important;
+        }
+      }
+      
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      
+      /* Keyboard focus indicators */
+      *:focus-visible {
+        outline: 2px solid var(--ordin-green) !important;
+        outline-offset: 2px !important;
+      }
+      
+      /* Scrollbar styling - GREEN ACCENT */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: var(--ordin-dark-bg);
+      }
+      
+      body.light-theme ::-webkit-scrollbar-track {
+        background: var(--ordin-light-navbar);
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: #424242;
+        border-radius: 0;
+        transition: background 0.2s;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--ordin-green);
+      }
+      
+      body.light-theme ::-webkit-scrollbar-thumb {
+        background: #c0c0c0;
+      }
+      
+      body.light-theme ::-webkit-scrollbar-thumb:hover {
+        background: var(--ordin-green);
+      }
     '))
   ),  # End header
+  
+  id = "main_nav",
   
   # DIVERSITY ANALYSIS
   nav_panel(
@@ -467,8 +1017,7 @@ ui <- tagList(
       "☀️"  # Sun emoji (will show in dark mode)
     )
   )
-  )  # End page_navbar
-)  # End tagList
+)
 
 # Server Logic
 server <- function(input, output, session) {
