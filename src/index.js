@@ -11,7 +11,7 @@ if (require('electron-squirrel-startup')) {
 let mainWindow;
 let splashWindow;
 let rShinyProcess;
-const SHINY_PORT = 9010;
+const SHINY_PORT = 9030;
 const SHINY_HOST = '127.0.0.1';
 
 // Function to find R executable

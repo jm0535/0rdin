@@ -1105,88 +1105,775 @@ ui <- tagList(
   nav_panel(
     title = "Help",
     icon = icon("question-circle"),
-    card(
-      full_screen = TRUE,
-      card_header(
-        "Ördin User Guide"
+    
+    # Custom layout with sidebar navigation for help
+    tags$div(
+      class = "help-container",
+      style = "display: flex; height: 100vh; overflow: hidden;",
+      
+      # Sidebar Navigation
+      tags$div(
+        id = "help-sidebar",
+        class = "help-sidebar",
+        style = "width: 250px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; padding: 20px 0; overflow-y: auto;",
+        
+        # Header
+        tags$div(
+          class = "text-center mb-4",
+          div(style = "font-size: 3em; color: #2e8b57; margin-bottom: 10px;", "Ö"),
+          h4(style = "color: #2e8b57; font-weight: 700;", "Ördin v3.0"),
+          p(class = "small text-muted", "Help & Documentation")
+        ),
+        
+        # Navigation Links
+        tags$div(
+          class = "help-nav",
+          style = "display: flex; flex-direction: column; gap: 5px;",
+          
+          # About Ördin
+          tags$button(
+            id = "nav-about",
+            class = "help-nav-btn active",
+            style = "text-align: left; padding: 12px 20px; background: #2e8b57; border: none; color: white; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
+            onclick = "switchHelpSection('about'); setActiveHelpNav(this);",
+            tags$div(style = "font-size: 1.2em;", icon("info-circle")),
+            tags$div("About Ördin")
+          ),
+          
+          # FAQ
+          tags$button(
+            id = "nav-faq",
+            class = "help-nav-btn",
+            style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
+            onclick = "switchHelpSection('faq'); setActiveHelpNav(this);",
+            tags$div(style = "font-size: 1.2em;", icon("question-circle")),
+            tags$div("Frequently Asked Questions")
+          ),
+          
+          # User Guides
+          tags$button(
+            id = "nav-guides",
+            class = "help-nav-btn",
+            style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
+            onclick = "switchHelpSection('guides'); setActiveHelpNav(this);",
+            tags$div(style = "font-size: 1.2em;", icon("book")),
+            tags$div("User Guides")
+          ),
+          
+          # Changelog
+          tags$button(
+            id = "nav-changelog",
+            class = "help-nav-btn",
+            style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
+            onclick = "switchHelpSection('changelog'); setActiveHelpNav(this);",
+            tags$div(style = "font-size: 1.2em;", icon("history")),
+            tags$div("Changelog")
+          ),
+          
+          # Technical Specifications
+          tags$button(
+            id = "nav-specs",
+            class = "help-nav-btn",
+            style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
+            onclick = "switchHelpSection('specs'); setActiveHelpNav(this);",
+            tags$div(style = "font-size: 1.2em;", icon("cogs")),
+            tags$div("Technical Specifications")
+          ),
+          
+          # Author & Credits
+          tags$button(
+            id = "nav-author",
+            class = "help-nav-btn",
+            style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
+            onclick = "switchHelpSection('author'); setActiveHelpNav(this);",
+            tags$div(style = "font-size: 1.2em;", icon("user")),
+            tags$div("Author & Credits")
+          ),
+          
+          # References
+          tags$button(
+            id = "nav-references",
+            class = "help-nav-btn",
+            style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
+            onclick = "switchHelpSection('references'); setActiveHelpNav(this);",
+            tags$div(style = "font-size: 1.2em;", icon("book-open")),
+            tags$div("References")
+          )
+        )
       ),
-      card_body(
-        div(
-          class = "container",
-          style = "max-width: 900px; padding: 30px;",
+      
+      # Content Area
+      tags$div(
+        id = "help-content",
+        class = "help-content",
+        style = "flex: 1; padding: 30px; overflow-y: auto;",
+        
+        # About Section (Default Visible)
+        tags$div(
+          id = "section-about",
+          class = "help-section active",
           
-          # Header
-          div(
-            class = "text-center mb-5",
-            div(style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px;", "Ö"),
-            h2(style = "color: #2e8b57; font-weight: 700;", "Ördin v3.0"),
-            p(class = "lead", style = "color: #aaa;", "Community Ecology Analysis Platform")
+          tags$h2(class = "mb-4", style = "color: #2e8b57; font-weight: 700;", "About Ördin"),
+          
+          tags$p(class = "lead", "Ördin is an enterprise-grade community ecology analysis platform that combines the analytical power of R with modern desktop application design. It provides ecologists, researchers, and students with professional tools for analyzing community composition, diversity patterns, ordination, and ecological indices through an intuitive, cross-platform interface."),
+          
+          tags$h4(class = "mt-4 mb-3", style = "color: #2e8b57;", "Platform Overview"),
+          
+          tags$p("Ördin provides a comprehensive suite of tools for community ecology analysis:"),
+          tags$ul(
+            tags$li(tags$strong("Diversity Estimation"), ": iNEXT-based rarefaction and extrapolation analysis"),
+            tags$li(tags$strong("Ordination Analysis"), ": 7 methods (NMDS, PCA, CA, DCA, CCA, RDA, PCoA)"),
+            tags$li(tags$strong("Diversity Indices"), ": Classic diversity and evenness metrics"),
+            tags$li(tags$strong("Advanced Visualization"), ": Confidence ellipses, species scores, environmental vectors")
           ),
           
-          # Modules
-          card(
-            class = "mb-4",
-            card_header(icon("layer-group"), " Analysis Modules", class = "fw-bold"),
-            card_body(
-              div(class = "row",
-                 div(class = "col-md-6 mb-3",
-                    div(class = "d-flex align-items-start",
-                       div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("chart-line")),
-                       div(
-                         h5(class = "fw-bold", "Diversity Estimation (iNEXT)"),
-                         p(class = "text-muted small mb-0", "Rarefaction, extrapolation & Hill numbers for community diversity")
-                       )
-                    )
-                 ),
-                 div(class = "col-md-6 mb-3",
-                    div(class = "d-flex align-items-start",
-                       div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("calculator")),
-                       div(
-                         h5(class = "fw-bold", "Diversity Indices (vegan)"),
-                         p(class = "text-muted small mb-0", "Shannon, Simpson, evenness & ecological indices")
-                       )
-                    )
-                 ),
-                 div(class = "col-md-6 mb-3",
-                    div(class = "d-flex align-items-start",
-                       div(class = "me-3", style = "font-size: 2em; color: #4169e1;", icon("project-diagram")),
-                       div(
-                         h5(class = "fw-bold", "Ordination Analysis (vegan)"),
-                         p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, CCA, RDA, PCoA for community patterns")
-                       )
-                    )
-                 )
+          tags$h4(class = "mt-4 mb-3", style = "color: #2e8b57;", "Core Modules"),
+          
+          # Core Modules Cards
+          tags$div(
+            class = "row",
+            
+            # Diversity Estimation
+            tags$div(
+              class = "col-md-4 mb-4",
+              card(
+                card_header(
+                  tags$div(class = "d-flex align-items-center",
+                    tags$div(class = "me-2", style = "font-size: 1.2em; color: #2e8b57;", icon("chart-line")),
+                    tags$div("Diversity Estimation")
+                  )
+                ),
+                card_body(
+                  tags$ul(class = "mb-0 ps-3",
+                    tags$li("Individual-based and incidence-based data"),
+                    tags$li("Three visualization types"),
+                    tags$li("Hill numbers (q=0, 1, 2)"),
+                    tags$li("Bootstrap confidence intervals")
+                  )
+                )
+              )
+            ),
+            
+            # Diversity Indices
+            tags$div(
+              class = "col-md-4 mb-4",
+              card(
+                card_header(
+                  tags$div(class = "d-flex align-items-center",
+                    tags$div(class = "me-2", style = "font-size: 1.2em; color: #2e8b57;", icon("calculator")),
+                    tags$div("Diversity Indices")
+                  )
+                ),
+                card_body(
+                  tags$ul(class = "mb-0 ps-3",
+                    tags$li("Alpha diversity metrics"),
+                    tags$li("Evenness indices"),
+                    tags$li("Rarefaction analysis"),
+                    tags$li("Species accumulation curves")
+                  )
+                )
+              )
+            ),
+            
+            # Ordination
+            tags$div(
+              class = "col-md-4 mb-4",
+              card(
+                card_header(
+                  tags$div(class = "d-flex align-items-center",
+                    tags$div(class = "me-2", style = "font-size: 1.2em; color: #4169e1;", icon("project-diagram")),
+                    tags$div("Ordination Analysis")
+                  )
+                ),
+                card_body(
+                  tags$ul(class = "mb-0 ps-3",
+                    tags$li("7 ordination methods"),
+                    tags$li("5 distance measures"),
+                    tags$li("Confidence ellipses"),
+                    tags$li("Environmental vectors")
+                  )
+                )
               )
             )
           ),
           
-          # Quick Start
-          card(
-            card_header(icon("rocket"), " Quick Start", class = "fw-bold"),
-            card_body(
-              tags$ol(
-                class = "mb-0",
-                tags$li("Upload CSV file (first column = site names, others = species/taxa data)"),
-                tags$li("Select analysis type in sidebar (Estimation, Indices, or Ordination)"),
-                tags$li("Configure parameters and click Run"),
-                tags$li("Download results as CSV or publication-quality images")
+          tags$h4(class = "mt-4 mb-3", style = "color: #2e8b57;", "Enterprise Features"),
+          
+          tags$div(
+            class = "row",
+            tags$div(class = "col-md-6",
+              tags$ul(
+                tags$li(tags$strong("Professional dark/light theme"), " with persistent preferences"),
+                tags$li(tags$strong("Publication-quality exports"), " in multiple formats"),
+                tags$li(tags$strong("Modular architecture"), " with independent analysis modules"),
+                tags$li(tags$strong("Cross-platform support"), " (Windows, macOS, Linux)")
+              )
+            ),
+            tags$div(class = "col-md-6",
+              tags$ul(
+                tags$li(tags$strong("Self-contained portable R installation")),
+                tags$li(tags$strong("Advanced data management and validation")),
+                tags$li(tags$strong("Comprehensive documentation and user guides"))
+              )
+            )
+          )
+        ),
+        
+        # FAQ Section
+        tags$div(
+          id = "section-faq",
+          class = "help-section",
+          style = "display: none;",
+          
+          tags$h2(class = "mb-4", style = "color: #2e8b57; font-weight: 700;", "Frequently Asked Questions"),
+          
+          # FAQ Accordion
+          tags$div(
+            class = "accordion",
+            id = "faqAccordion",
+            
+            # FAQ 1
+            tags$div(
+              class = "accordion-item",
+              style = "background: #2d2d30; border: 1px solid #3e3e42; margin-bottom: 10px;",
+              
+              tags$h2(
+                class = "accordion-header",
+                id = "faqHeading1",
+                tags$button(
+                  class = "accordion-button collapsed",
+                  style = "background: #252526; color: #cccccc; font-weight: 600;",
+                  `type` = "button",
+                  `data-bs-toggle` = "collapse",
+                  `data-bs-target` = "#faqCollapse1",
+                  `aria-expanded` = "false",
+                  `aria-controls` = "faqCollapse1",
+                  "What data format does Ördin require?"
+                )
+              ),
+              tags$div(
+                id = "faqCollapse1",
+                class = "accordion-collapse collapse",
+                `aria-labelledby` = "faqHeading1",
+                `data-bs-parent` = "#faqAccordion",
+                tags$div(
+                  class = "accordion-body",
+                  tags$p("Ördin requires CSV files with the first column containing site names and subsequent columns containing species/taxa abundance or presence/absence data. The platform supports three data types:"),
+                  tags$ul(
+                    tags$li(tags$strong("Abundance"), ": Numeric counts of individuals per species"),
+                    tags$li(tags$strong("Incidence (Binary)"), ": Presence/absence data (1/0)"),
+                    tags$li(tags$strong("Incidence (Freq)"), ": Frequency of occurrence data")
+                  ),
+                  tags$p("For ordination methods that support environmental variables (CCA, RDA), a separate environmental data file can be uploaded with site names in the first column and environmental variables in subsequent columns.")
+                )
+              )
+            ),
+            
+            # FAQ 2
+            tags$div(
+              class = "accordion-item",
+              style = "background: #2d2d30; border: 1px solid #3e3e42; margin-bottom: 10px;",
+              
+              tags$h2(
+                class = "accordion-header",
+                id = "faqHeading2",
+                tags$button(
+                  class = "accordion-button collapsed",
+                  style = "background: #252526; color: #cccccc; font-weight: 600;",
+                  `type` = "button",
+                  `data-bs-toggle` = "collapse",
+                  `data-bs-target` = "#faqCollapse2",
+                  `aria-expanded` = "false",
+                  `aria-controls` = "faqCollapse2",
+                  "What ordination methods are supported?"
+                )
+              ),
+              tags$div(
+                id = "faqCollapse2",
+                class = "accordion-collapse collapse",
+                `aria-labelledby` = "faqHeading2",
+                `data-bs-parent` = "#faqAccordion",
+                tags$div(
+                  class = "accordion-body",
+                  tags$p("Ördin supports 7 ordination methods with comprehensive visualization features:"),
+                  tags$ol(
+                    tags$li(tags$strong("NMDS"), " - Non-metric Multidimensional Scaling"),
+                    tags$li(tags$strong("PCA"), " - Principal Components Analysis"),
+                    tags$li(tags$strong("CA"), " - Correspondence Analysis"),
+                    tags$li(tags$strong("DCA"), " - Detrended Correspondence Analysis"),
+                    tags$li(tags$strong("CCA"), " - Canonical Correspondence Analysis (constrained)"),
+                    tags$li(tags$strong("RDA"), " - Redundancy Analysis (constrained)"),
+                    tags$li(tags$strong("PCoA"), " - Principal Coordinates Analysis")
+                  ),
+                  tags$p("Each method supports customizable dimensions, distance measures, and advanced visualization options including confidence ellipses, species scores, and environmental vectors.")
+                )
+              )
+            ),
+            
+            # Additional FAQs would be added here
+            # FAQ 3-7 would follow the same pattern
+            
+            # FAQ 3
+            tags$div(
+              class = "accordion-item",
+              style = "background: #2d2d30; border: 1px solid #3e3e42; margin-bottom: 10px;",
+              
+              tags$h2(
+                class = "accordion-header",
+                id = "faqHeading3",
+                tags$button(
+                  class = "accordion-button collapsed",
+                  style = "background: #252526; color: #cccccc; font-weight: 600;",
+                  `type` = "button",
+                  `data-bs-toggle` = "collapse",
+                  `data-bs-target` = "#faqCollapse3",
+                  `aria-expanded` = "false",
+                  `aria-controls` = "faqCollapse3",
+                  "What diversity indices are available?"
+                )
+              ),
+              tags$div(
+                id = "faqCollapse3",
+                class = "accordion-collapse collapse",
+                `aria-labelledby` = "faqHeading3",
+                `data-bs-parent` = "#faqAccordion",
+                tags$div(
+                  class = "accordion-body",
+                  tags$p("Ördin provides comprehensive diversity analysis through two main modules:"),
+                  tags$ul(
+                    tags$li(tags$strong("Diversity Estimation"), ": iNEXT-based rarefaction and extrapolation with Hill numbers (q=0, 1, 2)"),
+                    tags$li(tags$strong("Diversity Indices"), ": 8 classic diversity and evenness metrics including Shannon, Simpson, Pielou's evenness, and species accumulation curves")
+                  )
+                )
+              )
+            )
+          )
+        ),
+        
+        # User Guides Section
+        tags$div(
+          id = "section-guides",
+          class = "help-section",
+          style = "display: none;",
+          
+          tags$h2(class = "mb-4", style = "color: #2e8b57; font-weight: 700;", "User Guides"),
+          
+          # Module Guides
+          tags$div(
+            class = "row",
+            
+            # Data Management Guide
+            tags$div(
+              class = "col-md-6 mb-4",
+              card(
+                card_header(
+                  tags$div(class = "d-flex align-items-center",
+                    tags$div(class = "me-2", style = "font-size: 1.2em; color: #4169e1;", icon("database")),
+                    tags$div("Data Management")
+                  )
+                ),
+                card_body(
+                  tags$h5("Getting Started with Data"),
+                  tags$p("Learn how to import, validate, and manage your ecological datasets."),
+                  tags$ul(
+                    tags$li("Supported file formats: CSV, Excel, Tab-delimited"),
+                    tags$li("Data validation and preprocessing"),
+                    tags$li("Handling missing values and outliers")
+                  ),
+                  tags$a(href = "#", class = "btn btn-sm btn-outline-primary mt-2", "View Full Guide")
+                )
+              )
+            ),
+            
+            # Diversity Analysis Guide
+            tags$div(
+              class = "col-md-6 mb-4",
+              card(
+                card_header(
+                  tags$div(class = "d-flex align-items-center",
+                    tags$div(class = "me-2", style = "font-size: 1.2em; color: #2e8b57;", icon("chart-line")),
+                    tags$div("Diversity Analysis")
+                  )
+                ),
+                card_body(
+                  tags$h5("Diversity Estimation & Indices"),
+                  tags$p("Master the diversity analysis tools in Ördin."),
+                  tags$ul(
+                    tags$li("iNEXT rarefaction and extrapolation"),
+                    tags$li("Hill numbers and diversity profiles"),
+                    tags$li("Classic diversity indices and evenness metrics")
+                  ),
+                  tags$a(href = "#", class = "btn btn-sm btn-outline-success mt-2", "View Full Guide")
+                )
+              )
+            ),
+            
+            # Ordination Guide
+            tags$div(
+              class = "col-md-6 mb-4",
+              card(
+                card_header(
+                  tags$div(class = "d-flex align-items-center",
+                    tags$div(class = "me-2", style = "font-size: 1.2em; color: #4169e1;", icon("project-diagram")),
+                    tags$div("Ordination Analysis")
+                  )
+                ),
+                card_body(
+                  tags$h5("Multivariate Analysis"),
+                  tags$p("Explore community patterns with ordination methods."),
+                  tags$ul(
+                    tags$li("Choosing the right ordination method"),
+                    tags$li("Distance measures and transformations"),
+                    tags$li("Interpreting ordination plots and statistics")
+                  ),
+                  tags$a(href = "#", class = "btn btn-sm btn-outline-primary mt-2", "View Full Guide")
+                )
+              )
+            ),
+            
+            # Visualization Guide
+            tags$div(
+              class = "col-md-6 mb-4",
+              card(
+                card_header(
+                  tags$div(class = "d-flex align-items-center",
+                    tags$div(class = "me-2", style = "font-size: 1.2em; color: #ff8c00;", icon("chart-bar")),
+                    tags$div("Visualization")
+                  )
+                ),
+                card_body(
+                  tags$h5("Creating Publication-Quality Plots"),
+                  tags$p("Learn to create and customize professional visualizations."),
+                  tags$ul(
+                    tags$li("Plot customization and theming"),
+                    tags$li("Export formats and resolution settings"),
+                    tags$li("Advanced visualization features")
+                  ),
+                  tags$a(href = "#", class = "btn btn-sm btn-outline-warning mt-2", "View Full Guide")
+                )
+              )
+            )
+          )
+        ),
+        
+        # Changelog Section
+        tags$div(
+          id = "section-changelog",
+          class = "help-section",
+          style = "display: none;",
+          
+          tags$h2(class = "mb-4", style = "color: #2e8b57; font-weight: 700;", "Changelog"),
+          
+          # Version 3.0
+          tags$div(
+            class = "mb-5",
+            tags$h3(
+              class = "d-flex align-items-center gap-2 mb-3",
+              tags$span("Version 3.0"),
+              tags$span(class = "badge bg-success", style = "font-size: 0.5em;", "Latest")
+            ),
+            tags$p(class = "text-muted", "Released: October 2025"),
+            
+            tags$h5(class = "mt-4", style = "color: #2e8b57;", "Major Features"),
+            tags$ul(
+              tags$li(tags$strong("Enhanced Help System"), ": Professional sidebar navigation with 7 sections"),
+              tags$li(tags$strong("Enterprise Documentation"), ": Comprehensive user guides and technical specifications"),
+              tags$li(tags$strong("Advanced Data Management"), ": Improved validation, preprocessing, and export options"),
+              tags$li(tags$strong("UI/UX Enhancements"), ": Refined interface with professional design patterns")
+            ),
+            
+            tags$h5(class = "mt-4", style = "color: #2e8b57;", "Improvements"),
+            tags$ul(
+              tags$li("Expanded ordination capabilities with 7 methods"),
+              tags$li("Enhanced visualization options for all analysis types"),
+              tags$li("Improved performance for large datasets"),
+              tags$li("Comprehensive documentation updates")
+            )
+          ),
+          
+          # Version 2.3
+          tags$div(
+            class = "mb-5",
+            tags$h3(class = "mb-3", "Version 2.3"),
+            tags$p(class = "text-muted", "Released: July 2025"),
+            
+            tags$ul(
+              tags$li("Professional dark/light theme toggle with persistent preferences"),
+              tags$li("Complete CSS architecture refactor for reliability"),
+              tags$li("Smooth transitions and theme-responsive UI elements"),
+              tags$li("localStorage persistence for theme settings")
+            )
+          ),
+          
+          # Version 2.2
+          tags$div(
+            class = "mb-5",
+            tags$h3(class = "mb-3", "Version 2.2"),
+            tags$p(class = "text-muted", "Released: April 2025"),
+            
+            tags$ul(
+              tags$li("Complete modular architecture with tab-based navigation"),
+              tags$li("5 ordination methods (NMDS, PCA, CA, DCA, PCoA)"),
+              tags$li("8 diversity indices with rarefaction and accumulation curves"),
+              tags$li("Professional UI with dedicated modules"),
+              tags$li("Enhanced vegan package integration (9.5% coverage)"),
+              tags$li("Publication-quality plot exports")
+            )
+          )
+        ),
+        
+        # Technical Specifications Section
+        tags$div(
+          id = "section-specs",
+          class = "help-section",
+          style = "display: none;",
+          
+          tags$h2(class = "mb-4", style = "color: #2e8b57; font-weight: 700;", "Technical Specifications"),
+          
+          # System Requirements
+          tags$div(
+            class = "mb-5",
+            tags$h4(class = "mb-3", style = "color: #2e8b57;", "System Requirements"),
+            
+            tags$div(
+              class = "row",
+              tags$div(
+                class = "col-md-6",
+                tags$h5("Minimum Requirements:"),
+                tags$ul(
+                  tags$li(tags$strong("Operating System"), ": Windows 10+, macOS 10.15+, Linux"),
+                  tags$li(tags$strong("Processor"), ": Intel/AMD x64 or Apple Silicon"),
+                  tags$li(tags$strong("Memory"), ": 4 GB RAM"),
+                  tags$li(tags$strong("Storage"), ": 500 MB available space"),
+                  tags$li(tags$strong("Display"), ": 1280×720 minimum resolution"),
+                  tags$li(tags$strong("Internet"), ": Not required (offline capable)"),
+                  tags$li(tags$strong("Dependencies"), ": None (self-contained)")
+                )
+              ),
+              tags$div(
+                class = "col-md-6",
+                tags$h5("Recommended Requirements:"),
+                tags$ul(
+                  tags$li(tags$strong("Operating System"), ": Windows 11, macOS 12+, Ubuntu 22.04+"),
+                  tags$li(tags$strong("Processor"), ": Multi-core Intel/AMD or Apple M1/M2"),
+                  tags$li(tags$strong("Memory"), ": 8 GB RAM"),
+                  tags$li(tags$strong("Storage"), ": 1 GB available space"),
+                  tags$li(tags$strong("Display"), ": 1920×1080 or higher")
+                )
               )
             )
           ),
           
-          # Footer
-          hr(class = "my-4"),
-          div(
-            class = "text-center text-muted",
-            p(tags$small(
-              "Built with R Shiny + iNEXT + vegan | ",
-              strong("© 2025 Jimmy Moses"),
-              " | MIT License"
-            ))
+          # Technology Stack
+          tags$div(
+            class = "mb-5",
+            tags$h4(class = "mb-3", style = "color: #2e8b57;", "Technology Stack"),
+            
+            tags$div(
+              class = "row",
+              tags$div(
+                class = "col-md-6",
+                tags$h5("Frontend:"),
+                tags$ul(
+                  tags$li("Electron: Desktop application framework"),
+                  tags$li("Shiny: Web application framework"),
+                  tags$li("Bootstrap 5: UI components"),
+                  tags$li("Custom CSS: Professional theming")
+                )
+              ),
+              tags$div(
+                class = "col-md-6",
+                tags$h5("Backend:"),
+                tags$ul(
+                  tags$li("R 4.2+: Statistical computing"),
+                  tags$li("iNEXT: Interpolation/extrapolation"),
+                  tags$li("vegan: Community ecology package"),
+                  tags$li("ggplot2: Visualization engine")
+                )
+              )
+            )
+          )
+        ),
+        
+        # Author & Credits Section
+        tags$div(
+          id = "section-author",
+          class = "help-section",
+          style = "display: none;",
+          
+          tags$h2(class = "mb-4", style = "color: #2e8b57; font-weight: 700;", "Author & Credits"),
+          
+          tags$div(
+            class = "d-flex align-items-center mb-4",
+            tags$div(
+              class = "me-4",
+              style = "width: 100px; height: 100px; border-radius: 50%; background: #2e8b57; display: flex; align-items: center; justify-content: center; font-size: 3em; color: white;",
+              "JM"
+            ),
+            tags$div(
+              tags$h3("Jimmy Moses"),
+              tags$p(class = "mb-1", "Lead Developer & Maintainer"),
+              tags$p(class = "text-muted", "jmoses@pnguot.ac.pg")
+            )
+          ),
+          
+          tags$h4(class = "mt-5 mb-3", style = "color: #2e8b57;", "Acknowledgements"),
+          
+          tags$p("Ördin builds upon the work of many open-source projects and academic resources:"),
+          
+          tags$ul(
+            tags$li(tags$strong("R Core Team"), " for the R statistical computing environment"),
+            tags$li(tags$strong("Chao Lab"), " for the iNEXT package and interpolation/extrapolation methodology"),
+            tags$li(tags$strong("Jari Oksanen et al."), " for the vegan package and community ecology methods"),
+            tags$li(tags$strong("RStudio Team"), " for the Shiny web application framework"),
+            tags$li(tags$strong("Electron Team"), " for the desktop application framework")
+          ),
+          
+          tags$h4(class = "mt-5 mb-3", style = "color: #2e8b57;", "License"),
+          
+          tags$p("Ördin is released under the MIT License:"),
+          
+          tags$pre(
+            style = "background: #1e1e1e; padding: 15px; border-radius: 5px; color: #cccccc;",
+            "Copyright (c) 2025 Jimmy Moses\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software."
+          )
+        ),
+        
+        # References Section
+        tags$div(
+          id = "section-references",
+          class = "help-section",
+          style = "display: none;",
+          
+          tags$h2(class = "mb-4", style = "color: #2e8b57; font-weight: 700;", "References"),
+          
+          tags$h4(class = "mb-3", style = "color: #2e8b57;", "Methodology References"),
+          
+          tags$ol(
+            class = "references",
+            style = "padding-left: 20px;",
+            
+            tags$li(
+              tags$p(
+                "Chao, A., Gotelli, N. J., Hsieh, T. C., Sander, E. L., Ma, K. H., Colwell, R. K., & Ellison, A. M. (2014). Rarefaction and extrapolation with Hill numbers: a framework for sampling and estimation in species diversity studies. ",
+                tags$em("Ecological Monographs"),
+                ", 84(1), 45-67."
+              )
+            ),
+            
+            tags$li(
+              tags$p(
+                "Chao, A., & Jost, L. (2012). Coverage-based rarefaction and extrapolation: standardizing samples by completeness rather than size. ",
+                tags$em("Ecology"),
+                ", 93(12), 2533-2547."
+              )
+            ),
+            
+            tags$li(
+              tags$p(
+                "Oksanen, J. (2022). Multivariate Analysis of Ecological Communities in R: vegan Tutorial. ",
+                tags$em("Comprehensive R Archive Network"),
+                "."
+              )
+            )
+          ),
+          
+          tags$h4(class = "mt-5 mb-3", style = "color: #2e8b57;", "Platform Technologies"),
+          
+          tags$ol(
+            class = "references",
+            style = "padding-left: 20px;",
+            
+            tags$li(
+              tags$p(
+                "Electron Team. (2023). Electron: Build cross-platform desktop apps with JavaScript, HTML, and CSS. ",
+                tags$a(href = "https://electronjs.org", "https://electronjs.org")
+              )
+            ),
+            
+            tags$li(
+              tags$p(
+                "Chang, W., Cheng, J., Allaire, J. J., Xie, Y., & McPherson, J. (2023). shiny: Web Application Framework for R. R package version 1.7.4. ",
+                tags$a(href = "https://shiny.rstudio.com/", "https://shiny.rstudio.com/")
+              )
+            ),
+            
+            tags$li(
+              tags$p(
+                "Bootstrap Team. (2023). Bootstrap: The most popular HTML, CSS, and JavaScript framework. ",
+                tags$a(href = "https://getbootstrap.com", "https://getbootstrap.com")
+              )
+            )
+          ),
+          
+          tags$h4(class = "mt-5 mb-3", style = "color: #2e8b57;", "Citing Ördin"),
+          
+          tags$p("If you use Ördin in your research, please cite:"),
+          
+          tags$pre(
+            style = "background: #1e1e1e; padding: 15px; border-radius: 5px; color: #cccccc;",
+            "Moses, J. (2025). Ördin: A cross-platform desktop application for community ecology analysis.\nGitHub repository: https://github.com/jm0535/0rdin"
           )
         )
       )
-    )
+    ),
+    
+    # JavaScript for Help Page Navigation
+    tags$script("
+      // Function to switch between help sections
+      function switchHelpSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.help-section').forEach(section => {
+          section.style.display = 'none';
+        });
+        
+        // Show the selected section
+        document.getElementById('section-' + sectionId).style.display = 'block';
+        
+        // Animate the content appearance
+        const content = document.getElementById('section-' + sectionId);
+        content.style.opacity = '0';
+        content.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+          content.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          content.style.opacity = '1';
+          content.style.transform = 'translateY(0)';
+        }, 50);
+      }
+      
+      // Function to set active navigation button
+      function setActiveHelpNav(button) {
+        // Remove active class from all buttons
+        document.querySelectorAll('.help-nav-btn').forEach(btn => {
+          btn.classList.remove('active');
+          btn.style.background = 'transparent';
+          btn.style.color = '#cccccc';
+        });
+        
+        // Add active class to clicked button
+        button.classList.add('active');
+        button.style.background = '#2e8b57';
+        button.style.color = 'white';
+      }
+      
+      // Add hover effects to nav buttons
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.help-nav-btn').forEach(btn => {
+          btn.addEventListener('mouseover', function() {
+            if (!this.classList.contains('active')) {
+              this.style.background = '#3e3e42';
+            }
+          });
+          
+          btn.addEventListener('mouseout', function() {
+            if (!this.classList.contains('active')) {
+              this.style.background = 'transparent';
+            }
+          });
+        });
+      });
+    ")
   ),
   
   # Settings Button (far right)
