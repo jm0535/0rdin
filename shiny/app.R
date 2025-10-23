@@ -30,8 +30,6 @@ ui <- page_navbar(
   
   # Custom CSS for flat VSCode-style design with theme support
   header = tags$head(
-    # Favicon with Ö symbol
-    tags$link(rel = "icon", type = "image/svg+xml", href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='75' font-size='80' font-family='Arial, sans-serif' fill='%232e8b57'%3E%C3%96%3C/text%3E%3C/svg%3E"),
     tags$script(HTML('
       // Theme toggle functionality
       function toggleTheme() {
@@ -76,6 +74,26 @@ ui <- page_navbar(
           btn.innerHTML = savedTheme === "dark" ? "☀️" : "🌙";
           btn.title = savedTheme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme";
         }
+        
+        // Set window title to just "Ördin"
+        document.title = "Ördin";
+        
+        // Insert VS Code style menu bar
+        const navbar = document.querySelector(".navbar");
+        if (navbar && !document.querySelector(".vscode-menubar")) {
+          const menuBar = document.createElement("div");
+          menuBar.className = "vscode-menubar";
+          menuBar.innerHTML = `
+            <div class="menu-bar">
+              <div class="menu-item">File</div>
+              <div class="menu-item">Edit</div>
+              <div class="menu-item">View</div>
+              <div class="menu-item">Window</div>
+              <div class="menu-item">Help</div>
+            </div>
+          `;
+          navbar.insertBefore(menuBar, navbar.firstChild);
+        }
       });
     ')),
     tags$style(HTML('
@@ -119,14 +137,68 @@ ui <- page_navbar(
         border-color: #d0d0d0;
       }
       
-      /* Flat navbar - DARK */
+      /* VS Code style menu bar structure */
+      .vscode-menubar {
+        width: 100%;
+        background: #2d2d30;
+        border-bottom: 1px solid #3e3e42;
+        display: flex;
+        flex-direction: row;
+        order: -1;
+        padding: 0;
+      }
+      
+      body.light-theme .vscode-menubar {
+        background: #f3f3f3;
+        border-bottom: 1px solid #d0d0d0;
+      }
+      
+      /* Menu bar with File, Edit, View, Window, Help */
+      .menu-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0;
+        background: #2d2d30;
+      }
+      
+      body.light-theme .menu-bar {
+        background: #f3f3f3;
+      }
+      
+      /* Individual menu items */
+      .menu-item {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+        color: #cccccc;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        border-radius: 0;
+      }
+      
+      body.light-theme .menu-item {
+        color: #424242;
+      }
+      
+      .menu-item:hover {
+        background: #37373d;
+      }
+      
+      body.light-theme .menu-item:hover {
+        background: #e8e8e8;
+      }
+      
+      /* Flat navbar - DARK - VS Code style */
       .navbar {
         background: #2d2d30 !important;
         border-bottom: 1px solid #3e3e42 !important;
         box-shadow: none !important;
         padding: 0 !important;
-        min-height: 35px !important;
+        min-height: auto !important;
         transition: all 0.2s ease;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
       }
       
       body.light-theme .navbar {
@@ -134,27 +206,22 @@ ui <- page_navbar(
         border-bottom: 1px solid #d0d0d0 !important;
       }
       
-      .navbar-brand {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 1.3rem !important;
-        padding: 6px 16px !important;
+      /* Menu items container */
+      .navbar-nav {
+        order: 1;
         display: flex;
-        align-items: center;
-        gap: 8px;
+        flex-direction: row !important;
+        width: 100%;
       }
       
-      body.light-theme .navbar-brand {
-        color: #1e1e1e !important;
+      /* Hide default navbar brand */
+      .navbar-brand {
+        display: none !important;
       }
       
-      .navbar-brand:hover {
-        color: #007acc !important;
-        background: #37373d;
-      }
-      
-      body.light-theme .navbar-brand:hover {
-        background: #e8e8e8;
+      /* Ensure navbar collapse shows items in row */
+      .navbar-collapse {
+        order: 1;
       }
       
       /* Flat nav items */
@@ -190,6 +257,11 @@ ui <- page_navbar(
       
       body.light-theme .nav-link.active {
         background: #ffffff !important;
+      }
+      
+      /* Hide the duplicate VS Code menu bar that appears below */
+      .vscode-menubar {
+        display: none !important;
       }
       
       /* Flat sidebar */
@@ -476,13 +548,8 @@ ui <- page_navbar(
         background: #a0a0a0;
       }
     '))
-  ),
+  ),  # End header
   
-  title = span(
-    style = "font-size: 1.3em; font-weight: 700; color: #2e8b57;",
-    title = "Ördin - Community Ecology Analysis Platform",
-    "Ö"
-  ),
   id = "main_nav",
   
   # DIVERSITY ANALYSIS

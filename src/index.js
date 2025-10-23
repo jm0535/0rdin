@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const axios = require('axios');
@@ -11,7 +11,7 @@ if (require('electron-squirrel-startup')) {
 let mainWindow;
 let splashWindow;
 let rShinyProcess;
-const SHINY_PORT = 9001;
+const SHINY_PORT = 9010;
 const SHINY_HOST = '127.0.0.1';
 
 // Function to find R executable
@@ -299,7 +299,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
-    title: 'Ördin - Biodiversity Analysis',
+    title: 'Ördin',
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: {
       nodeIntegration: false,
@@ -331,6 +331,25 @@ function createWindow() {
     mainWindow = null;
   });
 }
+
+// Handle window controls from custom title bar
+ipcMain.on('window-minimize', () => {
+  if (mainWindow) mainWindow.minimize();
+});
+
+ipcMain.on('window-maximize', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipcMain.on('window-close', () => {
+  if (mainWindow) mainWindow.close();
+});
 
 // App lifecycle
 app.on('ready', async () => {
