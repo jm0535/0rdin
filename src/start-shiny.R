@@ -5,7 +5,7 @@ library(shiny)
 setwd(file.path(getwd(), "shiny"))
 
 # Set Shiny options
-options(shiny.port = 8893)
+options(shiny.port = 8896)
 options(shiny.host = "127.0.0.1")
 options(shiny.launch.browser = FALSE)
 
@@ -16,7 +16,7 @@ cat("Working directory:", getwd(), "\n")
 # Run the Shiny app
 shiny::runApp(
   appDir = ".",
-  port = 8893,
+  port = 8896,
   host = "127.0.0.1",
   launch.browser = FALSE
 )

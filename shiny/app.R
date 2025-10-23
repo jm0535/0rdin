@@ -1,5 +1,5 @@
 # Ördin v2.2 - Modular Biodiversity Analysis Application
-# Complete implementation with all modules
+# Complete implementation with unified enterprise-grade UI
 
 library(bslib)
 library(vegan)
@@ -13,144 +13,732 @@ library(tidyr)
 # UI Definition
 ui <- page_navbar(
   theme = bs_theme(
-    version = 5, 
-    bootswatch = "darkly",
-    primary = "#2e8b57",
-    "font-scale" = 1.1
+    version = 5,
+    preset = "shiny",
+    bg = "#1e1e1e",
+    fg = "#cccccc",
+    primary = "#007acc",
+    secondary = "#2d2d30",
+    success = "#4ec9b0",
+    "navbar-bg" = "#2d2d30",
+    "navbar-light-brand-color" = "#ffffff",
+    "navbar-light-brand-hover-color" = "#007acc",
+    "font-size-base" = "0.9rem",
+    "enable-rounded" = FALSE,
+    "enable-shadows" = FALSE
   ),
-  title = "Ördin v2.2",
+  
+  # Custom CSS for flat VSCode-style design with theme support
+  header = tags$head(
+    tags$script(HTML('
+      // Theme toggle functionality
+      function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.classList.contains("light-theme") ? "light" : "dark";
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        
+        // Toggle CSS class
+        if (newTheme === "light") {
+          body.classList.add("light-theme");
+          body.classList.remove("dark-theme");
+        } else {
+          body.classList.add("dark-theme");
+          body.classList.remove("light-theme");
+        }
+        
+        localStorage.setItem("ordin-theme", newTheme);
+        
+        // Update toggle button icon
+        const btn = document.getElementById("theme-toggle-btn");
+        if (btn) {
+          btn.innerHTML = newTheme === "dark" ? "☀️" : "🌙";
+          btn.title = newTheme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme";
+        }
+      }
+      
+      // Load saved theme on startup
+      document.addEventListener("DOMContentLoaded", function() {
+        const savedTheme = localStorage.getItem("ordin-theme") || "dark";
+        const body = document.body;
+        
+        if (savedTheme === "light") {
+          body.classList.add("light-theme");
+          body.classList.remove("dark-theme");
+        } else {
+          body.classList.add("dark-theme");
+          body.classList.remove("light-theme");
+        }
+        
+        const btn = document.getElementById("theme-toggle-btn");
+        if (btn) {
+          btn.innerHTML = savedTheme === "dark" ? "☀️" : "🌙";
+          btn.title = savedTheme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme";
+        }
+      });
+    ')),
+    tags$style(HTML('
+      /* Base styles - Default to DARK theme */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+        background: #1e1e1e;
+        color: #cccccc;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+      
+      /* LIGHT THEME overrides */
+      body.light-theme {
+        background: #ffffff !important;
+        color: #1e1e1e !important;
+      }
+      
+      /* Theme toggle button */
+      #theme-toggle-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: #cccccc;
+        font-size: 1.1rem;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border-radius: 0;
+      }
+      
+      #theme-toggle-btn:hover {
+        background: #37373d;
+        border-color: #3e3e42;
+      }
+      
+      body.light-theme #theme-toggle-btn {
+        color: #424242;
+      }
+      
+      body.light-theme #theme-toggle-btn:hover {
+        background: #e8e8e8;
+        border-color: #d0d0d0;
+      }
+      
+      /* Flat navbar - DARK */
+      .navbar {
+        background: #2d2d30 !important;
+        border-bottom: 1px solid #3e3e42 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        min-height: 35px !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .navbar {
+        background: #f3f3f3 !important;
+        border-bottom: 1px solid #d0d0d0 !important;
+      }
+      
+      .navbar-brand {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        padding: 8px 16px !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      body.light-theme .navbar-brand {
+        color: #1e1e1e !important;
+      }
+      
+      .navbar-brand:hover {
+        color: #007acc !important;
+        background: #37373d;
+      }
+      
+      body.light-theme .navbar-brand:hover {
+        background: #e8e8e8;
+      }
+      
+      /* Flat nav items */
+      .nav-link {
+        color: #cccccc !important;
+        padding: 8px 16px !important;
+        border: none !important;
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.1s ease;
+        border-bottom: 2px solid transparent !important;
+      }
+      
+      body.light-theme .nav-link {
+        color: #424242 !important;
+      }
+      
+      .nav-link:hover {
+        background: #37373d !important;
+        color: #ffffff !important;
+      }
+      
+      body.light-theme .nav-link:hover {
+        background: #e8e8e8 !important;
+        color: #1e1e1e !important;
+      }
+      
+      .nav-link.active {
+        background: #1e1e1e !important;
+        color: #007acc !important;
+        border-bottom: 2px solid #007acc !important;
+      }
+      
+      body.light-theme .nav-link.active {
+        background: #ffffff !important;
+      }
+      
+      /* Flat sidebar */
+      .bslib-sidebar-layout > .sidebar {
+        background: #252526 !important;
+        border-right: 1px solid #3e3e42 !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .bslib-sidebar-layout > .sidebar {
+        background: #f8f8f8 !important;
+        border-right: 1px solid #d0d0d0 !important;
+      }
+      
+      /* Flat cards */
+      .card {
+        background: #252526 !important;
+        border: 1px solid #3e3e42 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .card {
+        background: #ffffff !important;
+        border: 1px solid #d0d0d0 !important;
+      }
+      
+      .card-header {
+        background: #2d2d30 !important;
+        border-bottom: 1px solid #3e3e42 !important;
+        color: #cccccc !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        padding: 8px 12px !important;
+        border-radius: 0 !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .card-header {
+        background: #f3f3f3 !important;
+        border-bottom: 1px solid #d0d0d0 !important;
+        color: #1e1e1e !important;
+      }
+      
+      /* Flat buttons */
+      .btn {
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        padding: 6px 14px !important;
+        transition: all 0.1s ease;
+        border: 1px solid #3e3e42 !important;
+      }
+      
+      body.light-theme .btn {
+        border: 1px solid #d0d0d0 !important;
+      }
+      
+      .btn-success {
+        background: #007acc !important;
+        border-color: #007acc !important;
+        color: #ffffff !important;
+      }
+      
+      .btn-success:hover {
+        background: #005a9e !important;
+        border-color: #005a9e !important;
+      }
+      
+      .btn-lg {
+        padding: 10px 20px !important;
+        font-size: 0.9rem !important;
+      }
+      
+      /* Flat inputs */
+      .form-control,
+      .form-select {
+        background: #3c3c3c !important;
+        border: 1px solid #3e3e42 !important;
+        color: #cccccc !important;
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .form-control,
+      body.light-theme .form-select {
+        background: #ffffff !important;
+        border: 1px solid #d0d0d0 !important;
+        color: #1e1e1e !important;
+      }
+      
+      .form-control:focus,
+      .form-select:focus {
+        background: #3c3c3c !important;
+        border-color: #007acc !important;
+        box-shadow: none !important;
+        color: #ffffff !important;
+      }
+      
+      body.light-theme .form-control:focus,
+      body.light-theme .form-select:focus {
+        background: #ffffff !important;
+        color: #1e1e1e !important;
+      }
+      
+      /* Flat accordion */
+      .accordion-button {
+        background: #2d2d30 !important;
+        color: #cccccc !important;
+        border: none !important;
+        border-radius: 0 !important;
+        font-size: 0.85rem !important;
+        padding: 8px 12px !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .accordion-button {
+        background: #f3f3f3 !important;
+        color: #1e1e1e !important;
+      }
+      
+      .accordion-button:not(.collapsed) {
+        background: #37373d !important;
+        color: #007acc !important;
+      }
+      
+      body.light-theme .accordion-button:not(.collapsed) {
+        background: #e8e8e8 !important;
+      }
+      
+      .accordion-body {
+        background: #252526 !important;
+        border-top: 1px solid #3e3e42 !important;
+        padding: 12px !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .accordion-body {
+        background: #ffffff !important;
+        border-top: 1px solid #d0d0d0 !important;
+      }
+      
+      /* Flat nav pills */
+      .nav-pills .nav-link {
+        background: #2d2d30 !important;
+        color: #cccccc !important;
+        border-radius: 0 !important;
+        margin-right: 2px !important;
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+      }
+      
+      body.light-theme .nav-pills .nav-link {
+        background: #f3f3f3 !important;
+        color: #424242 !important;
+      }
+      
+      .nav-pills .nav-link.active {
+        background: #007acc !important;
+        color: #ffffff !important;
+      }
+      
+      .nav-pills .nav-link:hover:not(.active) {
+        background: #37373d !important;
+      }
+      
+      body.light-theme .nav-pills .nav-link:hover:not(.active) {
+        background: #e8e8e8 !important;
+      }
+      
+      /* Flat alerts */
+      .alert {
+        border-radius: 0 !important;
+        border: 1px solid #3e3e42 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme .alert {
+        border: 1px solid #d0d0d0 !important;
+      }
+      
+      /* DataTable styling */
+      .dataTables_wrapper {
+        color: #cccccc !important;
+      }
+      
+      body.light-theme .dataTables_wrapper {
+        color: #1e1e1e !important;
+      }
+      
+      .dataTables_wrapper .dataTables_length,
+      .dataTables_wrapper .dataTables_filter,
+      .dataTables_wrapper .dataTables_info,
+      .dataTables_wrapper .dataTables_paginate {
+        color: #cccccc !important;
+      }
+      
+      body.light-theme .dataTables_wrapper .dataTables_length,
+      body.light-theme .dataTables_wrapper .dataTables_filter,
+      body.light-theme .dataTables_wrapper .dataTables_info,
+      body.light-theme .dataTables_wrapper .dataTables_paginate {
+        color: #1e1e1e !important;
+      }
+      
+      table.dataTable {
+        border: 1px solid #3e3e42 !important;
+        background: #252526 !important;
+        transition: all 0.2s ease;
+      }
+      
+      body.light-theme table.dataTable {
+        border: 1px solid #d0d0d0 !important;
+        background: #ffffff !important;
+      }
+      
+      table.dataTable thead th {
+        background: #2d2d30 !important;
+        color: #cccccc !important;
+        border-bottom: 1px solid #3e3e42 !important;
+        font-weight: 600 !important;
+      }
+      
+      body.light-theme table.dataTable thead th {
+        background: #f3f3f3 !important;
+        color: #1e1e1e !important;
+        border-bottom: 1px solid #d0d0d0 !important;
+      }
+      
+      table.dataTable tbody tr {
+        background: #252526 !important;
+        color: #cccccc !important;
+      }
+      
+      body.light-theme table.dataTable tbody tr {
+        background: #ffffff !important;
+        color: #1e1e1e !important;
+      }
+      
+      table.dataTable tbody tr:hover {
+        background: #2d2d30 !important;
+      }
+      
+      body.light-theme table.dataTable tbody tr:hover {
+        background: #f8f8f8 !important;
+      }
+      
+      /* Remove all shadows */
+      * {
+        box-shadow: none !important;
+      }
+      
+      /* Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: #1e1e1e;
+      }
+      
+      body.light-theme ::-webkit-scrollbar-track {
+        background: #f3f3f3;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: #424242;
+        border-radius: 0;
+      }
+      
+      body.light-theme ::-webkit-scrollbar-thumb {
+        background: #c0c0c0;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: #4e4e4e;
+      }
+      
+      body.light-theme ::-webkit-scrollbar-thumb:hover {
+        background: #a0a0a0;
+      }
+    '))
+  ),
+  
+  title = div(
+    style = "display: flex; align-items: center; gap: 10px; font-size: 0.95rem;",
+    span(style = "font-size: 1.1em; font-weight: 700; color: #007acc;", "Ö"),
+    span(style = "font-weight: 600;", "rdin")
+  ),
   id = "main_nav",
   
-  # TAB 1: DIVERSITY ESTIMATION (iNEXT)
+  # DIVERSITY ANALYSIS
   nav_panel(
-    title = "📊 Diversity Estimation",
-    icon = icon("chart-line"),
+    title = "Diversity Analysis",
     layout_sidebar(
+      fillable = TRUE,
       sidebar = sidebar(
-        width = 350,
-        fileInput("dataFile", "Upload Species Data CSV", accept = ".csv"),
-        helpText("CSV format: First column = Site names, Other columns = Species data"),
-        uiOutput("dataFormatDetected"),
-        hr(),
-        selectInput("dataType", "Data Type",
-                    choices = c(
-                      "Abundance - Individual counts" = "abundance",
-                      "Incidence_raw - Presence/absence (0/1)" = "incidence_raw",
-                      "Incidence_freq - Sampling units (SamplingUnits column)" = "incidence_freq"
-                    )),
-        selectInput("plotType", "Rarefaction Plot Type",
-                    choices = c(
-                      "Sample-size-based (Type 1)" = "1",
-                      "Sample completeness (Type 2)" = "2",
-                      "Coverage-based (Type 3)" = "3"
-                    )),
-        hr(),
-        h5("iNEXT Advanced Options"),
-        checkboxGroupInput("hillNumbers", "Hill Numbers",
-                           choices = c("q=0 (Richness)" = "0",
-                                     "q=1 (Shannon)" = "1",
-                                     "q=2 (Simpson)" = "2"),
-                           selected = c("0", "1", "2")),
-        numericInput("knots", "Knots", value = 40, min = 10, max = 200, step = 10),
-        numericInput("nboot", "Bootstrap Reps", value = 50, min = 10, max = 500, step = 10),
-        numericInput("conf", "Confidence Level", value = 0.95, min = 0.80, max = 0.99, step = 0.01),
-        numericInput("endpoint", "Extrapolation Endpoint", value = NULL, min = 1, step = 1),
-        actionButton("runDiversity", "Run Analysis", class = "btn-primary btn-lg", style = "width: 100%;")
-      ),
-      card(full_screen = TRUE, card_header("Diversity Estimation Results"), uiOutput("diversityContent"))
-    )
-  ),
-  
-  # TAB 2: ORDINATION ANALYSIS
-  nav_panel(
-    title = "🗺️ Ordination",
-    icon = icon("project-diagram"),
-    layout_sidebar(
-      sidebar = sidebar(
-        width = 350,
-        h4("Ordination Analysis"),
-        helpText("Upload data in Diversity tab first"),
-        hr(),
-        selectInput("ordinationMethod", "Method",
-                    choices = c(
-                      "NMDS - Non-metric MDS" = "nmds",
-                      "PCA - Principal Components" = "pca",
-                      "CA - Correspondence Analysis" = "ca",
-                      "DCA - Detrended CA" = "dca",
-                      "PCoA - Principal Coordinates" = "pcoa"
-                    )),
-        numericInput("ordDimensions", "Dimensions", value = 2, min = 1, max = 5),
-        selectInput("distMethod", "Distance Method",
-                    choices = c(
-                      "Bray-Curtis" = "bray",
-                      "Jaccard" = "jaccard",
-                      "Euclidean" = "euclidean",
-                      "Manhattan" = "manhattan",
-                      "Canberra" = "canberra"
-                    )),
-        actionButton("runOrdination", "Run Ordination", class = "btn-primary btn-lg", style = "width: 100%;")
-      ),
-      card(full_screen = TRUE, card_header("Ordination Results"), uiOutput("ordinationContent"))
-    )
-  ),
-  
-  # TAB 3: DIVERSITY INDICES
-  nav_panel(
-    title = "📈 Diversity Indices",
-    icon = icon("calculator"),
-    layout_sidebar(
-      sidebar = sidebar(
-        width = 350,
-        h4("Diversity Indices"),
-        helpText("Upload data in Diversity tab first"),
-        hr(),
-        h5("Alpha Diversity"),
-        checkboxGroupInput("alphaIndices", "Calculate:",
-                           choices = c(
-                             "Shannon (H')" = "shannon",
-                             "Simpson (1-D)" = "simpson",
-                             "Inv. Simpson (1/D)" = "invsimpson",
-                             "Fisher's Alpha" = "fisher",
-                             "Richness (S)" = "richness"
-                           ),
-                           selected = c("shannon", "simpson", "richness")),
-        hr(),
-        h5("Evenness"),
-        checkboxGroupInput("evennessIndices", "Calculate:",
-                           choices = c(
-                             "Pielou's J'" = "pielou",
-                             "Simpson's E" = "simpsone",
-                             "Evar" = "evar"
-                           ),
-                           selected = c("pielou")),
-        hr(),
-        actionButton("runIndices", "Calculate Indices", class = "btn-primary btn-lg", style = "width: 100%;")
-      ),
-      card(full_screen = TRUE, card_header("Diversity Indices Results"), uiOutput("indicesContent"))
-    )
-  ),
-  
-  # TAB 4: HELP
-  nav_panel(
-    title = "ℹ️ Help",
-    icon = icon("info-circle"),
-    card(
-      card_header("Ördin v2.2 - User Guide"),
-      tags$div(
-        style = "padding: 30px;",
-        tags$div(style = "text-align: center; margin-bottom: 40px;",
-                tags$div(style = "font-size: 4em; color: #2e8b57; margin-bottom: 15px;", "Ö"),
-                tags$h2("Ördin v2.2"),
-                tags$p(style = "font-size: 1.2em; color: #aaa;", "Comprehensive biodiversity analysis")),
-        tags$h3("Modules", style = "color: #2e8b57;"),
-        tags$ul(
-          tags$li(tags$strong("📊 Diversity Estimation:"), " iNEXT rarefaction/extrapolation"),
-          tags$li(tags$strong("🗺️ Ordination:"), " 5 ordination methods (NMDS, PCA, CA, DCA, PCoA)"),
-          tags$li(tags$strong("📈 Diversity Indices:"), " Shannon, Simpson, evenness, accumulation curves")
+        width = 380,
+        open = TRUE,
+        
+        # Data Upload Section
+        card(
+          class = "mb-3",
+          card_header(
+            "Data Upload"
+          ),
+          card_body(
+            fileInput("dataFile", NULL, accept = ".csv",
+                     buttonLabel = "Browse...",
+                     placeholder = "No file selected"),
+            tags$small(class = "text-muted", 
+                      icon("info-circle"), 
+                      " First column: Site names | Other columns: Species data"),
+            uiOutput("dataFormatDetected")
+          )
         ),
-        tags$hr(),
-        tags$p("Built with R Shiny + iNEXT + vegan | v2.2.0 | © 2025 Jimmy Moses")
+        
+        hr(style = "border-color: #444; margin: 20px 0;"),
+        
+        # Analysis Type Selector
+        div(
+          class = "mb-3",
+          h6("Analysis Type", style = "color: #cccccc; margin-bottom: 10px; font-weight: 600; font-size: 0.85rem;"),
+          navset_pill(
+            id = "analysisType",
+            nav_panel(
+              title = "Estimation",
+              value = "estimation",
+              # iNEXT Controls
+              div(
+                class = "mt-3",
+                selectInput("dataType", "Data Type",
+                           choices = c(
+                             "Abundance" = "abundance",
+                             "Incidence (Binary)" = "incidence_raw",
+                             "Incidence (Freq)" = "incidence_freq"
+                           ),
+                           width = "100%"),
+                selectInput("plotType", "Plot Type",
+                           choices = c(
+                             "Sample-based" = "1",
+                             "Completeness" = "2",
+                             "Coverage" = "3"
+                           ),
+                           width = "100%"),
+                accordion(
+                  accordion_panel(
+                    title = "Advanced Options",
+                    icon = icon("cog"),
+                    checkboxGroupInput("hillNumbers", "Hill Numbers",
+                                      choices = c("q=0" = "0", "q=1" = "1", "q=2" = "2"),
+                                      selected = c("0", "1", "2")),
+                    numericInput("knots", "Knots", value = 40, min = 10, max = 200),
+                    numericInput("nboot", "Bootstrap", value = 50, min = 10, max = 500),
+                    numericInput("conf", "Confidence", value = 0.95, min = 0.8, max = 0.99, step = 0.01),
+                    numericInput("endpoint", "Endpoint", value = NULL)
+                  )
+                ),
+                actionButton("runDiversity", 
+                           "Run Estimation",
+                           class = "btn-success btn-lg w-100 mt-3")
+              )
+            ),
+            nav_panel(
+              title = "Indices",
+              value = "indices",
+              # Vegan Controls
+              div(
+                class = "mt-3",
+                card(
+                  card_header("Alpha Diversity", class = "py-2"),
+                  card_body(
+                    class = "py-2",
+                    checkboxGroupInput("alphaIndices", NULL,
+                                      choices = c(
+                                        "Shannon" = "shannon",
+                                        "Simpson" = "simpson",
+                                        "InvSimpson" = "invsimpson",
+                                        "Fisher" = "fisher",
+                                        "Richness" = "richness"
+                                      ),
+                                      selected = c("shannon", "simpson", "richness"))
+                  )
+                ),
+                card(
+                  class = "mt-2",
+                  card_header("Evenness", class = "py-2"),
+                  card_body(
+                    class = "py-2",
+                    checkboxGroupInput("evennessIndices", NULL,
+                                      choices = c(
+                                        "Pielou" = "pielou",
+                                        "SimpsonE" = "simpsone",
+                                        "Evar" = "evar"
+                                      ),
+                                      selected = c("pielou"))
+                  )
+                ),
+                actionButton("runIndices",
+                           "Calculate Indices",
+                           class = "btn-success btn-lg w-100 mt-3")
+              )
+            )
+          )
+        )
+      ),
+      
+      # Main Content Area
+      uiOutput("diversityMainContent")
+    )
+  ),
+  
+  # ORDINATION
+  nav_panel(
+    title = "Ordination",
+    layout_sidebar(
+      sidebar = sidebar(
+        width = 350,
+        card(
+          card_header(
+            "Ordination Settings"
+          ),
+          card_body(
+            selectInput("ordinationMethod", "Method",
+                       choices = c(
+                         "NMDS" = "nmds",
+                         "PCA" = "pca",
+                         "CA" = "ca",
+                         "DCA" = "dca",
+                         "PCoA" = "pcoa"
+                       )),
+            numericInput("ordDimensions", "Dimensions", value = 2, min = 1, max = 5),
+            selectInput("distMethod", "Distance",
+                       choices = c(
+                         "Bray-Curtis" = "bray",
+                         "Jaccard" = "jaccard",
+                         "Euclidean" = "euclidean",
+                         "Manhattan" = "manhattan",
+                         "Canberra" = "canberra"
+                       )),
+            actionButton("runOrdination",
+                       "Run Ordination",
+                       class = "btn-success btn-lg w-100 mt-3")
+          )
+        )
+      ),
+      uiOutput("ordinationContent")
+    )
+  ),
+  
+  # HELP
+  nav_panel(
+    title = "Help",
+    card(
+      full_screen = TRUE,
+      card_header(
+        "Ördin User Guide"
+      ),
+      card_body(
+        div(
+          class = "container",
+          style = "max-width: 900px; padding: 30px;",
+          
+          # Header
+          div(
+            class = "text-center mb-5",
+            div(style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px;", "Ö"),
+            h2(style = "color: #2e8b57; font-weight: 700;", "Ördin v2.2"),
+            p(class = "lead", style = "color: #aaa;", "Enterprise-grade biodiversity analysis platform")
+          ),
+          
+          # Modules
+          card(
+            class = "mb-4",
+            card_header(icon("layer-group"), " Analysis Modules", class = "fw-bold"),
+            card_body(
+              div(class = "row",
+                 div(class = "col-md-6 mb-3",
+                    div(class = "d-flex align-items-start",
+                       div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("chart-line")),
+                       div(
+                         h5(class = "fw-bold", "Diversity Estimation (iNEXT)"),
+                         p(class = "text-muted small mb-0", "Rarefaction & extrapolation curves with Hill numbers")
+                       )
+                    )
+                 ),
+                 div(class = "col-md-6 mb-3",
+                    div(class = "d-flex align-items-start",
+                       div(class = "me-3", style = "font-size: 2em; color: #2e8b57;", icon("calculator")),
+                       div(
+                         h5(class = "fw-bold", "Diversity Indices (vegan)"),
+                         p(class = "text-muted small mb-0", "Classic metrics: Shannon, Simpson, evenness")
+                       )
+                    )
+                 ),
+                 div(class = "col-md-6 mb-3",
+                    div(class = "d-flex align-items-start",
+                       div(class = "me-3", style = "font-size: 2em; color: #4169e1;", icon("project-diagram")),
+                       div(
+                         h5(class = "fw-bold", "Ordination Analysis"),
+                         p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, PCoA visualizations")
+                       )
+                    )
+                 )
+              )
+            )
+          ),
+          
+          # Quick Start
+          card(
+            card_header(icon("rocket"), " Quick Start", class = "fw-bold"),
+            card_body(
+              tags$ol(
+                class = "mb-0",
+                tags$li("Upload CSV file (first column = site names, others = species data)"),
+                tags$li("Select analysis type in sidebar (Estimation or Indices)"),
+                tags$li("Configure parameters and click Run"),
+                tags$li("Download results as CSV or images")
+              )
+            )
+          ),
+          
+          # Footer
+          hr(class = "my-4"),
+          div(
+            class = "text-center text-muted",
+            p(tags$small(
+              "Built with R Shiny + iNEXT + vegan | ",
+              strong("© 2025 Jimmy Moses"),
+              " | MIT License"
+            ))
+          )
+        )
       )
+    )
+  ),
+  
+  # Theme Toggle Button (far right)
+  nav_spacer(),
+  nav_item(
+    tags$button(
+      id = "theme-toggle-btn",
+      class = "btn",
+      onclick = "toggleTheme()",
+      title = "Switch to Light Theme",
+      style = "border: none; background: transparent; font-size: 1.1rem; padding: 4px 10px; cursor: pointer;",
+      "☀️"  # Sun emoji (will show in dark mode)
     )
   )
 )
@@ -213,7 +801,140 @@ server <- function(input, output, session) {
     updateSelectInput(session, "dataType", selected = data()$data_format)
   })
   
-  # MODULE 1: Diversity Estimation
+  # Unified Main Content Renderer
+  output$diversityMainContent <- renderUI({
+    analysis_type <- input$analysisType
+    
+    if (is.null(analysis_type) || analysis_type == "estimation") {
+      # Show Estimation Results
+      if (is.null(diversityResults())) {
+        # Welcome message for Estimation
+        card(
+          full_screen = TRUE,
+          height = "100%",
+          card_body(
+            class = "d-flex align-items-center justify-content-center",
+            div(
+              class = "text-center",
+              style = "max-width: 650px;",
+              div(style = "font-size: 4.5em; color: #2e8b57; margin-bottom: 25px;", "Ö"),
+              h3(class = "fw-bold", style = "color: #2e8b57; margin-bottom: 20px;", "Diversity Estimation (iNEXT)"),
+              card(
+                class = "text-start",
+                style = "background: #252525; border: 1px solid #333;",
+                card_body(
+                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
+                    strong(" Rarefaction & Extrapolation: "), "Interpolate and extrapolate diversity"),
+                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
+                    strong(" Hill Numbers: "), "q=0 (richness), q=1 (Shannon), q=2 (Simpson)"),
+                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
+                    strong(" Coverage-based: "), "Sample completeness curves and estimators"),
+                  p(class = "mb-0", icon("check-circle", class = "text-success"), 
+                    strong(" Bootstrap CI: "), "Confidence intervals for robust inference")
+                )
+              ),
+              div(
+                class = "alert alert-info mt-4",
+                style = "background: #1a3a52; border: 1px solid #2e5c7a;",
+                icon("info-circle"), " Upload data and configure settings in the sidebar, then click ",
+                strong("Run Estimation"), " to begin analysis."
+              )
+            )
+          )
+        )
+      } else {
+        # Show estimation results
+        card(
+          full_screen = TRUE,
+          card_header(
+            class = "bg-success text-white",
+            icon("chart-line"), " Diversity Estimation Results"
+          ),
+          card_body(
+            navset_card_tab(
+              nav_panel(
+                title = "Summary Table",
+                div(class = "p-3",
+                   downloadButton("downloadDiversityTable", "Download CSV", class = "btn-success mb-3"),
+                   DTOutput("diversityTable"))
+              ),
+              nav_panel(
+                title = "Visualization",
+                div(class = "p-3",
+                   div(class = "mb-3",
+                      selectInput("diversityPlotFormat", "Export Format:",
+                                 choices = c("PNG (300 DPI)" = "png", "TIFF (300 DPI)" = "tiff", "SVG (Vector)" = "svg"),
+                                 width = "200px"),
+                      downloadButton("downloadDiversityPlot", "Download Plot", class = "btn-success")),
+                   plotOutput("diversityPlot", height = "700px"))
+              )
+            )
+          )
+        )
+      }
+    } else {
+      # Show Indices Results  
+      if (is.null(indicesResults())) {
+        # Welcome message for Indices
+        card(
+          full_screen = TRUE,
+          height = "100%",
+          card_body(
+            class = "d-flex align-items-center justify-content-center",
+            div(
+              class = "text-center",
+              style = "max-width: 650px;",
+              div(style = "font-size: 4.5em; color: #2e8b57; margin-bottom: 25px;", "Ö"),
+              h3(class = "fw-bold", style = "color: #2e8b57; margin-bottom: 20px;", "Diversity Indices (vegan)"),
+              card(
+                class = "text-start",
+                style = "background: #252525; border: 1px solid #333;",
+                card_body(
+                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
+                    strong(" Alpha Diversity: "), "Shannon, Simpson, Fisher, Richness"),
+                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
+                    strong(" Evenness: "), "Pielou's J, Simpson's E, Evar"),
+                  p(class = "mb-2", icon("check-circle", class = "text-success"), 
+                    strong(" Tabular Output: "), "Ready for Excel, GraphPad, or custom plotting"),
+                  p(class = "mb-0", icon("check-circle", class = "text-success"), 
+                    strong(" CSV Export: "), "Download results for further analysis")
+                )
+              ),
+              div(
+                class = "alert alert-info mt-4",
+                style = "background: #1a3a52; border: 1px solid #2e5c7a;",
+                icon("info-circle"), " Select indices in the sidebar, then click ",
+                strong("Calculate Indices"), " to compute metrics."
+              )
+            )
+          )
+        )
+      } else {
+        # Show indices results
+        card(
+          full_screen = TRUE,
+          card_header(
+            class = "bg-success text-white",
+            icon("calculator"), " Diversity Indices Results"
+          ),
+          card_body(
+            class = "p-4",
+            div(
+              class = "alert alert-light mb-4",
+              style = "background: #2a2a2a; border: 1px solid #3a3a3a;",
+              icon("download"), " Download the table as CSV and create custom visualizations in Excel, GraphPad, or other software."
+            ),
+            downloadButton("downloadIndicesTable", 
+                         span(icon("file-csv"), " Download Results (CSV)"),
+                         class = "btn-success btn-lg mb-4"),
+            DTOutput("indicesTable")
+          )
+        )
+      }
+    }
+  })
+  
+  # Diversity Estimation Module
   diversityResults <- reactiveVal(NULL)
   
   observeEvent(input$runDiversity, {
@@ -248,72 +969,41 @@ server <- function(input, output, session) {
     })
   })
   
-  output$diversityContent <- renderUI({
-    if (is.null(diversityResults())) {
-      # WELCOME PAGE
-      tags$div(
-        style = "display: flex; align-items: center; justify-content: center; min-height: 500px; padding: 60px 40px;",
-        tags$div(
-          style = "max-width: 700px; text-align: center;",
-          tags$div(style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px; font-weight: bold;", "Ö"),
-          tags$h2(style = "color: #2e8b57; margin-bottom: 20px;", "Diversity Estimation (iNEXT)"),
-          tags$div(
-            style = "background: #1a1a1a; padding: 25px; border-radius: 10px; border: 1px solid #333; text-align: left;",
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("What it does:"), " Rarefaction and extrapolation analysis using iNEXT package"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Shows:"), " How diversity changes with sample size (rarefaction CURVES)"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Features:"), " Coverage-based comparison, Hill numbers (q=0,1,2), Bootstrap confidence intervals"),
-            tags$hr(style = "border-color: #333;"),
-            tags$p(style = "color: #888; font-style: italic;",
-                  "⚠️ Different from 'Diversity Indices' tab: This creates CURVES showing diversity trends, while 'Diversity Indices' calculates single METRICS (Shannon, Simpson, etc.)")
-          ),
-          tags$div(
-            style = "margin-top: 25px; padding: 15px; background: #1a3a52; border-radius: 8px;",
-            tags$strong(style = "color: #2e8b57;", "🚀 Quick Start:"),
-            tags$p(style = "color: #aaa; margin: 10px 0 0 0; text-align: left;",
-                  "1. Upload CSV file (first column = site names)" , tags$br(),
-                  "2. Select data type and plot type", tags$br(),
-                  "3. Click 'Run Analysis' to generate curves")
-          )
-        )
-      )
-    } else {
-      tagList(
-        tags$div(style = "padding: 20px;",
-                h4("Summary Table", style = "color: #2e8b57;"),
-                DTOutput("diversityTable"),
-                h4("Visualization", style = "color: #2e8b57; margin-top: 30px;"),
-                div(style = "margin-bottom: 15px;",
-                   selectInput("diversityPlotFormat", "Export Format:", 
-                              choices = c("PNG" = "png", "TIFF" = "tiff", "SVG" = "svg"), width = "150px"),
-                   downloadButton("downloadDiversityPlot", "Download", class = "btn-success")),
-                plotOutput("diversityPlot", height = "650px"))
-      )
-    }
-  })
-  
   output$diversityTable <- renderDT({
     req(diversityResults())
-    datatable(diversityResults()$summary, options = list(pageLength = 15, scrollX = TRUE), rownames = FALSE)
+    datatable(diversityResults()$summary, 
+             options = list(pageLength = 15, scrollX = TRUE, dom = 'Bfrtip'), 
+             rownames = FALSE,
+             class = 'display compact stripe hover')
   })
   
-  output$diversityPlot <- renderPlot({ req(diversityResults()); diversityResults()$plot })
+  output$diversityPlot <- renderPlot({ 
+    req(diversityResults()); 
+    diversityResults()$plot 
+  })
+  
+  output$downloadDiversityTable <- downloadHandler(
+    filename = function() paste0("diversity_estimation_", Sys.Date(), ".csv"),
+    content = function(file) {
+      write.csv(diversityResults()$summary, file, row.names = FALSE)
+    }
+  )
   
   output$downloadDiversityPlot <- downloadHandler(
-    filename = function() paste0("diversity_", Sys.Date(), ".", input$diversityPlotFormat),
+    filename = function() paste0("diversity_plot_", Sys.Date(), ".", input$diversityPlotFormat),
     content = function(file) {
       format <- input$diversityPlotFormat
-      if (format %in% c("png", "tiff")) {
-        ggsave(file, plot = diversityResults()$plot, device = format, width = 12, height = 8, dpi = 300, bg = "#222222")
+      if (format == "png") {
+        ggsave(file, plot = diversityResults()$plot, device = "png", width = 12, height = 8, dpi = 300, bg = "white")
+      } else if (format == "tiff") {
+        ggsave(file, plot = diversityResults()$plot, device = "tiff", width = 12, height = 8, dpi = 300, bg = "white")
       } else {
-        ggsave(file, plot = diversityResults()$plot, device = "svg", width = 12, height = 8, bg = "#222222")
+        ggsave(file, plot = diversityResults()$plot, device = "svg", width = 12, height = 8, bg = "white")
       }
     }
   )
   
-  # MODULE 2: Ordination
+  # Diversity Indices Module
   ordinationResults <- reactiveVal(NULL)
   
   observeEvent(input$runOrdination, {
@@ -501,58 +1191,12 @@ server <- function(input, output, session) {
     })
   })
   
-  output$indicesContent <- renderUI({
-    if (is.null(indicesResults())) {
-      # WELCOME PAGE
-      tags$div(
-        style = "display: flex; align-items: center; justify-content: center; min-height: 500px; padding: 60px 40px;",
-        tags$div(
-          style = "max-width: 700px; text-align: center;",
-          tags$div(style = "font-size: 5em; color: #2e8b57; margin-bottom: 20px; font-weight: bold;", "Ö"),
-          tags$h2(style = "color: #2e8b57; margin-bottom: 20px;", "Diversity Indices (vegan)"),
-          tags$div(
-            style = "background: #1a1a1a; padding: 25px; border-radius: 10px; border: 1px solid #333; text-align: left;",
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("What it does:"), " Classic diversity metrics using vegan package"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Shows:"), " Single-value diversity METRICS for each site"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Indices:"), " Shannon, Simpson, Fisher's α, Pielou's evenness, Smith & Wilson's evenness"),
-            tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Output:"), " Tabular results ready for download and visualization in Excel, GraphPad, or other software"),
-            tags$hr(style = "border-color: #333;"),
-            tags$p(style = "color: #888; font-style: italic;",
-                  "💡 Note: For rarefaction/accumulation/extrapolation CURVES, use the 'Diversity Estimation (iNEXT)' tab instead.")
-          ),
-          tags$div(
-            style = "margin-top: 25px; padding: 15px; background: #1a3a52; border-radius: 8px;",
-            tags$strong(style = "color: #2e8b57;", "🚀 Quick Start:"),
-            tags$p(style = "color: #aaa; margin: 10px 0 0 0; text-align: left;",
-                  "1. Upload data in 'Diversity Estimation' tab first" , tags$br(),
-                  "2. Select which diversity indices to calculate", tags$br(),
-                  "3. Click 'Calculate Indices' to compute metrics", tags$br(),
-                  "4. Download CSV table for further analysis or plotting in Excel")
-          )
-        )
-      )
-    } else {
-      res <- indicesResults()
-      tagList(
-        tags$div(style = "padding: 20px;",
-                h4("📊 Diversity Indices Results", style = "color: #2e8b57;"),
-                p("Download the table below as CSV and create custom visualizations in Excel, GraphPad Prism, or other software.",
-                  style = "color: #aaa; margin-bottom: 20px;"),
-                div(style = "margin-bottom: 20px;",
-                   downloadButton("downloadIndicesTable", "📥 Download Results as CSV", class = "btn-success btn-lg",
-                                 style = "font-size: 1.1em; padding: 12px 30px;")),
-                DTOutput("indicesTable"))
-      )
-    }
-  })
-  
   output$indicesTable <- renderDT({
     req(indicesResults())
-    datatable(indicesResults()$summary, options = list(pageLength = 15, scrollX = TRUE), rownames = FALSE) %>%
+    datatable(indicesResults()$summary, 
+             options = list(pageLength = 15, scrollX = TRUE, dom = 'Bfrtip'),
+             rownames = FALSE,
+             class = 'display compact stripe hover') %>%
       formatRound(columns = 2:ncol(indicesResults()$summary), digits = 4)
   })
   
