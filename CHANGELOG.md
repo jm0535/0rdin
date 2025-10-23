@@ -2,6 +2,141 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2025-10-23
+
+### 🎉 Major Release: Complete Modular Architecture + vegan Integration
+
+Version 2.2.0 represents a complete architectural transformation with modular tab-based navigation and comprehensive vegan package integration, increasing coverage from 0.5% to 9.5%.
+
+### ✨ Added
+
+#### Modular Tab-Based Architecture
+- **4 independent modules** with dedicated interfaces:
+  - 📊 **Diversity Estimation** - iNEXT rarefaction/extrapolation (from v2.0)
+  - 🗺️ **Ordination Analysis** - 5 ordination methods (NEW)
+  - 📈 **Diversity Indices** - Classic diversity metrics (NEW)
+  - ℹ️ **Help & Info** - User guide and documentation (NEW)
+- **Shared data loading** across all modules
+- **Independent results areas** for each analysis type
+- **Professional navigation** with icons and clear labels
+
+#### v2.1: Ordination Module Expansion
+**5 ordination methods** (added 4 new):
+- ✅ **NMDS** - Non-metric Multidimensional Scaling (from v2.0)
+- ✅ **PCA** - Principal Components Analysis (NEW)
+- ✅ **CA** - Correspondence Analysis (NEW)
+- ✅ **DCA** - Detrended Correspondence Analysis (NEW)
+- ✅ **PCoA** - Principal Coordinates Analysis (NEW)
+
+**5 distance/dissimilarity methods**:
+- Bray-Curtis, Jaccard, Euclidean, Manhattan, Canberra
+
+**Features**:
+- 1-5 dimensions support
+- Stress value reporting (NMDS)
+- Ordination scores table
+- Publication-quality plot exports
+- Dark theme optimized visualizations
+
+**Noted for future** (requires environmental data):
+- CCA - Canonical Correspondence Analysis
+- RDA - Redundancy Analysis
+- db-RDA - Distance-based RDA
+
+#### v2.2: Diversity Indices Module
+**8 diversity and evenness indices**:
+
+**Alpha Diversity**:
+- Shannon (H') - Information entropy
+- Simpson (1-D) - Dominance index
+- Inverse Simpson (1/D) - True diversity
+- Fisher's Alpha - Parametric diversity
+- Species Richness (S) - Simple count
+
+**Evenness Indices**:
+- Pielou's Evenness (J') - Normalized Shannon
+- Simpson's Evenness (E_1/D) - Dominance-based
+- Evar - Variance-based evenness
+
+**Rarefaction**:
+- Rarefy to specified N individuals
+- Auto-rarefy to minimum sample size
+- Rarefied richness calculation
+
+**Species Accumulation Curves**:
+- Permutation-based method (10-1000 permutations)
+- Standard deviation ribbons
+- Publication-quality plots
+- Richness vs. number of sites
+
+### 🔧 Improved
+
+#### Architecture Refactoring
+- **Modular design**: Clean separation of analysis modules
+- **Scalable structure**: Easy to add new modules (v2.3, v2.4, etc.)
+- **Maintainable code**: Independent module development
+- **Professional UX**: Enterprise-grade tab navigation
+
+#### Code Organization
+- Moved from single-page conditional UI to modular tabs
+- Shared reactive data loading
+- Independent reactive results for each module
+- Cleaner server logic with module-specific observers
+
+### 📊 vegan Integration Progress
+
+**v2.0**: 1 function (NMDS only) - 0.5% coverage  
+**v2.2**: 19 functions - 9.5% coverage (**19x increase!**)
+
+| Domain | Functions | Implemented | Coverage |
+|--------|-----------|-------------|----------|
+| Ordination | 8 methods | 5 methods | **62.5%** |
+| Diversity Indices | 30+ | 8 indices | **~27%** |
+| Dissimilarity | 40+ | 5 methods | **~12%** |
+| Community Analysis | 50+ | 1 (accumulation) | **~2%** |
+| Hypothesis Testing | 30+ | 0 | 0% |
+| Advanced Tools | 40+ | 0 | 0% |
+
+**Breakdown**:
+- 5 ordination methods
+- 8 diversity/evenness indices
+- 5 distance measures
+- 1 accumulation method
+
+### 🛠️ Technical Details
+
+**UI Framework**: Changed from `page_sidebar()` to `page_navbar()` for tab navigation  
+**Modules**: Each tab has dedicated `layout_sidebar()` with controls and results  
+**Data Sharing**: Single reactive `data()` function accessible across all modules  
+**Results**: Module-specific reactiveVal for independent state management  
+**Downloads**: Separate download handlers per module  
+**File Size**: app.R reduced from 959 lines to 540 lines (43% reduction)  
+
+### 📚 Documentation
+
+#### New Documentation
+- `TEST-v2.2-SUMMARY.md` (300 lines) - Comprehensive test summary and feature documentation
+- Updated `README.md` - Added v2.2 features
+- Updated `CHANGELOG.md` - This file
+- Updated `package.json` - Version 2.2.0
+
+### 🚀 What's Next
+
+**v2.3 - Community Analysis** (Q4 2025):
+- 15+ dissimilarity indices
+- Hierarchical clustering with dendrograms
+- Beta diversity partitioning
+- Mantel tests
+- Environmental data support for constrained ordination (CCA, RDA, db-RDA)
+
+**v2.4 - Hypothesis Testing** (Q1 2026):
+- PERMANOVA (adonis2)
+- ANOSIM, MRPP
+- envfit, bioenv
+- Betadisper, permutest
+
+---
+
 ## [2.0.0] - 2025-01-25
 
 ### 🎉 Major Release: Enterprise-Grade UX & Publication-Quality Exports

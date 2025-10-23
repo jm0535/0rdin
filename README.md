@@ -5,12 +5,12 @@
 # Ördin
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/jm0535/0rdin/releases)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/jm0535/0rdin/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](https://github.com/jm0535/0rdin)
 [![R](https://img.shields.io/badge/R-%E2%89%A54.0-blue)](https://www.r-project.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%20%7C%2020-green)](https://nodejs.org/)
 
-**Ördin** - Enterprise-grade desktop application for biodiversity analysis, combining the power of R with modern UX design.
+**Ördin** - Enterprise-grade desktop application for biodiversity analysis, combining the power of R with modern UX design. Now with complete modular architecture and comprehensive vegan integration!
 
 </div>
 
@@ -18,7 +18,15 @@
 
 Ördin is an enterprise-grade Electron-based desktop application that combines R's powerful biodiversity analysis packages (`vegan`, `iNEXT`) with a modern, professional interface built using Shiny and Bootstrap 5. Version 2.0 introduces publication-quality exports, professional splash screen, and enhanced UX following best practices.
 
-### ✨ What's New in v2.0
+### ✨ What's New in v2.2
+
+- **🗺️ Ordination Module**: 5 methods (NMDS, PCA, CA, DCA, PCoA) with 5 distance measures
+- **📈 Diversity Indices Module**: Shannon, Simpson, evenness, rarefaction, accumulation curves
+- **🎯 Modular Architecture**: Professional tab-based navigation (Diversity | Ordination | Indices | Help)
+- **📊 Enhanced vegan Integration**: 19 vegan functions (~9.5% coverage, up from 0.5%)
+- **🎨 Enterprise UX**: Clean, organized interface with dedicated modules
+
+### What's New in v2.0
 
 - **🎨 Professional Splash Screen**: Enterprise-grade loading experience with animated Ö logo
 - **📊 Publication-Quality Exports**: 5 formats (PNG, TIFF, JPEG, SVG, PostScript) at 300 DPI

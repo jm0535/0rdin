@@ -124,6 +124,13 @@ ui <- page_navbar(
                            ),
                            selected = c("pielou")),
         hr(),
+        h5("Rarefaction"),
+        numericInput("rarefyN", "Rarefy to N individuals", value = NULL, min = 1, step = 1),
+        helpText("Leave blank for minimum sample size"),
+        hr(),
+        h5("Species Accumulation"),
+        checkboxInput("calcAccum", "Calculate Accumulation Curve", value = FALSE),
+        numericInput("accumPerms", "Permutations", value = 100, min = 10, max = 1000, step = 10),
         actionButton("runIndices", "Calculate Indices", class = "btn-primary btn-lg", style = "width: 100%;")
       ),
       card(full_screen = TRUE, card_header("Diversity Indices Results"), uiOutput("indicesContent"))
@@ -494,10 +501,51 @@ server <- function(input, output, session) {
         results_df$Evar <- evar_vals
       }
       
-      incProgress(0.8, detail = "Finalizing results...")
+      incProgress(0.6, detail = "Rarefaction...")
+      
+      # Rarefaction
+      if (!is.null(input$rarefyN) && !is.na(input$rarefyN)) {
+        rarefy_n <- input$rarefyN
+      } else {
+        rarefy_n <- min(rowSums(abund_matrix))
+      }
+      
+      if (rarefy_n > 0) {
+        results_df$Rarefied <- rarefy(abund_matrix, sample = rarefy_n)
+      }
+      
+      incProgress(0.8, detail = "Species accumulation...")
+      
+      # Species accumulation curve
+      accum_plot <- NULL
+      if (input$calcAccum && nrow(abund_matrix) > 1) {
+        sp_accum <- specaccum(abund_matrix, method = "random", permutations = input$accumPerms)
+        
+        accum_df <- data.frame(
+          Sites = sp_accum$sites,
+          Richness = sp_accum$richness,
+          SD = sp_accum$sd
+        )
+        
+        accum_plot <- ggplot(accum_df, aes(x = Sites, y = Richness)) +
+          geom_line(color = "#2e8b57", linewidth = 1.5) +
+          geom_point(color = "#2e8b57", size = 3) +
+          geom_ribbon(aes(ymin = Richness - SD, ymax = Richness + SD), 
+                     fill = "#2e8b57", alpha = 0.3) +
+          theme_minimal(base_size = 14) +
+          theme(panel.background = element_rect(fill = "#222222", color = NA),
+                plot.background = element_rect(fill = "#222222", color = NA),
+                panel.grid = element_line(color = "#444444"),
+                text = element_text(color = "white"),
+                axis.text = element_text(color = "white")) +
+          labs(title = "Species Accumulation Curve",
+               subtitle = paste("Method: Random | Permutations:", input$accumPerms),
+               x = "Number of Sites", y = "Species Richness") +
+          scale_x_continuous(breaks = sp_accum$sites)
+      }
       
       incProgress(1)
-      indicesResults(list(summary = results_df))
+      indicesResults(list(summary = results_df, accum_plot = accum_plot))
     })
   })
   
@@ -515,23 +563,23 @@ server <- function(input, output, session) {
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
                   tags$strong("What it does:"), " Classic diversity metrics using vegan package"),
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Shows:"), " Single-value diversity METRICS for each site"),
+                  tags$strong("Shows:"), " Single-value diversity METRICS for each site (not curves)"),
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Indices:"), " Shannon, Simpson, Fisher's α, Pielou's evenness, Smith & Wilson's evenness"),
+                  tags$strong("Indices:"), " Shannon, Simpson, Fisher's α, Pielou's evenness, rarefied richness"),
             tags$p(style = "color: #aaa; line-height: 1.8; margin-bottom: 15px;",
-                  tags$strong("Output:"), " Tabular results ready for download and visualization in Excel, GraphPad, or other software"),
+                  tags$strong("Features:"), " Accumulation curves, rarefaction, evenness metrics"),
             tags$hr(style = "border-color: #333;"),
             tags$p(style = "color: #888; font-style: italic;",
-                  "💡 Note: For rarefaction/accumulation/extrapolation CURVES, use the 'Diversity Estimation (iNEXT)' tab instead.")
+                  "⚠️ Different from 'Diversity Estimation': This calculates single METRICS (Shannon=2.8), while Diversity Estimation creates CURVES showing trends")
           ),
           tags$div(
             style = "margin-top: 25px; padding: 15px; background: #1a3a52; border-radius: 8px;",
             tags$strong(style = "color: #2e8b57;", "🚀 Quick Start:"),
             tags$p(style = "color: #aaa; margin: 10px 0 0 0; text-align: left;",
                   "1. Upload data in 'Diversity Estimation' tab first" , tags$br(),
-                  "2. Select which diversity indices to calculate", tags$br(),
-                  "3. Click 'Calculate Indices' to compute metrics", tags$br(),
-                  "4. Download CSV table for further analysis or plotting in Excel")
+                  "2. Select which indices to calculate", tags$br(),
+                  "3. Optionally enable species accumulation curve", tags$br(),
+                  "4. Click 'Calculate Indices' to compute metrics")
           )
         )
       )
@@ -539,13 +587,16 @@ server <- function(input, output, session) {
       res <- indicesResults()
       tagList(
         tags$div(style = "padding: 20px;",
-                h4("📊 Diversity Indices Results", style = "color: #2e8b57;"),
-                p("Download the table below as CSV and create custom visualizations in Excel, GraphPad Prism, or other software.",
-                  style = "color: #aaa; margin-bottom: 20px;"),
-                div(style = "margin-bottom: 20px;",
-                   downloadButton("downloadIndicesTable", "📥 Download Results as CSV", class = "btn-success btn-lg",
-                                 style = "font-size: 1.1em; padding: 12px 30px;")),
-                DTOutput("indicesTable"))
+                h4("Diversity Indices", style = "color: #2e8b57;"),
+                DTOutput("indicesTable"),
+                if (!is.null(res$accum_plot)) {
+                  tagList(
+                    h4("Species Accumulation", style = "color: #2e8b57; margin-top: 30px;"),
+                    div(style = "margin-bottom: 15px;",
+                       downloadButton("downloadAccumPlot", "Download", class = "btn-success")),
+                    plotOutput("accumPlot", height = "500px")
+                  )
+                })
       )
     }
   })
@@ -556,10 +607,12 @@ server <- function(input, output, session) {
       formatRound(columns = 2:ncol(indicesResults()$summary), digits = 4)
   })
   
-  output$downloadIndicesTable <- downloadHandler(
-    filename = function() paste0("diversity_indices_", Sys.Date(), ".csv"),
+  output$accumPlot <- renderPlot({ req(indicesResults()); indicesResults()$accum_plot })
+  
+  output$downloadAccumPlot <- downloadHandler(
+    filename = function() paste0("accum_curve_", Sys.Date(), ".png"),
     content = function(file) {
-      write.csv(indicesResults()$summary, file, row.names = FALSE)
+      ggsave(file, plot = indicesResults()$accum_plot, device = "png", width = 10, height = 6, dpi = 300, bg = "#222222")
     }
   )
 }
