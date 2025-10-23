@@ -7,6 +7,7 @@ library(iNEXT)
 library(ggplot2)
 library(DT)
 library(readr)
+library(readxl)          # Excel file support
 library(dplyr)
 library(tidyr)
 library(shinyjs)         # JavaScript interactivity & keyboard shortcuts
@@ -631,127 +632,442 @@ ui <- tagList(
     )
   ),
   
-  # DIVERSITY ANALYSIS
+  # DATA MANAGEMENT TAB
   nav_panel(
-    title = "Diversity Analysis",
+    title = "Data",
+    icon = icon("database"),
     layout_sidebar(
       fillable = TRUE,
       sidebar = sidebar(
-        width = 380,
+        width = 400,
         open = TRUE,
         
-        # Data Upload Section
+        # Data Source Section
         card(
           class = "mb-3",
           card_header(
-            "Data Upload"
+            icon("upload"), " Data Import"
           ),
           card_body(
-            fileInput("dataFile", NULL, accept = ".csv",
-                     buttonLabel = "Browse...",
-                     placeholder = "No file selected"),
-            tags$small(class = "text-muted", 
-                      icon("info-circle"), 
-                      " First column: Site names | Other columns: Species data"),
-            uiOutput("dataFormatDetected")
+            h6("Import Source", style = "color: #2e8b57; margin-bottom: 15px; font-weight: 600;"),
+            
+            # Source Selection
+            radioButtons(
+              "dataSource",
+              NULL,
+              choices = c(
+                "Local File" = "local",
+                "Google Drive" = "gdrive"
+              ),
+              selected = "local",
+              inline = FALSE
+            ),
+            
+            # Local File Upload
+            conditionalPanel(
+              condition = "input.dataSource == 'local'",
+              fileInput(
+                "localDataFile",
+                NULL,
+                accept = c(".csv", ".xlsx", ".txt"),
+                buttonLabel = "Browse...",
+                placeholder = "No file selected"
+              ),
+              tags$small(
+                class = "text-muted",
+                icon("info-circle"),
+                " Supports: CSV, Excel, Tab-delimited"
+              )
+            ),
+            
+            # Google Drive Import
+            conditionalPanel(
+              condition = "input.dataSource == 'gdrive'",
+              tags$div(
+                class = "alert alert-info",
+                style = "background: #1a3a52; border-color: #4169e1; margin-top: 10px;",
+                icon("cloud"), " Google Drive Integration"
+              ),
+              textInput(
+                "gdriveUrl",
+                "Google Drive Share Link",
+                placeholder = "https://drive.google.com/file/d/..."
+              ),
+              tags$small(
+                class = "text-muted",
+                icon("info-circle"),
+                " File must be publicly accessible or shared"
+              ),
+              actionButton(
+                "importFromGDrive",
+                "Import from Google Drive",
+                class = "btn-primary w-100 mt-2",
+                icon = icon("cloud-download-alt")
+              )
+            )
           )
         ),
         
         hr(style = "border-color: #444; margin: 20px 0;"),
         
-        # Analysis Type Selector
-        div(
+        # Dataset Type Selection
+        card(
           class = "mb-3",
-          h6("Analysis Type", style = "color: #cccccc; margin-bottom: 10px; font-weight: 600; font-size: 0.85rem;"),
-          navset_pill(
-            id = "analysisType",
-            nav_panel(
-              title = "Estimation",
-              value = "estimation",
-              # iNEXT Controls
-              div(
-                class = "mt-3",
-                selectInput("dataType", "Data Type",
-                           choices = c(
-                             "Abundance" = "abundance",
-                             "Incidence (Binary)" = "incidence_raw",
-                             "Incidence (Freq)" = "incidence_freq"
-                           ),
-                           width = "100%"),
-                selectInput("plotType", "Plot Type",
-                           choices = c(
-                             "Sample-based" = "1",
-                             "Completeness" = "2",
-                             "Coverage" = "3"
-                           ),
-                           width = "100%"),
-                accordion(
-                  accordion_panel(
-                    title = "Advanced Options",
-                    icon = icon("cog"),
-                    checkboxGroupInput("hillNumbers", "Hill Numbers",
-                                      choices = c("q=0" = "0", "q=1" = "1", "q=2" = "2"),
-                                      selected = c("0", "1", "2")),
-                    numericInput("knots", "Knots", value = 40, min = 10, max = 200),
-                    numericInput("nboot", "Bootstrap", value = 50, min = 10, max = 500),
-                    numericInput("conf", "Confidence", value = 0.95, min = 0.8, max = 0.99, step = 0.01),
-                    numericInput("endpoint", "Endpoint", value = NULL)
-                  )
-                ),
-                actionButton("runDiversity", 
-                           "Run Estimation",
-                           class = "btn-success btn-lg w-100 mt-3",
-                           icon = icon("play"))
-              )
+          card_header(
+            icon("layer-group"), " Dataset Configuration"
+          ),
+          card_body(
+            radioButtons(
+              "datasetType",
+              "Analysis Type",
+              choices = c(
+                "Species Data Only" = "species_only",
+                "Species + Environment" = "species_env"
+              ),
+              selected = "species_only"
             ),
-            nav_panel(
-              title = "Indices",
-              value = "indices",
-              # Vegan Controls
-              div(
-                class = "mt-3",
-                card(
-                  card_header("Alpha Diversity", class = "py-2"),
-                  card_body(
-                    class = "py-2",
-                    checkboxGroupInput("alphaIndices", NULL,
-                                      choices = c(
-                                        "Shannon" = "shannon",
-                                        "Simpson" = "simpson",
-                                        "InvSimpson" = "invsimpson",
-                                        "Fisher" = "fisher",
-                                        "Richness" = "richness"
-                                      ),
-                                      selected = c("shannon", "simpson", "richness"))
-                  )
-                ),
-                card(
-                  class = "mt-2",
-                  card_header("Evenness", class = "py-2"),
-                  card_body(
-                    class = "py-2",
-                    checkboxGroupInput("evennessIndices", NULL,
-                                      choices = c(
-                                        "Pielou" = "pielou",
-                                        "SimpsonE" = "simpsone",
-                                        "Evar" = "evar"
-                                      ),
-                                      selected = c("pielou"))
-                  )
-                ),
-                actionButton("runIndices",
-                           "Calculate Indices",
-                           class = "btn-success btn-lg w-100 mt-3",
-                           icon = icon("calculator"))
+            
+            tags$div(
+              class = "alert alert-secondary",
+              style = "background: #2a2a2a; border-color: #3e3e42; font-size: 0.85rem; padding: 10px;",
+              icon("lightbulb"),
+              " ",
+              tags$strong("Tip: "),
+              "For ordination with environmental constraints (CCA, RDA), select 'Species + Environment'"
+            ),
+            
+            # Environment Data Upload (conditional)
+            conditionalPanel(
+              condition = "input.datasetType == 'species_env'",
+              tags$hr(style = "border-color: #444; margin: 15px 0;"),
+              h6("Environment Dataset", style = "color: #ff8c00; margin-bottom: 10px; font-weight: 600;"),
+              fileInput(
+                "envDataFile",
+                NULL,
+                accept = c(".csv", ".xlsx", ".txt"),
+                buttonLabel = "Browse...",
+                placeholder = "No environment file"
+              ),
+              tags$small(
+                class = "text-muted",
+                icon("leaf"),
+                " Environmental variables (pH, temp, nutrients, etc.)"
               )
+            )
+          )
+        ),
+        
+        hr(style = "border-color: #444; margin: 20px 0;"),
+        
+        # Data Actions
+        card(
+          card_header(
+            icon("tools"), " Data Operations"
+          ),
+          card_body(
+            actionButton(
+              "clearData",
+              "Clear All Data",
+              class = "btn btn-outline-danger w-100 mb-2",
+              icon = icon("trash-alt")
+            ),
+            actionButton(
+              "exportEditedData",
+              "Export Edited Data",
+              class = "btn btn-outline-success w-100 mb-2",
+              icon = icon("download")
+            ),
+            actionButton(
+              "resetToOriginal",
+              "Reset to Original",
+              class = "btn btn-outline-warning w-100",
+              icon = icon("undo")
             )
           )
         )
       ),
       
-      # Main Content Area
-      uiOutput("diversityMainContent")
+      # Main Content - Excel-like Spreadsheet
+      tags$div(
+        class = "data-management-content",
+        style = "height: 100%; display: flex; flex-direction: column;",
+        
+        # Header with tabs
+        tags$div(
+          style = "background: #2d2d30; border-bottom: 2px solid #3e3e42; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;",
+          
+          # Dataset tabs
+          tags$div(
+            style = "display: flex; gap: 10px;",
+            uiOutput("datasetTabs")
+          ),
+          
+          # Data info
+          uiOutput("dataInfo")
+        ),
+        
+        # Spreadsheet content
+        tags$div(
+          style = "flex: 1; overflow: auto; padding: 20px; background: #252526;",
+          
+          conditionalPanel(
+            condition = "output.hasData",
+            
+            # Active dataset display
+            tags$div(
+              id = "spreadsheet-container",
+              
+              # Column type editor
+              tags$div(
+                class = "mb-3",
+                style = "background: #1a1a1a; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px;",
+                h5(
+                  icon("columns"), " Column Configuration",
+                  style = "color: #2e8b57; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
+                ),
+                uiOutput("columnTypeEditor")
+              ),
+              
+              # Excel-like table
+              tags$div(
+                class = "mt-3",
+                h5(
+                  icon("table"), " Data Spreadsheet",
+                  style = "color: #4169e1; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
+                ),
+                tags$div(
+                  class = "alert alert-info",
+                  style = "background: #1a3a52; border-color: #4169e1; font-size: 0.85rem; padding: 10px;",
+                  icon("edit"), " Click any cell to edit. Changes are applied in real-time."
+                ),
+                DTOutput("spreadsheetTable")
+              ),
+              
+              # Environment data table (if applicable)
+              conditionalPanel(
+                condition = "input.datasetType == 'species_env' && output.hasEnvData",
+                tags$div(
+                  class = "mt-4",
+                  tags$hr(style = "border-color: #444; margin: 30px 0;"),
+                  h5(
+                    icon("leaf"), " Environment Data",
+                    style = "color: #ff8c00; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
+                  ),
+                  tags$div(
+                    class = "alert alert-warning",
+                    style = "background: #3a2a0a; border-color: #ff8c00; font-size: 0.85rem; padding: 10px;",
+                    icon("info-circle"), " Environmental variables must have the same row labels (sites) as species data"
+                  ),
+                  DTOutput("envSpreadsheetTable")
+                )
+              )
+            )
+          ),
+          
+          # Empty state
+          conditionalPanel(
+            condition = "!output.hasData",
+            tags$div(
+              class = "text-center",
+              style = "padding: 80px 40px; min-height: 500px; display: flex; align-items: center; justify-content: center;",
+              tags$div(
+                style = "max-width: 600px;",
+                
+                # Animated icon
+                tags$div(
+                  style = "font-size: 6em; color: #4169e1; margin-bottom: 30px; animation: float 3s ease-in-out infinite;",
+                  icon("database")
+                ),
+                
+                h2(
+                  style = "background: linear-gradient(135deg, #4169e1 0%, #5179f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; font-size: 2.5em; font-weight: 700;",
+                  "Data Management"
+                ),
+                
+                p(
+                  class = "lead",
+                  style = "color: #999; font-size: 1.2em; margin-bottom: 35px;",
+                  "Import, edit, and manage your community ecology datasets"
+                ),
+                
+                # Feature cards
+                tags$div(
+                  class = "row justify-content-center mb-4",
+                  tags$div(
+                    class = "col-md-6 mb-3",
+                    tags$div(
+                      style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; text-align: center;",
+                      tags$div(style = "font-size: 2.5em; color: #4169e1; margin-bottom: 10px;", icon("edit")),
+                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Excel-like Editor"),
+                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Edit cells, column names, row labels")
+                    )
+                  ),
+                  tags$div(
+                    class = "col-md-6 mb-3",
+                    tags$div(
+                      style = "background: #1a3a1a; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; text-align: center;",
+                      tags$div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 10px;", icon("cloud")),
+                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Cloud Import"),
+                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Google Drive integration")
+                    )
+                  ),
+                  tags$div(
+                    class = "col-md-6 mb-3",
+                    tags$div(
+                      style = "background: #3a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; text-align: center;",
+                      tags$div(style = "font-size: 2.5em; color: #ff8c00; margin-bottom: 10px;", icon("layer-group")),
+                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Dual Datasets"),
+                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Species + Environment data")
+                    )
+                  ),
+                  tags$div(
+                    class = "col-md-6 mb-3",
+                    tags$div(
+                      style = "background: #1a1a1a; border: 2px solid #9c27b0; border-radius: 12px; padding: 20px; text-align: center;",
+                      tags$div(style = "font-size: 2.5em; color: #9c27b0; margin-bottom: 10px;", icon("cog")),
+                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Data Types"),
+                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Numeric, categorical, logical")
+                    )
+                  )
+                ),
+                
+                # Call to action
+                tags$div(
+                  class = "alert",
+                  style = "background: linear-gradient(135deg, #4169e1 0%, #2050d1 100%); border: none; border-radius: 10px; padding: 25px; margin-top: 20px;",
+                  tags$div(style = "font-size: 2em; color: #fff; margin-bottom: 10px;", icon("arrow-left")),
+                  tags$h5(style = "color: #fff; font-weight: 700; margin: 0;", "Import data using the sidebar to get started")
+                )
+              )
+            )
+          )
+        )
+      )
     )
+  ),
+  
+  # DIVERSITY ANALYSIS
+  nav_panel(
+    title = "Diversity Analysis",
+    icon = icon("chart-line"),
+    
+    # Custom layout with vertical sidebar navigation
+    tags$div(
+      class = "diversity-analysis-container",
+      style = "display: flex; height: 100vh; overflow: hidden;",
+      
+      # Vertical Sub-Navigation Sidebar
+      tags$div(
+        id = "diversity-subnav",
+        class = "diversity-vertical-nav",
+        style = "width: 80px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; align-items: center; padding: 20px 0; transition: width 0.3s ease;",
+        
+        # Estimation Button
+        tags$button(
+          class = "vertical-nav-btn",
+          id = "navEstimation",
+          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #2e8b57; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
+          onclick = "Shiny.setInputValue('diversitySubNav', 'estimation', {priority: 'event'}); document.querySelectorAll('.vertical-nav-btn').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
+          tags$div(style = "font-size: 1.8em; color: #2e8b57; margin-bottom: 4px;", icon("chart-line")),
+          tags$div(style = "font-size: 0.65rem; color: #2e8b57; text-align: center; line-height: 1.1;", "Estimation")
+        ),
+        
+        # Indices Button
+        tags$button(
+          class = "vertical-nav-btn",
+          id = "navIndices",
+          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #ff8c00; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
+          onclick = "Shiny.setInputValue('diversitySubNav', 'indices', {priority: 'event'}); document.querySelectorAll('.vertical-nav-btn').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
+          tags$div(style = "font-size: 1.8em; color: #ff8c00; margin-bottom: 4px;", icon("calculator")),
+          tags$div(style = "font-size: 0.65rem; color: #ff8c00; text-align: center; line-height: 1.1;", "Indices")
+        ),
+        
+        # Toggle sidebar expand/collapse button
+        tags$button(
+          class = "vertical-nav-btn",
+          style = "width: 60px; height: 50px; background: transparent; border: 2px solid #666; border-radius: 8px; margin-top: auto; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
+          onclick = "toggleDiversitySidebar();",
+          tags$div(style = "font-size: 1.2em; color: #999;", icon("bars"))
+        )
+      ),
+      
+      # Main Content with Collapsible Settings Panel
+      tags$div(
+        style = "flex: 1; display: flex; overflow: hidden;",
+        
+        # Settings Panel (Collapsible)
+        tags$div(
+          id = "diversity-settings-panel",
+          class = "diversity-settings",
+          style = "width: 350px; background: #1e1e1e; border-right: 1px solid #3e3e42; overflow-y: auto; transition: width 0.3s ease, margin-left 0.3s ease;",
+          
+          # Settings content
+          tags$div(
+            style = "padding: 20px;",
+            
+            # Data Status
+            tags$div(
+              class = "mb-3",
+              uiOutput("diversityDataStatus")
+            ),
+            
+            tags$hr(style = "border-color: #444; margin: 20px 0;"),
+            
+            # Dynamic settings based on sub-nav
+            uiOutput("diversitySettingsContent")
+          )
+        ),
+        
+        # Results Area
+        tags$div(
+          style = "flex: 1; overflow-y: auto; background: #1a1a1a;",
+          uiOutput("diversityMainContent")
+        )
+      )
+    ),
+    
+    # CSS and JavaScript for vertical nav
+    tags$style(HTML("
+      .vertical-nav-btn:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+      }
+      
+      .diversity-vertical-nav.collapsed {
+        width: 0 !important;
+        padding: 0 !important;
+        overflow: hidden;
+      }
+      
+      .diversity-settings.collapsed {
+        width: 0 !important;
+        margin-left: -350px !important;
+        overflow: hidden !important;
+      }
+    ")),
+    
+    tags$script(HTML("
+      // Initialize first tab as active
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          const estimationBtn = document.getElementById('navEstimation');
+          if (estimationBtn) {
+            estimationBtn.style.background = '#2e8b57';
+            Shiny.setInputValue('diversitySubNav', 'estimation', {priority: 'event'});
+          }
+        }, 500);
+      });
+      
+      // Toggle sidebar function
+      function toggleDiversitySidebar() {
+        const panel = document.getElementById('diversity-settings-panel');
+        if (panel.classList.contains('collapsed')) {
+          panel.classList.remove('collapsed');
+        } else {
+          panel.classList.add('collapsed');
+        }
+      }
+    "))
   ),
   
   # ORDINATION
@@ -1309,6 +1625,453 @@ server <- function(input, output, session) {
   })
   
   # ========================================
+  # DATA MANAGEMENT MODULE
+  # ========================================
+  
+  # Reactive values for data management
+  dataManagement <- reactiveValues(
+    speciesData = NULL,
+    envData = NULL,
+    speciesOriginal = NULL,
+    envOriginal = NULL,
+    activeDataset = "species",
+    columnTypes = NULL,
+    envColumnTypes = NULL
+  )
+  
+  # Check if data exists
+  output$hasData <- reactive({
+    !is.null(dataManagement$speciesData)
+  })
+  outputOptions(output, "hasData", suspendWhenHidden = FALSE)
+  
+  # Check if environment data exists
+  output$hasEnvData <- reactive({
+    !is.null(dataManagement$envData)
+  })
+  outputOptions(output, "hasEnvData", suspendWhenHidden = FALSE)
+  
+  # Local file upload handler
+  observeEvent(input$localDataFile, {
+    req(input$localDataFile)
+    
+    waiter <- Waiter$new(
+      html = tagList(
+        spin_loaders(42, color = "#4169e1"),
+        h3("Loading Data File", style = "color: #4169e1; margin-top: 30px; font-weight: 700;"),
+        p("Reading and validating data structure", 
+          style = "color: #999; font-size: 1rem; margin-top: 10px;")
+      ),
+      color = "rgba(20, 20, 20, 0.95)"
+    )
+    waiter$show()
+    
+    tryCatch({
+      # Detect file type and read
+      file_ext <- tools::file_ext(input$localDataFile$name)
+      
+      df <- if (file_ext == "xlsx") {
+        readxl::read_excel(input$localDataFile$datapath)
+      } else if (file_ext == "csv") {
+        read_csv(input$localDataFile$datapath, show_col_types = FALSE)
+      } else if (file_ext == "txt") {
+        read_tsv(input$localDataFile$datapath, show_col_types = FALSE)
+      } else {
+        stop("Unsupported file format")
+      }
+      
+      # Store data
+      dataManagement$speciesData <- as.data.frame(df)
+      dataManagement$speciesOriginal <- as.data.frame(df)
+      
+      # Initialize column types
+      dataManagement$columnTypes <- sapply(df, class)
+      
+      waiter$hide()
+      
+      showNotification(
+        sprintf("✓ Data loaded: %d rows × %d columns", nrow(df), ncol(df)),
+        type = "message",
+        duration = 3
+      )
+    }, error = function(e) {
+      waiter$hide()
+      showNotification(
+        paste("Failed to load data:", e$message),
+        type = "error",
+        duration = 5
+      )
+    })
+  })
+  
+  # Environment data upload handler
+  observeEvent(input$envDataFile, {
+    req(input$envDataFile)
+    
+    waiter <- Waiter$new(
+      html = tagList(
+        spin_loaders(42, color = "#ff8c00"),
+        h3("Loading Environment Data", style = "color: #ff8c00; margin-top: 30px; font-weight: 700;"),
+        p("Reading environmental variables", 
+          style = "color: #999; font-size: 1rem; margin-top: 10px;")
+      ),
+      color = "rgba(20, 20, 20, 0.95)"
+    )
+    waiter$show()
+    
+    tryCatch({
+      file_ext <- tools::file_ext(input$envDataFile$name)
+      
+      df <- if (file_ext == "xlsx") {
+        readxl::read_excel(input$envDataFile$datapath)
+      } else if (file_ext == "csv") {
+        read_csv(input$envDataFile$datapath, show_col_types = FALSE)
+      } else if (file_ext == "txt") {
+        read_tsv(input$envDataFile$datapath, show_col_types = FALSE)
+      } else {
+        stop("Unsupported file format")
+      }
+      
+      dataManagement$envData <- as.data.frame(df)
+      dataManagement$envOriginal <- as.data.frame(df)
+      dataManagement$envColumnTypes <- sapply(df, class)
+      
+      waiter$hide()
+      
+      showNotification(
+        sprintf("✓ Environment data loaded: %d rows × %d columns", nrow(df), ncol(df)),
+        type = "message",
+        duration = 3
+      )
+    }, error = function(e) {
+      waiter$hide()
+      showNotification(
+        paste("Failed to load environment data:", e$message),
+        type = "error",
+        duration = 5
+      )
+    })
+  })
+  
+  # Google Drive import handler
+  observeEvent(input$importFromGDrive, {
+    req(input$gdriveUrl)
+    
+    waiter <- Waiter$new(
+      html = tagList(
+        spin_loaders(42, color = "#4169e1"),
+        h3("Importing from Google Drive", style = "color: #4169e1; margin-top: 30px; font-weight: 700;"),
+        p("Downloading file from cloud", 
+          style = "color: #999; font-size: 1rem; margin-top: 10px;")
+      ),
+      color = "rgba(20, 20, 20, 0.95)"
+    )
+    waiter$show()
+    
+    tryCatch({
+      # Extract file ID from Google Drive URL
+      url <- input$gdriveUrl
+      file_id <- if (grepl("/d/([^/]+)", url)) {
+        sub(".*/d/([^/]+).*", "\\1", url)
+      } else if (grepl("id=([^&]+)", url)) {
+        sub(".*id=([^&]+).*", "\\1", url)
+      } else {
+        stop("Invalid Google Drive URL format")
+      }
+      
+      # Construct download URL
+      download_url <- sprintf("https://drive.google.com/uc?export=download&id=%s", file_id)
+      
+      # Download to temp file
+      temp_file <- tempfile(fileext = ".csv")
+      download.file(download_url, temp_file, mode = "wb", quiet = TRUE)
+      
+      # Read the downloaded file
+      df <- read_csv(temp_file, show_col_types = FALSE)
+      
+      dataManagement$speciesData <- as.data.frame(df)
+      dataManagement$speciesOriginal <- as.data.frame(df)
+      dataManagement$columnTypes <- sapply(df, class)
+      
+      waiter$hide()
+      
+      showNotification(
+        sprintf("✓ Data imported from Google Drive: %d rows × %d columns", nrow(df), ncol(df)),
+        type = "message",
+        duration = 3
+      )
+    }, error = function(e) {
+      waiter$hide()
+      showNotification(
+        paste("Failed to import from Google Drive:", e$message, 
+              "\nEnsure the file is publicly accessible."),
+        type = "error",
+        duration = 7
+      )
+    })
+  })
+  
+  # Dataset tabs UI
+  output$datasetTabs <- renderUI({
+    if (is.null(dataManagement$speciesData)) return(NULL)
+    
+    tabs <- tagList(
+      tags$button(
+        class = if (dataManagement$activeDataset == "species") "btn btn-sm btn-primary" else "btn btn-sm btn-outline-secondary",
+        style = "border-radius: 0; font-size: 0.85rem;",
+        onclick = "Shiny.setInputValue('activeDatasetTab', 'species', {priority: 'event'});",
+        icon("dna"), " Species Data"
+      )
+    )
+    
+    if (!is.null(dataManagement$envData)) {
+      tabs <- tagList(
+        tabs,
+        tags$button(
+          class = if (dataManagement$activeDataset == "env") "btn btn-sm btn-warning" else "btn btn-sm btn-outline-warning",
+          style = "border-radius: 0; font-size: 0.85rem; margin-left: 5px;",
+          onclick = "Shiny.setInputValue('activeDatasetTab', 'env', {priority: 'event'});",
+          icon("leaf"), " Environment Data"
+        )
+      )
+    }
+    
+    tags$div(style = "display: flex; gap: 5px;", tabs)
+  })
+  
+  # Data info display
+  output$dataInfo <- renderUI({
+    if (is.null(dataManagement$speciesData)) return(NULL)
+    
+    df <- if (dataManagement$activeDataset == "species") {
+      dataManagement$speciesData
+    } else {
+      dataManagement$envData
+    }
+    
+    tags$div(
+      style = "color: #999; font-size: 0.85rem;",
+      icon("table"), sprintf(" %d rows × %d columns", nrow(df), ncol(df))
+    )
+  })
+  
+  # Active dataset tab handler
+  observeEvent(input$activeDatasetTab, {
+    dataManagement$activeDataset <- input$activeDatasetTab
+  })
+  
+  # Column type editor UI
+  output$columnTypeEditor <- renderUI({
+    df <- if (dataManagement$activeDataset == "species") {
+      dataManagement$speciesData
+    } else {
+      dataManagement$envData
+    }
+    
+    if (is.null(df)) return(NULL)
+    
+    # Create UI for each column
+    col_editors <- lapply(names(df), function(col_name) {
+      current_type <- class(df[[col_name]])[1]
+      
+      tags$div(
+        class = "col-md-4 mb-2",
+        tags$div(
+          style = "background: #2a2a2a; border: 1px solid #3e3e42; border-radius: 4px; padding: 10px;",
+          tags$strong(col_name, style = "color: #cccccc; font-size: 0.85rem; display: block; margin-bottom: 5px;"),
+          tags$select(
+            class = "form-select form-select-sm",
+            style = "font-size: 0.75rem;",
+            onchange = sprintf("Shiny.setInputValue('colType_%s', this.value, {priority: 'event'});", col_name),
+            tags$option(value = "numeric", selected = if (current_type %in% c("numeric", "integer", "double")) "selected" else NULL, "Numeric"),
+            tags$option(value = "character", selected = if (current_type == "character") "selected" else NULL, "Text"),
+            tags$option(value = "factor", selected = if (current_type == "factor") "selected" else NULL, "Categorical"),
+            tags$option(value = "logical", selected = if (current_type == "logical") "selected" else NULL, "Logical")
+          )
+        )
+      )
+    })
+    
+    tags$div(
+      class = "row",
+      col_editors
+    )
+  })
+  
+  # Spreadsheet table with editable cells
+  output$spreadsheetTable <- renderDT({
+    df <- if (dataManagement$activeDataset == "species") {
+      dataManagement$speciesData
+    } else {
+      dataManagement$envData
+    }
+    
+    if (is.null(df)) return(NULL)
+    
+    datatable(
+      df,
+      editable = list(target = "cell", disable = list(columns = NULL)),
+      options = list(
+        pageLength = 25,
+        scrollX = TRUE,
+        scrollY = "500px",
+        dom = 'Bfrtip',
+        buttons = c('copy', 'excel', 'csv'),
+        columnDefs = list(
+          list(className = 'dt-center', targets = '_all')
+        )
+      ),
+      rownames = TRUE,
+      class = 'display compact stripe hover cell-border',
+      extensions = 'Buttons'
+    )
+  })
+  
+  # Environment spreadsheet table
+  output$envSpreadsheetTable <- renderDT({
+    if (is.null(dataManagement$envData)) return(NULL)
+    
+    datatable(
+      dataManagement$envData,
+      editable = list(target = "cell", disable = list(columns = NULL)),
+      options = list(
+        pageLength = 25,
+        scrollX = TRUE,
+        scrollY = "400px",
+        dom = 'Bfrtip',
+        buttons = c('copy', 'excel', 'csv')
+      ),
+      rownames = TRUE,
+      class = 'display compact stripe hover cell-border',
+      extensions = 'Buttons'
+    )
+  })
+  
+  # Handle cell edits for species data
+  observeEvent(input$spreadsheetTable_cell_edit, {
+    info <- input$spreadsheetTable_cell_edit
+    str(info)  # For debugging
+    
+    i <- info$row
+    j <- info$col + 1  # DT uses 0-indexed columns
+    v <- info$value
+    
+    # Update the data
+    dataManagement$speciesData[i, j] <- v
+    
+    showNotification(
+      "Cell updated",
+      type = "message",
+      duration = 1
+    )
+  })
+  
+  # Handle cell edits for environment data
+  observeEvent(input$envSpreadsheetTable_cell_edit, {
+    info <- input$envSpreadsheetTable_cell_edit
+    
+    i <- info$row
+    j <- info$col + 1
+    v <- info$value
+    
+    dataManagement$envData[i, j] <- v
+    
+    showNotification(
+      "Cell updated",
+      type = "message",
+      duration = 1
+    )
+  })
+  
+  # Clear data handler
+  observeEvent(input$clearData, {
+    shinyalert(
+      title = "Clear All Data?",
+      text = "This will remove all loaded datasets. This action cannot be undone.",
+      type = "warning",
+      showCancelButton = TRUE,
+      confirmButtonText = "Yes, clear it!",
+      confirmButtonCol = "#d32f2f",
+      callbackR = function(value) {
+        if (value) {
+          dataManagement$speciesData <- NULL
+          dataManagement$envData <- NULL
+          dataManagement$speciesOriginal <- NULL
+          dataManagement$envOriginal <- NULL
+          dataManagement$columnTypes <- NULL
+          dataManagement$envColumnTypes <- NULL
+          
+          showNotification(
+            "All data cleared",
+            type = "warning",
+            duration = 3
+          )
+        }
+      }
+    )
+  })
+  
+  # Reset to original data
+  observeEvent(input$resetToOriginal, {
+    if (!is.null(dataManagement$speciesOriginal)) {
+      dataManagement$speciesData <- dataManagement$speciesOriginal
+      showNotification(
+        "Species data reset to original",
+        type = "message",
+        duration = 2
+      )
+    }
+    
+    if (!is.null(dataManagement$envOriginal)) {
+      dataManagement$envData <- dataManagement$envOriginal
+      showNotification(
+        "Environment data reset to original",
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  # Export edited data
+  observeEvent(input$exportEditedData, {
+    req(dataManagement$speciesData)
+    
+    showModal(modalDialog(
+      title = HTML('<span style="color: #2e8b57;"><i class="fas fa-download"></i> Export Edited Data</span>'),
+      tags$div(
+        tags$p("Choose export format and download your edited datasets:"),
+        downloadButton("downloadSpeciesData", "Download Species Data", class = "btn-success w-100 mb-2"),
+        if (!is.null(dataManagement$envData)) {
+          downloadButton("downloadEnvData", "Download Environment Data", class = "btn-warning w-100")
+        } else {
+          NULL
+        }
+      ),
+      footer = modalButton("Close"),
+      size = "m"
+    ))
+  })
+  
+  # Download handlers
+  output$downloadSpeciesData <- downloadHandler(
+    filename = function() {
+      paste0("species_data_edited_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write_csv(dataManagement$speciesData, file)
+    }
+  )
+  
+  output$downloadEnvData <- downloadHandler(
+    filename = function() {
+      paste0("environment_data_edited_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write_csv(dataManagement$envData, file)
+    }
+  )
+  
+  # ========================================
   # HELPER FUNCTIONS FOR SETTINGS
   # ========================================
   
@@ -1856,11 +2619,189 @@ server <- function(input, output, session) {
     updateSelectInput(session, "dataType", selected = data()$data_format)
   })
   
-  # Unified Main Content Renderer
-  output$diversityMainContent <- renderUI({
-    analysis_type <- input$analysisType
+  # ========================================
+  # DIVERSITY ANALYSIS - Sub-Navigation & Settings
+  # ========================================
+  
+  # Track active sub-navigation
+  diversityActiveTab <- reactiveVal("estimation")
+  
+  observeEvent(input$diversitySubNav, {
+    diversityActiveTab(input$diversitySubNav)
+  })
+  
+  # Data Status Display
+  output$diversityDataStatus <- renderUI({
+    if (!is.null(dataManagement$speciesData)) {
+      tags$div(
+        class = "alert alert-success",
+        style = "background: #1a3a1a; border: 2px solid #2e8b57; border-radius: 8px; padding: 15px;",
+        tags$div(
+          style = "display: flex; align-items: center; gap: 10px;",
+          tags$div(style = "font-size: 2em; color: #2e8b57;", icon("check-circle")),
+          tags$div(
+            tags$strong(style = "color: #2e8b57; font-size: 1rem;", "Data Loaded"),
+            tags$br(),
+            tags$small(
+              style = "color: #aaa; font-size: 0.85rem;",
+              sprintf("%d sites × %d species", 
+                     nrow(dataManagement$speciesData), 
+                     ncol(dataManagement$speciesData) - 1)
+            )
+          )
+        ),
+        tags$hr(style = "border-color: #3e3e42; margin: 10px 0;"),
+        actionButton(
+          "goToDataTab",
+          "Manage Data",
+          icon = icon("database"),
+          class = "btn btn-sm btn-outline-success w-100",
+          onclick = "Shiny.setInputValue('main_nav', 'Data', {priority: 'event'});"
+        )
+      )
+    } else {
+      tags$div(
+        class = "alert alert-warning",
+        style = "background: #3a2a0a; border: 2px solid #ff8c00; border-radius: 8px; padding: 15px;",
+        tags$div(
+          style = "display: flex; align-items: center; gap: 10px;",
+          tags$div(style = "font-size: 2em; color: #ff8c00;", icon("exclamation-triangle")),
+          tags$div(
+            tags$strong(style = "color: #ff8c00; font-size: 1rem;", "No Data Loaded"),
+            tags$br(),
+            tags$small(style = "color: #aaa; font-size: 0.85rem;", "Import data to begin analysis")
+          )
+        ),
+        tags$hr(style = "border-color: #3e3e42; margin: 10px 0;"),
+        actionButton(
+          "goToDataTabUpload",
+          "Import Data",
+          icon = icon("upload"),
+          class = "btn btn-sm btn-warning w-100",
+          onclick = "Shiny.setInputValue('main_nav', 'Data', {priority: 'event'});"
+        )
+      )
+    }
+  })
+  
+  # Dynamic Settings Content Based on Sub-Navigation
+  output$diversitySettingsContent <- renderUI({
+    active_tab <- diversityActiveTab()
     
-    if (is.null(analysis_type) || analysis_type == "estimation") {
+    if (active_tab == "estimation") {
+      # iNEXT Estimation Settings
+      tagList(
+        tags$h5(
+          icon("chart-line"), " Estimation Settings",
+          style = "color: #2e8b57; margin-bottom: 20px; font-weight: 600;"
+        ),
+        
+        selectInput(
+          "dataType",
+          "Data Type",
+          choices = c(
+            "Abundance" = "abundance",
+            "Incidence (Binary)" = "incidence_raw",
+            "Incidence (Freq)" = "incidence_freq"
+          ),
+          width = "100%"
+        ),
+        
+        selectInput(
+          "plotType",
+          "Plot Type",
+          choices = c(
+            "Sample-based" = "1",
+            "Completeness" = "2",
+            "Coverage" = "3"
+          ),
+          width = "100%"
+        ),
+        
+        accordion(
+          accordion_panel(
+            title = "Advanced Options",
+            icon = icon("cog"),
+            checkboxGroupInput(
+              "hillNumbers",
+              "Hill Numbers",
+              choices = c("q=0" = "0", "q=1" = "1", "q=2" = "2"),
+              selected = c("0", "1", "2")
+            ),
+            numericInput("knots", "Knots", value = 40, min = 10, max = 200),
+            numericInput("nboot", "Bootstrap", value = 50, min = 10, max = 500),
+            numericInput("conf", "Confidence", value = 0.95, min = 0.8, max = 0.99, step = 0.01),
+            numericInput("endpoint", "Endpoint", value = NULL)
+          )
+        ),
+        
+        actionButton(
+          "runDiversity",
+          "Run Estimation",
+          class = "btn-success btn-lg w-100 mt-3",
+          icon = icon("play")
+        )
+      )
+    } else {
+      # Diversity Indices Settings
+      tagList(
+        tags$h5(
+          icon("calculator"), " Indices Settings",
+          style = "color: #ff8c00; margin-bottom: 20px; font-weight: 600;"
+        ),
+        
+        card(
+          card_header("Alpha Diversity", class = "py-2"),
+          card_body(
+            class = "py-2",
+            checkboxGroupInput(
+              "alphaIndices",
+              NULL,
+              choices = c(
+                "Shannon" = "shannon",
+                "Simpson" = "simpson",
+                "InvSimpson" = "invsimpson",
+                "Fisher" = "fisher",
+                "Richness" = "richness"
+              ),
+              selected = c("shannon", "simpson", "richness")
+            )
+          )
+        ),
+        
+        card(
+          class = "mt-2",
+          card_header("Evenness", class = "py-2"),
+          card_body(
+            class = "py-2",
+            checkboxGroupInput(
+              "evennessIndices",
+              NULL,
+              choices = c(
+                "Pielou" = "pielou",
+                "SimpsonE" = "simpsone",
+                "Evar" = "evar"
+              ),
+              selected = c("pielou")
+            )
+          )
+        ),
+        
+        actionButton(
+          "runIndices",
+          "Calculate Indices",
+          class = "btn-warning btn-lg w-100 mt-3",
+          icon = icon("calculator")
+        )
+      )
+    }
+  })
+  
+  # Update main content based on sub-navigation
+  output$diversityMainContent <- renderUI({
+    active_tab <- diversityActiveTab()
+    
+    if (is.null(active_tab) || active_tab == "estimation") {
       # Show Estimation Results
       if (is.null(diversityResults())) {
         # Enhanced welcome message for Estimation
