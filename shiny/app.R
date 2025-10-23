@@ -242,33 +242,34 @@ ui <- tagList(
         
         # Interactive Module Cards
         div(
-          class = "row mt-5",
-          style = "gap: 30px; justify-content: center;",
+          class = "row mt-5 justify-content-center",
+          style = "animation: fadeInUp 0.8s ease-out 0.1s both;",
           
           # Card 1: Diversity Estimation
           div(
-            class = "col-md-3",
-            style = "animation: fadeInUp 0.8s ease-out 0.1s both;",
+            class = "col-lg-4 col-md-6 mb-4",
             actionButton(
               "navToDiversity",
               div(
-                style = "text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #2e8b57; border-radius: 15px; transition: all 0.3s; cursor: pointer; height: 100%;",
-                onmouseover = "this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 40px rgba(46, 139, 87, 0.4)'; this.style.borderColor='#3fa869';",
-                onmouseout = "this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'; this.style.borderColor='#2e8b57';",
+                style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #2e8b57; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(46, 139, 87, 0.4)'; this.style.borderColor='#3fa869';",
+                onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#2e8b57';",
                 div(
-                  style = "font-size: 4em; color: #2e8b57; margin-bottom: 20px;",
-                  icon("chart-line")
-                ),
-                h4(
-                  style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;",
-                  "Diversity Estimation"
-                ),
-                p(
-                  style = "color: #999; font-size: 0.95em; line-height: 1.6;",
-                  "iNEXT rarefaction & extrapolation with Hill numbers and bootstrap confidence intervals"
+                  div(
+                    style = "font-size: 3.5em; color: #2e8b57; margin-bottom: 15px;",
+                    icon("chart-line")
+                  ),
+                  h4(
+                    style = "color: #2e8b57; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                    "Diversity Estimation"
+                  ),
+                  p(
+                    style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                    "iNEXT rarefaction & extrapolation with Hill numbers"
+                  )
                 ),
                 div(
-                  style = "margin-top: 20px; padding: 8px 16px; background: #2e8b5722; color: #2e8b57; border-radius: 20px; display: inline-block; font-size: 0.85em; font-weight: 600;",
+                  style = "margin-top: 15px; padding: 10px 20px; background: #2e8b5722; color: #2e8b57; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
                   "START ANALYSIS →"
                 )
               ),
@@ -279,28 +280,29 @@ ui <- tagList(
           
           # Card 2: Ordination
           div(
-            class = "col-md-3",
-            style = "animation: fadeInUp 0.8s ease-out 0.2s both;",
+            class = "col-lg-4 col-md-6 mb-4",
             actionButton(
               "navToOrdination",
               div(
-                style = "text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #4169e1; border-radius: 15px; transition: all 0.3s; cursor: pointer; height: 100%;",
-                onmouseover = "this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 40px rgba(65, 105, 225, 0.4)'; this.style.borderColor='#5179f1';",
-                onmouseout = "this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'; this.style.borderColor='#4169e1';",
+                style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #4169e1; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(65, 105, 225, 0.4)'; this.style.borderColor='#5179f1';",
+                onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#4169e1';",
                 div(
-                  style = "font-size: 4em; color: #4169e1; margin-bottom: 20px;",
-                  icon("project-diagram")
-                ),
-                h4(
-                  style = "color: #4169e1; font-weight: 700; margin-bottom: 15px;",
-                  "Ordination Analysis"
-                ),
-                p(
-                  style = "color: #999; font-size: 0.95em; line-height: 1.6;",
-                  "NMDS, PCA, CA, DCA & PCoA for community composition patterns"
+                  div(
+                    style = "font-size: 3.5em; color: #4169e1; margin-bottom: 15px;",
+                    icon("project-diagram")
+                  ),
+                  h4(
+                    style = "color: #4169e1; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                    "Ordination Analysis"
+                  ),
+                  p(
+                    style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                    "NMDS, PCA, CA, DCA & PCoA for community patterns"
+                  )
                 ),
                 div(
-                  style = "margin-top: 20px; padding: 8px 16px; background: #4169e122; color: #4169e1; border-radius: 20px; display: inline-block; font-size: 0.85em; font-weight: 600;",
+                  style = "margin-top: 15px; padding: 10px 20px; background: #4169e122; color: #4169e1; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
                   "EXPLORE →"
                 )
               ),
@@ -311,27 +313,28 @@ ui <- tagList(
           
           # Card 3: Diversity Indices
           div(
-            class = "col-md-3",
-            style = "animation: fadeInUp 0.8s ease-out 0.3s both;",
+            class = "col-lg-4 col-md-6 mb-4",
             div(
-              style = "text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #ff8c00; border-radius: 15px; transition: all 0.3s; cursor: pointer; height: 100%;",
-              onmouseover = "this.style.transform='translateY(-10px) scale(1.02)'; this.style.boxShadow='0 20px 40px rgba(255, 140, 0, 0.4)'; this.style.borderColor='#ff9c10';",
-              onmouseout = "this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'; this.style.borderColor='#ff8c00';",
+              style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #ff8c00; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+              onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(255, 140, 0, 0.4)'; this.style.borderColor='#ff9c10';",
+              onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#ff8c00';",
               onclick = "Shiny.setInputValue('main_nav', 'Diversity Analysis'); Shiny.setInputValue('analysisType', 'indices', {priority: 'event'});",
               div(
-                style = "font-size: 4em; color: #ff8c00; margin-bottom: 20px;",
-                icon("calculator")
-              ),
-              h4(
-                style = "color: #ff8c00; font-weight: 700; margin-bottom: 15px;",
-                "Diversity Indices"
-              ),
-              p(
-                style = "color: #999; font-size: 0.95em; line-height: 1.6;",
-                "Shannon, Simpson, Fisher's α, Pielou's evenness & rarefied richness"
+                div(
+                  style = "font-size: 3.5em; color: #ff8c00; margin-bottom: 15px;",
+                  icon("calculator")
+                ),
+                h4(
+                  style = "color: #ff8c00; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                  "Diversity Indices"
+                ),
+                p(
+                  style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                  "Shannon, Simpson, Fisher's α & Pielou's evenness"
+                )
               ),
               div(
-                style = "margin-top: 20px; padding: 8px 16px; background: #ff8c0022; color: #ff8c00; border-radius: 20px; display: inline-block; font-size: 0.85em; font-weight: 600;",
+                style = "margin-top: 15px; padding: 10px 20px; background: #ff8c0022; color: #ff8c00; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
                 "CALCULATE →"
               )
             )
@@ -350,36 +353,36 @@ ui <- tagList(
           div(
             class = "row",
             div(
-              class = "col-md-4 mb-3",
+              class = "col-lg-4 col-md-6 mb-3",
               div(
-                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s;",
-                onmouseover = "this.style.borderColor='#2e8b57'; this.style.background='#1a1a1a';",
-                onmouseout = "this.style.borderColor='#333'; this.style.background='#1a1a1a';",
-                div(style = "font-size: 3em; color: #2e8b57; margin-bottom: 15px;", icon("keyboard")),
-                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px;", "Keyboard Shortcuts"),
-                p(style = "color: #888; font-size: 0.9em;", "Ctrl+O Open • Ctrl+S Save • Ctrl+T Theme • Ctrl+1/2/3 Tabs")
+                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("keyboard")),
+                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Keyboard Shortcuts"),
+                p(style = "color: #888; font-size: 0.85em; margin: 0;", "Ctrl+O • Ctrl+S • Ctrl+T • Ctrl+1/2/3")
               )
             ),
             div(
-              class = "col-md-4 mb-3",
+              class = "col-lg-4 col-md-6 mb-3",
               div(
-                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s;",
-                onmouseover = "this.style.borderColor='#2e8b57'; this.style.background='#1a1a1a';",
-                onmouseout = "this.style.borderColor='#333'; this.style.background='#1a1a1a';",
-                div(style = "font-size: 3em; color: #2e8b57; margin-bottom: 15px;", icon("file-export")),
-                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px;", "Multi-Format Export"),
-                p(style = "color: #888; font-size: 0.9em;", "CSV, Excel, JSON exports with publication-quality plots")
+                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("file-export")),
+                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Multi-Format Export"),
+                p(style = "color: #888; font-size: 0.85em; margin: 0;", "CSV, Excel, JSON & publication plots")
               )
             ),
             div(
-              class = "col-md-4 mb-3",
+              class = "col-lg-4 col-md-6 mb-3",
               div(
-                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s;",
-                onmouseover = "this.style.borderColor='#2e8b57'; this.style.background='#1a1a1a';",
-                onmouseout = "this.style.borderColor='#333'; this.style.background='#1a1a1a';",
-                div(style = "font-size: 3em; color: #2e8b57; margin-bottom: 15px;", icon("save")),
-                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px;", "Auto-Save"),
-                p(style = "color: #888; font-size: 0.9em;", "Session recovery with auto-save every 30 seconds")
+                style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("save")),
+                h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Auto-Save"),
+                p(style = "color: #888; font-size: 0.85em; margin: 0;", "Session recovery every 30 seconds")
               )
             )
           )
@@ -390,25 +393,22 @@ ui <- tagList(
           class = "mt-5",
           style = "animation: fadeInUp 0.8s ease-out 0.5s both;",
           div(
-            style = "background: linear-gradient(135deg, #2e8b57 0%, #1f6d42 100%); border-radius: 15px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(46, 139, 87, 0.3);",
+            style = "background: linear-gradient(135deg, #2e8b57 0%, #1f6d42 100%); border-radius: 15px; padding: 50px 40px; text-align: center; box-shadow: 0 10px 30px rgba(46, 139, 87, 0.3);",
             h3(
-              style = "color: #fff; font-weight: 700; font-size: 2em; margin-bottom: 20px;",
+              style = "color: #fff; font-weight: 700; font-size: 2em; margin-bottom: 15px;",
               icon("rocket"), " Ready to Begin?"
             ),
             p(
-              style = "color: rgba(255,255,255,0.9); font-size: 1.2em; margin-bottom: 30px;",
+              style = "color: rgba(255,255,255,0.95); font-size: 1.15em; margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto;",
               "Upload your community ecology data and start analyzing with enterprise-grade tools"
             ),
             actionButton(
               "quickStartUpload",
-              div(
-                style = "padding: 15px 40px; font-size: 1.1em; font-weight: 700;",
-                icon("upload"), " UPLOAD DATA & START"
-              ),
-              class = "btn",
-              style = "background: #fff; color: #2e8b57; border: none; border-radius: 30px; transition: all 0.3s; font-weight: 700;",
-              onmouseover = "this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.3)';",
-              onmouseout = "this.style.transform='scale(1)'; this.style.boxShadow='none';"
+              HTML("<span style='font-size: 1.1em;'><i class='fa fa-upload'></i> UPLOAD DATA & START</span>"),
+              class = "btn btn-lg",
+              style = "background: #fff; color: #2e8b57; border: none; border-radius: 30px; padding: 15px 50px; transition: all 0.3s; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.2);",
+              onmouseover = "this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.35)';",
+              onmouseout = "this.style.transform='scale(1)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)';"
             )
           )
         )
@@ -998,25 +998,25 @@ server <- function(input, output, session) {
               
               # Feature cards
               div(
-                class = "row",
-                style = "gap: 15px; margin-bottom: 35px;",
+                class = "row justify-content-center",
+                style = "margin-bottom: 35px;",
                 div(
-                  class = "col-md-5",
-                  style = "background: #1a3a52; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                  class = "col-md-5 mb-3",
+                  style = "background: #1a3a52; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 140px;",
                   onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#3fa869';",
                   onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#2e8b57';",
-                  div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 10px;", icon("chart-area")),
-                  h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 8px;", "Coverage-Based Curves"),
-                  p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "Sample completeness analysis with asymptotic diversity estimators")
+                  div(style = "font-size: 2.2em; color: #2e8b57; margin-bottom: 10px;", icon("chart-area")),
+                  h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 8px; font-size: 1.1em;", "Coverage-Based Curves"),
+                  p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Sample completeness with asymptotic estimators")
                 ),
                 div(
-                  class = "col-md-5",
-                  style = "background: #1a3a52; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                  class = "col-md-5 mb-3",
+                  style = "background: #1a3a52; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 140px;",
                   onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#3fa869';",
                   onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#2e8b57';",
-                  div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 10px;", icon("layer-group")),
-                  h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 8px;", "Hill Numbers"),
-                  p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "q=0 (Richness), q=1 (Shannon), q=2 (Simpson) with bootstrap CI")
+                  div(style = "font-size: 2.2em; color: #2e8b57; margin-bottom: 10px;", icon("layer-group")),
+                  h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 8px; font-size: 1.1em;", "Hill Numbers"),
+                  p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "q=0 (Richness), q=1 (Shannon), q=2 (Simpson)")
                 )
               ),
               
@@ -1139,25 +1139,25 @@ server <- function(input, output, session) {
               div(
                 class = "mb-4",
                 div(
-                  class = "row",
-                  style = "gap: 15px; margin-bottom: 15px;",
+                  class = "row justify-content-center",
+                  style = "margin-bottom: 20px;",
                   div(
-                    class = "col-md-5",
-                    style = "background: #1a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                    class = "col-md-5 mb-3",
+                    style = "background: #1a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 140px;",
                     onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#ff9c10'; this.style.boxShadow='0 10px 25px rgba(255,140,0,0.3)';",
                     onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#ff8c00'; this.style.boxShadow='none';",
-                    div(style = "font-size: 2.5em; color: #ff8c00; margin-bottom: 10px;", icon("chart-pie")),
-                    h5(style = "color: #ff8c00; font-weight: 700; margin-bottom: 8px;", "Alpha Diversity"),
-                    p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "Shannon, Simpson, Fisher, Richness")
+                    div(style = "font-size: 2.2em; color: #ff8c00; margin-bottom: 10px;", icon("chart-pie")),
+                    h5(style = "color: #ff8c00; font-weight: 700; margin-bottom: 8px; font-size: 1.1em;", "Alpha Diversity"),
+                    p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Shannon, Simpson, Fisher, Richness")
                   ),
                   div(
-                    class = "col-md-5",
-                    style = "background: #1a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+                    class = "col-md-5 mb-3",
+                    style = "background: #1a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 140px;",
                     onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#ff9c10'; this.style.boxShadow='0 10px 25px rgba(255,140,0,0.3)';",
                     onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#ff8c00'; this.style.boxShadow='none';",
-                    div(style = "font-size: 2.5em; color: #ff8c00; margin-bottom: 10px;", icon("balance-scale")),
-                    h5(style = "color: #ff8c00; font-weight: 700; margin-bottom: 8px;", "Evenness Metrics"),
-                    p(style = "color: #aaa; font-size: 0.9em; margin: 0;", "Pielou's J, Simpson's E, Evar")
+                    div(style = "font-size: 2.2em; color: #ff8c00; margin-bottom: 10px;", icon("balance-scale")),
+                    h5(style = "color: #ff8c00; font-weight: 700; margin-bottom: 8px; font-size: 1.1em;", "Evenness Metrics"),
+                    p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Pielou's J, Simpson's E, Evar")
                   )
                 )
               ),
@@ -1527,40 +1527,40 @@ server <- function(input, output, session) {
           
           # Method cards grid
           tags$div(
-            class = "row",
-            style = "gap: 15px; margin-bottom: 35px; justify-content: center;",
+            class = "row justify-content-center",
+            style = "margin-bottom: 35px;",
             
             # NMDS
             tags$div(
-              class = "col-md-3",
-              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+              class = "col-lg-3 col-md-4 mb-3",
+              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 150px; text-align: center;",
               onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#5179f1'; this.style.boxShadow='0 10px 25px rgba(65,105,225,0.3)';",
               onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#4169e1'; this.style.boxShadow='none';",
-              tags$div(style = "font-size: 2em; color: #4169e1; margin-bottom: 10px;", "NMDS"),
-              tags$h6(style = "color: #fff; font-weight: 700; margin-bottom: 8px;", "Non-metric MDS"),
-              tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Flexible, robust")
+              tags$div(style = "font-size: 1.8em; color: #4169e1; margin-bottom: 10px; font-weight: 700;", "NMDS"),
+              tags$h6(style = "color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 0.95em;", "Non-metric MDS"),
+              tags$p(style = "color: #aaa; font-size: 0.8em; margin: 0;", "Flexible & robust")
             ),
             
             # PCA
             tags$div(
-              class = "col-md-3",
-              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+              class = "col-lg-3 col-md-4 mb-3",
+              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 150px; text-align: center;",
               onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#5179f1'; this.style.boxShadow='0 10px 25px rgba(65,105,225,0.3)';",
               onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#4169e1'; this.style.boxShadow='none';",
-              tags$div(style = "font-size: 2em; color: #4169e1; margin-bottom: 10px;", "PCA"),
-              tags$h6(style = "color: #fff; font-weight: 700; margin-bottom: 8px;", "Principal Components"),
-              tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Linear method")
+              tags$div(style = "font-size: 1.8em; color: #4169e1; margin-bottom: 10px; font-weight: 700;", "PCA"),
+              tags$h6(style = "color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 0.95em;", "Principal Components"),
+              tags$p(style = "color: #aaa; font-size: 0.8em; margin: 0;", "Linear method")
             ),
             
             # CA/DCA/PCoA
             tags$div(
-              class = "col-md-3",
-              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s;",
+              class = "col-lg-3 col-md-4 mb-3",
+              style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 150px; text-align: center;",
               onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#5179f1'; this.style.boxShadow='0 10px 25px rgba(65,105,225,0.3)';",
               onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#4169e1'; this.style.boxShadow='none';",
-              tags$div(style = "font-size: 2em; color: #4169e1; margin-bottom: 10px;", "CA/DCA/PCoA"),
-              tags$h6(style = "color: #fff; font-weight: 700; margin-bottom: 8px;", "Advanced Methods"),
-              tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Specialized analyses")
+              tags$div(style = "font-size: 1.6em; color: #4169e1; margin-bottom: 10px; font-weight: 700;", "CA/DCA/PCoA"),
+              tags$h6(style = "color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 0.95em;", "Advanced Methods"),
+              tags$p(style = "color: #aaa; font-size: 0.8em; margin: 0;", "Specialized")
             )
           ),
           
