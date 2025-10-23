@@ -636,314 +636,119 @@ ui <- tagList(
   nav_panel(
     title = "Data",
     icon = icon("database"),
-    layout_sidebar(
-      fillable = TRUE,
-      sidebar = sidebar(
-        width = 400,
-        open = TRUE,
+    
+    # Custom layout with vertical sidebar navigation
+    tags$div(
+      class = "data-management-container",
+      style = "display: flex; height: 100vh; overflow: hidden;",
+      
+      # Vertical Sub-Navigation Sidebar
+      tags$div(
+        id = "data-subnav",
+        class = "data-vertical-nav",
+        style = "width: 80px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; align-items: center; padding: 20px 0; transition: width 0.3s ease;",
         
-        # Data Source Section
-        card(
-          class = "mb-3",
-          card_header(
-            icon("upload"), " Data Import"
-          ),
-          card_body(
-            h6("Import Source", style = "color: #2e8b57; margin-bottom: 15px; font-weight: 600;"),
-            
-            # Source Selection
-            radioButtons(
-              "dataSource",
-              NULL,
-              choices = c(
-                "Local File" = "local",
-                "Google Drive" = "gdrive"
-              ),
-              selected = "local",
-              inline = FALSE
-            ),
-            
-            # Local File Upload
-            conditionalPanel(
-              condition = "input.dataSource == 'local'",
-              fileInput(
-                "localDataFile",
-                NULL,
-                accept = c(".csv", ".xlsx", ".txt"),
-                buttonLabel = "Browse...",
-                placeholder = "No file selected"
-              ),
-              tags$small(
-                class = "text-muted",
-                icon("info-circle"),
-                " Supports: CSV, Excel, Tab-delimited"
-              )
-            ),
-            
-            # Google Drive Import
-            conditionalPanel(
-              condition = "input.dataSource == 'gdrive'",
-              tags$div(
-                class = "alert alert-info",
-                style = "background: #1a3a52; border-color: #4169e1; margin-top: 10px;",
-                icon("cloud"), " Google Drive Integration"
-              ),
-              textInput(
-                "gdriveUrl",
-                "Google Drive Share Link",
-                placeholder = "https://drive.google.com/file/d/..."
-              ),
-              tags$small(
-                class = "text-muted",
-                icon("info-circle"),
-                " File must be publicly accessible or shared"
-              ),
-              actionButton(
-                "importFromGDrive",
-                "Import from Google Drive",
-                class = "btn-primary w-100 mt-2",
-                icon = icon("cloud-download-alt")
-              )
-            )
-          )
+        # Toggle sidebar button (at top)
+        tags$button(
+          class = "vertical-nav-btn",
+          style = "width: 60px; height: 50px; background: transparent; border: 2px solid #666; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
+          onclick = "toggleDataSidebar();",
+          title = "Toggle Settings Panel",
+          tags$div(style = "font-size: 1.2em; color: #999;", icon("bars"))
         ),
         
-        hr(style = "border-color: #444; margin: 20px 0;"),
+        tags$hr(style = "width: 60%; border-color: #444; margin: 0 0 20px 0;"),
         
-        # Dataset Type Selection
-        card(
-          class = "mb-3",
-          card_header(
-            icon("layer-group"), " Dataset Configuration"
-          ),
-          card_body(
-            radioButtons(
-              "datasetType",
-              "Analysis Type",
-              choices = c(
-                "Species Data Only" = "species_only",
-                "Species + Environment" = "species_env"
-              ),
-              selected = "species_only"
-            ),
-            
-            tags$div(
-              class = "alert alert-secondary",
-              style = "background: #2a2a2a; border-color: #3e3e42; font-size: 0.85rem; padding: 10px;",
-              icon("lightbulb"),
-              " ",
-              tags$strong("Tip: "),
-              "For ordination with environmental constraints (CCA, RDA), select 'Species + Environment'"
-            ),
-            
-            # Environment Data Upload (conditional)
-            conditionalPanel(
-              condition = "input.datasetType == 'species_env'",
-              tags$hr(style = "border-color: #444; margin: 15px 0;"),
-              h6("Environment Dataset", style = "color: #ff8c00; margin-bottom: 10px; font-weight: 600;"),
-              fileInput(
-                "envDataFile",
-                NULL,
-                accept = c(".csv", ".xlsx", ".txt"),
-                buttonLabel = "Browse...",
-                placeholder = "No environment file"
-              ),
-              tags$small(
-                class = "text-muted",
-                icon("leaf"),
-                " Environmental variables (pH, temp, nutrients, etc.)"
-              )
-            )
-          )
+        # Import Button
+        tags$button(
+          class = "vertical-nav-btn",
+          id = "navImport",
+          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #4169e1; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
+          onclick = "Shiny.setInputValue('dataSubNav', 'import', {priority: 'event'}); document.querySelectorAll('#data-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#4169e1';",
+          title = "Import Data",
+          tags$div(style = "font-size: 1.8em; color: #4169e1; margin-bottom: 4px;", icon("upload")),
+          tags$div(style = "font-size: 0.65rem; color: #4169e1; text-align: center; line-height: 1.1;", "Import")
         ),
         
-        hr(style = "border-color: #444; margin: 20px 0;"),
+        # View/Edit Button
+        tags$button(
+          class = "vertical-nav-btn",
+          id = "navEdit",
+          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #2e8b57; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
+          onclick = "Shiny.setInputValue('dataSubNav', 'edit', {priority: 'event'}); document.querySelectorAll('#data-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
+          title = "View & Edit",
+          tags$div(style = "font-size: 1.8em; color: #2e8b57; margin-bottom: 4px;", icon("table")),
+          tags$div(style = "font-size: 0.65rem; color: #2e8b57; text-align: center; line-height: 1.1;", "Edit")
+        ),
         
-        # Data Actions
-        card(
-          card_header(
-            icon("tools"), " Data Operations"
-          ),
-          card_body(
-            actionButton(
-              "clearData",
-              "Clear All Data",
-              class = "btn btn-outline-danger w-100 mb-2",
-              icon = icon("trash-alt")
-            ),
-            actionButton(
-              "exportEditedData",
-              "Export Edited Data",
-              class = "btn btn-outline-success w-100 mb-2",
-              icon = icon("download")
-            ),
-            actionButton(
-              "resetToOriginal",
-              "Reset to Original",
-              class = "btn btn-outline-warning w-100",
-              icon = icon("undo")
-            )
-          )
+        # Export Button
+        tags$button(
+          class = "vertical-nav-btn",
+          id = "navExport",
+          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #ff8c00; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
+          onclick = "Shiny.setInputValue('dataSubNav', 'export', {priority: 'event'}); document.querySelectorAll('#data-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
+          title = "Export Data",
+          tags$div(style = "font-size: 1.8em; color: #ff8c00; margin-bottom: 4px;", icon("download")),
+          tags$div(style = "font-size: 0.65rem; color: #ff8c00; text-align: center; line-height: 1.1;", "Export")
         )
       ),
       
-      # Main Content - Excel-like Spreadsheet
+      # Main Content with Collapsible Settings Panel
       tags$div(
-        class = "data-management-content",
-        style = "height: 100%; display: flex; flex-direction: column;",
+        style = "flex: 1; display: flex; overflow: hidden;",
         
-        # Header with tabs
+        # Settings Panel (Collapsible)
         tags$div(
-          style = "background: #2d2d30; border-bottom: 2px solid #3e3e42; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;",
+          id = "data-settings-panel",
+          class = "data-settings",
+          style = "width: 400px; background: #1e1e1e; border-right: 1px solid #3e3e42; overflow-y: auto; transition: width 0.3s ease, margin-left 0.3s ease;",
           
-          # Dataset tabs
+          # Settings content
           tags$div(
-            style = "display: flex; gap: 10px;",
-            uiOutput("datasetTabs")
-          ),
-          
-          # Data info
-          uiOutput("dataInfo")
+            style = "padding: 20px;",
+            uiOutput("dataSettingsContent")
+          )
         ),
         
-        # Spreadsheet content
+        # Results Area
         tags$div(
-          style = "flex: 1; overflow: auto; padding: 20px; background: #252526;",
-          
-          conditionalPanel(
-            condition = "output.hasData",
-            
-            # Active dataset display
-            tags$div(
-              id = "spreadsheet-container",
-              
-              # Column type editor
-              tags$div(
-                class = "mb-3",
-                style = "background: #1a1a1a; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px;",
-                h5(
-                  icon("columns"), " Column Configuration",
-                  style = "color: #2e8b57; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
-                ),
-                uiOutput("columnTypeEditor")
-              ),
-              
-              # Excel-like table
-              tags$div(
-                class = "mt-3",
-                h5(
-                  icon("table"), " Data Spreadsheet",
-                  style = "color: #4169e1; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
-                ),
-                tags$div(
-                  class = "alert alert-info",
-                  style = "background: #1a3a52; border-color: #4169e1; font-size: 0.85rem; padding: 10px;",
-                  icon("edit"), " Click any cell to edit. Changes are applied in real-time."
-                ),
-                DTOutput("spreadsheetTable")
-              ),
-              
-              # Environment data table (if applicable)
-              conditionalPanel(
-                condition = "input.datasetType == 'species_env' && output.hasEnvData",
-                tags$div(
-                  class = "mt-4",
-                  tags$hr(style = "border-color: #444; margin: 30px 0;"),
-                  h5(
-                    icon("leaf"), " Environment Data",
-                    style = "color: #ff8c00; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
-                  ),
-                  tags$div(
-                    class = "alert alert-warning",
-                    style = "background: #3a2a0a; border-color: #ff8c00; font-size: 0.85rem; padding: 10px;",
-                    icon("info-circle"), " Environmental variables must have the same row labels (sites) as species data"
-                  ),
-                  DTOutput("envSpreadsheetTable")
-                )
-              )
-            )
-          ),
-          
-          # Empty state
-          conditionalPanel(
-            condition = "!output.hasData",
-            tags$div(
-              class = "text-center",
-              style = "padding: 80px 40px; min-height: 500px; display: flex; align-items: center; justify-content: center;",
-              tags$div(
-                style = "max-width: 600px;",
-                
-                # Animated icon
-                tags$div(
-                  style = "font-size: 6em; color: #4169e1; margin-bottom: 30px; animation: float 3s ease-in-out infinite;",
-                  icon("database")
-                ),
-                
-                h2(
-                  style = "background: linear-gradient(135deg, #4169e1 0%, #5179f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; font-size: 2.5em; font-weight: 700;",
-                  "Data Management"
-                ),
-                
-                p(
-                  class = "lead",
-                  style = "color: #999; font-size: 1.2em; margin-bottom: 35px;",
-                  "Import, edit, and manage your community ecology datasets"
-                ),
-                
-                # Feature cards
-                tags$div(
-                  class = "row justify-content-center mb-4",
-                  tags$div(
-                    class = "col-md-6 mb-3",
-                    tags$div(
-                      style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; text-align: center;",
-                      tags$div(style = "font-size: 2.5em; color: #4169e1; margin-bottom: 10px;", icon("edit")),
-                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Excel-like Editor"),
-                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Edit cells, column names, row labels")
-                    )
-                  ),
-                  tags$div(
-                    class = "col-md-6 mb-3",
-                    tags$div(
-                      style = "background: #1a3a1a; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; text-align: center;",
-                      tags$div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 10px;", icon("cloud")),
-                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Cloud Import"),
-                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Google Drive integration")
-                    )
-                  ),
-                  tags$div(
-                    class = "col-md-6 mb-3",
-                    tags$div(
-                      style = "background: #3a1a1a; border: 2px solid #ff8c00; border-radius: 12px; padding: 20px; text-align: center;",
-                      tags$div(style = "font-size: 2.5em; color: #ff8c00; margin-bottom: 10px;", icon("layer-group")),
-                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Dual Datasets"),
-                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Species + Environment data")
-                    )
-                  ),
-                  tags$div(
-                    class = "col-md-6 mb-3",
-                    tags$div(
-                      style = "background: #1a1a1a; border: 2px solid #9c27b0; border-radius: 12px; padding: 20px; text-align: center;",
-                      tags$div(style = "font-size: 2.5em; color: #9c27b0; margin-bottom: 10px;", icon("cog")),
-                      tags$h5(style = "color: #fff; font-weight: 600; margin-bottom: 8px;", "Data Types"),
-                      tags$p(style = "color: #aaa; font-size: 0.85em; margin: 0;", "Numeric, categorical, logical")
-                    )
-                  )
-                ),
-                
-                # Call to action
-                tags$div(
-                  class = "alert",
-                  style = "background: linear-gradient(135deg, #4169e1 0%, #2050d1 100%); border: none; border-radius: 10px; padding: 25px; margin-top: 20px;",
-                  tags$div(style = "font-size: 2em; color: #fff; margin-bottom: 10px;", icon("arrow-left")),
-                  tags$h5(style = "color: #fff; font-weight: 700; margin: 0;", "Import data using the sidebar to get started")
-                )
-              )
-            )
-          )
+          style = "flex: 1; overflow-y: auto; background: #1a1a1a;",
+          uiOutput("dataMainContent")
         )
       )
-    )
+    ),
+    
+    # CSS and JavaScript
+    tags$style(HTML("
+      .data-settings.collapsed {
+        width: 0 !important;
+        margin-left: -400px !important;
+        overflow: hidden !important;
+      }
+    ")),
+    
+    tags$script(HTML("
+      // Initialize first tab as active
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          const importBtn = document.getElementById('navImport');
+          if (importBtn) {
+            importBtn.style.background = '#4169e1';
+            Shiny.setInputValue('dataSubNav', 'import', {priority: 'event'});
+          }
+        }, 500);
+      });
+      
+      // Toggle sidebar function
+      function toggleDataSidebar() {
+        const panel = document.getElementById('data-settings-panel');
+        if (panel.classList.contains('collapsed')) {
+          panel.classList.remove('collapsed');
+        } else {
+          panel.classList.add('collapsed');
+        }
+      }
+    "))
   ),
   
   # DIVERSITY ANALYSIS
@@ -962,13 +767,25 @@ ui <- tagList(
         class = "diversity-vertical-nav",
         style = "width: 80px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; align-items: center; padding: 20px 0; transition: width 0.3s ease;",
         
+        # Toggle sidebar button (at top)
+        tags$button(
+          class = "vertical-nav-btn",
+          style = "width: 60px; height: 50px; background: transparent; border: 2px solid #666; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
+          onclick = "toggleDiversitySidebar();",
+          title = "Toggle Settings Panel",
+          tags$div(style = "font-size: 1.2em; color: #999;", icon("bars"))
+        ),
+        
+        tags$hr(style = "width: 60%; border-color: #444; margin: 0 0 20px 0;"),
+        
         # Estimation Button
         tags$button(
           class = "vertical-nav-btn",
           id = "navEstimation",
           style = "width: 60px; height: 70px; background: transparent; border: 2px solid #2e8b57; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
-          onclick = "Shiny.setInputValue('diversitySubNav', 'estimation', {priority: 'event'}); document.querySelectorAll('.vertical-nav-btn').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
-          tags$div(style = "font-size: 1.8em; color: #2e8b57; margin-bottom: 4px;", icon("chart-line")),
+          onclick = "Shiny.setInputValue('diversitySubNav', 'estimation', {priority: 'event'}); document.querySelectorAll('#diversity-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
+          title = "Diversity Estimation (iNEXT)",
+          tags$div(style = "font-size: 1.8em; color: #2e8b57; margin-bottom: 4px;", icon("chart-area")),
           tags$div(style = "font-size: 0.65rem; color: #2e8b57; text-align: center; line-height: 1.1;", "Estimation")
         ),
         
@@ -977,17 +794,10 @@ ui <- tagList(
           class = "vertical-nav-btn",
           id = "navIndices",
           style = "width: 60px; height: 70px; background: transparent; border: 2px solid #ff8c00; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
-          onclick = "Shiny.setInputValue('diversitySubNav', 'indices', {priority: 'event'}); document.querySelectorAll('.vertical-nav-btn').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
+          onclick = "Shiny.setInputValue('diversitySubNav', 'indices', {priority: 'event'}); document.querySelectorAll('#diversity-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
+          title = "Diversity Indices (vegan)",
           tags$div(style = "font-size: 1.8em; color: #ff8c00; margin-bottom: 4px;", icon("calculator")),
           tags$div(style = "font-size: 0.65rem; color: #ff8c00; text-align: center; line-height: 1.1;", "Indices")
-        ),
-        
-        # Toggle sidebar expand/collapse button
-        tags$button(
-          class = "vertical-nav-btn",
-          style = "width: 60px; height: 50px; background: transparent; border: 2px solid #666; border-radius: 8px; margin-top: auto; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
-          onclick = "toggleDiversitySidebar();",
-          tags$div(style = "font-size: 1.2em; color: #999;", icon("bars"))
         )
       ),
       
@@ -1073,6 +883,7 @@ ui <- tagList(
   # ORDINATION
   nav_panel(
     title = "Ordination",
+    icon = icon("project-diagram"),
     layout_sidebar(
       sidebar = sidebar(
         width = 350,
@@ -1087,6 +898,8 @@ ui <- tagList(
                          "PCA" = "pca",
                          "CA" = "ca",
                          "DCA" = "dca",
+                         "CCA" = "cca",
+                         "RDA" = "rda",
                          "PCoA" = "pcoa"
                        )),
             numericInput("ordDimensions", "Dimensions", value = 2, min = 1, max = 5),
@@ -1098,6 +911,45 @@ ui <- tagList(
                          "Manhattan" = "manhattan",
                          "Canberra" = "canberra"
                        )),
+            
+            # Biplot Options (CANOCO-style)
+            hr(style = "border-color: #444; margin: 15px 0;"),
+            tags$div(
+              style = "color: #4169e1; font-weight: 600; font-size: 0.9rem; margin-bottom: 10px;",
+              icon("layer-group"), " Biplot Options"
+            ),
+            
+            checkboxInput(
+              "showEnvArrows",
+              HTML("<span style='color: #ccc;'>Environmental arrows</span>"),
+              value = FALSE
+            ),
+            tags$div(
+              style = "color: #888; font-size: 0.75rem; margin-top: -10px; margin-bottom: 10px; margin-left: 24px;",
+              "Show continuous variables as vectors"
+            ),
+            
+            checkboxInput(
+              "showEnvEllipses",
+              HTML("<span style='color: #ccc;'>Factor ellipses</span>"),
+              value = FALSE
+            ),
+            tags$div(
+              style = "color: #888; font-size: 0.75rem; margin-top: -10px; margin-bottom: 10px; margin-left: 24px;",
+              "Show 95% confidence ellipses for factors"
+            ),
+            
+            conditionalPanel(
+              condition = "input.showEnvEllipses == true",
+              selectInput(
+                "ellipseFactor",
+                "Factor Variable",
+                choices = NULL,
+                width = "100%"
+              )
+            ),
+            
+            hr(style = "border-color: #444; margin: 15px 0;"),
             actionButton("runOrdination",
                        "Run Ordination",
                        class = "btn-success btn-lg w-100 mt-3",
@@ -1117,6 +969,7 @@ ui <- tagList(
   # HELP
   nav_panel(
     title = "Help",
+    icon = icon("question-circle"),
     card(
       full_screen = TRUE,
       card_header(
@@ -1164,7 +1017,7 @@ ui <- tagList(
                        div(class = "me-3", style = "font-size: 2em; color: #4169e1;", icon("project-diagram")),
                        div(
                          h5(class = "fw-bold", "Ordination Analysis (vegan)"),
-                         p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, PCoA for community composition patterns")
+                         p(class = "text-muted small mb-0", "NMDS, PCA, CA, DCA, CCA, RDA, PCoA for community patterns")
                        )
                     )
                  )
@@ -1638,6 +1491,270 @@ server <- function(input, output, session) {
     columnTypes = NULL,
     envColumnTypes = NULL
   )
+  
+  # Track active sub-navigation for Data tab
+  dataActiveTab <- reactiveVal("import")
+  
+  observeEvent(input$dataSubNav, {
+    dataActiveTab(input$dataSubNav)
+  })
+  
+  # Dynamic Settings Content for Data Tab
+  output$dataSettingsContent <- renderUI({
+    active_tab <- dataActiveTab()
+    
+    if (active_tab == "import") {
+      # Import Settings
+      tagList(
+        card(
+          class = "mb-3",
+          card_header(
+            icon("upload"), " Data Import"
+          ),
+          card_body(
+            h6("Import Source", style = "color: #4169e1; margin-bottom: 15px; font-weight: 600;"),
+            
+            radioButtons(
+              "dataSource",
+              NULL,
+              choices = c(
+                "Local File" = "local",
+                "Google Drive" = "gdrive"
+              ),
+              selected = "local",
+              inline = FALSE
+            ),
+            
+            conditionalPanel(
+              condition = "input.dataSource == 'local'",
+              fileInput(
+                "localDataFile",
+                NULL,
+                accept = c(".csv", ".xlsx", ".txt"),
+                buttonLabel = "Browse...",
+                placeholder = "No file selected"
+              ),
+              tags$small(
+                class = "text-muted",
+                icon("info-circle"),
+                " Supports: CSV, Excel, Tab-delimited"
+              )
+            ),
+            
+            conditionalPanel(
+              condition = "input.dataSource == 'gdrive'",
+              tags$div(
+                class = "alert alert-info",
+                style = "background: #1a3a52; border-color: #4169e1; margin-top: 10px;",
+                icon("cloud"), " Google Drive Integration"
+              ),
+              textInput(
+                "gdriveUrl",
+                "Google Drive Share Link",
+                placeholder = "https://drive.google.com/file/d/..."
+              ),
+              tags$small(
+                class = "text-muted",
+                icon("info-circle"),
+                " File must be publicly accessible"
+              ),
+              actionButton(
+                "importFromGDrive",
+                "Import from Google Drive",
+                class = "btn-primary w-100 mt-2",
+                icon = icon("cloud-download-alt")
+              )
+            )
+          )
+        ),
+        
+        hr(style = "border-color: #444; margin: 20px 0;"),
+        
+        card(
+          class = "mb-3",
+          card_header(
+            icon("layer-group"), " Dataset Configuration"
+          ),
+          card_body(
+            radioButtons(
+              "datasetType",
+              "Analysis Type",
+              choices = c(
+                "Species Data Only" = "species_only",
+                "Species + Environment" = "species_env"
+              ),
+              selected = "species_only"
+            ),
+            
+            tags$div(
+              class = "alert alert-secondary",
+              style = "background: #2a2a2a; border-color: #3e3e42; font-size: 0.85rem; padding: 10px;",
+              icon("lightbulb"),
+              " ",
+              tags$strong("Tip: "),
+              "For CCA/RDA, select 'Species + Environment'"
+            ),
+            
+            conditionalPanel(
+              condition = "input.datasetType == 'species_env'",
+              tags$hr(style = "border-color: #444; margin: 15px 0;"),
+              h6("Environment Dataset", style = "color: #ff8c00; margin-bottom: 10px; font-weight: 600;"),
+              fileInput(
+                "envDataFile",
+                NULL,
+                accept = c(".csv", ".xlsx", ".txt"),
+                buttonLabel = "Browse...",
+                placeholder = "No environment file"
+              ),
+              tags$small(
+                class = "text-muted",
+                icon("leaf"),
+                " Environmental variables (pH, temp, etc.)"
+              )
+            )
+          )
+        )
+      )
+    } else if (active_tab == "edit") {
+      # Edit/View Settings
+      tagList(
+        tags$div(
+          class = "alert alert-info",
+          style = "background: #1a3a1a; border: 2px solid #2e8b57;",
+          icon("table"), " ",
+          tags$strong("View & Edit Mode")
+        ),
+        
+        if (!is.null(dataManagement$speciesData)) {
+          tagList(
+            tags$p(style = "color: #999; font-size: 0.9rem;", "Click any cell in the table to edit."),
+            tags$hr(style = "border-color: #444;"),
+            tags$h6("Active Dataset:", style = "color: #2e8b57;"),
+            uiOutput("datasetTabs"),
+            tags$hr(style = "border-color: #444;"),
+            uiOutput("dataInfo")
+          )
+        } else {
+          tags$p(
+            style = "color: #aaa; font-size: 0.9rem;",
+            "No data loaded. Go to Import tab to load data."
+          )
+        }
+      )
+    } else {
+      # Export Settings
+      tagList(
+        card(
+          card_header(
+            icon("download"), " Export Operations"
+          ),
+          card_body(
+            if (!is.null(dataManagement$speciesData)) {
+              tagList(
+                actionButton(
+                  "exportEditedData",
+                  "Export Edited Data",
+                  class = "btn btn-success w-100 mb-2",
+                  icon = icon("download")
+                ),
+                actionButton(
+                  "resetToOriginal",
+                  "Reset to Original",
+                  class = "btn btn-outline-warning w-100 mb-2",
+                  icon = icon("undo")
+                ),
+                actionButton(
+                  "clearData",
+                  "Clear All Data",
+                  class = "btn btn-outline-danger w-100",
+                  icon = icon("trash-alt")
+                )
+              )
+            } else {
+              tags$p(
+                style = "color: #aaa; font-size: 0.9rem;",
+                "No data to export. Import data first."
+              )
+            }
+          )
+        )
+      )
+    }
+  })
+  
+  # Data Main Content
+  output$dataMainContent <- renderUI({
+    if (!is.null(dataManagement$speciesData)) {
+      # Show data tables
+      tags$div(
+        style = "padding: 20px;",
+        tags$div(
+          class = "mb-3",
+          style = "background: #1a1a1a; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px;",
+          h5(
+            icon("columns"), " Column Configuration",
+            style = "color: #2e8b57; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
+          ),
+          uiOutput("columnTypeEditor")
+        ),
+        
+        tags$div(
+          class = "mt-3",
+          h5(
+            icon("table"), " Data Spreadsheet",
+            style = "color: #4169e1; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
+          ),
+          tags$div(
+            class = "alert alert-info",
+            style = "background: #1a3a52; border-color: #4169e1; font-size: 0.85rem; padding: 10px;",
+            icon("edit"), " Click any cell to edit. Changes are applied in real-time."
+          ),
+          DTOutput("spreadsheetTable")
+        ),
+        
+        conditionalPanel(
+          condition = "input.datasetType == 'species_env' && output.hasEnvData",
+          tags$div(
+            class = "mt-4",
+            tags$hr(style = "border-color: #444; margin: 30px 0;"),
+            h5(
+              icon("leaf"), " Environment Data",
+              style = "color: #ff8c00; margin-bottom: 15px; font-weight: 600; font-size: 1rem;"
+            ),
+            DTOutput("envSpreadsheetTable")
+          )
+        )
+      )
+    } else {
+      # Empty state
+      tags$div(
+        class = "text-center",
+        style = "padding: 80px 40px; min-height: 500px; display: flex; align-items: center; justify-content: center;",
+        tags$div(
+          style = "max-width: 600px;",
+          tags$div(
+            style = "font-size: 6em; color: #4169e1; margin-bottom: 30px;",
+            icon("database")
+          ),
+          h2(
+            style = "color: #4169e1; margin-bottom: 25px; font-size: 2.5em; font-weight: 700;",
+            "Data Management"
+          ),
+          p(
+            class = "lead",
+            style = "color: #999; font-size: 1.2em; margin-bottom: 35px;",
+            "Import, edit, and manage your community ecology datasets"
+          ),
+          tags$div(
+            class = "alert",
+            style = "background: linear-gradient(135deg, #4169e1 0%, #2050d1 100%); border: none; border-radius: 10px; padding: 25px;",
+            tags$div(style = "font-size: 2em; color: #fff; margin-bottom: 10px;", icon("arrow-left")),
+            tags$h5(style = "color: #fff; font-weight: 700; margin: 0;", "Click Import in the sidebar to get started")
+          )
+        )
+      )
+    }
+  })
   
   # Check if data exists
   output$hasData <- reactive({
@@ -2490,13 +2607,78 @@ server <- function(input, output, session) {
   })
   
   # Shared data loading with validation feedback
+  # This reactive now uses data from Data Management tab
   data <- reactive({
+    # Check if data exists in Data Management
+    if (!is.null(dataManagement$speciesData)) {
+      cat("\n=== DATA REACTIVE: Using dataManagement$speciesData ===")
+      df <- dataManagement$speciesData
+      cat("\nData dimensions:", nrow(df), "x", ncol(df))
+      cat("\nColumn names:", paste(names(df), collapse=", "))
+      cat("\nColumn types:", paste(sapply(df, class), collapse=", "))
+      
+      # Prepare data in the expected format
+      has_sampling_units <- ncol(df) >= 2 && tolower(names(df)[2]) == "samplingunits"
+      
+      if (has_sampling_units) {
+        cat("\nDetected incidence_freq format with sampling units\n")
+        site_names <- df[[1]]
+        sampling_units <- df[[2]]
+        species_data <- df[, -c(1, 2)]
+        
+        inext_list <- lapply(1:nrow(df), function(i) c(sampling_units[i], as.numeric(species_data[i, ])))
+        names(inext_list) <- site_names
+        abund_matrix <- as.matrix(species_data)
+        rownames(abund_matrix) <- site_names
+        
+        cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format: incidence_freq\n")
+        return(list(
+          original = abund_matrix, 
+          inext_data = inext_list, 
+          data_format = "incidence_freq",
+          sampling_units = sampling_units
+        ))
+      } else {
+        cat("\nProcessing as abundance or incidence_raw format\n")
+        # Assume first column is site names
+        if (ncol(df) < 2) {
+          cat("\nERROR: Insufficient columns (<2)\n")
+          return(NULL)
+        }
+        
+        site_names <- df[[1]]
+        abund_matrix <- as.matrix(df[-1])
+        rownames(abund_matrix) <- site_names
+        
+        # Check if numeric
+        if (!all(sapply(df[-1], is.numeric))) {
+          cat("\nERROR: Non-numeric columns detected!\n")
+          cat("Column types:", paste(sapply(df[-1], class), collapse=", "), "\n")
+          return(NULL)
+        }
+        
+        is_binary <- all(abund_matrix %in% c(0, 1))
+        abund_matrix_t <- t(abund_matrix)
+        colnames(abund_matrix_t) <- site_names
+        
+        cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format:", if(is_binary) "incidence_raw" else "abundance", "\n")
+        return(list(
+          original = abund_matrix, 
+          transposed = abund_matrix_t, 
+          inext_data = abund_matrix_t,
+          data_format = if(is_binary) "incidence_raw" else "abundance", 
+          is_binary = is_binary
+        ))
+      }
+    }
+    
+    # Fallback to old file input (if still used)
     req(input$dataFile)
     
     # Show professional loading spinner
     waiter <- Waiter$new(
       html = tagList(
-        spin_loaders(42, color = "#2e8b57"),  # Professional spinner
+        spin_loaders(42, color = "#2e8b57"),
         h3("Loading Your Data...", style = "color: #2e8b57; margin-top: 30px; font-weight: 700;"),
         p("Validating structure and preparing for analysis", 
           style = "color: #999; font-size: 1rem; margin-top: 10px;")
@@ -3067,7 +3249,9 @@ server <- function(input, output, session) {
   diversityResults <- reactiveVal(NULL)
   
   observeEvent(input$runDiversity, {
+    cat("\n=== RUN DIVERSITY BUTTON CLICKED ===")
     req(data())
+    cat("\nData available for analysis")
     
     # Validation
     if (length(input$hillNumbers) == 0) {
@@ -3252,6 +3436,21 @@ server <- function(input, output, session) {
   # Diversity Indices Module with enhanced error handling
   ordinationResults <- reactiveVal(NULL)
   
+  # Update factor variable choices when environment data is loaded
+  observe({
+    if (!is.null(dataManagement$envData)) {
+      env_data <- dataManagement$envData[, -1]  # Remove Site column
+      # Find categorical/factor variables
+      factor_vars <- names(env_data)[sapply(env_data, function(x) is.character(x) || is.factor(x))]
+      
+      if (length(factor_vars) > 0) {
+        updateSelectInput(session, "ellipseFactor", choices = factor_vars, selected = factor_vars[1])
+      } else {
+        updateSelectInput(session, "ellipseFactor", choices = "No categorical variables", selected = NULL)
+      }
+    }
+  })
+  
   observeEvent(input$runOrdination, {
     req(data())
     
@@ -3283,28 +3482,49 @@ server <- function(input, output, session) {
         dist_mat <- vegdist(abund_matrix, method = input$distMethod)
         ord <- metaMDS(dist_mat, k = input$ordDimensions, try = 50, trymax = 100, trace = 0)
         scores_df <- data.frame(Site = rownames(ord$points), ord$points)
-        list(scores = scores_df, stress = ord$stress, method = "NMDS")
+        list(scores = scores_df, stress = ord$stress, method = "NMDS", ord_object = ord)
       } else if (method == "pca") {
         ord <- rda(abund_matrix)
         scores_df <- data.frame(Site = rownames(abund_matrix), scores(ord, display = "sites", choices = 1:min(input$ordDimensions, 2)))
-        list(scores = scores_df, stress = NULL, method = "PCA")
+        list(scores = scores_df, stress = NULL, method = "PCA", ord_object = ord)
       } else if (method == "ca") {
         ord <- cca(abund_matrix)
         scores_df <- data.frame(Site = rownames(abund_matrix), scores(ord, display = "sites", choices = 1:min(input$ordDimensions, 2)))
-        list(scores = scores_df, stress = NULL, method = "CA")
+        list(scores = scores_df, stress = NULL, method = "CA", ord_object = ord)
       } else if (method == "dca") {
         ord <- decorana(abund_matrix)
         scores_df <- data.frame(Site = rownames(abund_matrix), scores(ord, display = "sites", choices = 1:min(input$ordDimensions, 2)))
-        list(scores = scores_df, stress = NULL, method = "DCA")
+        list(scores = scores_df, stress = NULL, method = "DCA", ord_object = ord)
+      } else if (method == "cca") {
+        # Constrained Correspondence Analysis - requires environment data
+        if (is.null(dataManagement$envData)) {
+          stop("CCA requires environment data. Please load environment data in the Data tab.")
+        }
+        env_matrix <- dataManagement$envData[, -1]  # Remove Site column
+        ord <- cca(abund_matrix ~ ., data = env_matrix)
+        scores_df <- data.frame(Site = rownames(abund_matrix), scores(ord, display = "sites", choices = 1:min(input$ordDimensions, 2)))
+        list(scores = scores_df, stress = NULL, method = "CCA", constrained = TRUE, ord_object = ord, env_data = env_matrix)
+      } else if (method == "rda") {
+        # Redundancy Analysis - requires environment data
+        if (is.null(dataManagement$envData)) {
+          stop("RDA requires environment data. Please load environment data in the Data tab.")
+        }
+        env_matrix <- dataManagement$envData[, -1]  # Remove Site column
+        ord <- rda(abund_matrix ~ ., data = env_matrix)
+        scores_df <- data.frame(Site = rownames(abund_matrix), scores(ord, display = "sites", choices = 1:min(input$ordDimensions, 2)))
+        list(scores = scores_df, stress = NULL, method = "RDA", constrained = TRUE, ord_object = ord, env_data = env_matrix)
       } else if (method == "pcoa") {
         dist_mat <- vegdist(abund_matrix, method = input$distMethod)
         ord <- cmdscale(dist_mat, k = input$ordDimensions, eig = TRUE)
         scores_df <- data.frame(Site = rownames(abund_matrix), ord$points[, 1:min(input$ordDimensions, 2)])
         names(scores_df)[-1] <- paste0("Axis", 1:(ncol(scores_df)-1))
-        list(scores = scores_df, stress = NULL, method = "PCoA")
+        list(scores = scores_df, stress = NULL, method = "PCoA", ord_object = ord)
       }
       
       incProgress(0.7, detail = "Creating plot...")
+      
+      # Store ordination object for biplot creation
+      result$env_data <- if (!is.null(dataManagement$envData)) dataManagement$envData[, -1] else NULL
       
       if (ncol(result$scores) >= 3) {
         axis_names <- names(result$scores)[-1]
@@ -3312,17 +3532,95 @@ server <- function(input, output, session) {
         # Get primary color from palette
         plot_color <- get_color_palette(1)[1]
         
-        plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]])) +
-          geom_point(size = 4, color = plot_color, alpha = 0.7) +
-          geom_text(aes(label = Site), vjust = -1, color = "white", size = 4) +
+        # Base plot
+        plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]]))
+        
+        # Add ellipses for categorical factors if requested
+        if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
+            !is.null(result$env_data) && !is.null(input$ellipseFactor)) {
+          
+          if (input$ellipseFactor %in% names(result$env_data)) {
+            # Add factor column to scores
+            result$scores$FactorGroup <- result$env_data[[input$ellipseFactor]]
+            
+            plot_obj <- plot_obj +
+              stat_ellipse(aes(color = FactorGroup, fill = FactorGroup), 
+                          geom = "polygon", alpha = 0.15, level = 0.95, 
+                          linewidth = 1, show.legend = TRUE)
+          }
+        }
+        
+        # Add site points and labels
+        if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
+            "FactorGroup" %in% names(result$scores)) {
+          plot_obj <- plot_obj +
+            geom_point(aes(color = FactorGroup), size = 4, alpha = 0.8) +
+            geom_text(aes(label = Site), vjust = -1, color = "white", size = 3.5)
+        } else {
+          plot_obj <- plot_obj +
+            geom_point(size = 4, color = plot_color, alpha = 0.7) +
+            geom_text(aes(label = Site), vjust = -1, color = "white", size = 4)
+        }
+        
+        # Add environmental arrows for continuous variables if requested
+        if (!is.null(input$showEnvArrows) && input$showEnvArrows && 
+            !is.null(result$ord_object) && !is.null(result$env_data)) {
+          
+          # Get continuous variables
+          cont_vars <- names(result$env_data)[sapply(result$env_data, is.numeric)]
+          
+          if (length(cont_vars) > 0) {
+            # Fit environmental vectors using envfit
+            env_fit <- tryCatch({
+              envfit(result$ord_object, result$env_data[, cont_vars, drop = FALSE], 
+                    choices = 1:2, permutations = 999)
+            }, error = function(e) NULL)
+            
+            if (!is.null(env_fit) && !is.null(env_fit$vectors)) {
+              # Extract arrow coordinates
+              arrow_coords <- as.data.frame(scores(env_fit, display = "vectors"))
+              arrow_coords$variable <- rownames(arrow_coords)
+              
+              # Scale arrows to fit plot (multiply by factor for visibility)
+              arrow_scale <- 0.8 * min(
+                diff(range(result$scores[[axis_names[1]]])),
+                diff(range(result$scores[[axis_names[2]]]))
+              ) / max(sqrt(rowSums(arrow_coords[,1:2]^2)))
+              
+              arrow_coords[,1:2] <- arrow_coords[,1:2] * arrow_scale
+              
+              # Add arrows to plot
+              plot_obj <- plot_obj +
+                geom_segment(data = arrow_coords,
+                           aes(x = 0, y = 0, 
+                               xend = .data[[axis_names[1]]], 
+                               yend = .data[[axis_names[2]]]),
+                           arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
+                           color = "#ff8c00", linewidth = 1, alpha = 0.8,
+                           inherit.aes = FALSE) +
+                geom_text(data = arrow_coords,
+                         aes(x = .data[[axis_names[1]]] * 1.1, 
+                             y = .data[[axis_names[2]]] * 1.1, 
+                             label = variable),
+                         color = "#ff8c00", fontface = "bold", size = 4,
+                         inherit.aes = FALSE)
+            }
+          }
+        }
+        
+        # Apply theme and labels
+        plot_obj <- plot_obj +
           get_plot_theme() +
           theme(panel.background = element_rect(fill = "#222222", color = NA),
                 plot.background = element_rect(fill = "#222222", color = NA),
                 panel.grid = element_line(color = "#444444"),
                 text = element_text(color = "white"),
-                axis.text = element_text(color = "white")) +
+                axis.text = element_text(color = "white"),
+                legend.background = element_rect(fill = "#222222", color = "#444444"),
+                legend.text = element_text(color = "white"),
+                legend.title = element_text(color = "white")) +
           labs(title = paste("Ordination:", result$method),
-               subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else paste("Distance:", input$distMethod))
+               subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "")
         
         result$plot <- plot_obj
       }
@@ -3406,15 +3704,26 @@ server <- function(input, output, session) {
               tags$p(style = "color: #aaa; font-size: 0.8em; margin: 0;", "Linear method")
             ),
             
-            # CA/DCA/PCoA
+            # CA/DCA
             tags$div(
               class = "col-lg-3 col-md-4 mb-3",
               style = "background: #1a1a3a; border: 2px solid #4169e1; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 150px; text-align: center;",
               onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#5179f1'; this.style.boxShadow='0 10px 25px rgba(65,105,225,0.3)';",
               onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#4169e1'; this.style.boxShadow='none';",
-              tags$div(style = "font-size: 1.6em; color: #4169e1; margin-bottom: 10px; font-weight: 700;", "CA/DCA/PCoA"),
-              tags$h6(style = "color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 0.95em;", "Advanced Methods"),
-              tags$p(style = "color: #aaa; font-size: 0.8em; margin: 0;", "Specialized")
+              tags$div(style = "font-size: 1.8em; color: #4169e1; margin-bottom: 10px; font-weight: 700;", "CA/DCA"),
+              tags$h6(style = "color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 0.95em;", "Correspondence"),
+              tags$p(style = "color: #aaa; font-size: 0.8em; margin: 0;", "Unimodal data")
+            ),
+            
+            # CCA/RDA
+            tags$div(
+              class = "col-lg-3 col-md-4 mb-3",
+              style = "background: #1a2a1a; border: 2px solid #2e8b57; border-radius: 12px; padding: 20px; transition: all 0.3s; min-height: 150px; text-align: center;",
+              onmouseover = "this.style.transform='scale(1.05)'; this.style.borderColor='#3fa869'; this.style.boxShadow='0 10px 25px rgba(46,139,87,0.3)';",
+              onmouseout = "this.style.transform='scale(1)'; this.style.borderColor='#2e8b57'; this.style.boxShadow='none';",
+              tags$div(style = "font-size: 1.8em; color: #2e8b57; margin-bottom: 10px; font-weight: 700;", "CCA/RDA"),
+              tags$h6(style = "color: #fff; font-weight: 600; margin-bottom: 8px; font-size: 0.95em;", "Constrained"),
+              tags$p(style = "color: #aaa; font-size: 0.8em; margin: 0;", "Requires env data")
             )
           ),
           
@@ -3478,18 +3787,127 @@ server <- function(input, output, session) {
     datatable(ordinationResults()$scores, options = list(pageLength = 15, scrollX = TRUE), rownames = FALSE)
   })
   
-  output$ordinationPlot <- renderPlot({ req(ordinationResults()); ordinationResults()$plot })
+  # Reactive ordination plot that responds to biplot options
+  ordinationPlotReactive <- reactive({
+    req(ordinationResults())
+    
+    result <- ordinationResults()
+    req(result$scores)
+    
+    if (ncol(result$scores) < 3) return(NULL)
+    
+    axis_names <- names(result$scores)[-1]
+    plot_color <- get_color_palette(1)[1]
+    
+    # Base plot
+    plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]]))
+    
+    # Add ellipses for categorical factors if requested
+    if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
+        !is.null(result$env_data) && !is.null(input$ellipseFactor)) {
+      
+      if (input$ellipseFactor %in% names(result$env_data)) {
+        # Add factor column to scores
+        result$scores$FactorGroup <- result$env_data[[input$ellipseFactor]]
+        
+        plot_obj <- plot_obj +
+          stat_ellipse(aes(color = FactorGroup, fill = FactorGroup), 
+                      geom = "polygon", alpha = 0.15, level = 0.95, 
+                      linewidth = 1, show.legend = TRUE)
+      }
+    }
+    
+    # Add site points and labels
+    if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
+        "FactorGroup" %in% names(result$scores)) {
+      plot_obj <- plot_obj +
+        geom_point(aes(color = FactorGroup), size = 4, alpha = 0.8) +
+        geom_text(aes(label = Site), vjust = -1, color = "white", size = 3.5)
+    } else {
+      plot_obj <- plot_obj +
+        geom_point(size = 4, color = plot_color, alpha = 0.7) +
+        geom_text(aes(label = Site), vjust = -1, color = "white", size = 4)
+    }
+    
+    # Add environmental arrows for continuous variables if requested
+    if (!is.null(input$showEnvArrows) && input$showEnvArrows && 
+        !is.null(result$ord_object) && !is.null(result$env_data)) {
+      
+      # Get continuous variables
+      cont_vars <- names(result$env_data)[sapply(result$env_data, is.numeric)]
+      
+      if (length(cont_vars) > 0) {
+        # Fit environmental vectors using envfit
+        env_fit <- tryCatch({
+          envfit(result$ord_object, result$env_data[, cont_vars, drop = FALSE], 
+                choices = 1:2, permutations = 999)
+        }, error = function(e) NULL)
+        
+        if (!is.null(env_fit) && !is.null(env_fit$vectors)) {
+          # Extract arrow coordinates
+          arrow_coords <- as.data.frame(scores(env_fit, display = "vectors"))
+          arrow_coords$variable <- rownames(arrow_coords)
+          
+          # Scale arrows to fit plot
+          arrow_scale <- 0.8 * min(
+            diff(range(result$scores[[axis_names[1]]])),
+            diff(range(result$scores[[axis_names[2]]]))
+          ) / max(sqrt(rowSums(arrow_coords[,1:2]^2)))
+          
+          arrow_coords[,1:2] <- arrow_coords[,1:2] * arrow_scale
+          
+          # Add arrows to plot
+          plot_obj <- plot_obj +
+            geom_segment(data = arrow_coords,
+                       aes(x = 0, y = 0, 
+                           xend = .data[[axis_names[1]]], 
+                           yend = .data[[axis_names[2]]]),
+                       arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
+                       color = "#ff8c00", linewidth = 1, alpha = 0.8,
+                       inherit.aes = FALSE) +
+            geom_text(data = arrow_coords,
+                     aes(x = .data[[axis_names[1]]] * 1.15, 
+                         y = .data[[axis_names[2]]] * 1.15, 
+                         label = variable),
+                     color = "#ff8c00", fontface = "bold", size = 4,
+                     inherit.aes = FALSE)
+        }
+      }
+    }
+    
+    # Apply theme and labels
+    plot_obj <- plot_obj +
+      get_plot_theme() +
+      theme(panel.background = element_rect(fill = "#222222", color = NA),
+            plot.background = element_rect(fill = "#222222", color = NA),
+            panel.grid = element_line(color = "#444444"),
+            text = element_text(color = "white"),
+            axis.text = element_text(color = "white"),
+            legend.background = element_rect(fill = "#222222", color = "#444444"),
+            legend.text = element_text(color = "white"),
+            legend.title = element_text(color = "white")) +
+      labs(title = paste("Ordination:", result$method),
+           subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "")
+    
+    plot_obj
+  })
+  
+  output$ordinationPlot <- renderPlot({ 
+    req(ordinationPlotReactive())
+    ordinationPlotReactive()
+  })
   
   output$downloadOrdinationPlot <- downloadHandler(
     filename = function() paste0("ordination_", Sys.Date(), ".", input$ordinationPlotFormat),
     content = function(file) {
       format <- input$ordinationPlotFormat
       plot_dpi <- get_plot_dpi()
+      plot_to_save <- ordinationPlotReactive()
       
       if (format == "png") {
-        ggsave(file, plot = ordinationResults()$plot, device = "png", width = 12, height = 8, dpi = plot_dpi, bg = "#222222")
+        ggsave(file, plot = plot_to_save, device = "png", width = 12, height = 8, dpi = plot_dpi, bg = "#222222")
       } else {
-        ggsave(file, plot = ordinationResults()$plot, device = "svg", width = 12, height = 8, bg = "#222222")
+        ggsave(file, plot = plot_to_save, device = "svg", width = 12, height = 8, bg = "#222222")
       }
     }
   )
@@ -3498,7 +3916,9 @@ server <- function(input, output, session) {
   indicesResults <- reactiveVal(NULL)
   
   observeEvent(input$runIndices, {
+    cat("\n=== RUN INDICES BUTTON CLICKED ===")
     req(data())
+    cat("\nData available for analysis")
     
     # Validation
     if (length(input$alphaIndices) == 0 && length(input$evennessIndices) == 0) {
