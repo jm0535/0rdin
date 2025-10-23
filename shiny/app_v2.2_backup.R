@@ -1,5 +1,5 @@
-# Ördin v3.0 - Community Ecology Analysis Platform
-# Enterprise-grade with GREEN branding (#2e8b57), dark/light themes, and modular architecture
+# Ördin v2.2 - Modular Biodiversity Analysis Application
+# Complete implementation with all modules
 
 library(bslib)
 library(vegan)
@@ -15,60 +15,10 @@ ui <- page_navbar(
   theme = bs_theme(
     version = 5, 
     bootswatch = "darkly",
-    primary = "#2e8b57",  # GREEN primary color
+    primary = "#2e8b57",
     "font-scale" = 1.1
   ),
-  
-  # Link external v3.0 CSS
-  header = tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
-    tags$script(HTML("
-      // Theme toggle functionality
-      function toggleTheme() {
-        const body = document.body;
-        const currentTheme = body.classList.contains('light-theme') ? 'light' : 'dark';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        if (newTheme === 'light') {
-          body.classList.add('light-theme');
-          body.classList.remove('dark-theme');
-        } else {
-          body.classList.add('dark-theme');
-          body.classList.remove('light-theme');
-        }
-        
-        localStorage.setItem('ordin-theme', newTheme);
-        
-        const btn = document.getElementById('theme-toggle-btn');
-        if (btn) {
-          btn.innerHTML = newTheme === 'dark' ? '☀️' : '🌙';
-          btn.title = newTheme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
-        }
-      }
-      
-      // Load saved theme on startup
-      document.addEventListener('DOMContentLoaded', function() {
-        const savedTheme = localStorage.getItem('ordin-theme') || 'dark';
-        const body = document.body;
-        
-        if (savedTheme === 'light') {
-          body.classList.add('light-theme');
-          body.classList.remove('dark-theme');
-        } else {
-          body.classList.add('dark-theme');
-          body.classList.remove('light-theme');
-        }
-        
-        const btn = document.getElementById('theme-toggle-btn');
-        if (btn) {
-          btn.innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
-          btn.title = savedTheme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
-        }
-      });
-    "))
-  ),
-  
-  title = "Ördin v3.0",
+  title = "Ördin v2.2",
   id = "main_nav",
   
   # TAB 1: DIVERSITY ESTIMATION (iNEXT)
@@ -192,13 +142,13 @@ ui <- page_navbar(
     title = "ℹ️ Help",
     icon = icon("info-circle"),
     card(
-      card_header("Ördin v3.0 - User Guide"),
+      card_header("Ördin v2.2 - User Guide"),
       tags$div(
         style = "padding: 30px;",
         tags$div(style = "text-align: center; margin-bottom: 40px;",
                 tags$div(style = "font-size: 4em; color: #2e8b57; margin-bottom: 15px;", "Ö"),
-                tags$h2("Ördin v3.0"),
-                tags$p(style = "font-size: 1.2em; color: #aaa;", "Community Ecology Analysis Platform")),
+                tags$h2("Ördin v2.2"),
+                tags$p(style = "font-size: 1.2em; color: #aaa;", "Comprehensive biodiversity analysis")),
         tags$h3("Modules", style = "color: #2e8b57;"),
         tags$ul(
           tags$li(tags$strong("📊 Diversity Estimation:"), " iNEXT rarefaction/extrapolation"),
@@ -206,19 +156,8 @@ ui <- page_navbar(
           tags$li(tags$strong("📈 Diversity Indices:"), " Shannon, Simpson, evenness, accumulation curves")
         ),
         tags$hr(),
-        tags$p("Built with R Shiny + iNEXT + vegan | v3.0.0 | © 2025 Jimmy Moses")
+        tags$p("Built with R Shiny + iNEXT + vegan | v2.2.0 | © 2025 Jimmy Moses")
       )
-    )
-  ),
-  
-  # THEME TOGGLE BUTTON (far right)
-  nav_spacer(),
-  nav_item(
-    tags$button(
-      id = "theme-toggle-btn",
-      onclick = "toggleTheme()",
-      title = "Switch to Light Theme",
-      "☀️"  # Sun emoji for dark mode
     )
   )
 )

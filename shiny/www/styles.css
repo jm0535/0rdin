@@ -1,0 +1,421 @@
+/* Ördin v3.0 - Enterprise-Grade Styles */
+/* GREEN Branding: #2e8b57 (SeaGreen) */
+
+/* ========================================
+   CSS VARIABLES - Centralized Color System
+   ======================================== */
+:root {
+  --ordin-green: #2e8b57;
+  --ordin-green-dark: #1f6d42;
+  --ordin-green-light: #3fa869;
+  --ordin-dark-bg: #1e1e1e;
+  --ordin-sidebar: #252526;
+  --ordin-navbar: #2d2d30;
+  --ordin-border: #3e3e42;
+  --ordin-text: #cccccc;
+  --ordin-light-bg: #ffffff;
+  --ordin-light-sidebar: #f8f8f8;
+  --ordin-light-navbar: #f3f3f3;
+  --ordin-light-border: #d0d0d0;
+  --ordin-light-text: #1e1e1e;
+}
+
+/* ========================================
+   BASE STYLES - Dark Theme Default
+   ======================================== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+  background: var(--ordin-dark-bg);
+  color: var(--ordin-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Light Theme Override */
+body.light-theme {
+  background: var(--ordin-light-bg) !important;
+  color: var(--ordin-light-text) !important;
+}
+
+/* ========================================
+   THEME TOGGLE BUTTON
+   ======================================== */
+#theme-toggle-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ordin-text);
+  font-size: 1.1rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+}
+
+#theme-toggle-btn:hover {
+  background: #37373d;
+  border-color: #3e3e42;
+  border-bottom-color: var(--ordin-green);
+  transform: translateY(-2px);
+}
+
+body.light-theme #theme-toggle-btn {
+  color: #424242;
+}
+
+body.light-theme #theme-toggle-btn:hover {
+  background: #e8e8e8;
+  border-color: var(--ordin-light-border);
+  border-bottom-color: var(--ordin-green);
+}
+
+/* ========================================
+   NAVIGATION - VS Code Style
+   ======================================== */
+.navbar {
+  background: #2d2d30 !important;
+  border-bottom: 1px solid #3e3e42 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: auto !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme .navbar {
+  background: #f3f3f3 !important;
+  border-bottom: 1px solid #d0d0d0 !important;
+}
+
+/* Navigation Links - GREEN Active State */
+.nav-link {
+  color: var(--ordin-text) !important;
+  padding: 8px 16px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 2px solid transparent !important;
+}
+
+body.light-theme .nav-link {
+  color: #424242 !important;
+}
+
+.nav-link:hover {
+  background: #37373d !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+body.light-theme .nav-link:hover {
+  background: #e8e8e8 !important;
+  color: var(--ordin-light-text) !important;
+}
+
+.nav-link.active {
+  background: var(--ordin-dark-bg) !important;
+  color: var(--ordin-green) !important;
+  border-bottom: 2px solid var(--ordin-green) !important;
+}
+
+body.light-theme .nav-link.active {
+  background: var(--ordin-light-bg) !important;
+}
+
+/* ========================================
+   SIDEBAR
+   ======================================== */
+.bslib-sidebar-layout > .sidebar {
+  background: #252526 !important;
+  border-right: 1px solid #3e3e42 !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme .bslib-sidebar-layout > .sidebar {
+  background: #f8f8f8 !important;
+  border-right: 1px solid #d0d0d0 !important;
+}
+
+/* ========================================
+   CARDS
+   ======================================== */
+.card {
+  background: #252526 !important;
+  border: 1px solid #3e3e42 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme .card {
+  background: #ffffff !important;
+  border: 1px solid #d0d0d0 !important;
+}
+
+.card-header {
+  background: #2d2d30 !important;
+  border-bottom: 1px solid #3e3e42 !important;
+  color: #cccccc !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  padding: 8px 12px !important;
+  border-radius: 0 !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme .card-header {
+  background: #f3f3f3 !important;
+  border-bottom: 1px solid #d0d0d0 !important;
+  color: #1e1e1e !important;
+}
+
+/* ========================================
+   BUTTONS - GREEN Primary with Micro-Interactions
+   ======================================== */
+.btn {
+  border-radius: 0 !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  padding: 6px 14px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #3e3e42 !important;
+}
+
+body.light-theme .btn {
+  border: 1px solid var(--ordin-light-border) !important;
+}
+
+.btn-success, .btn-primary {
+  background: var(--ordin-green) !important;
+  border-color: var(--ordin-green) !important;
+  color: #ffffff !important;
+}
+
+.btn-success:hover, .btn-primary:hover {
+  background: var(--ordin-green-dark) !important;
+  border-color: var(--ordin-green-dark) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3) !important;
+}
+
+.btn-success:active, .btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-lg {
+  padding: 10px 20px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+}
+
+/* ========================================
+   FORM INPUTS - GREEN Focus State
+   ======================================== */
+.form-control,
+.form-select {
+  background: #3c3c3c !important;
+  border: 1px solid #3e3e42 !important;
+  color: var(--ordin-text) !important;
+  border-radius: 0 !important;
+  font-size: 0.85rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.light-theme .form-control,
+body.light-theme .form-select {
+  background: var(--ordin-light-bg) !important;
+  border: 1px solid var(--ordin-light-border) !important;
+  color: var(--ordin-light-text) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: #3c3c3c !important;
+  border-color: var(--ordin-green) !important;
+  box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+body.light-theme .form-control:focus,
+body.light-theme .form-select:focus {
+  background: var(--ordin-light-bg) !important;
+  color: var(--ordin-light-text) !important;
+}
+
+/* ========================================
+   ALERTS
+   ======================================== */
+.alert {
+  border-radius: 0 !important;
+  border: 1px solid #3e3e42 !important;
+  font-size: 0.85rem !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme .alert {
+  border: 1px solid #d0d0d0 !important;
+}
+
+/* ========================================
+   DATATABLES
+   ======================================== */
+.dataTables_wrapper {
+  color: #cccccc !important;
+}
+
+body.light-theme .dataTables_wrapper {
+  color: #1e1e1e !important;
+}
+
+table.dataTable {
+  border: 1px solid #3e3e42 !important;
+  background: #252526 !important;
+  transition: all 0.2s ease;
+}
+
+body.light-theme table.dataTable {
+  border: 1px solid #d0d0d0 !important;
+  background: #ffffff !important;
+}
+
+table.dataTable thead th {
+  background: #2d2d30 !important;
+  color: #cccccc !important;
+  border-bottom: 1px solid #3e3e42 !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme table.dataTable thead th {
+  background: #f3f3f3 !important;
+  color: #1e1e1e !important;
+  border-bottom: 1px solid #d0d0d0 !important;
+}
+
+table.dataTable tbody tr {
+  background: #252526 !important;
+  color: #cccccc !important;
+}
+
+body.light-theme table.dataTable tbody tr {
+  background: #ffffff !important;
+  color: #1e1e1e !important;
+}
+
+table.dataTable tbody tr:hover {
+  background: #2d2d30 !important;
+}
+
+body.light-theme table.dataTable tbody tr:hover {
+  background: #f8f8f8 !important;
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  body {
+    border: 2px solid var(--ordin-green);
+  }
+  
+  .btn-success, .btn-primary {
+    border: 2px solid #ffffff !important;
+  }
+  
+  .nav-link.active {
+    border-bottom-width: 4px !important;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Keyboard Focus Indicators */
+*:focus-visible {
+  outline: 2px solid var(--ordin-green) !important;
+  outline-offset: 2px !important;
+}
+
+/* ========================================
+   SCROLLBARS - GREEN Accent
+   ======================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ordin-dark-bg);
+}
+
+body.light-theme ::-webkit-scrollbar-track {
+  background: var(--ordin-light-navbar);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 0;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ordin-green);
+}
+
+body.light-theme ::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+}
+
+body.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--ordin-green);
+}
+
+/* ========================================
+   AUTO-SAVE INDICATOR
+   ======================================== */
+#autosave-indicator {
+  position: fixed;
+  top: 10px;
+  right: 70px;
+  background: var(--ordin-green);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 9999;
+}
+
+/* ========================================
+   LOADING SCREENS (waiter package)
+   ======================================== */
+.waiter-overlay {
+  background: rgba(30, 30, 30, 0.95) !important;
+}
+
+body.light-theme .waiter-overlay {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* ========================================
+   REMOVE ALL SHADOWS (Flat Design)
+   ======================================== */
+* {
+  box-shadow: none !important;
+}
+
+.btn-success:hover,
+.btn-primary:hover,
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15) !important;
+}

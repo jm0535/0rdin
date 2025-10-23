@@ -1,8 +1,8 @@
 {
   "name": "ordin",
   "productName": "Ördin",
-  "version": "2.3.0",
-  "description": "A Community Ecology Analysis Platform - Enterprise-Grade with Dark/Light Theme Toggle, vegan Integration, and VS Code Flat Design",
+  "version": "3.0.0",
+  "description": "A Community Ecology Analysis Platform - Enterprise-Grade v3.0 with Advanced UI/UX, Multi-Format Export, Keyboard Shortcuts, Auto-Save, Data Preview, Loading Screens, and Full Accessibility Support",
   "main": "src/index.js",
   "author": "Jimmy Moses <jmoses@pnguot.ac.pg>",
   "license": "MIT",
