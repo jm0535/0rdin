@@ -3958,35 +3958,70 @@ server <- function(input, output, session) {
       
       plot_color <- get_color_palette(1)[1]
       
-      # Base plot
-      plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]]))
+      # Flag to track if ellipses will be added
+      use_ellipses <- FALSE
       
-      # Add ellipses for categorical factors if requested
+      # Check if we should add ellipses and prepare the data
       if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
           !is.null(result$env_data) && !is.null(input$ellipseFactor)) {
         
-        cat("\nAdding ellipses for factor:", input$ellipseFactor)
+        cat("\nChecking ellipse factor:", input$ellipseFactor)
         
-        if (input$ellipseFactor %in% names(result$env_data)) {
-          # Add factor column to scores
-          result$scores$FactorGroup <- result$env_data[[input$ellipseFactor]]
+        # Validate factor exists and is valid
+        if (input$ellipseFactor != "No categorical variables" && 
+            input$ellipseFactor %in% names(result$env_data)) {
           
-          ellipse_level <- if (!is.null(input$ellipseConfidence)) input$ellipseConfidence else 0.95
-          ellipse_alpha <- if (!is.null(input$ellipseAlpha)) input$ellipseAlpha else 0.15
+          factor_col <- result$env_data[[input$ellipseFactor]]
           
-          plot_obj <- plot_obj +
-            stat_ellipse(aes(color = FactorGroup, fill = FactorGroup), 
-                        geom = "polygon", alpha = ellipse_alpha, level = ellipse_level, 
-                        linewidth = 1, show.legend = TRUE)
+          # Convert to factor if character
+          if (is.character(factor_col)) {
+            factor_col <- as.factor(factor_col)
+          }
+          
+          # Check if factor has at least 2 levels and sufficient observations
+          if (is.factor(factor_col) && nlevels(factor_col) >= 2) {
+            # Check each level has at least 3 observations (minimum for ellipse)
+            level_counts <- table(factor_col)
+            
+            if (all(level_counts >= 3)) {
+              cat("\nAdding ellipses for factor:", input$ellipseFactor)
+              cat("\nLevels:", levels(factor_col))
+              cat("\nCounts:", paste(level_counts, collapse = ", "))
+              
+              # Add factor column to scores BEFORE creating base plot
+              result$scores$FactorGroup <- factor_col
+              use_ellipses <- TRUE
+            } else {
+              cat("\nWARNING: Some factor levels have < 3 observations, skipping ellipses")
+              cat("\nLevel counts:", paste(level_counts, collapse = ", "))
+            }
+          } else {
+            cat("\nWARNING: Factor has < 2 levels or is not a factor, skipping ellipses")
+          }
+        } else {
+          cat("\nWARNING: Invalid or missing factor for ellipses")
         }
+      }
+      
+      # Base plot
+      plot_obj <- ggplot(result$scores, aes(x = .data[[axis_names[1]]], y = .data[[axis_names[2]]]))
+      
+      # Add ellipses if validated
+      if (use_ellipses) {
+        ellipse_level <- if (!is.null(input$ellipseConfidence)) input$ellipseConfidence else 0.95
+        ellipse_alpha <- if (!is.null(input$ellipseAlpha)) input$ellipseAlpha else 0.15
+        
+        plot_obj <- plot_obj +
+          stat_ellipse(aes(color = FactorGroup, fill = FactorGroup), 
+                      geom = "polygon", alpha = ellipse_alpha, level = ellipse_level, 
+                      linewidth = 1, show.legend = TRUE)
       }
       
       # Add site points and labels
       point_size <- if (!is.null(input$pointSize)) input$pointSize else 4
       label_size <- if (!is.null(input$labelSize)) input$labelSize else 3.5
       
-      if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && 
-          "FactorGroup" %in% names(result$scores)) {
+      if (use_ellipses) {
         plot_obj <- plot_obj +
           geom_point(aes(color = FactorGroup), size = point_size, alpha = 0.8) +
           geom_text(aes(label = Site), vjust = -1, color = "white", size = label_size)
