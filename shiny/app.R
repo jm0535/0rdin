@@ -3669,7 +3669,7 @@ server <- function(input, output, session) {
         var_explained <- eig_vals / sum(eig_vals) * 100
         
         list(scores = scores_df, stress = NULL, method = "PCA", ord_object = ord,
-             variance = var_explained, scaling = scaling_val)
+             variance = var_explained, scaling = scaling_val, eigenvalues = eig_vals)
              
       } else if (method == "ca") {
         ord <- cca(abund_matrix)
@@ -3683,7 +3683,7 @@ server <- function(input, output, session) {
         inertia_explained <- eig_vals / total_inertia * 100
         
         list(scores = scores_df, stress = NULL, method = "CA", ord_object = ord,
-             inertia = inertia_explained, scaling = scaling_val)
+             inertia = inertia_explained, scaling = scaling_val, eigenvalues = eig_vals)
              
       } else if (method == "dca") {
         ord <- decorana(abund_matrix)
@@ -3694,7 +3694,7 @@ server <- function(input, output, session) {
         axis_lengths <- ord$evals
         
         list(scores = scores_df, stress = NULL, method = "DCA", ord_object = ord,
-             axis_lengths = axis_lengths)
+             axis_lengths = axis_lengths, eigenvalues = axis_lengths)
              
       } else if (method == "cca") {
         # Constrained Correspondence Analysis
@@ -3711,10 +3711,12 @@ server <- function(input, output, session) {
         const_inertia <- ord$CCA$tot.chi
         unconst_inertia <- ord$CA$tot.chi
         total_inertia <- ord$tot.chi
+        eig_vals <- eigenvals(ord)
         
         list(scores = scores_df, stress = NULL, method = "CCA", constrained = TRUE, 
              ord_object = ord, env_data = env_matrix, scaling = scaling_val,
-             constrained_prop = const_inertia / total_inertia * 100)
+             constrained_prop = const_inertia / total_inertia * 100,
+             eigenvalues = eig_vals)
              
       } else if (method == "rda") {
         # Redundancy Analysis
@@ -3730,10 +3732,12 @@ server <- function(input, output, session) {
         # Calculate R-squared and adjusted R-squared
         r_squared <- RsquareAdj(ord)$r.squared
         adj_r_squared <- RsquareAdj(ord)$adj.r.squared
+        eig_vals <- eigenvals(ord)
         
         list(scores = scores_df, stress = NULL, method = "RDA", constrained = TRUE,
              ord_object = ord, env_data = env_matrix, scaling = scaling_val,
-             r_squared = r_squared, adj_r_squared = adj_r_squared)
+             r_squared = r_squared, adj_r_squared = adj_r_squared,
+             eigenvalues = eig_vals)
              
       } else if (method == "pcoa") {
         dist_mat <- vegdist(abund_matrix, method = input$distMethod)
@@ -3747,7 +3751,7 @@ server <- function(input, output, session) {
         var_explained <- eig_vals / sum(eig_vals) * 100
         
         list(scores = scores_df, stress = NULL, method = "PCoA", ord_object = ord,
-             variance = var_explained)
+             variance = var_explained, eigenvalues = eig_vals)
       }
       
       incProgress(0.7, detail = "Creating publication-quality plot...")
@@ -3914,19 +3918,59 @@ server <- function(input, output, session) {
       res <- ordinationResults()
       tagList(
         tags$div(style = "padding: 20px;",
+                # Stress/quality info
                 if (!is.null(res$stress)) {
                   div(class = "alert alert-info", style = "background-color: #1a3a52; color: #fff;",
                      h5(paste("🎯 Stress:", round(res$stress, 3))),
                      p(ifelse(res$stress < 0.05, "✅ Excellent", ifelse(res$stress < 0.1, "✅ Good", 
                             ifelse(res$stress < 0.2, "⚠️ Acceptable", "❌ Poor")))))
                 },
-                h4("Ordination Scores", style = "color: #2e8b57;"),
+                
+                # Eigenvalues/Variance Explained
+                if (!is.null(res$variance) || !is.null(res$inertia) || !is.null(res$eigenvalues)) {
+                  div(class = "alert", style = "background-color: #1a2a1a; color: #fff; border-left: 4px solid #2e8b57;",
+                     h5("📊 Variance Explained", style = "color: #2e8b57;"),
+                     if (!is.null(res$variance)) {
+                       tagList(
+                         p(paste("Axis 1:", round(res$variance[1], 2), "%")),
+                         p(paste("Axis 2:", round(res$variance[2], 2), "%")),
+                         p(paste("Cumulative:", round(sum(res$variance[1:2]), 2), "%"))
+                       )
+                     } else if (!is.null(res$inertia)) {
+                       tagList(
+                         p(paste("Axis 1:", round(res$inertia[1], 2), "%")),
+                         p(paste("Axis 2:", round(res$inertia[2], 2), "%")),
+                         p(paste("Cumulative:", round(sum(res$inertia[1:2]), 2), "%"))
+                       )
+                     },
+                     if (!is.null(res$eigenvalues)) {
+                       tagList(
+                         hr(style = "border-color: #2e8b57;"),
+                         h6("Eigenvalues:", style = "color: #2e8b57;"),
+                         p(paste(names(res$eigenvalues), "=", round(res$eigenvalues, 4), collapse = ", "),
+                           style = "font-family: monospace; font-size: 0.9em;")
+                       )
+                     }
+                  )
+                },
+                
+                # Ordination Scores Table
+                h4("Ordination Scores (Site/Case Scores)", style = "color: #2e8b57;"),
+                div(style = "margin-bottom: 15px;",
+                   downloadButton("downloadOrdinationScores", "Download Scores (CSV)", 
+                                 class = "btn-info", 
+                                 style = "margin-right: 10px;"),
+                   downloadButton("downloadOrdinationEigen", "Download Eigenvalues (CSV)", 
+                                 class = "btn-info")
+                ),
                 DTOutput("ordinationTable"),
+                
+                # Visualization
                 h4("Visualization", style = "color: #2e8b57; margin-top: 30px;"),
                 div(style = "margin-bottom: 15px;",
                    selectInput("ordinationPlotFormat", "Export Format:", 
                               choices = c("PNG" = "png", "SVG" = "svg"), width = "150px"),
-                   downloadButton("downloadOrdinationPlot", "Download", class = "btn-success")),
+                   downloadButton("downloadOrdinationPlot", "Download Plot", class = "btn-success")),
                 plotOutput("ordinationPlot", height = "650px"))
       )
     }
@@ -4057,6 +4101,17 @@ server <- function(input, output, session) {
             arrow_coords <- as.data.frame(scores(env_fit, display = "vectors"))
             arrow_coords$variable <- rownames(arrow_coords)
             
+            cat("\nArrow coords columns:", paste(names(arrow_coords), collapse = ", "))
+            cat("\nAxis names from scores:", paste(axis_names, collapse = ", "))
+            
+            # Rename arrow coordinate columns to match axis names from result$scores
+            # envfit returns columns matching the original ordination object
+            # but we need them to match our standardized axis_names
+            if (ncol(arrow_coords) >= 3) {  # At least 2 coord columns + variable column
+              names(arrow_coords)[1:2] <- axis_names[1:2]
+              cat("\nRenamed arrow coords to:", paste(names(arrow_coords)[1:2], collapse = ", "))
+            }
+            
             # Get arrow scaling parameter
             arrow_scale_param <- if (!is.null(input$arrowScaling)) input$arrowScaling else 0.8
             
@@ -4098,6 +4153,35 @@ server <- function(input, output, session) {
       base_font <- if (!is.null(input$baseFontSize)) input$baseFontSize else 12
       
       # Apply theme and labels
+      # Add variance/inertia explained to axis labels if available
+      x_label <- axis_names[1]
+      y_label <- axis_names[2]
+      
+      # Calculate percentage variance from eigenvalues if available
+      if (!is.null(result$eigenvalues) && length(result$eigenvalues) >= 2) {
+        # Convert eigenvalues to percentages
+        total_inertia <- sum(result$eigenvalues)
+        axis1_pct <- (result$eigenvalues[1] / total_inertia) * 100
+        axis2_pct <- (result$eigenvalues[2] / total_inertia) * 100
+        
+        x_label <- paste0(axis_names[1], " [", round(axis1_pct, 1), "%]")
+        y_label <- paste0(axis_names[2], " [", round(axis2_pct, 1), "%]")
+        
+        cat("\nAxis percentages from eigenvalues:")
+        cat("\n", axis_names[1], ":", round(axis1_pct, 1), "%")
+        cat("\n", axis_names[2], ":", round(axis2_pct, 1), "%\n")
+        
+      } else if (!is.null(result$variance) && length(result$variance) >= 2) {
+        # Use pre-calculated variance percentages
+        x_label <- paste0(axis_names[1], " [", round(result$variance[1], 1), "%]")
+        y_label <- paste0(axis_names[2], " [", round(result$variance[2], 1), "%]")
+        
+      } else if (!is.null(result$inertia) && length(result$inertia) >= 2) {
+        # Use pre-calculated inertia percentages
+        x_label <- paste0(axis_names[1], " [", round(result$inertia[1], 1), "%]")
+        y_label <- paste0(axis_names[2], " [", round(result$inertia[2], 1), "%]")
+      }
+      
       plot_obj <- plot_obj +
         get_plot_theme() +
         theme(panel.background = element_rect(fill = bg_color, color = NA),
@@ -4112,7 +4196,9 @@ server <- function(input, output, session) {
               legend.text = element_text(color = text_color),
               legend.title = element_text(color = text_color)) +
         labs(title = paste("Ordination:", result$method),
-             subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "")
+             subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "",
+             x = x_label,
+             y = y_label)
       
       cat("\nBiplot created successfully!\n")
       plot_obj
@@ -4145,6 +4231,47 @@ server <- function(input, output, session) {
       } else {
         ggsave(file, plot = plot_to_save, device = "svg", width = 12, height = 8, bg = "#222222")
       }
+    }
+  )
+  
+  # Download ordination scores (site/case scores)
+  output$downloadOrdinationScores <- downloadHandler(
+    filename = function() paste0("ordination_scores_", Sys.Date(), ".csv"),
+    content = function(file) {
+      req(ordinationResults())
+      write.csv(ordinationResults()$scores, file, row.names = FALSE)
+    }
+  )
+  
+  # Download eigenvalues
+  output$downloadOrdinationEigen <- downloadHandler(
+    filename = function() paste0("ordination_eigenvalues_", Sys.Date(), ".csv"),
+    content = function(file) {
+      req(ordinationResults())
+      result <- ordinationResults()
+      
+      # Create eigenvalue data frame
+      if (!is.null(result$eigenvalues)) {
+        eigen_df <- data.frame(
+          Axis = paste0("Axis", 1:length(result$eigenvalues)),
+          Eigenvalue = result$eigenvalues,
+          Variance_Percent = if (!is.null(result$variance)) {
+            result$variance
+          } else if (!is.null(result$inertia)) {
+            result$inertia
+          } else {
+            NA
+          }
+        )
+      } else {
+        # If no eigenvalues, create basic info
+        eigen_df <- data.frame(
+          Note = "Eigenvalues not available for this ordination method",
+          Method = result$method
+        )
+      }
+      
+      write.csv(eigen_df, file, row.names = FALSE)
     }
   )
   
