@@ -3819,61 +3819,7 @@ server <- function(input, output, session) {
             numericInput("divPlotHeight", "Height (inches)", value = 6, min = 4, max = 20),
             numericInput("divBaseFontSize", "Base font size (pt)", value = 12, min = 8, max = 20),
             numericInput("divPointSize", "Point size", value = 3, min = 1, max = 8),
-            numericInput("divLabelSize", "Label size", value = 3.5, min = 2, max = 8),
-            
-            # Plot Type Specific Customization
-            hr(style = "border-color: #555; margin: 15px 0;"),
-            tags$div(
-              style = "color: #ff8c00; font-weight: 600; font-size: 0.9rem; margin-bottom: 10px;",
-              icon("sliders-h"), " Plot Type Customization"
-            ),
-            selectInput("divPlotType", "Customize for Plot Type",
-                       choices = c("Sample-based (Type 1)" = "1",
-                                  "Completeness (Type 2)" = "2",
-                                  "Coverage (Type 3)" = "3"),
-                       selected = "1"),
-            
-            # Sample-based plot settings
-            conditionalPanel(
-              condition = "input.divPlotType == '1'",
-              tags$div(
-                style = "margin-left: 20px; margin-top: 10px; padding: 10px; background: #1a3a52; border-radius: 5px;",
-                h6("Sample-based Plot Settings", style = "color: #4a90e2; margin-top: 0;"),
-                checkboxInput("divShowSampleCI", "Show Confidence Intervals", value = TRUE),
-                numericInput("divSampleLineWidth", "Line Width", value = 1.2, min = 0.5, max = 3, step = 0.1),
-                selectInput("divSampleLineStyle", "Line Style",
-                           choices = c("Solid" = "solid", "Dashed" = "dashed", "Dotted" = "dotted", "Dotdash" = "dotdash"),
-                           selected = "solid")
-              )
-            ),
-            
-            # Completeness plot settings
-            conditionalPanel(
-              condition = "input.divPlotType == '2'",
-              tags$div(
-                style = "margin-left: 20px; margin-top: 10px; padding: 10px; background: #1a3a52; border-radius: 5px;",
-                h6("Completeness Plot Settings", style = "color: #ff6b9d; margin-top: 0;"),
-                checkboxInput("divShowCompletenessCI", "Show Confidence Intervals", value = TRUE),
-                numericInput("divCompletenessLineWidth", "Line Width", value = 1.2, min = 0.5, max = 3, step = 0.1),
-                selectInput("divCompletenessLineStyle", "Line Style",
-                           choices = c("Solid" = "solid", "Dashed" = "dashed", "Dotted" = "dotted", "Dotdash" = "dotdash"),
-                           selected = "solid")
-              )
-            ),
-            
-            # Coverage plot settings
-            conditionalPanel(
-              condition = "input.divPlotType == '3'",
-              tags$div(
-                style = "margin-left: 20px; margin-top: 10px; padding: 10px; background: #1a3a52; border-radius: 5px;",
-                h6("Coverage Plot Settings", style = "color: #7fff00; margin-top: 0;"),
-                checkboxInput("divShowCoverageCI", "Show Confidence Intervals", value = TRUE),
-                numericInput("divCoverageLineWidth", "Line Width", value = 1.2, min = 0.5, max = 3, step = 0.1),
-                selectInput("divCoverageLineStyle", "Line Style",
-                           choices = c("Solid" = "solid", "Dashed" = "dashed", "Dotted" = "dotted", "Dotdash" = "dotdash"),
-                           selected = "solid")
-              )
-            )
+            numericInput("divLabelSize", "Label size", value = 3.5, min = 2, max = 8)
           )
         ),
         
@@ -4331,18 +4277,8 @@ server <- function(input, output, session) {
     base_font_size <- input$divBaseFontSize
     plot_type <- input$plotType
     
-    # Determine if confidence intervals should be shown based on plot type
-    show_ci <- TRUE
-    if (plot_type == "1" && !is.null(input$divShowSampleCI)) {
-      show_ci <- input$divShowSampleCI
-    } else if (plot_type == "2" && !is.null(input$divShowCompletenessCI)) {
-      show_ci <- input$divShowCompletenessCI
-    } else if (plot_type == "3" && !is.null(input$divShowCoverageCI)) {
-      show_ci <- input$divShowCoverageCI
-    }
-    
     # Regenerate the base plot from iNEXT output
-    plot_obj <- ggiNEXT(result$full_output, type = as.numeric(plot_type), se = show_ci, 
+    plot_obj <- ggiNEXT(result$full_output, type = as.numeric(plot_type), se = TRUE, 
                        facet.var = "Order.q", color.var = "Assemblage") + 
       labs(title = "Diversity Estimation (iNEXT)",
            subtitle = paste0("Hill numbers q=", paste(as.numeric(input$hillNumbers), collapse = ", "), " | ", 
@@ -4366,29 +4302,21 @@ server <- function(input, output, session) {
     
     # Set theme colors with improved contrast based on selected theme
     if (plot_theme == "dark") {
-      bg_color <- "#1a1a1a"  # Darker for better contrast
+      bg_color <- "#1a1a1a"
       text_color <- "#ffffff"
-      grid_color <- "#3a3a3a"  # More visible grid
-      panel_border <- element_blank()
-      grid_linewidth <- 0.3
+      grid_color <- "#3a3a3a"
     } else if (plot_theme == "light") {
       bg_color <- "#ffffff"
       text_color <- "#000000"
-      grid_color <- "#d0d0d0"  # More visible grid
-      panel_border <- element_blank()
-      grid_linewidth <- 0.4
+      grid_color <- "#d0d0d0"
     } else if (plot_theme == "classic") {
-      bg_color <- "#fafafa"  # Slightly off-white
+      bg_color <- "#fafafa"
       text_color <- "#000000"
-      grid_color <- "#b0b0b0"  # Darker grid
-      panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1)
-      grid_linewidth <- 0.5
+      grid_color <- "#b0b0b0"
     } else if (plot_theme == "minimal") {
       bg_color <- "#ffffff"
-      text_color <- "#1a1a1a"  # Dark gray for softer contrast
-      grid_color <- "#e8e8e8"  # Very subtle grid
-      panel_border <- element_blank()
-      grid_linewidth <- 0.2
+      text_color <- "#1a1a1a"
+      grid_color <- "#e8e8e8"
     } else if (plot_theme == "bw") {
       bg_color <- "#ffffff"
       text_color <- "#000000"
@@ -4397,12 +4325,6 @@ server <- function(input, output, session) {
       bg_color <- "#f0f0f0"
       text_color <- "#000000"
       grid_color <- "#d0d0d0"
-    } else if (plot_theme == "publication") {
-      bg_color <- "#ffffff"
-      text_color <- "#000000"
-      grid_color <- "#c0c0c0"  # Strong grid for clarity
-      panel_border <- element_rect(color = "#000000", fill = NA, linewidth = 1.2)
-      grid_linewidth <- 0.6
     } else if (plot_theme == "void") {
       bg_color <- "#ffffff"
       text_color <- "#000000"
@@ -4412,77 +4334,22 @@ server <- function(input, output, session) {
       bg_color <- "#ffffff"
       text_color <- "#1a1a1a"
       grid_color <- "#e8e8e8"
-      panel_border <- element_blank()
-      grid_linewidth <- 0.2
     }
     
-    # Apply comprehensive theme colors with font size from local settings
-    # Add plot-type-specific customizations
-    plot_obj_custom <- plot_obj +
+    # Apply theme colors with font size from local settings
+    plot_obj +
       theme(
         panel.background = element_rect(fill = bg_color, color = NA),
         plot.background = element_rect(fill = bg_color, color = NA),
-        panel.border = panel_border,
-        panel.grid.major = element_line(color = grid_color, linewidth = grid_linewidth),
-        panel.grid.minor = element_line(color = grid_color, linewidth = grid_linewidth * 0.5),
-        text = element_text(color = text_color, size = base_font, face = "plain"),
-        axis.text = element_text(color = text_color, size = base_font - 1, face = "bold"),
-        axis.title = element_text(color = text_color, size = base_font + 2, face = "bold"),
-        axis.ticks = element_line(color = text_color, linewidth = 0.5),
-        axis.ticks.length = unit(0.15, "cm"),
-        axis.line = if (plot_theme %in% c("minimal", "publication")) {
-          element_line(color = text_color, linewidth = 0.8)
-        } else {
-          element_blank()
-        },
-        plot.title = element_text(color = text_color, size = base_font + 4, 
-                                 face = "bold", hjust = 0),
-        plot.subtitle = element_text(color = text_color, size = base_font + 1, 
-                                    face = "italic", hjust = 0),
-        plot.caption = element_text(color = text_color, size = base_font - 1, 
-                                   hjust = 0, face = "italic"),
-        legend.background = element_rect(fill = bg_color, 
-                                        color = if (plot_theme == "classic") text_color else NA,
-                                        linewidth = if (plot_theme == "classic") 0.5 else 0),
-        legend.text = element_text(color = text_color, size = base_font, face = "plain"),
-        legend.title = element_text(color = text_color, size = base_font + 1, face = "bold"),
-        legend.position = "bottom",
-        legend.key = element_rect(fill = bg_color, color = NA),
-        legend.key.size = unit(1.2, "lines"),
-        plot.margin = margin(15, 15, 15, 15)
+        panel.grid.major = element_line(color = grid_color),
+        panel.grid.minor = element_line(color = grid_color),
+        text = element_text(color = text_color, size = base_font),
+        title = element_text(color = text_color, size = base_font + 4),
+        axis.text = element_text(color = text_color, size = base_font - 1),
+        axis.title = element_text(color = text_color, size = base_font + 2),
+        legend.text = element_text(color = text_color, size = base_font),
+        legend.title = element_text(color = text_color, size = base_font + 1)
       )
-    
-    # Apply plot-type-specific line styles and widths
-    if (plot_type == "1") {
-      # Sample-based plot customizations
-      line_width <- if (!is.null(input$divSampleLineWidth)) input$divSampleLineWidth else 1.2
-      line_style <- if (!is.null(input$divSampleLineStyle)) input$divSampleLineStyle else "solid"
-      
-      plot_obj_custom <- plot_obj_custom + 
-        theme(
-          line = element_line(linewidth = line_width, linetype = line_style)
-        )
-    } else if (plot_type == "2") {
-      # Completeness plot customizations
-      line_width <- if (!is.null(input$divCompletenessLineWidth)) input$divCompletenessLineWidth else 1.2
-      line_style <- if (!is.null(input$divCompletenessLineStyle)) input$divCompletenessLineStyle else "solid"
-      
-      plot_obj_custom <- plot_obj_custom + 
-        theme(
-          line = element_line(linewidth = line_width, linetype = line_style)
-        )
-    } else if (plot_type == "3") {
-      # Coverage plot customizations
-      line_width <- if (!is.null(input$divCoverageLineWidth)) input$divCoverageLineWidth else 1.2
-      line_style <- if (!is.null(input$divCoverageLineStyle)) input$divCoverageLineStyle else "solid"
-      
-      plot_obj_custom <- plot_obj_custom + 
-        theme(
-          line = element_line(linewidth = line_width, linetype = line_style)
-        )
-    }
-    
-    plot_obj_custom
   })
   
   output$diversityPlot <- renderPlot({ 
