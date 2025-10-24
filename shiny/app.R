@@ -375,6 +375,19 @@ ui <- tagList(
             const selector = document.getElementById("colorPaletteSelector");
             if (selector) selector.value = colorPalette;
           }
+          
+          // Load global publication quality settings
+          const globalPubQuality = localStorage.getItem("ordin-global-pub-quality");
+          if (globalPubQuality !== null) {
+            const toggle = document.getElementById("globalPubQuality");
+            if (toggle) toggle.checked = globalPubQuality === "true";
+          }
+          
+          const globalPlotTheme = localStorage.getItem("ordin-global-plot-theme");
+          if (globalPlotTheme) {
+            const selector = document.getElementById("globalPlotTheme");
+            if (selector) selector.value = globalPlotTheme;
+          }
         }, 500);
         
         // Set window title to just "Ördin"
@@ -2125,29 +2138,6 @@ ui <- tagList(
         ),
         
         # ggplot2 theme
-        tags$div(
-          class = "mb-3",
-          style = "padding: 12px 0; border-bottom: 1px solid #3e3e42;",
-          tags$label(
-            style = "color: #cccccc; font-size: 0.9rem; display: block; margin-bottom: 8px;",
-            icon("chart-bar", style = "margin-right: 8px; color: #2e8b57;"),
-            "ggplot2 Theme"
-          ),
-          tags$select(
-            id = "ggplotThemeSelector",
-            class = "form-select form-select-sm",
-            style = "background: #1e1e1e; border: 1px solid #3e3e42; color: #cccccc; font-size: 0.85rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;",
-            onchange = "Shiny.setInputValue('settingsGgplotTheme', this.value);",
-            tags$option(value = "minimal", selected = "selected", "Minimal (Default)"),
-            tags$option(value = "bw", "Black & White"),
-            tags$option(value = "classic", "Classic"),
-            tags$option(value = "grey", "Grey"),
-            tags$option(value = "light", "Light"),
-            tags$option(value = "dark", "Dark"),
-            tags$option(value = "void", "Void")
-          )
-        ),
-        
         # Plot DPI
         tags$div(
           class = "mb-3",
@@ -3045,6 +3035,11 @@ server <- function(input, output, session) {
   
   # Get ggplot2 theme based on settings
   get_plot_theme <- function() {
+    # Check if global publication quality is enabled
+    global_pub_quality <- FALSE
+    # In a real implementation, this would check localStorage or a reactive value
+    # For now, we'll rely on the individual analysis settings
+    
     theme_name <- settings$ggplotTheme
     base_size <- 14
     
@@ -3344,6 +3339,38 @@ server <- function(input, output, session) {
         }
       }
     )
+  })
+  
+  # Global Publication Quality Settings
+  observeEvent(input$globalPubQuality, {
+    # Store the publication quality setting
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-global-pub-quality', '%s');",
+      input$globalPubQuality
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        if (input$globalPubQuality) "Global publication mode enabled" else "Global publication mode disabled",
+        type = "message",
+        duration = 2
+      )
+    }
+  })
+  
+  observeEvent(input$globalPlotTheme, {
+    shinyjs::runjs(sprintf(
+      "localStorage.setItem('ordin-global-plot-theme', '%s');",
+      input$globalPlotTheme
+    ))
+    
+    if (settings$notifications) {
+      showNotification(
+        paste("Global plot theme changed to:", input$globalPlotTheme),
+        type = "message",
+        duration = 2
+      )
+    }
   })
   
   # Settings reset handler
@@ -3771,28 +3798,28 @@ server <- function(input, output, session) {
         # Publication Settings
         hr(style = "border-color: #444; margin: 15px 0;"),
         tags$div(
-          style = "color: #2e8b57; font-weight: 600; font-size = 0.9rem; margin-bottom: 10px;",
+          style = "color: #2e8b57; font-weight: 600; font-size: 0.9rem; margin-bottom: 10px;",
           icon("file-export"), " Publication Quality"
         ),
         
-        checkboxInput("pubQuality", "Enable publication mode", value = FALSE),
+        checkboxInput("divPubQuality", "Enable publication mode", value = FALSE),
         
         conditionalPanel(
-          condition = "input.pubQuality == true",
+          condition = "input.divPubQuality == true",
           tags$div(
             style = "margin-left: 24px; margin-top: -10px; margin-bottom: 10px;",
-            selectInput("plotTheme", "Plot theme",
+            selectInput("divPlotTheme", "Plot theme",
                        choices = c("Dark (default)" = "dark",
                                   "Light" = "light",
                                   "Classic" = "classic",
                                   "Minimal" = "minimal",
                                   "Publication" = "publication"),
                        selected = "dark"),
-            numericInput("plotWidth", "Width (inches)", value = 8, min = 4, max = 20),
-            numericInput("plotHeight", "Height (inches)", value = 6, min = 4, max = 20),
-            numericInput("baseFontSize", "Base font size (pt)", value = 12, min = 8, max = 20),
-            numericInput("pointSize", "Point size", value = 3, min = 1, max = 8),
-            numericInput("labelSize", "Label size", value = 3.5, min = 2, max = 8)
+            numericInput("divPlotWidth", "Width (inches)", value = 8, min = 4, max = 20),
+            numericInput("divPlotHeight", "Height (inches)", value = 6, min = 4, max = 20),
+            numericInput("divBaseFontSize", "Base font size (pt)", value = 12, min = 8, max = 20),
+            numericInput("divPointSize", "Point size", value = 3, min = 1, max = 8),
+            numericInput("divLabelSize", "Label size", value = 3.5, min = 2, max = 8)
           )
         ),
         
@@ -4127,6 +4154,60 @@ server <- function(input, output, session) {
   # Diversity Estimation Module with enhanced UX
   diversityResults <- reactiveVal(NULL)
   
+  # Reactive diversity estimation that responds to input changes
+  diversityEstimationReactive <- reactive({
+    req(data())
+    cat("\n=== DIVERSITY ESTIMATION REACTIVE ===")
+    
+    # Validation
+    if (length(input$hillNumbers) == 0) {
+      return(NULL)
+    }
+    
+    # Run analysis
+    result <- tryCatch({
+      withProgress(message = 'Running iNEXT...', value = 0, {
+      incProgress(0.2, detail = "Validating...")
+      
+      inext_data <- data()$inext_data
+      actual_datatype <- input$dataType
+      
+      selected_q <- as.numeric(input$hillNumbers)
+      if (length(selected_q) == 0) selected_q <- c(0, 1, 2)
+      endpoint_value <- if (is.null(input$endpoint) || is.na(input$endpoint)) NULL else input$endpoint
+      
+      incProgress(0.4, detail = "Calculating diversity...")
+      
+      inext_out <- iNEXT(x = inext_data, q = selected_q, datatype = actual_datatype,
+                        knots = input$knots, nboot = input$nboot, conf = input$conf, endpoint = endpoint_value)
+      
+      incProgress(0.8, detail = "Generating plot...")
+      
+      # Generate base plot
+      plot_obj <- ggiNEXT(inext_out, type = as.numeric(input$plotType), se = TRUE, 
+                         facet.var = "Order.q", color.var = "Assemblage") + 
+        labs(title = "Diversity Estimation (iNEXT)",
+             subtitle = paste0("Hill numbers q=", paste(selected_q, collapse = ", "), " | ", 
+                             input$conf * 100, "% CI")) +
+        get_plot_theme() +
+        theme(plot.title = element_text(size = 16, face = "bold"), legend.position = "bottom")
+      
+      incProgress(1)
+        
+        list(summary = inext_out$AsyEst, plot = plot_obj, full_output = inext_out)
+      })
+    }, error = function(e) {
+      showNotification(
+        paste("Analysis failed:", e$message),
+        type = "error",
+        duration = 8
+      )
+      return(NULL)
+    })
+    
+    result
+  })
+  
   observeEvent(input$runDiversity, {
     cat("\n=== RUN DIVERSITY BUTTON CLICKED ===")
     req(data())
@@ -4159,96 +4240,8 @@ server <- function(input, output, session) {
     )
     waiter$show()
     
-    # Run analysis
-    result <- tryCatch({
-      withProgress(message = 'Running iNEXT...', value = 0, {
-      incProgress(0.2, detail = "Validating...")
-      
-      inext_data <- data()$inext_data
-      actual_datatype <- input$dataType
-      
-      selected_q <- as.numeric(input$hillNumbers)
-      if (length(selected_q) == 0) selected_q <- c(0, 1, 2)
-      endpoint_value <- if (is.null(input$endpoint) || is.na(input$endpoint)) NULL else input$endpoint
-      
-      incProgress(0.4, detail = "Calculating diversity...")
-      
-      inext_out <- iNEXT(x = inext_data, q = selected_q, datatype = actual_datatype,
-                        knots = input$knots, nboot = input$nboot, conf = input$conf, endpoint = endpoint_value)
-      
-      incProgress(0.8, detail = "Generating plot...")
-      
-      # Generate base plot
-      plot_obj <- ggiNEXT(inext_out, type = as.numeric(input$plotType), se = TRUE, 
-                         facet.var = "Order.q", color.var = "Assemblage") + 
-        labs(title = "Diversity Estimation (iNEXT)",
-             subtitle = paste0("Hill numbers q=", paste(selected_q, collapse = ", "), " | ", 
-                             input$conf * 100, "% CI")) +
-        get_plot_theme() +
-        theme(plot.title = element_text(size = 16, face = "bold"), legend.position = "bottom")
-      
-      # Apply publication quality settings if enabled
-      if (!is.null(input$pubQuality) && input$pubQuality) {
-        # Get theme settings
-        plot_theme <- if (!is.null(input$plotTheme)) input$plotTheme else "dark"
-        
-        # Set theme colors with improved contrast
-        if (plot_theme == "dark") {
-          bg_color <- "#1a1a1a"
-          text_color <- "#ffffff"
-          grid_color <- "#3a3a3a"
-        } else if (plot_theme == "light") {
-          bg_color <- "#ffffff"
-          text_color <- "#000000"
-          grid_color <- "#d0d0d0"
-        } else if (plot_theme == "classic") {
-          bg_color <- "#fafafa"
-          text_color <- "#000000"
-          grid_color <- "#b0b0b0"
-        } else if (plot_theme == "minimal") {
-          bg_color <- "#ffffff"
-          text_color <- "#1a1a1a"
-          grid_color <- "#e8e8e8"
-        } else if (plot_theme == "publication") {
-          bg_color <- "#ffffff"
-          text_color <- "#000000"
-          grid_color <- "#c0c0c0"
-        } else {
-          # Default to dark
-          bg_color <- "#1a1a1a"
-          text_color <- "#ffffff"
-          grid_color <- "#3a3a3a"
-        }
-        
-        # Apply theme colors
-        plot_obj <- plot_obj +
-          theme(
-            panel.background = element_rect(fill = bg_color, color = NA),
-            plot.background = element_rect(fill = bg_color, color = NA),
-            panel.grid.major = element_line(color = grid_color),
-            panel.grid.minor = element_line(color = grid_color),
-            text = element_text(color = text_color),
-            title = element_text(color = text_color),
-            axis.text = element_text(color = text_color),
-            axis.title = element_text(color = text_color),
-            legend.text = element_text(color = text_color),
-            legend.title = element_text(color = text_color)
-          )
-      }
-      
-      incProgress(1)
-        
-        list(summary = inext_out$AsyEst, plot = plot_obj, full_output = inext_out)
-      })
-    }, error = function(e) {
-      waiter$hide()
-      showNotification(
-        paste("Analysis failed:", e$message),
-        type = "error",
-        duration = 8
-      )
-      return(NULL)
-    })
+    # Get the reactive result
+    result <- diversityEstimationReactive()
     
     if (!is.null(result)) {
       diversityResults(result)
@@ -4271,9 +4264,107 @@ server <- function(input, output, session) {
              class = 'display compact stripe hover')
   })
   
+  # Reactive diversity plot that responds to publication quality settings
+  diversityPlotReactive <- reactive({
+    req(diversityResults())
+    
+    result <- diversityResults()
+    req(result$full_output)
+    
+    # Get current publication quality settings
+    pub_quality <- input$divPubQuality
+    plot_theme_input <- input$divPlotTheme
+    base_font_size <- input$divBaseFontSize
+    plot_type <- input$plotType
+    
+    # Regenerate the base plot from iNEXT output
+    plot_obj <- ggiNEXT(result$full_output, type = as.numeric(plot_type), se = TRUE, 
+                       facet.var = "Order.q", color.var = "Assemblage") + 
+      labs(title = "Diversity Estimation (iNEXT)",
+           subtitle = paste0("Hill numbers q=", paste(as.numeric(input$hillNumbers), collapse = ", "), " | ", 
+                           input$conf * 100, "% CI")) +
+      get_plot_theme() +
+      theme(plot.title = element_text(size = 16, face = "bold"), legend.position = "bottom")
+    
+    # Apply theme settings - use publication quality settings if enabled, otherwise use global settings
+    plot_theme <- settings$ggplotTheme  # Default to global setting
+    
+    # Override with local publication quality settings if enabled
+    if (!is.null(pub_quality) && pub_quality && !is.null(plot_theme_input)) {
+      plot_theme <- plot_theme_input
+    }
+    
+    # Get base font size from local settings if enabled
+    base_font <- 12  # default
+    if (!is.null(pub_quality) && pub_quality && !is.null(base_font_size)) {
+      base_font <- base_font_size
+    }
+    
+    # Set theme colors with improved contrast based on selected theme
+    if (plot_theme == "dark") {
+      bg_color <- "#1a1a1a"
+      text_color <- "#ffffff"
+      grid_color <- "#3a3a3a"
+    } else if (plot_theme == "light") {
+      bg_color <- "#ffffff"
+      text_color <- "#000000"
+      grid_color <- "#d0d0d0"
+    } else if (plot_theme == "classic") {
+      bg_color <- "#fafafa"
+      text_color <- "#000000"
+      grid_color <- "#b0b0b0"
+    } else if (plot_theme == "minimal") {
+      bg_color <- "#ffffff"
+      text_color <- "#1a1a1a"
+      grid_color <- "#e8e8e8"
+    } else if (plot_theme == "bw") {
+      bg_color <- "#ffffff"
+      text_color <- "#000000"
+      grid_color <- "#c0c0c0"
+    } else if (plot_theme == "grey" || plot_theme == "gray") {
+      bg_color <- "#f0f0f0"
+      text_color <- "#000000"
+      grid_color <- "#d0d0d0"
+    } else if (plot_theme == "void") {
+      bg_color <- "#ffffff"
+      text_color <- "#000000"
+      grid_color <- "#e0e0e0"
+    } else {
+      # Default to minimal (global default)
+      bg_color <- "#ffffff"
+      text_color <- "#1a1a1a"
+      grid_color <- "#e8e8e8"
+    }
+    
+    # Apply theme colors with font size from local settings
+    plot_obj +
+      theme(
+        panel.background = element_rect(fill = bg_color, color = NA),
+        plot.background = element_rect(fill = bg_color, color = NA),
+        panel.grid.major = element_line(color = grid_color),
+        panel.grid.minor = element_line(color = grid_color),
+        text = element_text(color = text_color, size = base_font),
+        title = element_text(color = text_color, size = base_font + 4),
+        axis.text = element_text(color = text_color, size = base_font - 1),
+        axis.title = element_text(color = text_color, size = base_font + 2),
+        legend.text = element_text(color = text_color, size = base_font),
+        legend.title = element_text(color = text_color, size = base_font + 1)
+      )
+  })
+  
   output$diversityPlot <- renderPlot({ 
-    req(diversityResults()); 
-    diversityResults()$plot 
+    req(diversityPlotReactive())
+    # Add reactive dependency on local publication quality settings
+    pub_quality <- input$divPubQuality
+    plot_theme <- input$divPlotTheme
+    plot_width <- input$divPlotWidth
+    plot_height <- input$divPlotHeight
+    base_font <- input$divBaseFontSize
+    point_size <- input$divPointSize
+    label_size <- input$divLabelSize
+    isolate({
+      diversityPlotReactive()
+    })
   })
   
   output$downloadDiversityTable <- downloadHandler(
@@ -4293,15 +4384,15 @@ server <- function(input, output, session) {
       plot_width <- 12  # default
       plot_height <- 8  # default
       
-      if (!is.null(input$pubQuality) && input$pubQuality && !is.null(input$plotWidth) && !is.null(input$plotHeight)) {
-        plot_width <- input$plotWidth
-        plot_height <- input$plotHeight
+      if (!is.null(input$divPubQuality) && input$divPubQuality && !is.null(input$divPlotWidth) && !is.null(input$divPlotHeight)) {
+        plot_width <- input$divPlotWidth
+        plot_height <- input$divPlotHeight
       }
       
       # Get background color based on theme
       bg_color <- "white"
-      if (!is.null(input$pubQuality) && input$pubQuality && !is.null(input$plotTheme)) {
-        plot_theme <- input$plotTheme
+      if (!is.null(input$divPubQuality) && input$divPubQuality && !is.null(input$divPlotTheme)) {
+        plot_theme <- input$divPlotTheme
         if (plot_theme == "dark") {
           bg_color <- "#1a1a1a"
         } else if (plot_theme %in% c("light", "minimal", "classic", "publication")) {
@@ -4309,12 +4400,15 @@ server <- function(input, output, session) {
         }
       }
       
+      # Get the reactive plot
+      plot_to_save <- diversityPlotReactive()
+      
       if (format == "png") {
-        ggsave(file, plot = diversityResults()$plot, device = "png", width = plot_width, height = plot_height, dpi = plot_dpi, bg = bg_color)
+        ggsave(file, plot = plot_to_save, device = "png", width = plot_width, height = plot_height, dpi = plot_dpi, bg = bg_color)
       } else if (format == "tiff") {
-        ggsave(file, plot = diversityResults()$plot, device = "tiff", width = plot_width, height = plot_height, dpi = plot_dpi, bg = bg_color)
+        ggsave(file, plot = plot_to_save, device = "tiff", width = plot_width, height = plot_height, dpi = plot_dpi, bg = bg_color)
       } else {
-        ggsave(file, plot = diversityResults()$plot, device = "svg", width = plot_width, height = plot_height, bg = bg_color)
+        ggsave(file, plot = plot_to_save, device = "svg", width = plot_width, height = plot_height, bg = bg_color)
       }
     }
   )
@@ -4832,7 +4926,13 @@ server <- function(input, output, session) {
       cat("\nAxis names:", paste(axis_names, collapse = ", "))
       
       # Determine background color and theme based on selection FIRST
-      plot_theme <- if (!is.null(input$plotTheme)) input$plotTheme else "dark"
+      # Use publication quality settings if enabled, otherwise use global settings
+      plot_theme <- settings$ggplotTheme  # Default to global setting
+      
+      # Override with local publication quality settings if enabled
+      if (!is.null(input$pubQuality) && input$pubQuality && !is.null(input$plotTheme)) {
+        plot_theme <- input$plotTheme
+      }
       
       # Set theme colors with improved contrast
       if (plot_theme == "dark") {
@@ -5249,7 +5349,17 @@ server <- function(input, output, session) {
   
   output$ordinationPlot <- renderPlot({ 
     req(ordinationPlotReactive())
-    ordinationPlotReactive()
+    # Add reactive dependency on local publication quality settings
+    pub_quality <- input$pubQuality
+    plot_theme <- input$plotTheme
+    plot_width <- input$plotWidth
+    plot_height <- input$plotHeight
+    base_font <- input$baseFontSize
+    point_size <- input$pointSize
+    label_size <- input$labelSize
+    isolate({
+      ordinationPlotReactive()
+    })
   })
   
   output$downloadOrdinationPlot <- downloadHandler(
@@ -5259,10 +5369,30 @@ server <- function(input, output, session) {
       plot_dpi <- get_plot_dpi()
       plot_to_save <- ordinationPlotReactive()
       
+      # Get plot dimensions - use publication quality settings if enabled
+      plot_width <- 12  # default
+      plot_height <- 8  # default
+      
+      if (!is.null(input$pubQuality) && input$pubQuality && !is.null(input$plotWidth) && !is.null(input$plotHeight)) {
+        plot_width <- input$plotWidth
+        plot_height <- input$plotHeight
+      }
+      
+      # Get background color based on theme
+      bg_color <- "white"
+      if (!is.null(input$pubQuality) && input$pubQuality && !is.null(input$plotTheme)) {
+        plot_theme <- input$plotTheme
+        if (plot_theme == "dark") {
+          bg_color <- "#1a1a1a"
+        } else if (plot_theme %in% c("light", "minimal", "classic", "publication")) {
+          bg_color <- "white"
+        }
+      }
+      
       if (format == "png") {
-        ggsave(file, plot = plot_to_save, device = "png", width = 12, height = 8, dpi = plot_dpi, bg = "#222222")
+        ggsave(file, plot = plot_to_save, device = "png", width = plot_width, height = plot_height, dpi = plot_dpi, bg = bg_color)
       } else {
-        ggsave(file, plot = plot_to_save, device = "svg", width = 12, height = 8, bg = "#222222")
+        ggsave(file, plot = plot_to_save, device = "svg", width = plot_width, height = plot_height, bg = bg_color)
       }
     }
   )
