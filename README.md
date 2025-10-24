@@ -459,7 +459,7 @@ If you find Ördin useful, please consider giving it a ⭐️ on GitHub!
 
 - **Issues**: [GitHub Issues](https://github.com/jm0535/0rdin/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/jm0535/0rdin/discussions)
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 
 ## Citation
 

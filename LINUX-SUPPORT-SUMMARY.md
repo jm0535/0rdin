@@ -370,7 +370,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
 ## Support Resources
 
 ### Get Help
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 - **Documentation**: See file list above
 - **Sample Data**: Included in `sample-data/`
 

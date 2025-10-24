@@ -13,7 +13,7 @@ git init
 
 # Configure git user (if not already set globally)
 git config user.name "Jimmy Moses"
-git config user.email "jmoses@pnguot.ac.pg"
+git config user.email "jimmy.moses@pnguot.ac.pg"
 
 # Add all files
 git add .

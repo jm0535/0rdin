@@ -203,7 +203,7 @@ sudo dnf install ordin-1.0.0-1.x86_64.rpm
 
 ## Support
 
-**Email**: jmoses@pnguot.ac.pg
+**Email**: jimmy.moses@pnguot.ac.pg
 
 **Issues**: Report on GitHub (if applicable)
 

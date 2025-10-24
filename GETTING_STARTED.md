@@ -269,7 +269,7 @@ setTimeout(() => {
 ## 🤝 Support
 
 Having issues? Reach out:
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 - **GitHub**: Open an issue on the repository
 
 ---

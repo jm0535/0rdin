@@ -13,7 +13,7 @@ We release patches for security vulnerabilities in the following versions:
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to: **jmoses@pnguot.ac.pg**
+Instead, please report them via email to: **jimmy.moses@pnguot.ac.pg**
 
 Please include the following information:
 
@@ -87,7 +87,7 @@ We regularly update dependencies to address known vulnerabilities:
 
 ## Contact
 
-For any security concerns: **jmoses@pnguot.ac.pg**
+For any security concerns: **jimmy.moses@pnguot.ac.pg**
 
 For general issues: https://github.com/jm0535/0rdin/issues
 

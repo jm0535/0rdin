@@ -1135,7 +1135,7 @@ ui <- tagList(
             id = "nav-about",
             class = "help-nav-btn active",
             style = "text-align: left; padding: 12px 20px; background: #2e8b57; border: none; color: white; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
-            onclick = "switchHelpSection('about'); setActiveHelpNav(this);",
+            onclick = "switchHelpSection('about'); setActiveHelpNav(this); return false;",
             tags$div(style = "font-size: 1.2em;", icon("info-circle")),
             tags$div("About Ördin")
           ),
@@ -1145,7 +1145,7 @@ ui <- tagList(
             id = "nav-faq",
             class = "help-nav-btn",
             style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
-            onclick = "switchHelpSection('faq'); setActiveHelpNav(this);",
+            onclick = "switchHelpSection('faq'); setActiveHelpNav(this); return false;",
             tags$div(style = "font-size: 1.2em;", icon("question-circle")),
             tags$div("Frequently Asked Questions")
           ),
@@ -1155,7 +1155,7 @@ ui <- tagList(
             id = "nav-guides",
             class = "help-nav-btn",
             style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
-            onclick = "switchHelpSection('guides'); setActiveHelpNav(this);",
+            onclick = "switchHelpSection('guides'); setActiveHelpNav(this); return false;",
             tags$div(style = "font-size: 1.2em;", icon("book")),
             tags$div("User Guides")
           ),
@@ -1165,7 +1165,7 @@ ui <- tagList(
             id = "nav-changelog",
             class = "help-nav-btn",
             style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
-            onclick = "switchHelpSection('changelog'); setActiveHelpNav(this);",
+            onclick = "switchHelpSection('changelog'); setActiveHelpNav(this); return false;",
             tags$div(style = "font-size: 1.2em;", icon("history")),
             tags$div("Changelog")
           ),
@@ -1175,7 +1175,7 @@ ui <- tagList(
             id = "nav-specs",
             class = "help-nav-btn",
             style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
-            onclick = "switchHelpSection('specs'); setActiveHelpNav(this);",
+            onclick = "switchHelpSection('specs'); setActiveHelpNav(this); return false;",
             tags$div(style = "font-size: 1.2em;", icon("cogs")),
             tags$div("Technical Specifications")
           ),
@@ -1185,7 +1185,7 @@ ui <- tagList(
             id = "nav-author",
             class = "help-nav-btn",
             style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
-            onclick = "switchHelpSection('author'); setActiveHelpNav(this);",
+            onclick = "switchHelpSection('author'); setActiveHelpNav(this); return false;",
             tags$div(style = "font-size: 1.2em;", icon("user")),
             tags$div("Author & Credits")
           ),
@@ -1195,7 +1195,7 @@ ui <- tagList(
             id = "nav-references",
             class = "help-nav-btn",
             style = "text-align: left; padding: 12px 20px; background: transparent; border: none; color: #cccccc; cursor: pointer; border-radius: 0; display: flex; align-items: center; gap: 10px;",
-            onclick = "switchHelpSection('references'); setActiveHelpNav(this);",
+            onclick = "switchHelpSection('references'); setActiveHelpNav(this); return false;",
             tags$div(style = "font-size: 1.2em;", icon("book-open")),
             tags$div("References")
           )
@@ -1713,7 +1713,7 @@ ui <- tagList(
             tags$div(
               tags$h3("Jimmy Moses"),
               tags$p(class = "mb-1", "Lead Developer & Maintainer"),
-              tags$p(class = "text-muted", "jmoses@pnguot.ac.pg")
+              tags$p(class = "text-muted", "jimmy.moses@pnguot.ac.pg")
             )
           ),
           
@@ -1819,7 +1819,7 @@ ui <- tagList(
     ),
     
     # JavaScript for Help Page Navigation
-    tags$script("
+    tags$script(HTML("
       // Function to switch between help sections
       function switchHelpSection(sectionId) {
         // Hide all sections
@@ -1828,18 +1828,20 @@ ui <- tagList(
         });
         
         // Show the selected section
-        document.getElementById('section-' + sectionId).style.display = 'block';
-        
-        // Animate the content appearance
-        const content = document.getElementById('section-' + sectionId);
-        content.style.opacity = '0';
-        content.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-          content.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-          content.style.opacity = '1';
-          content.style.transform = 'translateY(0)';
-        }, 50);
+        const targetSection = document.getElementById('section-' + sectionId);
+        if (targetSection) {
+          targetSection.style.display = 'block';
+          
+          // Animate the content appearance
+          targetSection.style.opacity = '0';
+          targetSection.style.transform = 'translateY(20px)';
+          
+          setTimeout(() => {
+            targetSection.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            targetSection.style.opacity = '1';
+            targetSection.style.transform = 'translateY(0)';
+          }, 50);
+        }
       }
       
       // Function to set active navigation button
@@ -1852,9 +1854,11 @@ ui <- tagList(
         });
         
         // Add active class to clicked button
-        button.classList.add('active');
-        button.style.background = '#2e8b57';
-        button.style.color = 'white';
+        if (button) {
+          button.classList.add('active');
+          button.style.background = '#2e8b57';
+          button.style.color = 'white';
+        }
       }
       
       // Add hover effects to nav buttons
@@ -1871,9 +1875,24 @@ ui <- tagList(
               this.style.background = 'transparent';
             }
           });
+          
+          // Add click event listeners
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get section ID from button ID
+            const buttonId = this.id;
+            const sectionId = buttonId.replace('nav-', '');
+            
+            // Switch to the section
+            switchHelpSection(sectionId);
+            
+            // Set active button
+            setActiveHelpNav(this);
+          });
         });
       });
-    ")
+    "))
   ),
   
   # Settings Button (far right)

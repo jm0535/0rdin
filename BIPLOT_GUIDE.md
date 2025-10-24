@@ -299,7 +299,7 @@ When viewing ordination plots:
 
 **Author:** Jimmy Moses  
 **Application:** Ördin v3.0  
-**Email:** jmoses@pnguot.ac.pg  
+**Email:** jimmy.moses@pnguot.ac.pg  
 **Date:** 2025
 
 **Tip:** Start with arrows only, then add ellipses. This helps you understand each component before combining them for complex biplots.

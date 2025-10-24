@@ -388,7 +388,7 @@ All documentation is updated for v2.3.0:
 Need help migrating?
 
 - **GitHub Issues**: https://github.com/jm0535/0rdin/issues
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 - **Discussions**: https://github.com/jm0535/0rdin/discussions
 
 ---

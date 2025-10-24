@@ -263,7 +263,7 @@ R -e "installed.packages()[, c('Package', 'Version')]"
 - 💻 **Dev Guide**: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
 - 📊 **Sample Data**: [sample-data/README.md](sample-data/README.md)
 
-**Questions?** Email: jmoses@pnguot.ac.pg
+**Questions?** Email: jimmy.moses@pnguot.ac.pg
 
 ---
 

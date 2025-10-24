@@ -19,7 +19,7 @@ Unacceptable behaviors include:
 
 ## Enforcement
 
-Instances of abusive behavior may be reported to jmoses@pnguot.ac.pg. All complaints will be reviewed and investigated.
+Instances of abusive behavior may be reported to jimmy.moses@pnguot.ac.pg. All complaints will be reviewed and investigated.
 
 ## Attribution
 

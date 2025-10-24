@@ -555,7 +555,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
 - **Documentation**: [README.md](README.md)
 - **Quick Start**: [GETTING_STARTED.md](GETTING_STARTED.md)
 - **Development**: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 
 ---
 

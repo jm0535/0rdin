@@ -4,7 +4,7 @@
   "version": "3.0.0",
   "description": "A Community Ecology Analysis Platform - Enterprise-Grade v3.0 with Advanced UI/UX, Multi-Format Export, Keyboard Shortcuts, Auto-Save, Data Preview, Loading Screens, and Full Accessibility Support",
   "main": "src/index.js",
-  "author": "Jimmy Moses <jmoses@pnguot.ac.pg>",
+  "author": "Jimmy Moses <jimmy.moses@pnguot.ac.pg>",
   "license": "MIT",
   "scripts": {
     "start": "electron-forge start",

@@ -336,7 +336,7 @@ Users can provide feedback via:
 
 - **GitHub Issues**: Documentation bugs/errors
 - **GitHub Discussions**: Suggestions/improvements
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 
 ---
 

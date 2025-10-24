@@ -515,7 +515,7 @@ tags$div(
 ## Credits
 
 **Author**: Jimmy Moses  
-**Email**: jmoses@pnguot.ac.pg  
+**Email**: jimmy.moses@pnguot.ac.pg  
 **Version**: 3.0  
 **Date**: 2025  
 

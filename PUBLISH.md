@@ -244,4 +244,4 @@ git pull origin main
 
 Your repository at `https://github.com/jm0535/ordin` will be live and ready for the world to use!
 
-**Questions?** Email jmoses@pnguot.ac.pg
+**Questions?** Email jimmy.moses@pnguot.ac.pg

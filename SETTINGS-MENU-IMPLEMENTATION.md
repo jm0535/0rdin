@@ -307,5 +307,5 @@ Implementation Date: 2025-10-24
 
 ---
 
-**Author**: Jimmy Moses (jmoses@pnguot.ac.pg)  
+**Author**: Jimmy Moses (jimmy.moses@pnguot.ac.pg)  
 **License**: MIT

@@ -249,7 +249,7 @@ None! All changes are backward compatible with v2.3 data and workflows.
 
 ## 🐛 KNOWN ISSUES
 
-None currently. Please report issues to: jmoses@pnguot.ac.pg
+None currently. Please report issues to: jimmy.moses@pnguot.ac.pg
 
 ## 🔜 FUTURE ENHANCEMENTS (v3.1+)
 
@@ -272,7 +272,7 @@ None currently. Please report issues to: jmoses@pnguot.ac.pg
 
 ## 👥 CREDITS
 
-**Developed by**: Jimmy Moses (jmoses@pnguot.ac.pg)
+**Developed by**: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
 **Version**: 3.0.0
 **Release Date**: 2025-10-23
 **License**: MIT

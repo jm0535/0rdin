@@ -373,7 +373,7 @@ npm install @electron-forge/cli@latest --save-dev
 ## License & Attribution
 
 - **License**: MIT (see LICENSE file)
-- **Author**: Jimmy Moses (jmoses@pnguot.ac.pg)
+- **Author**: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
 - **Year**: 2025
 - **Dependencies**: See package.json and R package list
 

@@ -406,7 +406,7 @@ Contributors will be:
 ## Questions?
 
 - Open an issue for general questions
-- Email jmoses@pnguot.ac.pg for private inquiries
+- Email jimmy.moses@pnguot.ac.pg for private inquiries
 - Check [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for architecture details
 
 ## License

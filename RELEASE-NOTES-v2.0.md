@@ -491,7 +491,7 @@ See LICENSE file for complete terms.
 ### Get Help
 - **GitHub Issues**: [Report bugs or request features](https://github.com/jm0535/0rdin/issues)
 - **GitHub Discussions**: [Ask questions or share ideas](https://github.com/jm0535/0rdin/discussions)
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 
 ### Stay Updated
 - \u2b50 **Star the repository** to show support

@@ -368,7 +368,7 @@ ordin/
 ## Credits & Acknowledgments
 
 **Development**:
-- Jimmy Moses (jmoses@pnguot.ac.pg) - Lead Developer
+- Jimmy Moses (jimmy.moses@pnguot.ac.pg) - Lead Developer
 
 **Technology Stack**:
 - R Shiny - UI framework
@@ -399,7 +399,7 @@ ordin/
 ## Contact & Support
 
 **Author**: Jimmy Moses  
-**Email**: jmoses@pnguot.ac.pg  
+**Email**: jimmy.moses@pnguot.ac.pg  
 **Project**: Ördin - Biodiversity Analysis Platform  
 **License**: GPL-2  
 **Repository**: https://github.com/jm0535/0rdin

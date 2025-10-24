@@ -287,7 +287,7 @@ with professional theme system. GitHub: https://github.com/jm0535/0rdin
 Having issues or questions?
 
 - **GitHub Issues**: https://github.com/jm0535/0rdin/issues
-- **Email**: jmoses@pnguot.ac.pg
+- **Email**: jimmy.moses@pnguot.ac.pg
 - **Discussions**: https://github.com/jm0535/0rdin/discussions
 
 ---

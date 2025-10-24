@@ -2,7 +2,7 @@
 # =========================
 # Use this to properly filter ciliates data for incidence_raw analysis
 # 
-# Author: Jimmy Moses (jmoses@pnguot.ac.pg)
+# Author: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
 # Date: 2025-10-23
 
 cat("\n=== ÖRDIN DATA FILTER FOR CILIATES ===\n\n")
