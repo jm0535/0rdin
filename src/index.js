@@ -259,7 +259,7 @@ function createSplashScreen() {
             <span id="status">Initializing...</span>
           </div>
         </div>
-        <div class="version">Version 1.0</div>
+        <div class="version">Version 3.0</div>
       </div>
       <script>
         const statusMessages = [
