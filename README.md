@@ -10,13 +10,13 @@
 [![R](https://img.shields.io/badge/R-%E2%89%A54.4-blue)](https://www.r-project.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%20%7C%2020-green)](https://nodejs.org/)
 
-**Ördin** - Enterprise-grade desktop application for community ecology analysis, combining the power of R with modern UX design. Complete modular architecture with diversity estimation, ordination, and ecological indices!
+**Ördin** - Open-source Enterprise-grade desktop application for community ecology analysis, combining the power of R with modern UX design. Complete modular architecture with diversity estimation, ordination, and ecological indices!
 
 </div>
 
 ## Overview
 
-Ördin is an enterprise-grade Electron-based desktop application that combines R's powerful community ecology packages (`vegan`, `iNEXT`) with a modern, professional interface built using Shiny and Bootstrap 5. Analyze community composition, diversity patterns, ordination, and ecological indices with publication-quality exports and a professional user experience.
+Ördin is an open-source enterprise-grade Electron-based desktop application that combines R's powerful community ecology packages (`vegan`, `iNEXT`) with a modern, professional interface built using Shiny and Bootstrap 5. Analyze community composition, diversity patterns, ordination, and ecological indices with publication-quality exports and a professional user experience.
 
 ### ✨ What's New in v3.0
 

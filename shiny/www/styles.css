@@ -747,3 +747,45 @@ body.font-large h2 { font-size: 2.0rem !important; }
 body.font-large h3 { font-size: 1.7rem !important; }
 body.font-large h4 { font-size: 1.4rem !important; }
 body.font-large h5 { font-size: 1.15rem !important; }
+
+/* ========================================
+   VSCODE-STYLE COLLAPSIBLE SIDEBARS
+   ======================================== */
+.vertical-icon-strip {
+  display: none !important;
+}
+
+.vertical-icon-strip:not(.collapsed) {
+  display: flex !important;
+}
+
+.data-settings.collapsed,
+.diversity-settings.collapsed {
+  width: 0 !important;
+  margin-left: -350px !important;
+  overflow: hidden !important;
+}
+
+/* Show icon strip by default when page loads */
+#data-icon-strip,
+#diversity-icon-strip {
+  display: flex !important;
+}
+
+.vertical-nav-btn:hover {
+  transform: translateX(3px);
+  box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3);
+}
+
+/* Ensure icons are properly sized and aligned */
+.vertical-icon-strip .fa,
+.vertical-icon-strip .fas,
+.vertical-icon-strip .far {
+  font-size: 1.4em !important;
+}
+
+/* Adjust icon strip for better visibility */
+.vertical-icon-strip {
+  z-index: 100;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
