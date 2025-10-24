@@ -31,11 +31,21 @@ ui <- tagList(
   waiter_show_on_load(
     html = tagList(
       spin_loaders(42, color = "#2e8b57"),  # Professional spinner with Ördin green
-      h2("Ördin", style = "color: #2e8b57; margin-top: 30px; font-weight: 800; font-size: 3em; letter-spacing: 2px;"),
+      h2("Ördin v3.0", style = "color: #2e8b57; margin-top: 30px; font-weight: 800; font-size: 3em; letter-spacing: 2px;"),
       p("Community Ecology Analysis Platform", style = "color: #999; font-size: 1.1rem; margin-top: 10px; letter-spacing: 1px;"),
       tags$div(
         style = "margin-top: 30px; color: #666; font-size: 0.9rem;",
         icon("flask"), " Loading modules and initializing environment..."
+      ),
+      tags$div(
+        style = "margin-top: 20px; color: #2e8b57; font-size: 1rem; font-weight: bold;",
+        "Version 3.0 - Enterprise Edition"
+      ),
+      tags$div(
+        style = "position: absolute; bottom: 20px; width: 100%; text-align: center; color: #666; font-size: 0.8rem;",
+        "Developed by Jimmy Moses (jimmy.moses@pnguot.ac.pg)",
+        br(),
+        "PNGUOT Community Ecology Research Group"
       )
     ),
     color = "#1a1a1a"
