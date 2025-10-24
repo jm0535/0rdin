@@ -3768,6 +3768,34 @@ server <- function(input, output, session) {
           )
         ),
         
+        # Publication Settings
+        hr(style = "border-color: #444; margin: 15px 0;"),
+        tags$div(
+          style = "color: #2e8b57; font-weight: 600; font-size = 0.9rem; margin-bottom: 10px;",
+          icon("file-export"), " Publication Quality"
+        ),
+        
+        checkboxInput("pubQuality", "Enable publication mode", value = FALSE),
+        
+        conditionalPanel(
+          condition = "input.pubQuality == true",
+          tags$div(
+            style = "margin-left: 24px; margin-top: -10px; margin-bottom: 10px;",
+            selectInput("plotTheme", "Plot theme",
+                       choices = c("Dark (default)" = "dark",
+                                  "Light" = "light",
+                                  "Classic" = "classic",
+                                  "Minimal" = "minimal",
+                                  "Publication" = "publication"),
+                       selected = "dark"),
+            numericInput("plotWidth", "Width (inches)", value = 8, min = 4, max = 20),
+            numericInput("plotHeight", "Height (inches)", value = 6, min = 4, max = 20),
+            numericInput("baseFontSize", "Base font size (pt)", value = 12, min = 8, max = 20),
+            numericInput("pointSize", "Point size", value = 3, min = 1, max = 8),
+            numericInput("labelSize", "Label size", value = 3.5, min = 2, max = 8)
+          )
+        ),
+        
         actionButton(
           "runDiversity",
           "Run Estimation",
@@ -4150,6 +4178,7 @@ server <- function(input, output, session) {
       
       incProgress(0.8, detail = "Generating plot...")
       
+      # Generate base plot
       plot_obj <- ggiNEXT(inext_out, type = as.numeric(input$plotType), se = TRUE, 
                          facet.var = "Order.q", color.var = "Assemblage") + 
         labs(title = "Diversity Estimation (iNEXT)",
@@ -4157,6 +4186,55 @@ server <- function(input, output, session) {
                              input$conf * 100, "% CI")) +
         get_plot_theme() +
         theme(plot.title = element_text(size = 16, face = "bold"), legend.position = "bottom")
+      
+      # Apply publication quality settings if enabled
+      if (!is.null(input$pubQuality) && input$pubQuality) {
+        # Get theme settings
+        plot_theme <- if (!is.null(input$plotTheme)) input$plotTheme else "dark"
+        
+        # Set theme colors with improved contrast
+        if (plot_theme == "dark") {
+          bg_color <- "#1a1a1a"
+          text_color <- "#ffffff"
+          grid_color <- "#3a3a3a"
+        } else if (plot_theme == "light") {
+          bg_color <- "#ffffff"
+          text_color <- "#000000"
+          grid_color <- "#d0d0d0"
+        } else if (plot_theme == "classic") {
+          bg_color <- "#fafafa"
+          text_color <- "#000000"
+          grid_color <- "#b0b0b0"
+        } else if (plot_theme == "minimal") {
+          bg_color <- "#ffffff"
+          text_color <- "#1a1a1a"
+          grid_color <- "#e8e8e8"
+        } else if (plot_theme == "publication") {
+          bg_color <- "#ffffff"
+          text_color <- "#000000"
+          grid_color <- "#c0c0c0"
+        } else {
+          # Default to dark
+          bg_color <- "#1a1a1a"
+          text_color <- "#ffffff"
+          grid_color <- "#3a3a3a"
+        }
+        
+        # Apply theme colors
+        plot_obj <- plot_obj +
+          theme(
+            panel.background = element_rect(fill = bg_color, color = NA),
+            plot.background = element_rect(fill = bg_color, color = NA),
+            panel.grid.major = element_line(color = grid_color),
+            panel.grid.minor = element_line(color = grid_color),
+            text = element_text(color = text_color),
+            title = element_text(color = text_color),
+            axis.text = element_text(color = text_color),
+            axis.title = element_text(color = text_color),
+            legend.text = element_text(color = text_color),
+            legend.title = element_text(color = text_color)
+          )
+      }
       
       incProgress(1)
         
@@ -4211,12 +4289,32 @@ server <- function(input, output, session) {
       format <- input$diversityPlotFormat
       plot_dpi <- get_plot_dpi()
       
+      # Get plot dimensions - use publication quality settings if enabled
+      plot_width <- 12  # default
+      plot_height <- 8  # default
+      
+      if (!is.null(input$pubQuality) && input$pubQuality && !is.null(input$plotWidth) && !is.null(input$plotHeight)) {
+        plot_width <- input$plotWidth
+        plot_height <- input$plotHeight
+      }
+      
+      # Get background color based on theme
+      bg_color <- "white"
+      if (!is.null(input$pubQuality) && input$pubQuality && !is.null(input$plotTheme)) {
+        plot_theme <- input$plotTheme
+        if (plot_theme == "dark") {
+          bg_color <- "#1a1a1a"
+        } else if (plot_theme %in% c("light", "minimal", "classic", "publication")) {
+          bg_color <- "white"
+        }
+      }
+      
       if (format == "png") {
-        ggsave(file, plot = diversityResults()$plot, device = "png", width = 12, height = 8, dpi = plot_dpi, bg = "white")
+        ggsave(file, plot = diversityResults()$plot, device = "png", width = plot_width, height = plot_height, dpi = plot_dpi, bg = bg_color)
       } else if (format == "tiff") {
-        ggsave(file, plot = diversityResults()$plot, device = "tiff", width = 12, height = 8, dpi = plot_dpi, bg = "white")
+        ggsave(file, plot = diversityResults()$plot, device = "tiff", width = plot_width, height = plot_height, dpi = plot_dpi, bg = bg_color)
       } else {
-        ggsave(file, plot = diversityResults()$plot, device = "svg", width = 12, height = 8, bg = "white")
+        ggsave(file, plot = diversityResults()$plot, device = "svg", width = plot_width, height = plot_height, bg = bg_color)
       }
     }
   )
