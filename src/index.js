@@ -300,14 +300,16 @@ function createWindow() {
     width: 1400,
     height: 900,
     title: 'Ördin',
+    frame: false,  // Remove OS title bar to use custom title bar
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      enableRemoteModule: false
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js')
     },
     backgroundColor: '#222222',
-    show: false,  // Don't show until ready
+    show: true,  // SHOW IMMEDIATELY - removed delay
     autoHideMenuBar: true  // Automatically hide menu bar
   });
   
@@ -316,21 +318,26 @@ function createWindow() {
   mainWindow.removeMenu();
   
   // Load the Shiny app
+  console.log(`Loading URL: http://${SHINY_HOST}:${SHINY_PORT}`);
   mainWindow.loadURL(`http://${SHINY_HOST}:${SHINY_PORT}`);
   
-  // Show window when ready and close splash screen
-  mainWindow.once('ready-to-show', () => {
-    setTimeout(() => {
-      closeSplashScreen();
-      mainWindow.show();
-      mainWindow.focus();
-    }, 500);  // Small delay for smooth transition
-  });
+  // Close splash screen after a short delay
+  setTimeout(() => {
+    closeSplashScreen();
+  }, 2000);
   
   // Open DevTools in development mode
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools();
-  }
+  // Always open DevTools for debugging
+  mainWindow.webContents.openDevTools();
+  
+  // Log when content loads
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Main window content loaded successfully');
+  });
+  
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+  });
   
   mainWindow.on('closed', () => {
     mainWindow = null;

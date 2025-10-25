@@ -1,0 +1,176 @@
+/* Shiny-specific layout fixes for Ördin v3.0 */
+/* CRITICAL: Forces correct layout structure to prevent overlapping */
+
+/* Override Shiny's default body styling */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    height: 100vh !important;
+    width: 100vw !important;
+}
+
+/* Force Shiny's root container to not interfere */
+body > div {
+    height: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Ensure container-fluid doesn't add padding */
+.container-fluid {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* CRITICAL: Title bar must be fixed height, not overlap */
+.titlebar {
+    position: relative !important;
+    flex-shrink: 0 !important;
+    z-index: 1000 !important;
+    -webkit-app-region: drag !important; /* Make title bar draggable */
+}
+
+/* Window control buttons */
+.window-controls {
+    display: flex;
+    gap: 0;
+    margin-left: 16px;
+    -webkit-app-region: no-drag; /* Buttons should be clickable */
+}
+
+.window-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    width: 46px;
+    height: 35px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: no-drag;
+}
+
+.window-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.window-btn.close:hover {
+    background: #e81123;
+    color: #fff;
+}
+
+/* User info should also not drag */
+.user-info {
+    -webkit-app-region: no-drag;
+}
+
+/* CRITICAL: Main container must fill remaining space */
+.main-container {
+    flex: 1 !important;
+    display: flex !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+}
+
+/* Fix breadcrumb alignment */
+.breadcrumb {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Fix tab-bar alignment */
+.tab-bar {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Fix status-bar alignment */
+.status-bar {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure main-canvas takes proper flex space */
+.main-canvas {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: #1e1e1e !important;
+    min-width: 0 !important; /* Prevents flex overflow */
+}
+
+/* Ensure content-area respects parent width */
+.content-area {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove Shiny's default tab styling that might interfere */
+.tabbable {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.tab-content {
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* Ensure hidden tabs don't take space */
+.nav-tabs {
+    display: none !important;
+}
+
+/* Fix for Shiny's hidden tabsetPanel */
+.nav.nav-hidden {
+    display: none !important;
+}
+
+/* Ensure proper z-indexing */
+.titlebar {
+    z-index: 1000 !important;
+}
+
+.activity-bar {
+    z-index: 999 !important;
+}
+
+.primary-sidebar {
+    z-index: 998 !important;
+}
+
+.main-canvas {
+    z-index: 997 !important;
+    position: relative !important;
+}
+
+/* Remove any default Shiny margins/padding on tab panels */
+.tab-pane {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Ensure shiny-input-container doesn't add unwanted spacing */
+.shiny-input-container {
+    margin-bottom: 15px;
+}
+
+/* Fix for waiter loading overlay */
+.waiter-overlay {
+    z-index: 10000 !important;
+}

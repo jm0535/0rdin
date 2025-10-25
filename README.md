@@ -20,15 +20,33 @@
 
 ### ✨ What's New in v3.0
 
+**UI/UX Improvements:**
+- **🪟 Frameless Window Design**: Custom title bar with NO OS chrome for clean, modern look
+- **🎨 VS Code-Inspired Interface**: Professional flat design matching industry standards
+- **🎯 Activity Bar Navigation**: Left-side activity bar with collapsible sidebar panels
+- **📑 Tab Bar System**: Multi-tab workspace with breadcrumb navigation
+- **⚡ Window Controls**: Custom minimize, maximize, close buttons integrated into title bar
+- **🖱️ Draggable Title Bar**: Native window dragging with `-webkit-app-region`
+- **📐 Responsive Layout**: Flexbox-based layout preventing overlap issues
+- **🔧 Right Properties Panel**: Collapsible properties panel with dataset information
+- **✅ Error-Free Console**: Suppressed conflicting package JavaScript errors
+
+**Analysis Features:**
 - **📊 Enhanced Ordination Analysis**: 7 methods (NMDS, PCA, CA, DCA, CCA, RDA, PCoA) with advanced visualization
 - **🎨 Advanced Plot Themes**: 5 themes (Dark, Light, Classic, Minimal, Publication) with dynamic switching
 - **📉 Confidence Ellipses**: Statistical ellipses for site groups with automatic validation
-- **pecies Scores**: Overlay species scores on ordination plots with customizable display
-- ** environmental Vectors**: Display environmental variables as arrows with biplot interpretation
+- **🌿 Species Scores**: Overlay species scores on ordination plots with customizable display
+- **🧭 Environmental Vectors**: Display environmental variables as arrows with biplot interpretation
 - **📊 Comprehensive Legends**: Detailed legends explaining all plot elements (sites, species, arrows, ellipses)
 - **💾 Dynamic Theme Updates**: Change themes without re-running analyses
 - **📤 Enhanced Exports**: Download scores, eigenvalues, and publication-quality plots
 - **📈 Improved Data Management**: Better validation and handling of environmental data
+
+**Technical Improvements:**
+- **⚡ Optimized Startup**: Splash screen with smooth transition to main window
+- **🔒 Secure IPC**: Preload script for window control communication
+- **📱 DevTools Integration**: Built-in developer tools for debugging
+- **🎯 Production Ready**: Fully tested and stable for deployment
 
 ### ✨ What's New in v2.3
 

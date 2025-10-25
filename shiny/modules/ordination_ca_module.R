@@ -5,7 +5,7 @@
 library(shiny)
 library(vegan)
 library(waiter)
-library(shinyFeedback)
+# library(shinyFeedback)  # Disabled - conflicts with custom HTML
 
 #' CA Module UI
 ca_ui <- function(id) {
