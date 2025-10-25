@@ -52,14 +52,14 @@
 #### 🧬 **Diversity Analysis**
 - **Diversity Estimation**: iNEXT-based rarefaction and extrapolation
   - Individual-based and incidence-based data support
+  - Rarefaction and extrapolation methods
   - Three visualization types: sample-size, coverage, completeness
   - Hill numbers (q=0, 1, 2): Species richness, Shannon, Simpson diversity
   - Bootstrap confidence intervals (95% default)
 - **Diversity Indices**: Classic diversity and evenness metrics
   - Alpha diversity: Shannon, Simpson, Inverse Simpson, Fisher's Alpha, Richness
   - Evenness indices: Pielou's J', Simpson's E, Evar
-  - Rarefaction to specified sample sizes
-  - Species accumulation curves with permutation-based CI
+- **Export Formats**: CSV, Excel, JSON
 
 #### 🗺️ **Ordination Analysis**
 - **7 Ordination Methods**:

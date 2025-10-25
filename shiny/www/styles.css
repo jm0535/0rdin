@@ -28,12 +28,67 @@ body {
   background: var(--ordin-dark-bg);
   color: var(--ordin-text);
   transition: background-color 0.2s ease, color 0.2s ease;
+  margin: 0;
+  padding: 0;
 }
 
 /* Light Theme Override */
 body.light-theme {
   background: var(--ordin-light-bg) !important;
   color: var(--ordin-light-text) !important;
+}
+
+body.light-theme .activity-bar {
+  background: #f3f3f3;
+}
+
+body.light-theme .activity-item {
+  color: #424242;
+}
+
+body.light-theme .activity-item:hover {
+  background: #e8e8e8;
+  color: #000000;
+}
+
+body.light-theme .activity-item.active {
+  background: #ffffff;
+  color: #2e8b57;
+}
+
+body.light-theme .primary-sidebar {
+  background: #f8f8f8;
+  border-right: 1px solid #d0d0d0;
+}
+
+body.light-theme .sidebar-header {
+  border-bottom: 1px solid #d0d0d0;
+  color: #1e1e1e;
+}
+
+body.light-theme .sidebar-section {
+  border-bottom: 1px solid #d0d0d0;
+}
+
+body.light-theme .sidebar-section-header {
+  color: #1e1e1e;
+}
+
+body.light-theme .sidebar-section-header:hover {
+  color: #000000;
+}
+
+body.light-theme .sidebar-item {
+  color: #1e1e1e;
+}
+
+body.light-theme .sidebar-item:hover {
+  background: #e8e8e8;
+}
+
+body.light-theme .sidebar-item.active {
+  background: #e8e8e8;
+  color: #2e8b57;
 }
 
 /* ========================================
@@ -628,6 +683,20 @@ body.light-theme #settings-btn:hover {
   border-color: var(--ordin-light-border);
 }
 
+/* ========================================
+   CONTENT SECTIONS
+   ======================================== */
+.content-section {
+  display: none;
+  padding: 20px;
+  height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.content-section.active {
+  display: block;
+}
+
 /* Settings sidebar panel */
 .settings-sidebar {
   scrollbar-width: thin;
@@ -747,6 +816,166 @@ body.font-large h2 { font-size: 2.0rem !important; }
 body.font-large h3 { font-size: 1.7rem !important; }
 body.font-large h4 { font-size: 1.4rem !important; }
 body.font-large h5 { font-size: 1.15rem !important; }
+
+/* ========================================
+   VSCODE-STYLE ACTIVITY BAR
+   ======================================== */
+.activity-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 100%;
+  background: #333333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  z-index: 1000;
+}
+
+.activity-item {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #cccccc;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+  background: #3c3c3c;
+  color: #ffffff;
+}
+
+.activity-item.active {
+  background: #1e1e1e;
+  color: #2e8b57;
+}
+
+.activity-item .tooltip {
+  position: absolute;
+  left: 48px;
+  background: #1e1e1e;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1001;
+}
+
+.activity-item:hover .tooltip {
+  opacity: 1;
+}
+
+/* ========================================
+   PRIMARY SIDEBAR
+   ======================================== */
+.primary-sidebar {
+  position: fixed;
+  top: 0;
+  left: 48px;
+  width: 250px;
+  height: 100%;
+  background: #252526;
+  border-right: 1px solid #3e3e42;
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  transition: transform 0.2s ease;
+}
+
+.primary-sidebar.collapsed {
+  transform: translateX(-250px);
+}
+
+.sidebar-header {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #cccccc;
+  border-bottom: 1px solid #3e3e42;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-section {
+  padding: 12px 0;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.sidebar-section-header {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #cccccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sidebar-section-header:hover {
+  color: #ffffff;
+}
+
+.sidebar-section-content {
+  padding: 0 16px;
+}
+
+.sidebar-item {
+  padding: 6px 16px;
+  font-size: 13px;
+  color: #cccccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+  margin-bottom: 2px;
+}
+
+.sidebar-item:hover {
+  background: #37373d;
+}
+
+.sidebar-item.active {
+  background: #37373d;
+  color: #2e8b57;
+}
+
+.sidebar-item i {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+}
+
+.sidebar-section.collapsed .sidebar-section-content {
+  display: none;
+}
+
+/* ========================================
+   MAIN CONTENT AREA
+   ======================================== */
+.main-content {
+  margin-left: 298px; /* 48px (activity bar) + 250px (sidebar) */
+  transition: margin-left 0.2s ease;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 48px; /* Only activity bar */
+}
 
 /* ========================================
    VSCODE-STYLE COLLAPSIBLE SIDEBARS

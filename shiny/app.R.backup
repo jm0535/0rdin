@@ -51,26 +51,503 @@ ui <- tagList(
     color = "#1a1a1a"
   ),
   
-  page_navbar(
-    title = "Ördin v3.0",
-    id = "main_nav",
-    theme = bs_theme(
-    version = 5,
-    preset = "shiny",
-    bg = "#1e1e1e",
-    fg = "#cccccc",
-    primary = "#2e8b57",      # GREEN primary color
-    secondary = "#2d2d30",
-    success = "#2e8b57",       # GREEN success color
-    info = "#4ec9b0",
-    warning = "#ff8c00",
-    danger = "#d32f2f",
-    "navbar-bg" = "#2d2d30",
-    "navbar-light-brand-color" = "#ffffff",
-    "navbar-light-brand-hover-color" = "#2e8b57",  # GREEN hover
-    "font-size-base" = "0.9rem",
-    "enable-rounded" = FALSE,
-    "enable-shadows" = FALSE
+  div(
+    # VS Code Style Activity Bar
+    tags$div(
+      class = "activity-bar",
+      tags$div(
+        class = "activity-item active",
+        `data-view` = "home",
+        icon("home"),
+        tags$span(class = "tooltip", "Home")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "explorer",
+        icon("folder"),
+        tags$span(class = "tooltip", "Explorer")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "diversity",
+        icon("chart-line"),
+        tags$span(class = "tooltip", "Diversity Analysis")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "ordination",
+        icon("project-diagram"),
+        tags$span(class = "tooltip", "Ordination")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "settings",
+        icon("cog"),
+        tags$span(class = "tooltip", "Settings")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "help",
+        icon("question-circle"),
+        tags$span(class = "tooltip", "Help")
+      )
+    ),
+    
+    # Primary Sidebar
+    tags$div(
+      class = "primary-sidebar",
+      tags$div(
+        class = "sidebar-header",
+        "ÖRDIN v3.0",
+        tags$div(
+          icon("times"),
+          onclick = "toggleSidebar()"
+        )
+      ),
+      # Explorer View Content
+      tags$div(
+        id = "explorer-content",
+        class = "sidebar-content",
+        # Explorer sections
+        tags$div(
+          class = "sidebar-section",
+          tags$div(
+            class = "sidebar-section-header",
+            "DATA SOURCES",
+            icon("chevron-down")
+          ),
+          tags$div(
+            class = "sidebar-section-content",
+            tags$div(
+              class = "sidebar-item",
+              icon("file-import"),
+              "Local Files"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("history"),
+              "Recent Files"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("database"),
+              "Sample Datasets"
+            )
+          )
+        ),
+        tags$div(
+          class = "sidebar-section",
+          tags$div(
+            class = "sidebar-section-header",
+            "WORKSPACE",
+            icon("chevron-down")
+          ),
+          tags$div(
+            class = "sidebar-section-content",
+            tags$div(
+              class = "sidebar-item",
+              icon("table"),
+              "Current Dataset"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("info-circle"),
+              "Metadata"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("check-circle"),
+              "Validation Status"
+            )
+          )
+        ),
+        tags$div(
+          class = "sidebar-section",
+          tags$div(
+            class = "sidebar-section-header",
+            "EXPORTS",
+            icon("chevron-down")
+          ),
+          tags$div(
+            class = "sidebar-section-content",
+            tags$div(
+              class = "sidebar-item",
+              icon("history"),
+              "Export History"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("file-alt"),
+              "Templates"
+            )
+          )
+        )
+      )
+    ),
+    
+    # Main Content Area
+    tags$div(
+      class = "main-content",
+      # Home section (initially visible)
+      tags$div(
+        id = "home-section",
+        class = "content-section",
+        style = "display: block;",
+        # HOME / LANDING PAGE
+        div(
+          class = "landing-page",
+          style = "min-height: 100vh; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 60px 20px;",
+          
+          # Hero Section
+          div(
+            class = "container",
+            style = "max-width: 1200px; margin: 0 auto;",
+            
+            # Animated Logo & Title
+            div(
+              class = "text-center mb-5",
+              style = "animation: fadeInDown 0.8s ease-out;",
+              div(
+                style = "font-size: 8em; color: #2e8b57; margin-bottom: 20px; font-weight: bold; text-shadow: 0 0 30px rgba(46, 139, 87, 0.5); animation: pulse 2s infinite;",
+                "Ö"
+              ),
+              h1(
+                style = "font-size: 3.5em; font-weight: 800; background: linear-gradient(135deg, #2e8b57 0%, #3fa869 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px;",
+                "Ördin v3.0"
+              ),
+              p(
+                class = "lead",
+                style = "font-size: 1.5em; color: #999; font-weight: 300; letter-spacing: 2px;",
+                "COMMUNITY ECOLOGY ANALYSIS PLATFORM"
+              ),
+              p(
+                style = "color: #666; font-size: 1.1em; margin-top: 20px;",
+                icon("flask"), " Enterprise-Grade Statistical Computing  ",
+                icon("chart-bar"), " Advanced Visualization  ",
+                icon("database"), " Multi-Format Export"
+              )
+            ),
+            
+            # Interactive Module Cards
+            div(
+              class = "row mt-5 justify-content-center",
+              style = "animation: fadeInUp 0.8s ease-out 0.1s both;",
+              
+              # Card 1: Diversity Estimation
+              div(
+                class = "col-lg-4 col-md-6 mb-4",
+                actionButton(
+                  "navToDiversity",
+                  div(
+                    style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #2e8b57; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                    onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(46, 139, 87, 0.4)'; this.style.borderColor='#3fa869';",
+                    onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#2e8b57';",
+                    div(
+                      div(
+                        style = "font-size: 3.5em; color: #2e8b57; margin-bottom: 15px;",
+                        icon("chart-line")
+                      ),
+                      h4(
+                        style = "color: #2e8b57; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                        "Diversity Estimation"
+                      ),
+                      p(
+                        style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                        "iNEXT rarefaction & extrapolation with Hill numbers"
+                      )
+                    ),
+                    div(
+                      style = "margin-top: 15px; padding: 10px 20px; background: #2e8b5722; color: #2e8b57; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
+                      "START ANALYSIS →"
+                    )
+                  ),
+                  class = "btn",
+                  style = "border: none; background: transparent; width: 100%; padding: 0;"
+                )
+              ),
+              
+              # Card 2: Ordination
+              div(
+                class = "col-lg-4 col-md-6 mb-4",
+                actionButton(
+                  "navToOrdination",
+                  div(
+                    style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #4169e1; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                    onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(65, 105, 225, 0.4)'; this.style.borderColor='#5179f1';",
+                    onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#4169e1';",
+                    div(
+                      div(
+                        style = "font-size: 3.5em; color: #4169e1; margin-bottom: 15px;",
+                        icon("project-diagram")
+                      ),
+                      h4(
+                        style = "color: #4169e1; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                        "Ordination Analysis"
+                      ),
+                      p(
+                        style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                        "NMDS, PCA, CA, DCA & PCoA for community patterns"
+                      )
+                    ),
+                    div(
+                      style = "margin-top: 15px; padding: 10px 20px; background: #4169e122; color: #4169e1; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
+                      "EXPLORE →"
+                    )
+                  ),
+                  class = "btn",
+                  style = "border: none; background: transparent; width: 100%; padding: 0;"
+                )
+              ),
+              
+              # Card 3: Diversity Indices
+              div(
+                class = "col-lg-4 col-md-6 mb-4",
+                div(
+                  style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #ff8c00; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                  onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(255, 140, 0, 0.4)'; this.style.borderColor='#ff9c10';",
+                  onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#ff8c00';",
+                  onclick = "Shiny.setInputValue('main_nav', 'Diversity Analysis'); Shiny.setInputValue('analysisType', 'indices', {priority: 'event'});",
+                  div(
+                    div(
+                      style = "font-size: 3.5em; color: #ff8c00; margin-bottom: 15px;",
+                      icon("calculator")
+                    ),
+                    h4(
+                      style = "color: #ff8c00; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                      "Diversity Indices"
+                    ),
+                    p(
+                      style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                      "Shannon, Simpson, Fisher's α & Pielou's evenness"
+                    )
+                  ),
+                  div(
+                    style = "margin-top: 15px; padding: 10px 20px; background: #ff8c0022; color: #ff8c00; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
+                    "CALCULATE →"
+                  )
+                )
+              )
+            ),
+            
+            # Features Grid
+            div(
+              class = "mt-5",
+              style = "animation: fadeInUp 0.8s ease-out 0.4s both;",
+              h3(
+                class = "text-center mb-4",
+                style = "color: #2e8b57; font-weight: 700; font-size: 2em;",
+                "Enterprise Features"
+              ),
+              div(
+                class = "row",
+                div(
+                  class = "col-lg-4 col-md-6 mb-3",
+                  div(
+                    style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                    onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                    onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                    div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("keyboard")),
+                    h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Keyboard Shortcuts"),
+                    p(style = "color: #888; font-size: 0.85em; margin: 0;", "Ctrl+O • Ctrl+S • Ctrl+T • Ctrl+1/2/3")
+                  )
+                ),
+                div(
+                  class = "col-lg-4 col-md-6 mb-3",
+                  div(
+                    style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                    onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                    onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                    div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("file-export")),
+                    h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Multi-Format Export"),
+                    p(style = "color: #888; font-size: 0.85em; margin: 0;", "CSV, Excel, JSON & publication plots")
+                  )
+                ),
+                div(
+                  class = "col-lg-4 col-md-6 mb-3",
+                  div(
+                    style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                    onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                    onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                    div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("save")),
+                    h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Auto-Save"),
+                    p(style = "color: #888; font-size: 0.85em; margin: 0;", "Session recovery every 30 seconds")
+                  )
+                )
+              )
+            ),
+            
+            # Quick Start Section
+            div(
+              class = "mt-5",
+              style = "animation: fadeInUp 0.8s ease-out 0.5s both;",
+              div(
+                style = "background: linear-gradient(135deg, #2e8b57 0%, #1f6d42 100%); border-radius: 15px; padding: 50px 40px; text-align: center; box-shadow: 0 10px 30px rgba(46, 139, 87, 0.3);",
+                h3(style = "color: #fff; font-weight: 700; margin-bottom: 20px;", "Get Started Quickly"),
+                p(style = "color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 30px;", "Load your community ecology data and start analyzing in minutes"),
+                div(
+                  class = "row justify-content-center",
+                  div(
+                    class = "col-md-4 mb-3",
+                    div(
+                      style = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 20px;",
+                      h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;", icon("upload"), " Load Data"),
+                      p(style = "color: rgba(255,255,255,0.8); font-size: 0.9rem;", "Upload CSV, Excel, or text files with your species abundance or presence-absence data")
+                    )
+                  ),
+                  div(
+                    class = "col-md-4 mb-3",
+                    div(
+                      style = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 20px;",
+                      h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;", icon("chart-line"), " Analyze"),
+                      p(style = "color: rgba(255,255,255,0.8); font-size: 0.9rem;", "Run diversity estimation, ordination, or calculate diversity indices with one click")
+                    )
+                  ),
+                  div(
+                    class = "col-md-4 mb-3",
+                    div(
+                      style = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 20px;",
+                      h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;", icon("download"), " Export"),
+                      p(style = "color: rgba(255,255,255,0.8); font-size: 0.9rem;", "Download results as CSV, Excel, JSON, or publication-ready plots")
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      
+      # Explorer section
+      tags$div(
+        id = "explorer-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Data Explorer", style = "color: #2e8b57;"),
+          p("Manage your datasets and project files", style = "color: #999;"),
+          # Data management content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Upload Data", style = "color: #cccccc;"),
+            fileInput("dataFile", "Select CSV, Excel, or Text File",
+                     accept = c(".csv", ".xlsx", ".xls", ".txt")),
+            p("Supported formats: CSV, Excel (.xlsx/.xls), Tab-delimited text", style = "color: #888; font-size: 0.9rem;")
+          )
+        )
+      ),
+      
+      # Diversity Analysis section
+      tags$div(
+        id = "diversity-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Diversity Analysis", style = "color: #2e8b57;"),
+          p("Estimate and analyze community diversity patterns", style = "color: #999;"),
+          # Diversity analysis content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Analysis Parameters", style = "color: #cccccc;"),
+            selectInput("diversityMethod", "Method",
+                       choices = c(
+                         "iNEXT Rarefaction & Extrapolation" = "inext",
+                         "Diversity Indices" = "indices",
+                         "Accumulation Curves" = "accum"
+                       )),
+            conditionalPanel(
+              condition = "input.diversityMethod == 'inext'",
+              selectInput("dataType", "Data Type",
+                         choices = c(
+                           "Abundance" = "abundance",
+                           "Incidence" = "incidence_raw"
+                         )),
+              numericInput("knots", "Knots", value = 40, min = 10, max = 100),
+              numericInput("bootstraps", "Bootstrap Replicates", value = 50, min = 10, max = 200)
+            ),
+            actionButton("runDiversity", "Run Analysis", class = "btn-success")
+          )
+        )
+      ),
+      
+      # Ordination section
+      tags$div(
+        id = "ordination-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Ordination Analysis", style = "color: #4169e1;"),
+          p("Explore community composition patterns", style = "color: #999;"),
+          # Ordination analysis content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Analysis Parameters", style = "color: #cccccc;"),
+            selectInput("ordinationMethod", "Method",
+                       choices = c(
+                         "NMDS" = "nmds",
+                         "PCA" = "pca",
+                         "CA" = "ca",
+                         "DCA" = "dca",
+                         "CCA" = "cca",
+                         "RDA" = "rda",
+                         "PCoA" = "pcoa"
+                       )),
+            numericInput("ordDimensions", "Dimensions", value = 2, min = 2, max = 5)
+          )
+        )
+      ),
+      
+      # Settings section
+      tags$div(
+        id = "settings-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Settings", style = "color: #2e8b57;"),
+          p("Configure application preferences", style = "color: #999;"),
+          # Settings content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Appearance", style = "color: #cccccc;"),
+            selectInput("themeSelector", "Theme",
+                       choices = c(
+                         "Dark" = "dark",
+                         "Light" = "light",
+                         "Auto" = "auto"
+                       )),
+            selectInput("fontSizeSelector", "Font Size",
+                       choices = c(
+                         "Small" = "small",
+                         "Medium" = "medium",
+                         "Large" = "large"
+                       ))
+          )
+        )
+      ),
+      
+      # Help section
+      tags$div(
+        id = "help-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Help & Documentation", style = "color: #2e8b57;"),
+          p("Get help and learn how to use Ördin", style = "color: #999;"),
+          # Help content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Getting Started", style = "color: #cccccc;"),
+            p("Welcome to Ördin v3.0 - Community Ecology Analysis Platform", style = "color: #999;"),
+            tags$ul(
+              style = "color: #999;",
+              tags$li("Upload your community data using the Explorer tab"),
+              tags$li("Perform diversity analysis in the Diversity Analysis tab"),
+              tags$li("Explore community patterns with ordination in the Ordination tab"),
+              tags$li("Export results in multiple formats")
+            )
+          )
+        )
+      )
+    )
   ),
   
   # Link external CSS and JavaScript
@@ -224,6 +701,67 @@ ui <- tagList(
           document.body.style.overflow = "hidden";
         }
       }
+      
+      // Activity bar navigation
+      function switchView(view) {
+        // Remove active class from all activity items
+        var activityItems = document.querySelectorAll('.activity-item');
+        for (var i = 0; i < activityItems.length; i++) {
+          activityItems[i].classList.remove('active');
+        }
+        
+        // Add active class to clicked item
+        var activeItem = document.querySelector('.activity-item[data-view="' + view + '"]');
+        if (activeItem) {
+          activeItem.classList.add('active');
+        }
+        
+        // Hide all content sections
+        var contentSections = document.querySelectorAll('.content-section');
+        for (var i = 0; i < contentSections.length; i++) {
+          contentSections[i].style.display = 'none';
+        }
+        
+        // Show the selected section
+        var selectedSection = document.getElementById(view + '-section');
+        if (selectedSection) {
+          selectedSection.style.display = 'block';
+        }
+        
+        // Update main nav if needed
+        Shiny.setInputValue('main_nav', view.charAt(0).toUpperCase() + view.slice(1).replace(/-/g, ' '));
+      }
+      
+      // Toggle sidebar visibility
+      function toggleSidebar() {
+        var sidebar = document.querySelector('.primary-sidebar');
+        var mainContent = document.querySelector('.main-content');
+        
+        if (sidebar && mainContent) {
+          sidebar.classList.toggle('collapsed');
+          mainContent.classList.toggle('sidebar-collapsed');
+        }
+      }
+      
+      // Initialize activity bar
+      document.addEventListener('DOMContentLoaded', function() {
+        // Add click listeners to activity items
+        var activityItems = document.querySelectorAll('.activity-item');
+        for (var i = 0; i < activityItems.length; i++) {
+          activityItems[i].addEventListener('click', function() {
+            var view = this.getAttribute('data-view');
+            switchView(view);
+          });
+        }
+        
+        // Add click listeners to sidebar section headers for collapse/expand
+        var sidebarHeaders = document.querySelectorAll('.sidebar-section-header');
+        for (var i = 0; i < sidebarHeaders.length; i++) {
+          sidebarHeaders[i].addEventListener('click', function() {
+            this.parentElement.classList.toggle('collapsed');
+          });
+        }
+      });
       
       // Zoom functionality
       let currentZoom = 100;
@@ -660,59 +1198,59 @@ ui <- tagList(
     title = "Data",
     icon = icon("database"),
     
-    # Custom layout with vertical sidebar navigation
+    # Custom layout with collapsible sidebar and vertical icon strip
     tags$div(
       class = "data-management-container",
       style = "display: flex; height: 100vh; overflow: hidden;",
       
-      # Vertical Sub-Navigation Sidebar
+      # Vertical Icon Strip (visible when sidebar is collapsed)
       tags$div(
-        id = "data-subnav",
-        class = "data-vertical-nav",
-        style = "width: 80px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; align-items: center; padding: 20px 0; transition: width 0.3s ease;",
+        id = "data-icon-strip",
+        class = "vertical-icon-strip",
+        style = "width: 50px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; align-items: center; padding: 15px 0; transition: all 0.3s ease; position: relative;",
         
-        # Toggle sidebar button (at top)
+        # Toggle button
         tags$button(
           class = "vertical-nav-btn",
-          style = "width: 60px; height: 50px; background: transparent; border: 2px solid #666; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
-          onclick = "toggleDataSidebar();",
+          style = "width: 40px; height: 40px; background: transparent; border: 2px solid #666; border-radius: 6px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
+          onclick = "handleDataIconStripClick();",
           title = "Toggle Settings Panel",
           tags$div(style = "font-size: 1.2em; color: #999;", icon("bars"))
         ),
         
-        tags$hr(style = "width: 60%; border-color: #444; margin: 0 0 20px 0;"),
+        tags$hr(style = "width: 60%; border-color: #444; margin: 10px 0;"),
         
-        # Import Button
+        # Import Icon
         tags$button(
           class = "vertical-nav-btn",
-          id = "navImport",
-          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #4169e1; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
-          onclick = "Shiny.setInputValue('dataSubNav', 'import', {priority: 'event'}); document.querySelectorAll('#data-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#4169e1';",
+          id = "navImportIcon",
+          style = "width: 40px; height: 50px; background: transparent; border: 2px solid #4169e1; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;",
+          onclick = "handleDataIconClick('import'); document.querySelectorAll('.vertical-nav-btn[id^=nav][id$=Icon]').forEach(b => b.style.background='transparent'); this.style.background='#4169e1';",
           title = "Import Data",
-          tags$div(style = "font-size: 1.8em; color: #4169e1; margin-bottom: 4px;", icon("upload")),
-          tags$div(style = "font-size: 0.65rem; color: #4169e1; text-align: center; line-height: 1.1;", "Import")
+          tags$div(style = "font-size: 1.4em; color: #4169e1; margin-bottom: 3px;", icon("upload")),
+          tags$div(style = "font-size: 0.55rem; color: #4169e1; text-align: center; line-height: 1.0;", "Import")
         ),
         
-        # View/Edit Button
+        # View/Edit Icon
         tags$button(
           class = "vertical-nav-btn",
-          id = "navEdit",
-          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #2e8b57; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
-          onclick = "Shiny.setInputValue('dataSubNav', 'edit', {priority: 'event'}); document.querySelectorAll('#data-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
+          id = "navEditIcon",
+          style = "width: 40px; height: 50px; background: transparent; border: 2px solid #2e8b57; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;",
+          onclick = "handleDataIconClick('edit'); document.querySelectorAll('.vertical-nav-btn[id^=nav][id$=Icon]').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
           title = "View & Edit",
-          tags$div(style = "font-size: 1.8em; color: #2e8b57; margin-bottom: 4px;", icon("table")),
-          tags$div(style = "font-size: 0.65rem; color: #2e8b57; text-align: center; line-height: 1.1;", "Edit")
+          tags$div(style = "font-size: 1.4em; color: #2e8b57; margin-bottom: 3px;", icon("table")),
+          tags$div(style = "font-size: 0.55rem; color: #2e8b57; text-align: center; line-height: 1.0;", "Edit")
         ),
         
-        # Export Button
+        # Export Icon
         tags$button(
           class = "vertical-nav-btn",
-          id = "navExport",
-          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #ff8c00; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
-          onclick = "Shiny.setInputValue('dataSubNav', 'export', {priority: 'event'}); document.querySelectorAll('#data-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
+          id = "navExportIcon",
+          style = "width: 40px; height: 50px; background: transparent; border: 2px solid #ff8c00; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;",
+          onclick = "handleDataIconClick('export'); document.querySelectorAll('.vertical-nav-btn[id^=nav][id$=Icon]').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
           title = "Export Data",
-          tags$div(style = "font-size: 1.8em; color: #ff8c00; margin-bottom: 4px;", icon("download")),
-          tags$div(style = "font-size: 0.65rem; color: #ff8c00; text-align: center; line-height: 1.1;", "Export")
+          tags$div(style = "font-size: 1.4em; color: #ff8c00; margin-bottom: 3px;", icon("download")),
+          tags$div(style = "font-size: 0.55rem; color: #ff8c00; text-align: center; line-height: 1.0;", "Export")
         )
       ),
       
@@ -724,11 +1262,24 @@ ui <- tagList(
         tags$div(
           id = "data-settings-panel",
           class = "data-settings",
-          style = "width: 400px; background: #1e1e1e; border-right: 1px solid #3e3e42; overflow-y: auto; transition: width 0.3s ease, margin-left 0.3s ease;",
+          style = "width: 350px; background: #1e1e1e; border-right: 1px solid #3e3e42; overflow-y: auto; transition: width 0.3s ease, margin-left 0.3s ease;",
           
           # Settings content
           tags$div(
             style = "padding: 20px;",
+            
+            # Header with toggle button
+            tags$div(
+              style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;",
+              tags$h4(style = "margin: 0; color: #cccccc;", "Data Management"),
+              tags$button(
+                class = "btn btn-sm",
+                style = "background: #333; border: 1px solid #444; color: #999; padding: 5px 10px; cursor: pointer;",
+                onclick = "handleDataIconStripClick();",
+                icon("angle-double-left")
+              )
+            ),
+            
             uiOutput("dataSettingsContent")
           )
         ),
@@ -741,12 +1292,43 @@ ui <- tagList(
       )
     ),
     
-    # CSS and JavaScript
+    # CSS and JavaScript for collapsible sidebar
     tags$style(HTML("
       .data-settings.collapsed {
         width: 0 !important;
-        margin-left: -400px !important;
+        margin-left: -350px !important;
         overflow: hidden !important;
+      }
+      
+      .vertical-icon-strip.collapsed {
+        display: flex !important;
+      }
+      
+      /* Show icon strip by default when page loads */
+      #data-icon-strip {
+        display: flex !important;
+      }
+      
+      .vertical-icon-strip:not(.collapsed) {
+        display: none !important;
+      }
+      
+      .vertical-nav-btn:hover {
+        transform: translateX(3px);
+        box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3);
+      }
+      
+      /* Ensure icons are properly sized and aligned */
+      .vertical-icon-strip .fa,
+      .vertical-icon-strip .fas,
+      .vertical-icon-strip .far {
+        font-size: 1.4em !important;
+      }
+      
+      /* Adjust icon strip for better visibility */
+      .vertical-icon-strip {
+        z-index: 100;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
       }
     ")),
     
@@ -754,7 +1336,7 @@ ui <- tagList(
       // Initialize first tab as active
       document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() {
-          const importBtn = document.getElementById('navImport');
+          const importBtn = document.getElementById('navImportIcon');
           if (importBtn) {
             importBtn.style.background = '#4169e1';
             Shiny.setInputValue('dataSubNav', 'import', {priority: 'event'});
@@ -765,117 +1347,194 @@ ui <- tagList(
       // Toggle sidebar function
       function toggleDataSidebar() {
         const panel = document.getElementById('data-settings-panel');
+        const iconStrip = document.getElementById('data-icon-strip');
+        
         if (panel.classList.contains('collapsed')) {
+          // Expand sidebar
           panel.classList.remove('collapsed');
+          iconStrip.classList.add('collapsed');
         } else {
+          // Collapse sidebar
           panel.classList.add('collapsed');
+          iconStrip.classList.remove('collapsed');
         }
       }
+      
+      // Function to handle icon clicks in the vertical strip
+      function handleDataIconClick(subNav) {
+        const panel = document.getElementById('data-settings-panel');
+        const iconStrip = document.getElementById('data-icon-strip');
+        
+        // Check if sidebar is currently collapsed
+        const isCollapsed = panel.classList.contains('collapsed');
+        
+        // Always expand the sidebar when an icon is clicked
+        panel.classList.remove('collapsed');
+        iconStrip.classList.add('collapsed');
+        
+        // Set the active sub-navigation
+        Shiny.setInputValue('dataSubNav', subNav, {priority: 'event'});
+      }
+      
+      // Function to handle icon strip click for toggling
+      function handleDataIconStripClick() {
+        const panel = document.getElementById('data-settings-panel');
+        const iconStrip = document.getElementById('data-icon-strip');
+        
+        // Toggle sidebar
+        if (panel.classList.contains('collapsed')) {
+          // Expand sidebar
+          panel.classList.remove('collapsed');
+          iconStrip.classList.add('collapsed');
+        } else {
+          // Collapse sidebar
+          panel.classList.add('collapsed');
+          iconStrip.classList.remove('collapsed');
+        }
+      }
+      
+      // Function to handle icon clicks in the vertical strip
+      function handleDiversityIconClick(subNav) {
+        const panel = document.getElementById('diversity-settings-panel');
+        const iconStrip = document.getElementById('diversity-icon-strip');
+        
+        // Always expand the sidebar when an icon is clicked
+        panel.classList.remove('collapsed');
+        iconStrip.classList.add('collapsed');
+        
+        // Set the active sub-navigation
+        Shiny.setInputValue('diversitySubNav', subNav, {priority: 'event'});
+      }
+      
+      // Add missing closing bracket for the function
     "))
   ),
   
-  # DIVERSITY ANALYSIS
-  nav_panel(
-    title = "Diversity Analysis",
-    icon = icon("chart-line"),
+  # Custom layout with collapsible sidebar and vertical icon strip
+  tags$div(
+    class = "diversity-analysis-container",
+    style = "display: flex; height: 100vh; overflow: hidden;",
     
-    # Custom layout with vertical sidebar navigation
+    # Vertical Icon Strip (visible when sidebar is collapsed)
     tags$div(
-      class = "diversity-analysis-container",
-      style = "display: flex; height: 100vh; overflow: hidden;",
+      id = "diversity-icon-strip",
+      class = "vertical-icon-strip",
+      style = "width: 50px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; align-items: center; padding: 15px 0; transition: all 0.3s ease; position: relative;",
       
-      # Vertical Sub-Navigation Sidebar
-      tags$div(
-        id = "diversity-subnav",
-        class = "diversity-vertical-nav",
-        style = "width: 80px; background: #252526; border-right: 2px solid #3e3e42; display: flex; flex-direction: column; align-items: center; padding: 20px 0; transition: width 0.3s ease;",
-        
-        # Toggle sidebar button (at top)
-        tags$button(
-          class = "vertical-nav-btn",
-          style = "width: 60px; height: 50px; background: transparent; border: 2px solid #666; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
-          onclick = "toggleDiversitySidebar();",
-          title = "Toggle Settings Panel",
-          tags$div(style = "font-size: 1.2em; color: #999;", icon("bars"))
-        ),
-        
-        tags$hr(style = "width: 60%; border-color: #444; margin: 0 0 20px 0;"),
-        
-        # Estimation Button
-        tags$button(
-          class = "vertical-nav-btn",
-          id = "navEstimation",
-          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #2e8b57; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
-          onclick = "Shiny.setInputValue('diversitySubNav', 'estimation', {priority: 'event'}); document.querySelectorAll('#diversity-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
-          title = "Diversity Estimation (iNEXT)",
-          tags$div(style = "font-size: 1.8em; color: #2e8b57; margin-bottom: 4px;", icon("chart-area")),
-          tags$div(style = "font-size: 0.65rem; color: #2e8b57; text-align: center; line-height: 1.1;", "Estimation")
-        ),
-        
-        # Indices Button
-        tags$button(
-          class = "vertical-nav-btn",
-          id = "navIndices",
-          style = "width: 60px; height: 70px; background: transparent; border: 2px solid #ff8c00; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;",
-          onclick = "Shiny.setInputValue('diversitySubNav', 'indices', {priority: 'event'}); document.querySelectorAll('#diversity-subnav .vertical-nav-btn[id^=nav]').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
-          title = "Diversity Indices (vegan)",
-          tags$div(style = "font-size: 1.8em; color: #ff8c00; margin-bottom: 4px;", icon("calculator")),
-          tags$div(style = "font-size: 0.65rem; color: #ff8c00; text-align: center; line-height: 1.1;", "Indices")
-        )
+      # Toggle button
+      tags$button(
+        class = "vertical-nav-btn",
+        style = "width: 40px; height: 40px; background: transparent; border: 2px solid #666; border-radius: 6px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;",
+        onclick = "toggleDiversitySidebar();",
+        title = "Toggle Settings Panel",
+        tags$div(style = "font-size: 1.2em; color: #999;", icon("bars"))
       ),
       
-      # Main Content with Collapsible Settings Panel
-      tags$div(
-        style = "flex: 1; display: flex; overflow: hidden;",
-        
-        # Settings Panel (Collapsible)
-        tags$div(
-          id = "diversity-settings-panel",
-          class = "diversity-settings",
-          style = "width: 350px; background: #1e1e1e; border-right: 1px solid #3e3e42; overflow-y: auto; transition: width 0.3s ease, margin-left 0.3s ease;",
-          
-          # Settings content
-          tags$div(
-            style = "padding: 20px;",
-            
-            # Data Status
-            tags$div(
-              class = "mb-3",
-              uiOutput("diversityDataStatus")
-            ),
-            
-            tags$hr(style = "border-color: #444; margin: 20px 0;"),
-            
-            # Dynamic settings based on sub-nav
-            uiOutput("diversitySettingsContent")
-          )
-        ),
-        
-        # Results Area
-        tags$div(
-          style = "flex: 1; overflow-y: auto; background: #1a1a1a;",
-          uiOutput("diversityMainContent")
-        )
+      tags$hr(style = "width: 60%; border-color: #444; margin: 10px 0;"),
+      
+      # Estimation Icon
+      tags$button(
+        class = "vertical-nav-btn",
+        id = "navEstimationIcon",
+        style = "width: 40px; height: 50px; background: transparent; border: 2px solid #2e8b57; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;",
+        onclick = "handleDiversityIconClick('estimation'); document.querySelectorAll('.vertical-nav-btn[id^=nav][id$=Icon]').forEach(b => b.style.background='transparent'); this.style.background='#2e8b57';",
+        title = "Diversity Estimation (iNEXT)",
+        tags$div(style = "font-size: 1.4em; color: #2e8b57; margin-bottom: 3px;", icon("chart-area")),
+        tags$div(style = "font-size: 0.55rem; color: #2e8b57; text-align: center; line-height: 1.0;", "Estimation")
+      ),
+      
+      # Indices Icon
+      tags$button(
+        class = "vertical-nav-btn",
+        id = "navIndicesIcon",
+        style = "width: 40px; height: 50px; background: transparent; border: 2px solid #ff8c00; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;",
+        onclick = "handleDiversityIconClick('indices'); document.querySelectorAll('.vertical-nav-btn[id^=nav][id$=Icon]').forEach(b => b.style.background='transparent'); this.style.background='#ff8c00';",
+        title = "Diversity Indices (vegan)",
+        tags$div(style = "font-size: 1.4em; color: #ff8c00; margin-bottom: 3px;", icon("calculator")),
+        tags$div(style = "font-size: 0.55rem; color: #ff8c00; text-align: center; line-height: 1.0;", "Indices")
       )
     ),
     
-    # CSS and JavaScript for vertical nav
+    # Main Content with Collapsible Settings Panel
+    tags$div(
+      style = "flex: 1; display: flex; overflow: hidden;",
+      
+      # Settings Panel (Collapsible)
+      tags$div(
+        id = "diversity-settings-panel",
+        class = "diversity-settings",
+        style = "width: 350px; background: #1e1e1e; border-right: 1px solid #3e3e42; overflow-y: auto; transition: width 0.3s ease, margin-left 0.3s ease;",
+        
+        # Settings content
+        tags$div(
+          style = "padding: 20px;",
+          
+          # Header with toggle button
+          tags$div(
+            style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;",
+            tags$h4(style = "margin: 0; color: #cccccc;", "Diversity Analysis Settings"),
+            tags$button(
+              class = "btn btn-sm",
+              style = "background: #333; border: 1px solid #444; color: #999; padding: 5px 10px; cursor: pointer;",
+              onclick = "toggleDiversitySidebar();",
+              icon("angle-double-left")
+            )
+          ),
+          
+          # Data Status
+          uiOutput("diversityDataStatus"),
+          
+          tags$hr(style = "border-color: #444; margin: 20px 0;"),
+          
+          # Dynamic settings based on sub-nav
+          uiOutput("diversitySettingsContent")
+        )
+      ),
+      
+      # Results Area
+      tags$div(
+        style = "flex: 1; overflow-y: auto; background: #1a1a1a;",
+        uiOutput("diversityMainContent")
+      )
+    ),
+    
+    # CSS and JavaScript for collapsible sidebar
     tags$style(HTML("
-      .vertical-nav-btn:hover {
-        transform: translateX(5px);
-        box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
-      }
-      
-      .diversity-vertical-nav.collapsed {
-        width: 0 !important;
-        padding: 0 !important;
-        overflow: hidden;
-      }
-      
       .diversity-settings.collapsed {
         width: 0 !important;
         margin-left: -350px !important;
         overflow: hidden !important;
+      }
+      
+      .vertical-icon-strip.collapsed {
+        display: flex !important;
+      }
+      
+      /* Hide icon strip by default when page loads (sidebar is expanded by default) */
+      #diversity-icon-strip {
+        display: none !important;
+      }
+      
+      .vertical-icon-strip:not(.collapsed) {
+        display: none !important;
+      }
+      
+      .vertical-nav-btn:hover {
+        transform: translateX(3px);
+        box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3);
+      }
+      
+      /* Ensure icons are properly sized and aligned */
+      .vertical-icon-strip .fa,
+      .vertical-icon-strip .fas,
+      .vertical-icon-strip .far {
+        font-size: 1.4em !important;
+      }
+      
+      /* Adjust icon strip for better visibility */
+      .vertical-icon-strip {
+        z-index: 100;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
       }
     ")),
     
@@ -883,7 +1542,7 @@ ui <- tagList(
       // Initialize first tab as active
       document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() {
-          const estimationBtn = document.getElementById('navEstimation');
+          const estimationBtn = document.getElementById('navEstimationIcon');
           if (estimationBtn) {
             estimationBtn.style.background = '#2e8b57';
             Shiny.setInputValue('diversitySubNav', 'estimation', {priority: 'event'});
@@ -894,11 +1553,30 @@ ui <- tagList(
       // Toggle sidebar function
       function toggleDiversitySidebar() {
         const panel = document.getElementById('diversity-settings-panel');
+        const iconStrip = document.getElementById('diversity-icon-strip');
+        
         if (panel.classList.contains('collapsed')) {
+          // Expand sidebar
           panel.classList.remove('collapsed');
+          iconStrip.classList.add('collapsed');
         } else {
+          // Collapse sidebar
           panel.classList.add('collapsed');
+          iconStrip.classList.remove('collapsed');
         }
+      }
+      
+      // Function to handle icon clicks in the vertical strip
+      function handleDiversityIconClick(subNav) {
+        const panel = document.getElementById('diversity-settings-panel');
+        const iconStrip = document.getElementById('diversity-icon-strip');
+        
+        // Always expand the sidebar when an icon is clicked
+        panel.classList.remove('collapsed');
+        iconStrip.classList.add('collapsed');
+        
+        // Set the active sub-navigation
+        Shiny.setInputValue('diversitySubNav', subNav, {priority: 'event'});
       }
     "))
   ),
@@ -2841,10 +3519,10 @@ server <- function(input, output, session) {
             class = "form-select form-select-sm",
             style = "font-size: 0.75rem;",
             onchange = sprintf("Shiny.setInputValue('colType_%s', this.value, {priority: 'event'});", col_name),
-            tags$option(value = "numeric", selected = if (current_type %in% c("numeric", "integer", "double")) "selected" else NULL, "Numeric"),
-            tags$option(value = "character", selected = if (current_type == "character") "selected" else NULL, "Text"),
-            tags$option(value = "factor", selected = if (current_type == "factor") "selected" else NULL, "Categorical"),
-            tags$option(value = "logical", selected = if (current_type == "logical") "selected" else NULL, "Logical")
+            tags$option(value = "numeric", selected = ifelse(current_type %in% c("numeric", "integer", "double"), "selected", NULL), "Numeric"),
+            tags$option(value = "character", selected = ifelse(current_type == "character", "selected", NULL), "Text"),
+            tags$option(value = "factor", selected = ifelse(current_type == "factor", "selected", NULL), "Categorical"),
+            tags$option(value = "logical", selected = ifelse(current_type == "logical", "selected", NULL), "Logical")
           )
         )
       )
@@ -2999,11 +3677,10 @@ server <- function(input, output, session) {
       tags$div(
         tags$p("Choose export format and download your edited datasets:"),
         downloadButton("downloadSpeciesData", "Download Species Data", class = "btn-success w-100 mb-2"),
-        if (!is.null(dataManagement$envData)) {
-          downloadButton("downloadEnvData", "Download Environment Data", class = "btn-warning w-100")
-        } else {
+        ifelse(!is.null(dataManagement$envData), 
+          downloadButton("downloadEnvData", "Download Environment Data", class = "btn-warning w-100"),
           NULL
-        }
+        )
       ),
       footer = modalButton("Close"),
       size = "m"
@@ -3539,12 +4216,12 @@ server <- function(input, output, session) {
         abund_matrix_t <- t(abund_matrix)
         colnames(abund_matrix_t) <- site_names
         
-        cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format:", if(is_binary) "incidence_raw" else "abundance", "\n")
+        cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format:", ifelse(is_binary, "incidence_raw", "abundance"), "\n")
         return(list(
           original = abund_matrix, 
           transposed = abund_matrix_t, 
           inext_data = abund_matrix_t,
-          data_format = if(is_binary) "incidence_raw" else "abundance", 
+          data_format = ifelse(is_binary, "incidence_raw", "abundance"), 
           is_binary = is_binary
         ))
       }
@@ -3656,7 +4333,7 @@ server <- function(input, output, session) {
       waiter$hide()
       
       list(original = abund_matrix, transposed = abund_matrix_t, inext_data = abund_matrix_t,
-           data_format = if(is_binary) "incidence_raw" else "abundance", is_binary = is_binary)
+           data_format = ifelse(is_binary, "incidence_raw", "abundance"), is_binary = is_binary)
     }
   })
   
@@ -5740,7 +6417,7 @@ server <- function(input, output, session) {
         content = function(file) {
           write(toJSON(indicesResults()$summary, pretty = TRUE), file)
         }
-      )
+      ),
     }, error = function(e) {
       showNotification(
         paste("JSON export failed:", e$message),
@@ -5749,6 +6426,6 @@ server <- function(input, output, session) {
       )
     })
   })
-}
+)
 
 shinyApp(ui, server)

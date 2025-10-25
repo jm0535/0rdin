@@ -51,362 +51,510 @@ ui <- tagList(
     color = "#1a1a1a"
   ),
   
-  page_navbar(
-    title = "Ördin v3.0",
-    id = "main_nav",
-    theme = bs_theme(
-    version = 5,
-    preset = "shiny",
-    bg = "#1e1e1e",
-    fg = "#cccccc",
-    primary = "#2e8b57",      # GREEN primary color
-    secondary = "#2d2d30",
-    success = "#2e8b57",       # GREEN success color
-    info = "#4ec9b0",
-    warning = "#ff8c00",
-    danger = "#d32f2f",
-    "navbar-bg" = "#2d2d30",
-    "navbar-light-brand-color" = "#ffffff",
-    "navbar-light-brand-hover-color" = "#2e8b57",  # GREEN hover
-    "font-size-base" = "0.9rem",
-    "enable-rounded" = FALSE,
-    "enable-shadows" = FALSE
+  div(
+    # VS Code Style Activity Bar
+    tags$div(
+      class = "activity-bar",
+      tags$div(
+        class = "activity-item active",
+        `data-view` = "home",
+        icon("home"),
+        tags$span(class = "tooltip", "Home")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "explorer",
+        icon("folder"),
+        tags$span(class = "tooltip", "Explorer")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "diversity",
+        icon("chart-line"),
+        tags$span(class = "tooltip", "Diversity Analysis")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "ordination",
+        icon("project-diagram"),
+        tags$span(class = "tooltip", "Ordination")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "settings",
+        icon("cog"),
+        tags$span(class = "tooltip", "Settings")
+      ),
+      tags$div(
+        class = "activity-item",
+        `data-view` = "help",
+        icon("question-circle"),
+        tags$span(class = "tooltip", "Help")
+      )
+    ),
+    
+    # Primary Sidebar
+    tags$div(
+      class = "primary-sidebar",
+      tags$div(
+        class = "sidebar-header",
+        "ÖRDIN v3.0",
+        tags$div(
+          icon("times"),
+          onclick = "toggleSidebar()"
+        )
+      ),
+      # Explorer View Content
+      tags$div(
+        id = "explorer-content",
+        class = "sidebar-content",
+        # Explorer sections
+        tags$div(
+          class = "sidebar-section",
+          tags$div(
+            class = "sidebar-section-header",
+            "DATA SOURCES",
+            icon("chevron-down")
+          ),
+          tags$div(
+            class = "sidebar-section-content",
+            tags$div(
+              class = "sidebar-item",
+              icon("file-import"),
+              "Local Files"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("history"),
+              "Recent Files"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("database"),
+              "Sample Datasets"
+            )
+          )
+        ),
+        tags$div(
+          class = "sidebar-section",
+          tags$div(
+            class = "sidebar-section-header",
+            "WORKSPACE",
+            icon("chevron-down")
+          ),
+          tags$div(
+            class = "sidebar-section-content",
+            tags$div(
+              class = "sidebar-item",
+              icon("table"),
+              "Current Dataset"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("info-circle"),
+              "Metadata"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("check-circle"),
+              "Validation Status"
+            )
+          )
+        ),
+        tags$div(
+          class = "sidebar-section",
+          tags$div(
+            class = "sidebar-section-header",
+            "EXPORTS",
+            icon("chevron-down")
+          ),
+          tags$div(
+            class = "sidebar-section-content",
+            tags$div(
+              class = "sidebar-item",
+              icon("history"),
+              "Export History"
+            ),
+            tags$div(
+              class = "sidebar-item",
+              icon("file-alt"),
+              "Templates"
+            )
+          )
+        )
+      )
+    ),
+    
+    # Main Content Area
+    tags$div(
+      class = "main-content",
+      # Home section (initially visible)
+      tags$div(
+        id = "home-section",
+        class = "content-section",
+        style = "display: block;",
+        # HOME / LANDING PAGE
+        div(
+          class = "landing-page",
+          style = "min-height: 100vh; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 60px 20px;",
+          
+          # Hero Section
+          div(
+            class = "container",
+            style = "max-width: 1200px; margin: 0 auto;",
+            
+            # Animated Logo & Title
+            div(
+              class = "text-center mb-5",
+              style = "animation: fadeInDown 0.8s ease-out;",
+              div(
+                style = "font-size: 8em; color: #2e8b57; margin-bottom: 20px; font-weight: bold; text-shadow: 0 0 30px rgba(46, 139, 87, 0.5); animation: pulse 2s infinite;",
+                "Ö"
+              ),
+              h1(
+                style = "font-size: 3.5em; font-weight: 800; background: linear-gradient(135deg, #2e8b57 0%, #3fa869 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px;",
+                "Ördin v3.0"
+              ),
+              p(
+                class = "lead",
+                style = "font-size: 1.5em; color: #999; font-weight: 300; letter-spacing: 2px;",
+                "COMMUNITY ECOLOGY ANALYSIS PLATFORM"
+              ),
+              p(
+                style = "color: #666; font-size: 1.1em; margin-top: 20px;",
+                icon("flask"), " Enterprise-Grade Statistical Computing  ",
+                icon("chart-bar"), " Advanced Visualization  ",
+                icon("database"), " Multi-Format Export"
+              )
+            ),
+            
+            # Interactive Module Cards
+            div(
+              class = "row mt-5 justify-content-center",
+              style = "animation: fadeInUp 0.8s ease-out 0.1s both;",
+              
+              # Card 1: Diversity Estimation
+              div(
+                class = "col-lg-4 col-md-6 mb-4",
+                actionButton(
+                  "navToDiversity",
+                  div(
+                    style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #2e8b57; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                    onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(46, 139, 87, 0.4)'; this.style.borderColor='#3fa869';",
+                    onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#2e8b57';",
+                    div(
+                      div(
+                        style = "font-size: 3.5em; color: #2e8b57; margin-bottom: 15px;",
+                        icon("chart-line")
+                      ),
+                      h4(
+                        style = "color: #2e8b57; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                        "Diversity Estimation"
+                      ),
+                      p(
+                        style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                        "iNEXT rarefaction & extrapolation with Hill numbers"
+                      )
+                    ),
+                    div(
+                      style = "margin-top: 15px; padding: 10px 20px; background: #2e8b5722; color: #2e8b57; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
+                      "START ANALYSIS →"
+                    )
+                  ),
+                  class = "btn",
+                  style = "border: none; background: transparent; width: 100%; padding: 0;"
+                )
+              ),
+              
+              # Card 2: Ordination
+              div(
+                class = "col-lg-4 col-md-6 mb-4",
+                actionButton(
+                  "navToOrdination",
+                  div(
+                    style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #4169e1; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                    onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(65, 105, 225, 0.4)'; this.style.borderColor='#5179f1';",
+                    onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#4169e1';",
+                    div(
+                      div(
+                        style = "font-size: 3.5em; color: #4169e1; margin-bottom: 15px;",
+                        icon("project-diagram")
+                      ),
+                      h4(
+                        style = "color: #4169e1; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                        "Ordination Analysis"
+                      ),
+                      p(
+                        style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                        "NMDS, PCA, CA, DCA & PCoA for community patterns"
+                      )
+                    ),
+                    div(
+                      style = "margin-top: 15px; padding: 10px 20px; background: #4169e122; color: #4169e1; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
+                      "EXPLORE →"
+                    )
+                  ),
+                  class = "btn",
+                  style = "border: none; background: transparent; width: 100%; padding: 0;"
+                )
+              ),
+              
+              # Card 3: Diversity Indices
+              div(
+                class = "col-lg-4 col-md-6 mb-4",
+                div(
+                  style = "text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); border: 2px solid #ff8c00; border-radius: 15px; transition: all 0.3s; cursor: pointer; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;",
+                  onmouseover = "this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(255, 140, 0, 0.4)'; this.style.borderColor='#ff9c10';",
+                  onmouseout = "this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#ff8c00';",
+                  onclick = "Shiny.setInputValue('main_nav', 'Diversity Analysis'); Shiny.setInputValue('analysisType', 'indices', {priority: 'event'});",
+                  div(
+                    div(
+                      style = "font-size: 3.5em; color: #ff8c00; margin-bottom: 15px;",
+                      icon("calculator")
+                    ),
+                    h4(
+                      style = "color: #ff8c00; font-weight: 700; margin-bottom: 12px; font-size: 1.3em;",
+                      "Diversity Indices"
+                    ),
+                    p(
+                      style = "color: #999; font-size: 0.9em; line-height: 1.5; margin-bottom: 0;",
+                      "Shannon, Simpson, Fisher's α & Pielou's evenness"
+                    )
+                  ),
+                  div(
+                    style = "margin-top: 15px; padding: 10px 20px; background: #ff8c0022; color: #ff8c00; border-radius: 25px; display: inline-block; font-size: 0.85em; font-weight: 700;",
+                    "CALCULATE →"
+                  )
+                )
+              )
+            ),
+            
+            # Features Grid
+            div(
+              class = "mt-5",
+              style = "animation: fadeInUp 0.8s ease-out 0.4s both;",
+              h3(
+                class = "text-center mb-4",
+                style = "color: #2e8b57; font-weight: 700; font-size: 2em;",
+                "Enterprise Features"
+              ),
+              div(
+                class = "row",
+                div(
+                  class = "col-lg-4 col-md-6 mb-3",
+                  div(
+                    style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                    onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                    onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                    div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("keyboard")),
+                    h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Keyboard Shortcuts"),
+                    p(style = "color: #888; font-size: 0.85em; margin: 0;", "Ctrl+O • Ctrl+S • Ctrl+T • Ctrl+1/2/3")
+                  )
+                ),
+                div(
+                  class = "col-lg-4 col-md-6 mb-3",
+                  div(
+                    style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                    onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                    onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                    div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("file-export")),
+                    h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Multi-Format Export"),
+                    p(style = "color: #888; font-size: 0.85em; margin: 0;", "CSV, Excel, JSON & publication plots")
+                  )
+                ),
+                div(
+                  class = "col-lg-4 col-md-6 mb-3",
+                  div(
+                    style = "background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 25px; text-align: center; transition: all 0.3s; min-height: 180px;",
+                    onmouseover = "this.style.borderColor='#2e8b57'; this.style.transform='translateY(-5px)';",
+                    onmouseout = "this.style.borderColor='#333'; this.style.transform='translateY(0)';",
+                    div(style = "font-size: 2.5em; color: #2e8b57; margin-bottom: 12px;", icon("save")),
+                    h5(style = "color: #fff; font-weight: 600; margin-bottom: 10px; font-size: 1.1em;", "Auto-Save"),
+                    p(style = "color: #888; font-size: 0.85em; margin: 0;", "Session recovery every 30 seconds")
+                  )
+                )
+              )
+            ),
+            
+            # Quick Start Section
+            div(
+              class = "mt-5",
+              style = "animation: fadeInUp 0.8s ease-out 0.5s both;",
+              div(
+                style = "background: linear-gradient(135deg, #2e8b57 0%, #1f6d42 100%); border-radius: 15px; padding: 50px 40px; text-align: center; box-shadow: 0 10px 30px rgba(46, 139, 87, 0.3);",
+                h3(style = "color: #fff; font-weight: 700; margin-bottom: 20px;", "Get Started Quickly"),
+                p(style = "color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 30px;", "Load your community ecology data and start analyzing in minutes"),
+                div(
+                  class = "row justify-content-center",
+                  div(
+                    class = "col-md-4 mb-3",
+                    div(
+                      style = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 20px;",
+                      h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;", icon("upload"), " Load Data"),
+                      p(style = "color: rgba(255,255,255,0.8); font-size: 0.9rem;", "Upload CSV, Excel, or text files with your species abundance or presence-absence data")
+                    )
+                  ),
+                  div(
+                    class = "col-md-4 mb-3",
+                    div(
+                      style = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 20px;",
+                      h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;", icon("chart-line"), " Analyze"),
+                      p(style = "color: rgba(255,255,255,0.8); font-size: 0.9rem;", "Run diversity estimation, ordination, or calculate diversity indices with one click")
+                    )
+                  ),
+                  div(
+                    class = "col-md-4 mb-3",
+                    div(
+                      style = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 20px;",
+                      h5(style = "color: #2e8b57; font-weight: 700; margin-bottom: 15px;", icon("download"), " Export"),
+                      p(style = "color: rgba(255,255,255,0.8); font-size: 0.9rem;", "Download results as CSV, Excel, JSON, or publication-ready plots")
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      
+      # Explorer section
+      tags$div(
+        id = "explorer-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Data Explorer", style = "color: #2e8b57;"),
+          p("Manage your datasets and project files", style = "color: #999;"),
+          # Data management content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Upload Data", style = "color: #cccccc;"),
+            fileInput("dataFile", "Select CSV, Excel, or Text File",
+                     accept = c(".csv", ".xlsx", ".xls", ".txt")),
+            p("Supported formats: CSV, Excel (.xlsx/.xls), Tab-delimited text", style = "color: #888; font-size: 0.9rem;")
+          )
+        )
+      ),
+      
+      # Diversity Analysis section
+      tags$div(
+        id = "diversity-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Diversity Analysis", style = "color: #2e8b57;"),
+          p("Estimate and analyze community diversity patterns", style = "color: #999;"),
+          # Diversity analysis content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Analysis Parameters", style = "color: #cccccc;"),
+            selectInput("diversityMethod", "Method",
+                       choices = c(
+                         "iNEXT Rarefaction & Extrapolation" = "inext",
+                         "Diversity Indices" = "indices",
+                         "Accumulation Curves" = "accum"
+                       )),
+            conditionalPanel(
+              condition = "input.diversityMethod == 'inext'",
+              selectInput("dataType", "Data Type",
+                         choices = c(
+                           "Abundance" = "abundance",
+                           "Incidence" = "incidence_raw"
+                         )),
+              numericInput("knots", "Knots", value = 40, min = 10, max = 100),
+              numericInput("bootstraps", "Bootstrap Replicates", value = 50, min = 10, max = 200)
+            ),
+            actionButton("runDiversity", "Run Analysis", class = "btn-success")
+          )
+        )
+      ),
+      
+      # Ordination section
+      tags$div(
+        id = "ordination-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Ordination Analysis", style = "color: #4169e1;"),
+          p("Explore community composition patterns", style = "color: #999;"),
+          # Ordination analysis content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Analysis Parameters", style = "color: #cccccc;"),
+            selectInput("ordinationMethod", "Method",
+                       choices = c(
+                         "NMDS" = "nmds",
+                         "PCA" = "pca",
+                         "CA" = "ca",
+                         "DCA" = "dca",
+                         "CCA" = "cca",
+                         "RDA" = "rda",
+                         "PCoA" = "pcoa"
+                       )),
+            numericInput("ordDimensions", "Dimensions", value = 2, min = 2, max = 5)
+          )
+        )
+      ),
+      
+      # Settings section
+      tags$div(
+        id = "settings-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Settings", style = "color: #2e8b57;"),
+          p("Configure application preferences", style = "color: #999;"),
+          # Settings content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Appearance", style = "color: #cccccc;"),
+            selectInput("themeSelector", "Theme",
+                       choices = c(
+                         "Dark" = "dark",
+                         "Light" = "light",
+                         "Auto" = "auto"
+                       )),
+            selectInput("fontSizeSelector", "Font Size",
+                       choices = c(
+                         "Small" = "small",
+                         "Medium" = "medium",
+                         "Large" = "large"
+                       ))
+          )
+        )
+      ),
+      
+      # Help section
+      tags$div(
+        id = "help-section",
+        class = "content-section",
+        div(
+          style = "padding: 20px;",
+          h2("Help & Documentation", style = "color: #2e8b57;"),
+          p("Get help and learn how to use Ördin", style = "color: #999;"),
+          # Help content will be added here
+          div(
+            style = "margin-top: 20px; background: #252526; border: 1px solid #3e3e42; border-radius: 5px; padding: 20px;",
+            h4("Getting Started", style = "color: #cccccc;"),
+            p("Welcome to Ördin v3.0 - Community Ecology Analysis Platform", style = "color: #999;"),
+            tags$ul(
+              style = "color: #999;",
+              tags$li("Upload your community data using the Explorer tab"),
+              tags$li("Perform diversity analysis in the Diversity Analysis tab"),
+              tags$li("Explore community patterns with ordination in the Ordination tab"),
+              tags$li("Export results in multiple formats")
+            )
+          )
+        )
+      )
+    )
   ),
   
   # Link external CSS and JavaScript
   header = tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
-    tags$script(HTML('
-      // Auto-save functionality
-      let autoSaveInterval = null;
-      let isDirty = false;
-      
-      function enableAutoSave() {
-        // Mark data as changed
-        isDirty = true;
-        
-        // Auto-save every 30 seconds
-        if (!autoSaveInterval) {
-          autoSaveInterval = setInterval(function() {
-            if (isDirty) {
-              const timestamp = new Date().toISOString();
-              localStorage.setItem("ordin-autosave-timestamp", timestamp);
-              isDirty = false;
-              
-              // Show subtle notification
-              const notification = document.getElementById("autosave-indicator");
-              if (notification) {
-                notification.style.opacity = "1";
-                setTimeout(() => { notification.style.opacity = "0"; }, 2000);
-              }
-            }
-          }, 30000); // 30 seconds
-        }
-      }
-      
-      // Keyboard shortcuts
-      document.addEventListener("keydown", function(e) {
-        // Ctrl+O: Open file dialog
-        if (e.ctrlKey && e.key === "o") {
-          e.preventDefault();
-          const fileInput = document.getElementById("dataFile");
-          if (fileInput) fileInput.click();
-        }
-        
-        // Ctrl+S: Save/Export results
-        if (e.ctrlKey && e.key === "s") {
-          e.preventDefault();
-          const downloadBtn = document.querySelector(".btn-success[id*=download]");
-          if (downloadBtn) downloadBtn.click();
-        }
-        
-        // Ctrl+T: Toggle theme
-        if (e.ctrlKey && e.key === "t") {
-          e.preventDefault();
-          toggleTheme();
-        }
-        
-        // Ctrl+1/2/3: Switch tabs
-        if (e.ctrlKey && ["1", "2", "3"].includes(e.key)) {
-          e.preventDefault();
-          const tabs = document.querySelectorAll(".nav-link");
-          const index = parseInt(e.key) - 1;
-          if (tabs[index]) tabs[index].click();
-        }
-        
-        // F1: Help
-        if (e.key === "F1") {
-          e.preventDefault();
-          const helpTab = document.querySelector(".nav-link[data-value=\'Help\']");
-          if (helpTab) helpTab.click();
-        }
-      });
-      
-      // Theme toggle functionality (for Ctrl+T shortcut)
-      function toggleTheme() {
-        const body = document.body;
-        const currentTheme = body.classList.contains("light-theme") ? "light" : "dark";
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-        
-        // Toggle CSS class
-        if (newTheme === "light") {
-          body.classList.add("light-theme");
-          body.classList.remove("dark-theme");
-        } else {
-          body.classList.add("dark-theme");
-          body.classList.remove("light-theme");
-        }
-        
-        localStorage.setItem("ordin-theme", newTheme);
-        
-        // Update theme selector in settings
-        const themeSelector = document.getElementById("themeSelector");
-        if (themeSelector) {
-          themeSelector.value = newTheme;
-        }
-      }
-      
-      // Handle theme change from settings dropdown
-      function handleThemeChange(theme) {
-        const body = document.body;
-        
-        if (theme === "auto") {
-          // Use system preference
-          const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-          theme = prefersDark ? "dark" : "light";
-        }
-        
-        if (theme === "light") {
-          body.classList.add("light-theme");
-          body.classList.remove("dark-theme");
-        } else {
-          body.classList.add("dark-theme");
-          body.classList.remove("light-theme");
-        }
-        
-        localStorage.setItem("ordin-theme", theme);
-        
-        // Send to Shiny
-        Shiny.setInputValue("settingsTheme", theme);
-      }
-      
-      // Handle font size change
-      function handleFontSizeChange(size) {
-        const body = document.body;
-        body.classList.remove("font-small", "font-medium", "font-large");
-        body.classList.add("font-" + size);
-        localStorage.setItem("ordin-font-size", size);
-        Shiny.setInputValue("settingsFontSize", size);
-      }
-      
-      // Save settings to localStorage when changed
-      function saveSettingToLocalStorage(key, value) {
-        localStorage.setItem("ordin-" + key, value);
-      }
-      
-      // Toggle settings sidebar
-      function toggleSettingsSidebar() {
-        const sidebar = document.getElementById("settings-sidebar");
-        const overlay = document.getElementById("settings-overlay");
-        const isOpen = sidebar.style.right === "0px";
-        
-        if (isOpen) {
-          // Close sidebar
-          sidebar.style.right = "-400px";
-          overlay.style.display = "none";
-          overlay.style.opacity = "0";
-          document.body.style.overflow = "auto";
-        } else {
-          // Open sidebar
-          sidebar.style.right = "0px";
-          overlay.style.display = "block";
-          setTimeout(() => { overlay.style.opacity = "1"; }, 10);
-          document.body.style.overflow = "hidden";
-        }
-      }
-      
-      // Zoom functionality
-      let currentZoom = 100;
-      
-      function zoomIn() {
-        if (currentZoom < 200) {
-          currentZoom += 10;
-          applyZoom();
-        }
-      }
-      
-      function zoomOut() {
-        if (currentZoom > 50) {
-          currentZoom -= 10;
-          applyZoom();
-        }
-      }
-      
-      function zoomReset() {
-        currentZoom = 100;
-        applyZoom();
-      }
-      
-      function applyZoom() {
-        document.body.style.zoom = currentZoom + "%";
-        document.getElementById("zoom-level").textContent = currentZoom + "%";
-        localStorage.setItem("ordin-zoom-level", currentZoom);
-        Shiny.setInputValue("settingsZoomLevel", currentZoom);
-      }
-      
-      // Reset all settings to defaults
-      function resetAllSettings() {
-        // Clear localStorage
-        localStorage.removeItem("ordin-theme");
-        localStorage.removeItem("ordin-font-size");
-        localStorage.removeItem("ordin-autosave-timestamp");
-        localStorage.removeItem("ordin-zoom-level");
-        localStorage.removeItem("ordin-ggplot-theme");
-        localStorage.removeItem("ordin-plot-dpi");
-        localStorage.removeItem("ordin-color-palette");
-        
-        // Reset theme to dark
-        handleThemeChange("dark");
-        
-        // Reset font size to medium
-        handleFontSizeChange("medium");
-        
-        // Reset zoom to 100%
-        currentZoom = 100;
-        applyZoom();
-        
-        // Reset toggles
-        document.getElementById("autoSaveToggle").checked = true;
-        document.getElementById("notificationsToggle").checked = true;
-        
-        // Reset selects
-        document.getElementById("themeSelector").value = "dark";
-        document.getElementById("fontSizeSelector").value = "medium";
-        document.getElementById("exportFormatSelector").value = "csv";
-        document.getElementById("decimalPrecisionSelector").value = "3";
-        document.getElementById("ggplotThemeSelector").value = "minimal";
-        document.getElementById("plotDpiSelector").value = "300";
-        document.getElementById("colorPaletteSelector").value = "ordin";
-        
-        // Notify user
-        alert("Settings reset to defaults!");
-        
-        // Notify Shiny
-        Shiny.setInputValue("settingsReset", Date.now());
-      }
-      
-      // Load saved theme on startup
-      document.addEventListener("DOMContentLoaded", function() {
-        // Load saved theme
-        const savedTheme = localStorage.getItem("ordin-theme") || "dark";
-        const body = document.body;
-        
-        if (savedTheme === "light") {
-          body.classList.add("light-theme");
-          body.classList.remove("dark-theme");
-        } else {
-          body.classList.add("dark-theme");
-          body.classList.remove("light-theme");
-        }
-        
-        // Load saved font size
-        const savedFontSize = localStorage.getItem("ordin-font-size") || "medium";
-        body.classList.add("font-" + savedFontSize);
-        
-        // Load saved zoom level
-        const savedZoom = localStorage.getItem("ordin-zoom-level");
-        if (savedZoom) {
-          currentZoom = parseInt(savedZoom);
-          document.body.style.zoom = currentZoom + "%";
-          const zoomElement = document.getElementById("zoom-level");
-          if (zoomElement) {
-            zoomElement.textContent = currentZoom + "%";
-          }
-        }
-        
-        // Load settings into dropdown (with delay to ensure elements exist)
-        setTimeout(function() {
-          const themeSelector = document.getElementById("themeSelector");
-          if (themeSelector) themeSelector.value = savedTheme;
-          
-          const fontSizeSelector = document.getElementById("fontSizeSelector");
-          if (fontSizeSelector) fontSizeSelector.value = savedFontSize;
-          
-          // Load other settings from localStorage
-          const autoSaveEnabled = localStorage.getItem("ordin-autosave-enabled");
-          if (autoSaveEnabled !== null) {
-            const toggle = document.getElementById("autoSaveToggle");
-            if (toggle) toggle.checked = autoSaveEnabled === "true";
-          }
-          
-          const notificationsEnabled = localStorage.getItem("ordin-notifications-enabled");
-          if (notificationsEnabled !== null) {
-            const toggle = document.getElementById("notificationsToggle");
-            if (toggle) toggle.checked = notificationsEnabled === "true";
-          }
-          
-          const exportFormat = localStorage.getItem("ordin-export-format");
-          if (exportFormat) {
-            const selector = document.getElementById("exportFormatSelector");
-            if (selector) selector.value = exportFormat;
-          }
-          
-          const decimalPrecision = localStorage.getItem("ordin-decimal-precision");
-          if (decimalPrecision) {
-            const selector = document.getElementById("decimalPrecisionSelector");
-            if (selector) selector.value = decimalPrecision;
-          }
-          
-          // Load plot settings
-          const ggplotTheme = localStorage.getItem("ordin-ggplot-theme");
-          if (ggplotTheme) {
-            const selector = document.getElementById("ggplotThemeSelector");
-            if (selector) selector.value = ggplotTheme;
-          }
-          
-          const plotDpi = localStorage.getItem("ordin-plot-dpi");
-          if (plotDpi) {
-            const selector = document.getElementById("plotDpiSelector");
-            if (selector) selector.value = plotDpi;
-          }
-          
-          const colorPalette = localStorage.getItem("ordin-color-palette");
-          if (colorPalette) {
-            const selector = document.getElementById("colorPaletteSelector");
-            if (selector) selector.value = colorPalette;
-          }
-          
-          // Load global publication quality settings
-          const globalPubQuality = localStorage.getItem("ordin-global-pub-quality");
-          if (globalPubQuality !== null) {
-            const toggle = document.getElementById("globalPubQuality");
-            if (toggle) toggle.checked = globalPubQuality === "true";
-          }
-          
-          const globalPlotTheme = localStorage.getItem("ordin-global-plot-theme");
-          if (globalPlotTheme) {
-            const selector = document.getElementById("globalPlotTheme");
-            if (selector) selector.value = globalPlotTheme;
-          }
-        }, 500);
-        
-        // Set window title to just "Ördin"
-        document.title = "Ördin";
-        
-        // Initialize auto-save indicator
-        const navbar = document.querySelector(".navbar");
-        if (navbar && !document.getElementById("autosave-indicator")) {
-          const indicator = document.createElement("div");
-          indicator.id = "autosave-indicator";
-          indicator.style.cssText = "position: fixed; top: 10px; right: 70px; background: #2e8b57; color: white; padding: 5px 12px; border-radius: 3px; font-size: 0.75rem; opacity: 0; transition: opacity 0.3s; z-index: 9999;";
-          indicator.innerHTML = "💾 Auto-saved";
-          document.body.appendChild(indicator);
-        }
-      });
-    '))
+    tags$script(src = "app.js")
   ),  # End header
-  
-  # HOME / LANDING PAGE
   nav_panel(
     title = "Home",
     icon = icon("home"),
@@ -2071,7 +2219,6 @@ ui <- tagList(
       style = "border: none; background: transparent; font-size: 1.1rem; padding: 4px 10px; cursor: pointer; color: #cccccc;",
       icon("cog")
     )
-  )
   ),  # End page_navbar
   
   # Settings Sidebar (overlay)
@@ -2915,7 +3062,7 @@ server <- function(input, output, session) {
     
     tabs <- tagList(
       tags$button(
-        class = if (dataManagement$activeDataset == "species") "btn btn-sm btn-primary" else "btn btn-sm btn-outline-secondary",
+        class = ifelse(dataManagement$activeDataset == "species", "btn btn-sm btn-primary", "btn btn-sm btn-outline-secondary"),
         style = "border-radius: 0; font-size: 0.85rem;",
         onclick = "Shiny.setInputValue('activeDatasetTab', 'species', {priority: 'event'});",
         icon("dna"), " Species Data"
@@ -2926,7 +3073,7 @@ server <- function(input, output, session) {
       tabs <- tagList(
         tabs,
         tags$button(
-          class = if (dataManagement$activeDataset == "env") "btn btn-sm btn-warning" else "btn btn-sm btn-outline-warning",
+          class = ifelse(dataManagement$activeDataset == "env", "btn btn-sm btn-warning", "btn btn-sm btn-outline-warning"),
           style = "border-radius: 0; font-size: 0.85rem; margin-left: 5px;",
           onclick = "Shiny.setInputValue('activeDatasetTab', 'env', {priority: 'event'});",
           icon("leaf"), " Environment Data"
@@ -2981,10 +3128,10 @@ server <- function(input, output, session) {
             class = "form-select form-select-sm",
             style = "font-size: 0.75rem;",
             onchange = sprintf("Shiny.setInputValue('colType_%s', this.value, {priority: 'event'});", col_name),
-            tags$option(value = "numeric", selected = if (current_type %in% c("numeric", "integer", "double")) "selected" else NULL, "Numeric"),
-            tags$option(value = "character", selected = if (current_type == "character") "selected" else NULL, "Text"),
-            tags$option(value = "factor", selected = if (current_type == "factor") "selected" else NULL, "Categorical"),
-            tags$option(value = "logical", selected = if (current_type == "logical") "selected" else NULL, "Logical")
+            tags$option(value = "numeric", selected = ifelse(current_type %in% c("numeric", "integer", "double"), "selected", NULL), "Numeric"),
+            tags$option(value = "character", selected = ifelse(current_type == "character", "selected", NULL), "Text"),
+            tags$option(value = "factor", selected = ifelse(current_type == "factor", "selected", NULL), "Categorical"),
+            tags$option(value = "logical", selected = ifelse(current_type == "logical", "selected", NULL), "Logical")
           )
         )
       )
@@ -3139,11 +3286,10 @@ server <- function(input, output, session) {
       tags$div(
         tags$p("Choose export format and download your edited datasets:"),
         downloadButton("downloadSpeciesData", "Download Species Data", class = "btn-success w-100 mb-2"),
-        if (!is.null(dataManagement$envData)) {
-          downloadButton("downloadEnvData", "Download Environment Data", class = "btn-warning w-100")
-        } else {
+        ifelse(!is.null(dataManagement$envData), 
+          downloadButton("downloadEnvData", "Download Environment Data", class = "btn-warning w-100"),
           NULL
-        }
+        )
       ),
       footer = modalButton("Close"),
       size = "m"
@@ -3491,7 +3637,7 @@ server <- function(input, output, session) {
     
     if (settings$notifications) {
       showNotification(
-        if (input$globalPubQuality) "Global publication mode enabled" else "Global publication mode disabled",
+        ifelse(input$globalPubQuality, "Global publication mode enabled", "Global publication mode disabled"),
         type = "message",
         duration = 2
       )
@@ -3679,12 +3825,12 @@ server <- function(input, output, session) {
         abund_matrix_t <- t(abund_matrix)
         colnames(abund_matrix_t) <- site_names
         
-        cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format:", if(is_binary) "incidence_raw" else "abundance", "\n")
+        cat("\nReturning data: original matrix (", nrow(abund_matrix), "x", ncol(abund_matrix), "), format:", ifelse(is_binary, "incidence_raw", "abundance"), "\n")
         return(list(
           original = abund_matrix, 
           transposed = abund_matrix_t, 
           inext_data = abund_matrix_t,
-          data_format = if(is_binary) "incidence_raw" else "abundance", 
+          data_format = ifelse(is_binary, "incidence_raw", "abundance"), 
           is_binary = is_binary
         ))
       }
@@ -3796,7 +3942,7 @@ server <- function(input, output, session) {
       waiter$hide()
       
       list(original = abund_matrix, transposed = abund_matrix_t, inext_data = abund_matrix_t,
-           data_format = if(is_binary) "incidence_raw" else "abundance", is_binary = is_binary)
+           data_format = ifelse(is_binary, "incidence_raw", "abundance"), is_binary = is_binary)
     }
   })
   
@@ -4582,8 +4728,8 @@ server <- function(input, output, session) {
         plot.caption = element_text(color = text_color, size = base_font - 1, 
                                    hjust = 0, face = "italic"),
         legend.background = element_rect(fill = bg_color, 
-                                        color = if (plot_theme == "classic") text_color else NA,
-                                        linewidth = if (plot_theme == "classic") 0.5 else 0),
+                                        color = ifelse(plot_theme == "classic", text_color, NA),
+                                        linewidth = ifelse(plot_theme == "classic", 0.5, 0)),
         legend.text = element_text(color = text_color, size = base_font, face = "plain"),
         legend.title = element_text(color = text_color, size = base_font + 1, face = "bold"),
         legend.position = "bottom",
@@ -5588,8 +5734,8 @@ server <- function(input, output, session) {
               plot.caption = element_text(color = text_color, size = base_font - 1, 
                                          hjust = 0, face = "italic"),
               legend.background = element_rect(fill = bg_color, 
-                                              color = if (plot_theme == "classic") text_color else NA,
-                                              linewidth = if (plot_theme == "classic") 0.5 else 0),
+                                              color = ifelse(plot_theme == "classic", text_color, NA),
+                                              linewidth = ifelse(plot_theme == "classic", 0.5, 0)),
               legend.text = element_text(color = text_color, size = base_font, face = "plain"),
               legend.title = element_text(color = text_color, size = base_font + 1, face = "bold"),
               legend.position = "right",
@@ -5597,12 +5743,12 @@ server <- function(input, output, session) {
               legend.key.size = unit(1.2, "lines"),
               plot.margin = margin(15, 15, 15, 15)) +
         labs(title = paste("Ordination:", result$method),
-             subtitle = if(!is.null(result$stress)) paste("Stress:", round(result$stress, 3)) else "",
+             subtitle = ifelse(!is.null(result$stress), paste("Stress:", round(result$stress, 3)), ""),
              x = x_label,
              y = y_label,
              caption = paste(
-               if (!is.null(input$showEnvArrows) && input$showEnvArrows && !is.null(result$env_data)) "Orange arrows = Environmental gradients  " else "",
-               if (!is.null(input$showEnvEllipses) && input$showEnvEllipses && use_ellipses) "Ellipses = 95% confidence intervals" else "",
+               ifelse(!is.null(input$showEnvArrows) && input$showEnvArrows && !is.null(result$env_data), "Orange arrows = Environmental gradients  ", ""),
+               ifelse(!is.null(input$showEnvEllipses) && input$showEnvEllipses && use_ellipses, "Ellipses = 95% confidence intervals", ""),
                sep = ""
              ))
       
@@ -5691,13 +5837,8 @@ server <- function(input, output, session) {
         eigen_df <- data.frame(
           Axis = paste0("Axis", 1:length(result$eigenvalues)),
           Eigenvalue = result$eigenvalues,
-          Variance_Percent = if (!is.null(result$variance)) {
-            result$variance
-          } else if (!is.null(result$inertia)) {
-            result$inertia
-          } else {
-            NA
-          }
+          Variance_Percent = ifelse(!is.null(result$variance), result$variance,
+                                    ifelse(!is.null(result$inertia), result$inertia, NA))
         )
       } else {
         # If no eigenvalues, create basic info
