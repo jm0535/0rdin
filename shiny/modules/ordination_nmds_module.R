@@ -134,6 +134,7 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
     # Source utilities
     source("utils/validation.R", local = TRUE)
     source("utils/interpretation.R", local = TRUE)
+    source("utils/reproducibility.R", local = TRUE)
     
     # Reactive values
     nmds_result <- reactiveVal(NULL)
@@ -444,14 +445,35 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
           # Get stress interpretation
           stress_interp <- interpretNMDSStress(nmds_result()$stress)
           
-          # Prepare parameters
-          params <- list(
+          # Capture metadata using standardized utility
+          metadata <- captureAnalysisMetadata(
+            dataset_name = "Community Data",
+            n_sites = nrow(data()),
+            n_species = ncol(data()),
+            analysis_type = "NMDS Ordination",
+            analysis_params = list(
+              distance = input$distance,
+              k = input$k,
+              permutations = input$permutations,
+              trymax = 20,
+              autotransform = FALSE
+            ),
+            result = nmds_result()
+          )
+          
+          # Build analysis-specific parameters
+          analysis_specific <- list(
             nmds_result = nmds_result(),
+            stress_interp = stress_interp,
             distance = input$distance,
             k = input$k,
-            stress_interp = stress_interp,
-            dataset_name = "Community Data"
+            permutations = input$permutations,
+            trymax = 20,
+            autotransform = FALSE
           )
+          
+          # Get complete report parameters
+          params <- getReportParameters(metadata, analysis_specific)
           
           # Create temporary output file with .pdf extension
           temp_pdf <- tempfile(fileext = ".pdf")
