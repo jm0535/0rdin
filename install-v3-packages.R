@@ -33,7 +33,12 @@ v3_packages <- c(
   "jsonlite",         # JSON export for APIs
   "clipr",            # Clipboard support (copy to clipboard)
   "shinyBS",          # Bootstrap components (tooltips, popovers)
-  "shinyalert"        # Professional alert dialogs
+  "shinyalert",       # Professional alert dialogs
+  
+  # Report generation (PDF/HTML)
+  "rmarkdown",        # R Markdown document generation
+  "tinytex",          # LaTeX backend for PDF reports
+  "knitr"             # Dynamic report generation
 )
 
 cat("📦 Packages to install/update:\n")
