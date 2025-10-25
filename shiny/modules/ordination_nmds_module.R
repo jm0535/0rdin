@@ -405,20 +405,40 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
         ))
         
         tryCatch({
-          # Check if tinytex is available
-          if (!requireNamespace("tinytex", quietly = TRUE)) {
+          # Check if pandoc is available
+          pandoc_available <- rmarkdown::pandoc_available()
+          
+          if (!pandoc_available) {
             waiter_hide()
             showNotification(
-              HTML("<strong>⚠️ LaTeX not installed</strong><br/>Installing tinytex (one-time setup, ~1 minute)..."),
-              type = "warning",
-              duration = 10
+              HTML("<strong>❌ Pandoc not found</strong><br/>Please install Pandoc from: <a href='https://pandoc.org/installing.html' target='_blank'>https://pandoc.org/installing.html</a><br/>See the help page for detailed instructions."),
+              type = "error",
+              duration = NULL
             )
-            install.packages("tinytex", repos = "https://cran.r-project.org")
-            tinytex::install_tinytex()
-            waiter_show(html = tagList(
-              spin_fading_circles(),
-              h3("Generating PDF Report...", style = "color: #2e8b57; margin-top: 20px;")
-            ))
+            return()
+          }
+          
+          # Verify pandoc version
+          pandoc_version <- rmarkdown::pandoc_version()
+          if (pandoc_version < "1.12.3") {
+            waiter_hide()
+            showNotification(
+              HTML(paste0("<strong>⚠️ Pandoc version too old</strong><br/>Current: ", pandoc_version, "<br/>Required: ≥ 1.12.3<br/>Please update Pandoc.")),
+              type = "error",
+              duration = NULL
+            )
+            return()
+          }
+          
+          # Check if tinytex is installed
+          if (!tinytex::is_tinytex()) {
+            waiter_hide()
+            showNotification(
+              HTML("<strong>⚠️ LaTeX not installed</strong><br/>TinyTeX is required for PDF generation.<br/>Run <code>tinytex::install_tinytex()</code> in R console."),
+              type = "error",
+              duration = NULL
+            )
+            return()
           }
           
           # Get stress interpretation
@@ -443,27 +463,67 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
             output_file = temp_pdf,
             params = params,
             envir = new.env(),
-            quiet = TRUE
+            quiet = FALSE
           )
           
           # Copy to download file
           file.copy(temp_pdf, file, overwrite = TRUE)
           
+          # Clean up temp file
+          if (file.exists(temp_pdf)) {
+            unlink(temp_pdf)
+          }
+          
           waiter_hide()
           
           showNotification(
-            "✓ PDF report generated successfully!",
+            HTML("<strong>✓ PDF report generated successfully!</strong><br/>The file is ready for download."),
             type = "message",
             duration = 5
           )
           
         }, error = function(e) {
           waiter_hide()
-          showNotification(
-            paste("❌ Error generating PDF:", e$message),
-            type = "error",
-            duration = 10
-          )
+          
+          # Provide detailed error information
+          error_msg <- conditionMessage(e)
+          
+          if (grepl("pandoc", error_msg, ignore.case = TRUE)) {
+            showNotification(
+              HTML(paste0(
+                "<strong>❌ Pandoc Error</strong><br/>",
+                "Error: ", error_msg, "<br/><br/>",
+                "<strong>Solution:</strong><br/>",
+                "1. Install Pandoc: <a href='https://pandoc.org/installing.html' target='_blank'>Download here</a><br/>",
+                "2. Restart R session after installation<br/>",
+                "3. Try generating the report again"
+              )),
+              type = "error",
+              duration = NULL
+            )
+          } else if (grepl("latex|tlmgr|xelatex|pdflatex", error_msg, ignore.case = TRUE)) {
+            showNotification(
+              HTML(paste0(
+                "<strong>❌ LaTeX Error</strong><br/>",
+                "Error: ", error_msg, "<br/><br/>",
+                "<strong>Solution:</strong><br/>",
+                "Run in R console: <code>tinytex::install_tinytex()</code><br/>",
+                "This installs a minimal LaTeX distribution."
+              )),
+              type = "error",
+              duration = NULL
+            )
+          } else {
+            showNotification(
+              HTML(paste0(
+                "<strong>❌ Error generating PDF</strong><br/>",
+                "Error: ", error_msg, "<br/><br/>",
+                "Check the R console for detailed error messages."
+              )),
+              type = "error",
+              duration = 10
+            )
+          }
         })
       },
       contentType = "application/pdf"
