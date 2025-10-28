@@ -36,6 +36,7 @@ cat("========================================\n")
 # List of required packages
 required_packages <- c(
   "shiny",
+  "shinydashboard",
   "bslib",
   "vegan",
   "iNEXT",

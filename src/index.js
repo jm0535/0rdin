@@ -11,7 +11,7 @@ if (require('electron-squirrel-startup')) {
 let mainWindow;
 let splashWindow;
 let rShinyProcess;
-const SHINY_PORT = 9033;
+const SHINY_PORT = 9050;
 const SHINY_HOST = '127.0.0.1';
 
 // Function to find R executable
@@ -306,7 +306,8 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: true
     },
     backgroundColor: '#222222',
     show: true,  // SHOW IMMEDIATELY - removed delay
@@ -316,6 +317,18 @@ function createWindow() {
   // Completely remove the menu bar
   mainWindow.setMenuBarVisibility(false);
   mainWindow.removeMenu();
+  
+  // Set Content Security Policy
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:* ws://127.0.0.1:* data: blob:;"
+        ]
+      }
+    });
+  });
   
   // Load the Shiny app
   console.log(`Loading URL: http://${SHINY_HOST}:${SHINY_PORT}`);

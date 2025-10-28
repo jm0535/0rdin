@@ -13,7 +13,7 @@ diversity_estimation_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
-    useShinyFeedback(),
+    # useShinyFeedback(),  # Disabled - conflicts with custom HTML
     
     div(class = "diversity-estimation-workflow",
       # Header
@@ -177,16 +177,16 @@ diversity_estimation_server <- function(id, data) {
     # Reactive values
     inext_result <- reactiveVal(NULL)
     
-    # Validate inputs
-    observeEvent(input$conf, {
-      validation <- validateConfidenceLevel(input$conf)
-      
-      if (validation$type == "error") {
-        feedbackDanger(ns("conf"), validation$valid, validation$message)
-      } else {
-        feedbackSuccess(ns("conf"), validation$valid, validation$message)
-      }
-    })
+    # Validate inputs (shinyFeedback disabled)
+    # observeEvent(input$conf, {
+    #   validation <- validateConfidenceLevel(input$conf)
+    #   
+    #   if (validation$type == "error") {
+    #     feedbackDanger(ns("conf"), validation$valid, validation$message)
+    #   } else {
+    #     feedbackSuccess(ns("conf"), validation$valid, validation$message)
+    #   }
+    # })
     
     # Run iNEXT Analysis
     observeEvent(input$run_inext, {

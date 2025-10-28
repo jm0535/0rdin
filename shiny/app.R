@@ -10,7 +10,13 @@ library(ggplot2)
 library(DT)
 library(shinyjs)
 library(waiter)
-# library(shinyFeedback)  # Temporarily disabled - conflicts with custom HTML structure
+library(shinydashboard)
+library(shinyWidgets)
+library(shinyFeedback)
+library(readr)
+library(readxl)
+library(dplyr)
+library(tidyr)
 
 # Source all modules
 source("modules/ordination_nmds_module.R")
@@ -35,18 +41,8 @@ ui <- function(req) {
     ),
     
     useShinyjs(),
+    useShinyFeedback(),
     use_waiter(),
-    # useShinyFeedback(),  # Temporarily disabled - conflicts with custom HTML structure
-    
-    # Suppress shinyFeedback JavaScript errors
-    tags$script(HTML("
-      window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('shinyfeedback')) {
-          e.preventDefault();
-          return true;
-        }
-      });
-    ")),
     
     # Include JS
     tags$script(src = "validation.js"),
@@ -57,6 +53,10 @@ ui <- function(req) {
     # Custom Shiny-prototype integration JS
     tags$script(HTML("
       $(document).ready(function() {
+        // Track current active view for toggle behavior
+        let currentView = 'home';
+        let currentRightPanel = null;
+        
         // Toggle sidebar
         window.toggleSidebar = function() {
           $('#sidebar').toggleClass('collapsed');
@@ -67,17 +67,51 @@ ui <- function(req) {
           $('#rightPanel').toggleClass('collapsed');
         };
         
-        // Switch view with Shiny integration
-        window.switchView = function(view) {
-          Shiny.setInputValue('current_view', view, {priority: 'event'});
-          Shiny.setInputValue('main_tabs', view, {priority: 'event'});
+        // Switch right panel (VSCode behavior)
+        window.switchRightPanel = function(panelType) {
+          const panel = $('#rightPanel');
+          const wasCollapsed = panel.hasClass('collapsed');
+          const clickedSamePanel = (currentRightPanel === panelType);
           
-          // Update activity bar
+          // VSCode behavior: clicking same icon toggles panel
+          if (clickedSamePanel && !wasCollapsed) {
+            panel.addClass('collapsed');
+            currentRightPanel = null;
+            return;
+          }
+          
+          // Open panel if collapsed or switching panels
+          if (wasCollapsed || !clickedSamePanel) {
+            panel.removeClass('collapsed');
+          }
+          
+          // Update current panel
+          currentRightPanel = panelType;
+        };
+        
+        // Switch view with Shiny integration - VSCode behavior
+        window.switchView = function(view) {
+          const sidebar = $('#sidebar');
+          const wasCollapsed = sidebar.hasClass('collapsed');
+          const clickedSameView = (currentView === view);
+          
+          // VSCode behavior: clicking same icon toggles sidebar
+          if (clickedSameView && !wasCollapsed) {
+            sidebar.addClass('collapsed');
+            return;
+          }
+          
+          // Update activity bar active state
           $('.activity-item').removeClass('active');
           $('#activity-' + view).addClass('active');
           
-          // Open sidebar if collapsed
-          $('#sidebar').removeClass('collapsed');
+          // Open sidebar if collapsed or switching views
+          if (wasCollapsed || !clickedSameView) {
+            sidebar.removeClass('collapsed');
+          }
+          
+          // Update current view
+          currentView = view;
           
           // Update sidebar title
           var titles = {
@@ -87,9 +121,13 @@ ui <- function(req) {
             'ordination': 'ORDINATION',
             'results': 'RESULTS',
             'settings': 'SETTINGS',
-            'about': 'HELP'
+            'help': 'HELP'
           };
           $('.sidebar-title').text(titles[view] || 'EXPLORER');
+          
+          // Update Shiny inputs
+          Shiny.setInputValue('current_view', view, {priority: 'event'});
+          Shiny.setInputValue('main_tabs', view, {priority: 'event'});
         };
         
         // Set initial state
@@ -147,12 +185,12 @@ ui <- function(req) {
         div(class = "activity-item", id = "activity-results",
             title = "Results", onclick = "switchView('results')", "📋"),
         div(class = "activity-item", id = "activity-properties",
-            title = "Properties", onclick = "toggleRightPanel()", "🔧"),
+            title = "Properties", onclick = "switchRightPanel('properties')", "🔧"),
         div(class = "spacer"),
         div(class = "activity-item", id = "activity-settings",
             title = "Settings", onclick = "switchView('settings')", "⚙️"),
-        div(class = "activity-item", id = "activity-about",
-            title = "Help", onclick = "switchView('about')", "❓")
+        div(class = "activity-item", id = "activity-help",
+            title = "Help", onclick = "switchView('help')", "❓")
       ),
       
       # PRIMARY SIDEBAR
@@ -202,7 +240,12 @@ ui <- function(req) {
                     tags$li(tags$strong(style = "color: #ccc;", "Prioritizes rigor"), " → sacrifices usability")
                   ),
                   p(style = "color: #2e8b57; font-size: 14px; font-weight: 600; margin: 0 0 20px 0;",
-                    HTML("<span style='font-size: 18px;'>Ö</span>rdin does both - that's why it scores 96%!"))
+                    HTML("<span style='font-size: 18px;'>Ö</span>rdin does both - that's why it scores 96%!")),
+                  div(style = "text-align: center;",
+                    tags$button(onclick = "if(typeof showAboutOrdin === 'function') showAboutOrdin()", 
+                               style = "background: #2e8b57; color: white; border: none; padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 600;",
+                               "📚 Learn More →")
+                  )
                 ),
                 
                 div(class = "action-cards",
@@ -307,8 +350,8 @@ ui <- function(req) {
               )
             ),
             
-            # ABOUT TAB
-            tabPanel("about",
+            # HELP TAB
+            tabPanel("help",
               div(class = "tab-content",
                 tags$div(id = "about-content-container"),
                 tags$script("
@@ -357,6 +400,12 @@ server <- function(input, output, session) {
   community_data <- reactiveVal(NULL)
   environmental_data <- reactiveVal(NULL)
   
+  # Initialize with sample data for demonstration
+  observe({
+    data(list = "dune", package = "vegan")
+    community_data(dune)
+  })
+  
   # Dataset display name
   output$dataset_display_name <- renderUI({
     if (is.null(community_data())) {
@@ -376,7 +425,7 @@ server <- function(input, output, session) {
       "ordination" = "Analysis → Ordination",
       "results" = "Results → Export History",
       "settings" = "Settings → Application",
-      "about" = "Help → Documentation"
+      "help" = "Help → Documentation"
     )
     HTML(breadcrumbs[[current_view]] %||% "Home → Dashboard")
   })

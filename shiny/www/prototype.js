@@ -65,7 +65,12 @@ function switchView(view) {
     document.querySelectorAll('.activity-item').forEach(item => {
         item.classList.remove('active');
     });
-    event.currentTarget.classList.add('active');
+    
+    // Find the clicked activity item and set it as active
+    const activityItem = document.getElementById('activity-' + view);
+    if (activityItem) {
+        activityItem.classList.add('active');
+    }
     
     // Open sidebar if collapsed or switching views
     if (wasCollapsed || !clickedSameView) {
@@ -103,6 +108,12 @@ function switchView(view) {
         'help': 'Help → Documentation'
     };
     breadcrumb.textContent = breadcrumbs[view] || 'Home';
+    
+    // Update Shiny inputs if available
+    if (typeof Shiny !== 'undefined') {
+        Shiny.setInputValue('current_view', view, {priority: 'event'});
+        Shiny.setInputValue('main_tabs', view, {priority: 'event'});
+    }
     
     console.log(`Switched to: ${view}`);
 }

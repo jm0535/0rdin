@@ -5,7 +5,7 @@
 library(shiny)
 library(vegan)
 library(waiter)
-# library(shinyFeedback)  # Disabled - conflicts with custom HTML
+library(shinyFeedback)
 library(rmarkdown)
 
 #' NMDS Module UI
