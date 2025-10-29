@@ -65,12 +65,7 @@ function switchView(view) {
     document.querySelectorAll('.activity-item').forEach(item => {
         item.classList.remove('active');
     });
-    
-    // Find the clicked activity item and set it as active
-    const activityItem = document.getElementById('activity-' + view);
-    if (activityItem) {
-        activityItem.classList.add('active');
-    }
+    event.currentTarget.classList.add('active');
     
     // Open sidebar if collapsed or switching views
     if (wasCollapsed || !clickedSameView) {
@@ -108,12 +103,6 @@ function switchView(view) {
         'help': 'Help → Documentation'
     };
     breadcrumb.textContent = breadcrumbs[view] || 'Home';
-    
-    // Update Shiny inputs if available
-    if (typeof Shiny !== 'undefined') {
-        Shiny.setInputValue('current_view', view, {priority: 'event'});
-        Shiny.setInputValue('main_tabs', view, {priority: 'event'});
-    }
     
     console.log(`Switched to: ${view}`);
 }
@@ -381,37 +370,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Add notification for prototype
-window.addEventListener('load', function() {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 50px;
-        right: 20px;
-        background: #2e8b57;
-        color: white;
-        padding: 16px 24px;
-        border: 1px solid #3fa869;
-        z-index: 9999;
-        font-size: 13px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    `;
-    notification.innerHTML = `
-        <strong>🎨 UI/UX Prototype</strong><br>
-        <span style="font-size: 11px; color: #e0e0e0;">
-        • Click activity bar items to see sidebar changes<br>
-        • No backend - visual demo only<br>
-        • Shows proposed enterprise layout
-        </span>
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.transition = 'opacity 0.5s';
-        notification.style.opacity = '0';
-        setTimeout(() => notification.remove(), 500);
-    }, 8000);
-});
+// REMOVED: Prototype notification - not needed in production Shiny app
+// This was only for the HTML prototype demo
 
 // Open workflow in main canvas area
 function openWorkflow(workflowId) {

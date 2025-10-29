@@ -145,11 +145,11 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
       validation <- validateDimensions(input$k)
       
       if (validation$type == "error") {
-        feedbackDanger(ns("k"), validation$valid, validation$message)
+        feedbackDanger("k", show = !validation$valid, text = validation$message)
       } else if (validation$type == "warning") {
-        feedbackWarning(ns("k"), validation$valid, validation$message)
+        feedbackWarning("k", show = TRUE, text = validation$message)
       } else {
-        feedbackSuccess(ns("k"), validation$valid, validation$message)
+        feedbackSuccess("k", show = validation$valid, text = validation$message)
       }
     })
     
@@ -158,11 +158,11 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
       validation <- validatePermutations(input$permutations)
       
       if (validation$type == "error") {
-        feedbackDanger(ns("permutations"), validation$valid, validation$message)
+        feedbackDanger("permutations", show = !validation$valid, text = validation$message)
       } else if (validation$type == "warning") {
-        feedbackWarning(ns("permutations"), validation$valid, validation$message)
+        feedbackWarning("permutations", show = TRUE, text = validation$message)
       } else {
-        feedbackSuccess(ns("permutations"), validation$valid, validation$message)
+        feedbackSuccess("permutations", show = validation$valid, text = validation$message)
       }
     })
     

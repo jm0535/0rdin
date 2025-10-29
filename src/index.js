@@ -11,7 +11,7 @@ if (require('electron-squirrel-startup')) {
 let mainWindow;
 let splashWindow;
 let rShinyProcess;
-const SHINY_PORT = 9050;
+const SHINY_PORT = 9054;
 const SHINY_HOST = '127.0.0.1';
 
 // Function to find R executable
@@ -147,8 +147,8 @@ function createSplashScreen() {
           box-sizing: border-box;
         }
         body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-          background: transparent;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+          background: #0a0a0a;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -156,126 +156,134 @@ function createSplashScreen() {
           overflow: hidden;
         }
         .splash-container {
-          background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-          border-radius: 20px;
-          padding: 60px 40px;
           text-align: center;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-          border: 2px solid #333;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          position: relative;
+        }
+        .logo-container {
+          position: relative;
+          display: inline-block;
+          margin-bottom: 40px;
         }
         .logo {
-          font-size: 120px;
+          font-size: 180px;
           color: #2e8b57;
-          font-weight: bold;
-          margin-bottom: 20px;
-          text-shadow: 0 4px 12px rgba(46, 139, 87, 0.4);
-          animation: pulse 2s ease-in-out infinite;
+          font-weight: 300;
+          letter-spacing: -8px;
+          line-height: 1;
+          animation: fadeInScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          opacity: 0;
+        }
+        .logo-glow {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 200px;
+          height: 200px;
+          background: radial-gradient(circle, rgba(46, 139, 87, 0.2) 0%, transparent 70%);
+          border-radius: 50%;
+          animation: pulse 3s ease-in-out infinite;
         }
         .app-name {
-          font-size: 32px;
-          color: #2e8b57;
-          font-weight: 600;
-          margin-bottom: 10px;
-          letter-spacing: 1px;
+          font-size: 42px;
+          color: #ffffff;
+          font-weight: 200;
+          letter-spacing: 12px;
+          margin-bottom: 12px;
+          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+          opacity: 0;
         }
         .tagline {
-          font-size: 14px;
-          color: #aaa;
-          margin-bottom: 40px;
+          font-size: 13px;
+          color: #666;
           font-weight: 400;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          margin-bottom: 60px;
+          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+          opacity: 0;
         }
         .loading-container {
-          width: 100%;
-          max-width: 300px;
-          margin-top: 20px;
+          width: 280px;
+          margin: 0 auto;
+          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+          opacity: 0;
         }
-        .loading-bar {
+        .loading-bar-bg {
           width: 100%;
-          height: 4px;
-          background: #333;
+          height: 2px;
+          background: #1a1a1a;
           border-radius: 2px;
           overflow: hidden;
           position: relative;
         }
-        .loading-bar::before {
-          content: '';
-          position: absolute;
-          left: -50%;
-          width: 50%;
+        .loading-bar {
           height: 100%;
-          background: linear-gradient(90deg, transparent, #2e8b57, transparent);
-          animation: loading 1.5s ease-in-out infinite;
+          background: linear-gradient(90deg, #2e8b57 0%, #3fa869 100%);
+          width: 0%;
+          animation: loadProgress 2s ease-out forwards;
+          box-shadow: 0 0 10px rgba(46, 139, 87, 0.5);
         }
         .loading-text {
-          margin-top: 15px;
-          font-size: 13px;
-          color: #888;
-          font-weight: 400;
-        }
-        .status-dot {
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #2e8b57;
-          margin-right: 8px;
-          animation: blink 1s ease-in-out infinite;
-        }
-        .version {
-          position: absolute;
-          bottom: 20px;
+          margin-top: 20px;
           font-size: 11px;
-          color: #666;
+          color: #444;
+          font-weight: 400;
+          letter-spacing: 1px;
+          text-align: center;
+        }
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
+          0%, 100% {
+            opacity: 0.4;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            opacity: 0.6;
+            transform: translate(-50%, -50%) scale(1.1);
+          }
         }
-        @keyframes loading {
-          0% { left: -50%; }
-          100% { left: 100%; }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+        @keyframes loadProgress {
+          0% { width: 0%; }
+          50% { width: 70%; }
+          100% { width: 100%; }
         }
       </style>
     </head>
     <body>
       <div class="splash-container">
-        <div class="logo">Ö</div>
-        <div class="app-name">Ördin</div>
-        <div class="tagline">Biodiversity Analysis Platform</div>
-        <div class="loading-container">
-          <div class="loading-bar"></div>
-          <div class="loading-text">
-            <span class="status-dot"></span>
-            <span id="status">Initializing...</span>
-          </div>
+        <div class="logo-container">
+          <div class="logo-glow"></div>
+          <div class="logo">Ö</div>
         </div>
-        <div class="version">Version 3.0</div>
+        <div class="app-name">ÖRDIN</div>
+        <div class="tagline">Community Ecology Analysis Platform</div>
+        <div class="loading-container">
+          <div class="loading-bar-bg">
+            <div class="loading-bar"></div>
+          </div>
+          <div class="loading-text">INITIALIZING</div>
+        </div>
       </div>
-      <script>
-        const statusMessages = [
-          'Initializing...',
-          'Loading R environment...',
-          'Starting Shiny server...',
-          'Preparing analysis tools...',
-          'Almost ready...'
-        ];
-        let currentStatus = 0;
-        
-        setInterval(() => {
-          currentStatus = (currentStatus + 1) % statusMessages.length;
-          document.getElementById('status').textContent = statusMessages[currentStatus];
-        }, 2000);
-      </script>
     </body>
     </html>
   `;
@@ -339,9 +347,8 @@ function createWindow() {
     closeSplashScreen();
   }, 2000);
   
-  // Open DevTools in development mode
-  // Always open DevTools for debugging
-  mainWindow.webContents.openDevTools();
+  // DevTools disabled for production - uncomment next line for debugging:
+  // mainWindow.webContents.openDevTools();
   
   // Log when content loads
   mainWindow.webContents.on('did-finish-load', () => {

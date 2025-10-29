@@ -1,17 +1,14 @@
-# Ördin v3.0 - EXACT PROTOTYPE REPLICATION
-# Author: Jimmy Moses (jmoses@pnguot.ac.pg)
-# Complete rebuild to match prototype HTML structure EXACTLY
+# Ördin v3.0 - Production Shiny App
+# Author: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
+# EXACT PROTOTYPE REPLICATION - No Shiny tabsetPanel, pure HTML/JS structure
 
 library(shiny)
-library(bslib)
 library(vegan)
 library(iNEXT)
 library(ggplot2)
 library(DT)
 library(shinyjs)
 library(waiter)
-library(shinydashboard)
-library(shinyWidgets)
 library(shinyFeedback)
 library(readr)
 library(readxl)
@@ -35,112 +32,25 @@ ui <- function(req) {
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
       tags$link(rel = "stylesheet", href = "prototype-styles.css"),
-      tags$link(rel = "stylesheet", href = "shiny-layout-fix.css"),
-      tags$link(rel = "stylesheet", href = "custom.css"),
-      tags$link(rel = "stylesheet", href = "styles.css")
+      tags$link(rel = "stylesheet", href = "window-controls.css")
     ),
     
     useShinyjs(),
     useShinyFeedback(),
     use_waiter(),
     
-    # Include JS
-    tags$script(src = "validation.js"),
-    tags$script(src = "statistical-interpretation.js"),
-    tags$script(src = "about-ordin-content.js"),
-    tags$script(src = "prototype.js"),
-    
-    # Custom Shiny-prototype integration JS
-    tags$script(HTML("
-      $(document).ready(function() {
-        // Track current active view for toggle behavior
-        let currentView = 'home';
-        let currentRightPanel = null;
-        
-        // Toggle sidebar
-        window.toggleSidebar = function() {
-          $('#sidebar').toggleClass('collapsed');
-        };
-        
-        // Toggle right panel
-        window.toggleRightPanel = function() {
-          $('#rightPanel').toggleClass('collapsed');
-        };
-        
-        // Switch right panel (VSCode behavior)
-        window.switchRightPanel = function(panelType) {
-          const panel = $('#rightPanel');
-          const wasCollapsed = panel.hasClass('collapsed');
-          const clickedSamePanel = (currentRightPanel === panelType);
-          
-          // VSCode behavior: clicking same icon toggles panel
-          if (clickedSamePanel && !wasCollapsed) {
-            panel.addClass('collapsed');
-            currentRightPanel = null;
-            return;
-          }
-          
-          // Open panel if collapsed or switching panels
-          if (wasCollapsed || !clickedSamePanel) {
-            panel.removeClass('collapsed');
-          }
-          
-          // Update current panel
-          currentRightPanel = panelType;
-        };
-        
-        // Switch view with Shiny integration - VSCode behavior
-        window.switchView = function(view) {
-          const sidebar = $('#sidebar');
-          const wasCollapsed = sidebar.hasClass('collapsed');
-          const clickedSameView = (currentView === view);
-          
-          // VSCode behavior: clicking same icon toggles sidebar
-          if (clickedSameView && !wasCollapsed) {
-            sidebar.addClass('collapsed');
-            return;
-          }
-          
-          // Update activity bar active state
-          $('.activity-item').removeClass('active');
-          $('#activity-' + view).addClass('active');
-          
-          // Open sidebar if collapsed or switching views
-          if (wasCollapsed || !clickedSameView) {
-            sidebar.removeClass('collapsed');
-          }
-          
-          // Update current view
-          currentView = view;
-          
-          // Update sidebar title
-          var titles = {
-            'home': 'EXPLORER',
-            'data': 'DATA MANAGER',
-            'diversity': 'DIVERSITY',
-            'ordination': 'ORDINATION',
-            'results': 'RESULTS',
-            'settings': 'SETTINGS',
-            'help': 'HELP'
-          };
-          $('.sidebar-title').text(titles[view] || 'EXPLORER');
-          
-          // Update Shiny inputs
-          Shiny.setInputValue('current_view', view, {priority: 'event'});
-          Shiny.setInputValue('main_tabs', view, {priority: 'event'});
-        };
-        
-        // Set initial state
-        $('#activity-home').addClass('active');
-      });
-    ")),
+    # Load JavaScript files (with cache-busting version)
+    tags$script(src = "validation.js?v=2"),
+    tags$script(src = "statistical-interpretation.js?v=2"),
+    tags$script(src = "about-ordin-content.js?v=2"),
+    tags$script(src = "shiny-ui.js?v=2"),
     
     # Loading screen
     waiter_show_on_load(
       html = tagList(
         spin_loaders(42, color = "#2e8b57"),
-        h2("Ördin v3.0", style = "color: #2e8b57; margin-top: 30px;"),
-        p("Loading...", style = "color: #999;")
+        h2("Ördin", style = "color: #2e8b57; margin-top: 30px;"),
+        p("Loading application...", style = "color: #999;")
       ),
       color = "#1a1a1a"
     ),
@@ -154,18 +64,17 @@ ui <- function(req) {
         span(class = "app-icon", "Ö"),
         span(class = "app-title", "Ördin v3.0"),
         span(class = "divider", "|"),
-        uiOutput("dataset_display_name", inline = TRUE)
+        span(class = "dataset-name", "📄 species_data.csv")
       ),
       div(class = "titlebar-center",
         span(class = "status-badge", "● Ready")
       ),
       div(class = "titlebar-right",
         span(class = "user-info", "👤 Jimmy Moses"),
-        div(class = "window-controls",
-          tags$button(class = "window-btn", onclick = "if(window.electronAPI) window.electronAPI.minimizeWindow()", title = "Minimize", "—"),
-          tags$button(class = "window-btn", onclick = "if(window.electronAPI) window.electronAPI.maximizeWindow()", title = "Maximize", "□"),
-          tags$button(class = "window-btn close", onclick = "if(window.electronAPI) window.electronAPI.closeWindow()", title = "Close", "×")
-        )
+        tags$button(class = "window-btn", onclick = "location.reload()", title = "Reload", "🔄"),
+        tags$button(class = "window-btn", onclick = "if(window.electronAPI) window.electronAPI.minimizeWindow()", title = "Minimize", "—"),
+        tags$button(class = "window-btn", onclick = "if(window.electronAPI) window.electronAPI.maximizeWindow()", title = "Maximize", "□"),
+        tags$button(class = "window-btn close", onclick = "if(window.electronAPI) window.electronAPI.closeWindow()", title = "Close", "×")
       )
     ),
     
@@ -174,33 +83,47 @@ ui <- function(req) {
       
       # ACTIVITY BAR
       div(class = "activity-bar",
-        div(class = "activity-item", id = "activity-home", 
-            title = "Home", onclick = "switchView('home')", "🏠"),
-        div(class = "activity-item", id = "activity-data",
-            title = "Data", onclick = "switchView('data')", "📊"),
-        div(class = "activity-item", id = "activity-diversity",
-            title = "Diversity", onclick = "switchView('diversity')", "📈"),
-        div(class = "activity-item", id = "activity-ordination",
-            title = "Ordination", onclick = "switchView('ordination')", "🔵"),
-        div(class = "activity-item", id = "activity-results",
-            title = "Results", onclick = "switchView('results')", "📋"),
-        div(class = "activity-item", id = "activity-properties",
-            title = "Properties", onclick = "switchRightPanel('properties')", "🔧"),
+        div(class = "activity-item active", onclick = "switchView('home')", title = "Home", "🏠"),
+        div(class = "activity-item", onclick = "switchView('data')", title = "Data", "📊"),
+        div(class = "activity-item", onclick = "switchView('diversity')", title = "Diversity", "📈"),
+        div(class = "activity-item", onclick = "switchView('ordination')", title = "Ordination", "🔵"),
+        div(class = "activity-item", onclick = "switchView('results')", title = "Results", "📋"),
+        div(class = "activity-item", onclick = "switchRightPanel('properties')", title = "Properties", "🔧"),
         div(class = "spacer"),
-        div(class = "activity-item", id = "activity-settings",
-            title = "Settings", onclick = "switchView('settings')", "⚙️"),
-        div(class = "activity-item", id = "activity-help",
-            title = "Help", onclick = "switchView('help')", "❓")
+        div(class = "activity-item", onclick = "switchView('settings')", title = "Settings", "⚙️"),
+        div(class = "activity-item", onclick = "switchView('help')", title = "Help", "❓")
       ),
       
-      # PRIMARY SIDEBAR
+      # PRIMARY SIDEBAR (starts collapsed like prototype)
       div(class = "primary-sidebar collapsed", id = "sidebar",
         div(class = "sidebar-header",
           span(class = "sidebar-title", "EXPLORER"),
           tags$button(onclick = "toggleSidebar()", "◀")
         ),
-        div(class = "sidebar-content",
-          uiOutput("sidebar_content_dynamic")
+        div(class = "sidebar-content", id = "sidebar-content",
+          # Default HOME content
+          div(class = "section",
+            div(class = "section-header", "▼ DATA SOURCES"),
+            div(class = "section-content",
+              div(class = "item active", "📄 species_data.csv"),
+              div(class = "item", "📥 Import New File"),
+              div(class = "item", "📚 Sample Datasets")
+            )
+          ),
+          div(class = "section",
+            div(class = "section-header", "▼ WORKSPACE"),
+            div(class = "section-content",
+              div(class = "item", "📊 Current Dataset ", span(class = "badge", "45×12")),
+              div(class = "item", "ℹ️ Metadata"),
+              div(class = "item", "✅ Validation ", span(class = "badge success", "OK"))
+            )
+          ),
+          div(class = "section",
+            div(class = "section-header", "▼ RECENT"),
+            div(class = "section-content",
+              div(class = "item", "📈 iNEXT analysis ", span(class = "badge", "2m"))
+            )
+          )
         )
       ),
       
@@ -208,161 +131,146 @@ ui <- function(req) {
       div(class = "main-canvas",
         
         # Breadcrumb
-        div(class = "breadcrumb",
-          uiOutput("breadcrumb_display", inline = TRUE)
-        ),
+        div(class = "breadcrumb", "Home → Dashboard"),
         
         # Tab Bar
         div(class = "tab-bar", id = "tabBar",
-          div(class = "tab active", "🏠 Dashboard")
+          div(class = "tab active", `data-tab-id` = "dashboard", onclick = "switchToTab('dashboard')",
+            "🏠 Dashboard ",
+            span(class = "tab-close", onclick = "closeTab(event, 'dashboard')", "×")
+          )
         ),
         
         # Content Area
-        div(class = "content-area", id = "main-content",
-          tabsetPanel(
-            id = "main_tabs",
-            type = "hidden",
+        div(class = "content-area", id = "contentArea",
+          
+          # Dashboard Tab Content
+          div(id = "tab-dashboard", class = "tab-content active",
+            div(class = "welcome",
+              h1("Ö"),
+              h2("Ördin"),
+              p("An open-source cross-platform community ecology analysis software")
+            ),
             
-            # HOME TAB
-            tabPanel("home",
-              div(class = "tab-content active", id = "tab-dashboard",
-                div(class = "welcome",
-                  h1("Ö"),
-                  h2("Ördin"),
-                  p("An open-source cross-platform community ecology analysis software")
-                ),
-                
-                div(style = "max-width: 700px; margin: 30px auto; background: #252526; border-left: 3px solid #2e8b57; padding: 24px;",
-                  h3(style = "color: #2e8b57; margin-top: 0; margin-bottom: 16px; font-size: 16px;", "✨ What Makes Ördin Special"),
-                  p(style = "color: #888; font-size: 13px; line-height: 1.8; margin-bottom: 12px;", "Most software either:"),
-                  tags$ul(style = "color: #888; font-size: 13px; line-height: 1.8; margin-left: 20px; margin-bottom: 16px;",
-                    tags$li(tags$strong(style = "color: #ccc;", "Prioritizes ease-of-use"), " → sacrifices rigor"),
-                    tags$li(tags$strong(style = "color: #ccc;", "Prioritizes rigor"), " → sacrifices usability")
-                  ),
-                  p(style = "color: #2e8b57; font-size: 14px; font-weight: 600; margin: 0 0 20px 0;",
-                    HTML("<span style='font-size: 18px;'>Ö</span>rdin does both - that's why it scores 96%!")),
-                  div(style = "text-align: center;",
-                    tags$button(onclick = "if(typeof showAboutOrdin === 'function') showAboutOrdin()", 
-                               style = "background: #2e8b57; color: white; border: none; padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 600;",
-                               "📚 Learn More →")
-                  )
-                ),
-                
-                div(class = "action-cards",
-                  div(class = "card",
-                    h3("📥 Import Data"),
-                    p("Load CSV, Excel, or sample datasets"),
-                    tags$button(onclick = "switchView('data')", "Get Started →")
-                  ),
-                  div(class = "card",
-                    h3("📈 Diversity"),
-                    p("iNEXT rarefaction & Hill numbers"),
-                    tags$button(onclick = "switchView('diversity')", "Analyze →")
-                  ),
-                  div(class = "card",
-                    h3("🔵 Ordination"),
-                    p("NMDS, PCA, CA, DCA analysis"),
-                    tags$button(onclick = "switchView('ordination')", "Explore →")
-                  )
+            div(style = "max-width: 700px; margin: 30px auto; background: #252526; border-left: 3px solid #2e8b57; padding: 24px;",
+              h3(style = "color: #2e8b57; margin-top: 0; margin-bottom: 16px; font-size: 16px;", "✨ What Makes Ördin Special"),
+              p(style = "color: #888; font-size: 13px; line-height: 1.8; margin-bottom: 12px;", "Most software either:"),
+              tags$ul(style = "color: #888; font-size: 13px; line-height: 1.8; margin-left: 20px; margin-bottom: 16px;",
+                tags$li(tags$strong(style = "color: #ccc;", "Prioritizes ease-of-use"), " → sacrifices rigor"),
+                tags$li(tags$strong(style = "color: #ccc;", "Prioritizes rigor"), " → sacrifices usability")
+              ),
+              p(style = "color: #2e8b57; font-size: 14px; font-weight: 600; margin: 0 0 20px 0;",
+                HTML("<span style='font-size: 18px;'>Ö</span>rdin does both - that's why it scores 96%!")),
+              div(style = "text-align: center;",
+                tags$button(
+                  onclick = "showAboutOrdin()",
+                  style = "background: #2e8b57; color: white; border: none; padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 600;",
+                  "📚 Learn More →"
                 )
               )
             ),
             
-            # DATA TAB
-            tabPanel("data",
-              div(class = "tab-content",
-                h2(style = "color: #2e8b57; margin-bottom: 20px;", "📊 Data Management"),
-                
-                div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px; margin-bottom: 20px;",
-                  h3(style = "color: #cccccc; margin-bottom: 16px;", "1️⃣ Species Composition Data"),
-                  fileInput("species_file", "Upload Species Data (CSV or Excel):",
-                           accept = c(".csv", ".xlsx", ".xls")),
-                  tags$small(style = "color: #888;", "First column = Site names | Other columns = Species abundance"),
-                  
-                  div(style = "border-top: 1px solid #3e3e42; padding-top: 20px; margin-top: 20px;",
-                    h4(style = "color: #ccc;", "Or Load Sample Dataset"),
-                    selectInput("sample_dataset", "Choose sample:",
-                               choices = c("None" = "", "Dune Meadow" = "dune", "Varespec" = "varespec", "BCI" = "BCI")),
-                    actionButton("load_sample", "▶ Load Sample Data", class = "btn-success")
-                  )
-                ),
-                
-                div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px; margin-bottom: 20px;",
-                  h3(style = "color: #cccccc; margin-bottom: 16px;", "2️⃣ Environmental Data (Optional)"),
-                  fileInput("env_file", "Upload Environmental Data:", accept = c(".csv", ".xlsx", ".xls"))
-                ),
-                
-                div(style = "margin-top: 30px;",
-                  h3(style = "color: #2e8b57;", "🔍 Data Preview"),
-                  DT::dataTableOutput("species_preview")
-                )
-              )
-            ),
-            
-            # DIVERSITY TAB
-            tabPanel("diversity",
-              div(class = "tab-content",
-                h2(style = "color: #2e8b57; margin-bottom: 20px;", "🔬 Diversity Analysis"),
-                selectInput("diversity_method", "Select Method:",
-                           choices = c("Diversity Estimation (iNEXT)" = "estimation",
-                                      "Diversity Indices (Shannon, Simpson)" = "indices")),
-                conditionalPanel("input.diversity_method == 'estimation'",
-                  diversity_estimation_ui("diversity_est")),
-                conditionalPanel("input.diversity_method == 'indices'",
-                  diversity_indices_ui("diversity_idx"))
-              )
-            ),
-            
-            # ORDINATION TAB
-            tabPanel("ordination",
-              div(class = "tab-content",
-                h2(style = "color: #2e8b57; margin-bottom: 20px;", "🗺️ Ordination Analysis"),
-                selectInput("ordination_method", "Select Method:",
-                           choices = c("NMDS" = "nmds", "PCA" = "pca", "CA" = "ca", "DCA" = "dca", "PCoA" = "pcoa")),
-                conditionalPanel("input.ordination_method == 'nmds'", nmds_ui("nmds")),
-                conditionalPanel("input.ordination_method == 'pca'", pca_ui("pca")),
-                conditionalPanel("input.ordination_method == 'ca'", ca_ui("ca")),
-                conditionalPanel("input.ordination_method == 'dca'", dca_ui("dca")),
-                conditionalPanel("input.ordination_method == 'pcoa'", pcoa_ui("pcoa"))
-              )
-            ),
-            
-            # RESULTS TAB
-            tabPanel("results",
-              div(class = "tab-content",
-                h2(style = "color: #2e8b57; margin-bottom: 20px;", "📋 Analysis Results"),
-                div(style = "background: #252526; padding: 30px; text-align: center;",
-                  div(style = "font-size: 64px; margin-bottom: 20px;", "📋"),
-                  h3(style = "color: #888;", "No results yet"),
-                  p(style = "color: #666;", "Run an analysis to see results here")
-                )
-              )
-            ),
-            
-            # SETTINGS TAB
-            tabPanel("settings",
-              div(class = "tab-content",
-                h2(style = "color: #2e8b57; margin-bottom: 20px;", "⚙️ Settings"),
-                div(style = "background: #252526; padding: 20px;",
-                  h3(style = "color: #ccc;", "Application Preferences"),
-                  p(style = "color: #888;", "Configure Ördin settings")
-                )
-              )
-            ),
-            
-            # HELP TAB
-            tabPanel("help",
-              div(class = "tab-content",
-                tags$div(id = "about-content-container"),
-                tags$script("
-                  $(document).ready(function() {
-                    if (typeof getAboutOrdinContent === 'function') {
-                      $('#about-content-container').html(getAboutOrdinContent());
-                    }
-                  });
-                ")
+            div(class = "action-cards",
+              div(class = "card",
+                h3("📥 Import Data"),
+                p("Load CSV, Excel, or sample datasets"),
+                tags$button(onclick = "switchView('data')", "Get Started →")
+              ),
+              div(class = "card",
+                h3("📈 Diversity"),
+                p("iNEXT rarefaction & Hill numbers"),
+                tags$button(onclick = "createNewTab('diversity', '📈 Diversity Analysis', 'diversity')", "Analyze →")
+              ),
+              div(class = "card",
+                h3("🔵 Ordination"),
+                p("NMDS, PCA, CA, DCA analysis"),
+                tags$button(onclick = "createNewTab('nmds', '🗺️ NMDS Results', 'results')", "Explore →")
               )
             )
+          ),
+          
+          # DATA TAB (hidden by default, shown by JS)
+          div(id = "tab-data", class = "tab-content", style = "display: none;",
+            h2(style = "color: #2e8b57; margin-bottom: 20px;", "📊 Data Management"),
+            
+            div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px; margin-bottom: 20px;",
+              h3(style = "color: #cccccc; margin-bottom: 16px;", "1️⃣ Species Composition Data"),
+              fileInput("species_file", "Upload Species Data (CSV or Excel):",
+                       accept = c(".csv", ".xlsx", ".xls")),
+              tags$small(style = "color: #888;", "First column = Site names | Other columns = Species abundance"),
+              
+              div(style = "border-top: 1px solid #3e3e42; padding-top: 20px; margin-top: 20px;",
+                h4(style = "color: #ccc;", "Or Load Sample Dataset"),
+                selectInput("sample_dataset", "Choose sample:",
+                           choices = c("None" = "", "Dune Meadow" = "dune", "Varespec" = "varespec", "BCI" = "BCI")),
+                actionButton("load_sample", "▶ Load Sample Data", class = "btn-success")
+              )
+            ),
+            
+            div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px; margin-bottom: 20px;",
+              h3(style = "color: #cccccc; margin-bottom: 16px;", "2️⃣ Environmental Data (Optional)"),
+              fileInput("env_file", "Upload Environmental Data:", accept = c(".csv", ".xlsx", ".xls"))
+            ),
+            
+            div(style = "margin-top: 30px;",
+              h3(style = "color: #2e8b57;", "🔍 Data Preview"),
+              DT::dataTableOutput("species_preview")
+            )
+          ),
+          
+          # DIVERSITY TAB (hidden by default)
+          div(id = "tab-diversity", class = "tab-content", style = "display: none;",
+            h2(style = "color: #2e8b57; margin-bottom: 20px;", "🔬 Diversity Analysis"),
+            selectInput("diversity_method", "Select Method:",
+                       choices = c("Diversity Estimation (iNEXT)" = "estimation",
+                                  "Diversity Indices (Shannon, Simpson)" = "indices")),
+            conditionalPanel("input.diversity_method == 'estimation'",
+              diversity_estimation_ui("diversity_est")),
+            conditionalPanel("input.diversity_method == 'indices'",
+              diversity_indices_ui("diversity_idx"))
+          ),
+          
+          # ORDINATION TAB (hidden by default)
+          div(id = "tab-ordination", class = "tab-content", style = "display: none;",
+            h2(style = "color: #2e8b57; margin-bottom: 20px;", "🗺️ Ordination Analysis"),
+            selectInput("ordination_method", "Select Method:",
+                       choices = c("NMDS" = "nmds", "PCA" = "pca", "CA" = "ca", "DCA" = "dca", "PCoA" = "pcoa")),
+            conditionalPanel("input.ordination_method == 'nmds'", nmds_ui("nmds")),
+            conditionalPanel("input.ordination_method == 'pca'", pca_ui("pca")),
+            conditionalPanel("input.ordination_method == 'ca'", ca_ui("ca")),
+            conditionalPanel("input.ordination_method == 'dca'", dca_ui("dca")),
+            conditionalPanel("input.ordination_method == 'pcoa'", pcoa_ui("pcoa"))
+          ),
+          
+          # RESULTS TAB
+          div(id = "tab-results", class = "tab-content", style = "display: none;",
+            h2(style = "color: #2e8b57; margin-bottom: 20px;", "📋 Analysis Results"),
+            div(style = "background: #252526; padding: 30px; text-align: center;",
+              div(style = "font-size: 64px; margin-bottom: 20px;", "📋"),
+              h3(style = "color: #888;", "No results yet"),
+              p(style = "color: #666;", "Run an analysis to see results here")
+            )
+          ),
+          
+          # SETTINGS TAB
+          div(id = "tab-settings", class = "tab-content", style = "display: none;",
+            h2(style = "color: #2e8b57; margin-bottom: 20px;", "⚙️ Settings"),
+            div(style = "background: #252526; padding: 20px;",
+              h3(style = "color: #ccc;", "Application Preferences"),
+              p(style = "color: #888;", "Configure Ördin settings")
+            )
+          ),
+          
+          # HELP TAB
+          div(id = "tab-help", class = "tab-content", style = "display: none;",
+            tags$div(id = "about-content-container"),
+            tags$script("
+              $(document).ready(function() {
+                if (typeof getAboutOrdinContent === 'function') {
+                  $('#about-content-container').html(getAboutOrdinContent());
+                }
+              });
+            ")
           )
         ),
         
@@ -370,19 +278,38 @@ ui <- function(req) {
         div(class = "status-bar",
           span("Ln 1, Col 1"),
           span("UTF-8"),
-          span("R 4.5.1"),
-          uiOutput("status_info_right", inline = TRUE)
+          span("R 4.5.1")
         )
       ),
       
-      # RIGHT PANEL (Properties)
+      # RIGHT PANEL (Properties - starts collapsed)
       div(class = "right-panel collapsed", id = "rightPanel",
         div(class = "panel-header",
           span("PROPERTIES"),
           tags$button(onclick = "toggleRightPanel()", "▶")
         ),
         div(class = "panel-content",
-          uiOutput("right_panel_properties")
+          div(class = "prop-section",
+            h4("Dataset Info"),
+            div(class = "prop-item",
+              tags$label("Rows:"),
+              span("45")
+            ),
+            div(class = "prop-item",
+              tags$label("Columns:"),
+              span("12")
+            ),
+            div(class = "prop-item",
+              tags$label("Type:"),
+              span("Abundance")
+            )
+          ),
+          div(class = "prop-section",
+            h4("Quick Actions"),
+            tags$button(class = "action-btn", "Export CSV"),
+            tags$button(class = "action-btn", "Export Excel"),
+            tags$button(class = "action-btn", "View Metadata")
+          )
         )
       )
     )
@@ -392,200 +319,63 @@ ui <- function(req) {
 # SERVER
 server <- function(input, output, session) {
   
-  # Hide loading screen
-  Sys.sleep(1)
+  # Hide loading screen after 2 seconds
   waiter_hide()
   
-  # Reactive data
-  community_data <- reactiveVal(NULL)
-  environmental_data <- reactiveVal(NULL)
+  # Call module servers
+  diversity_estimation_server("diversity_est")
+  diversity_indices_server("diversity_idx")
+  nmds_server("nmds")
+  pca_server("pca")
+  ca_server("ca")
+  dca_server("dca")
+  pcoa_server("pcoa")
   
-  # Initialize with sample data for demonstration
-  observe({
-    data(list = "dune", package = "vegan")
-    community_data(dune)
-  })
-  
-  # Dataset display name
-  output$dataset_display_name <- renderUI({
-    if (is.null(community_data())) {
-      span(class = "dataset-name", "📄 No data loaded")
-    } else {
-      span(class = "dataset-name", "📄 species_data.csv")
-    }
-  })
-  
-  # Breadcrumb
-  output$breadcrumb_display <- renderUI({
-    current_view <- input$current_view %||% "home"
-    breadcrumbs <- list(
-      "home" = "Home → Dashboard",
-      "data" = "Data → Import & Manage",
-      "diversity" = "Analysis → Diversity Estimation",
-      "ordination" = "Analysis → Ordination",
-      "results" = "Results → Export History",
-      "settings" = "Settings → Application",
-      "help" = "Help → Documentation"
-    )
-    HTML(breadcrumbs[[current_view]] %||% "Home → Dashboard")
-  })
-  
-  # Dynamic sidebar content
-  output$sidebar_content_dynamic <- renderUI({
-    current_view <- input$current_view %||% "home"
-    
-    switch(current_view,
-      "home" = tagList(
-        div(class = "section",
-          div(class = "section-header", "▼ DATA SOURCES"),
-          div(class = "section-content",
-            div(class = "item", if (!is.null(community_data())) span(class = "badge success", "✓") else "", " species_data.csv"),
-            div(class = "item", "📥 Import New File"),
-            div(class = "item", "📚 Sample Datasets")
-          )
-        ),
-        div(class = "section",
-          div(class = "section-header", "▼ WORKSPACE"),
-          div(class = "section-content",
-            div(class = "item", "📊 Current Dataset ", 
-                if (!is.null(community_data())) span(class = "badge", paste0(nrow(community_data()), "×", ncol(community_data()))) else ""),
-            div(class = "item", "ℹ️ Metadata"),
-            div(class = "item", "✅ Validation ", if (!is.null(community_data())) span(class = "badge success", "OK") else "")
-          )
-        ),
-        div(class = "section",
-          div(class = "section-header", "▼ RECENT"),
-          div(class = "section-content",
-            div(class = "item", "📈 iNEXT analysis ", span(class = "badge", "2m")),
-            div(class = "item", "🔵 NMDS analysis ", span(class = "badge", "1h"))
-          )
-        )
-      ),
-      "data" = tagList(
-        div(class = "section",
-          div(class = "section-header", "▼ IMPORT OPTIONS"),
-          div(class = "section-content",
-            div(class = "item", "💻 Local File (CSV)"),
-            div(class = "item", "💻 Local File (Excel)"),
-            div(class = "item", "📚 Sample Datasets")
-          )
-        )
-      ),
-      "diversity" = tagList(
-        div(class = "section",
-          div(class = "section-header", "▼ ANALYSIS TYPE"),
-          div(class = "section-content",
-            div(class = "item active", "📈 Diversity Estimation (iNEXT)"),
-            div(class = "item", "📊 Diversity Indices (vegan)")
-          )
-        )
-      ),
-      "ordination" = tagList(
-        div(class = "section",
-          div(class = "section-header", "▼ METHODS"),
-          div(class = "section-content",
-            div(class = "item active", "🔵 NMDS"),
-            div(class = "item", "🔷 PCA"),
-            div(class = "item", "🔶 CA"),
-            div(class = "item", "🟦 DCA"),
-            div(class = "item", "⬡ PCoA")
-          )
-        )
-      ),
-      tagList(
-        div(class = "section",
-          div(class = "section-header", "▼ OPTIONS"),
-          div(class = "section-content",
-            div(class = "item", "⚙️ Configure")
-          )
-        )
-      )
-    )
-  })
-  
-  # Right panel properties
-  output$right_panel_properties <- renderUI({
-    if (is.null(community_data())) {
-      div(class = "prop-section",
-        h4("No Dataset Loaded"),
-        p(style = "color: #888; font-size: 12px;", "Load data to see properties")
-      )
-    } else {
-      tagList(
-        div(class = "prop-section",
-          h4("Dataset Info"),
-          div(class = "prop-item", tags$label("Rows:"), span(nrow(community_data()))),
-          div(class = "prop-item", tags$label("Columns:"), span(ncol(community_data()))),
-          div(class = "prop-item", tags$label("Type:"), span("Abundance"))
-        ),
-        div(class = "prop-section",
-          h4("Quick Actions"),
-          tags$button(class = "action-btn", "Export CSV"),
-          tags$button(class = "action-btn", "Export Excel"),
-          tags$button(class = "action-btn", "View Metadata")
-        )
-      )
-    }
-  })
-  
-  # Status bar info
-  output$status_info_right <- renderUI({
-    if (!is.null(community_data())) {
-      span(style = "margin-left: auto;", paste0("Dataset: ", nrow(community_data()), " sites × ", ncol(community_data()), " species"))
-    }
-  })
-  
-  # Load sample data
+  # Sample data loading
   observeEvent(input$load_sample, {
     req(input$sample_dataset)
-    tryCatch({
-      data(list = input$sample_dataset, package = "vegan")
-      dataset <- get(input$sample_dataset)
-      community_data(dataset)
-      showNotification(sprintf("✓ Loaded %s: %d sites × %d species", 
-                input$sample_dataset, nrow(dataset), ncol(dataset)), type = "message")
-    }, error = function(e) {
-      showNotification(paste("❌ Error:", e$message), type = "error")
-    })
+    
+    if (input$sample_dataset == "dune") {
+      data(dune, package = "vegan")
+      output$species_preview <- DT::renderDataTable({
+        DT::datatable(dune, options = list(pageLength = 10, scrollX = TRUE))
+      })
+    } else if (input$sample_dataset == "varespec") {
+      data(varespec, package = "vegan")
+      output$species_preview <- DT::renderDataTable({
+        DT::datatable(varespec, options = list(pageLength = 10, scrollX = TRUE))
+      })
+    } else if (input$sample_dataset == "BCI") {
+      data(BCI, package = "vegan")
+      output$species_preview <- DT::renderDataTable({
+        DT::datatable(BCI, options = list(pageLength = 10, scrollX = TRUE))
+      })
+    }
   })
   
-  # Upload species data
+  # File upload handling
   observeEvent(input$species_file, {
     req(input$species_file)
-    tryCatch({
-      ext <- tools::file_ext(input$species_file$name)
-      data <- if (ext == "csv") {
-        read.csv(input$species_file$datapath, row.names = 1, check.names = FALSE)
+    
+    ext <- tools::file_ext(input$species_file$name)
+    
+    species_data <- tryCatch({
+      if (ext == "csv") {
+        read_csv(input$species_file$datapath)
       } else if (ext %in% c("xlsx", "xls")) {
-        df <- readxl::read_excel(input$species_file$datapath)
-        rownames_col <- df[[1]]
-        df <- df[, -1]
-        rownames(df) <- rownames_col
-        as.data.frame(df)
+        read_excel(input$species_file$datapath)
       }
-      community_data(data)
-      showNotification(sprintf("✓ Loaded: %d sites × %d species", nrow(data), ncol(data)), type = "message")
     }, error = function(e) {
-      showNotification(paste("❌ Error:", e$message), type = "error")
+      showNotification(paste("Error loading file:", e$message), type = "error")
+      NULL
     })
+    
+    if (!is.null(species_data)) {
+      output$species_preview <- DT::renderDataTable({
+        DT::datatable(species_data, options = list(pageLength = 10, scrollX = TRUE))
+      })
+    }
   })
-  
-  # Species preview
-  output$species_preview <- DT::renderDataTable({
-    req(community_data())
-    df <- community_data()
-    df <- cbind(Site = rownames(df), df)
-    DT::datatable(df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
-  })
-  
-  # Call module servers
-  diversity_estimation_server("diversity_est", data = community_data)
-  diversity_indices_server("diversity_idx", data = community_data)
-  nmds_server("nmds", data = community_data)
-  pca_server("pca", data = community_data)
-  ca_server("ca", data = community_data)
-  dca_server("dca", data = community_data)
-  pcoa_server("pcoa", data = community_data)
 }
 
 # Run app
