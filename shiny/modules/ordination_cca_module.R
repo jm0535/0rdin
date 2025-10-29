@@ -212,35 +212,35 @@ cca_server <- function(id, data, env_data) {
     
     # Export plot
     output$export_plot <- downloadHandler(
-      filename = function() paste0("cca_plot_", Sys.Date(), ".", input$export_format),
+      filename = function() paste0("cca_plot_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
-        is_dark <- input$theme == "dark"
+        is_dark <- plot_defaults$theme == "dark"
         bg_color <- if(is_dark) "#1a1a1a" else "white"
         fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
         title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
         grid_color <- if(is_dark) "#404040" else "#cccccc40"
         
-        if(input$export_format == "png") png(file, width = input$plot_width * input$dpi, height = input$plot_height * input$dpi, res = input$dpi, bg = bg_color)
-        else if(input$export_format == "pdf") pdf(file, width = input$plot_width, height = input$plot_height, bg = bg_color)
-        else svg(file, width = input$plot_width, height = input$plot_height, bg = bg_color)
+        if(plot_defaults$export_format == "png") png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
+        else if(plot_defaults$export_format == "pdf") pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        else svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
         
-        par(family = input$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-            col.lab = fg_color, col.main = title_color, cex = input$base_size / 12,
-            cex.main = input$title_size / 12, lwd = input$axis_lwd)
+        par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
+            col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
+            cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
         
-        if(input$equal_aspect) {
+        if(plot_defaults$equal_aspect) {
           plot(cca_result(), type = "none", main = "CCA Triplot", font.main = 2)
           usr <- par("usr"); pin <- par("pin")
           if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
           else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
         } else plot(cca_result(), type = "none", main = "CCA Triplot", font.main = 2)
         
-        if(input$show_grid) grid(col = grid_color, lty = 1)
-        points(cca_result(), display = "sites", pch = as.numeric(input$point_shape),
-               bg = input$point_color, cex = input$point_size, col = fg_color, lwd = input$point_lwd)
-        if(input$show_labels) text(cca_result(), display = "sites", cex = input$label_size,
-                                   pos = as.numeric(input$label_pos), col = fg_color)
-        text(cca_result(), display = "bp", col = if(is_dark) "#e74c3c" else "#c0392b", cex = input$label_size * 1.1)
+        if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
+        points(cca_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
+               bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
+        if(plot_defaults$show_labels) text(cca_result(), display = "sites", cex = plot_defaults$label_size,
+                                   pos = as.numeric(plot_defaults$label_pos), col = fg_color)
+        text(cca_result(), display = "bp", col = if(is_dark) "#e74c3c" else "#c0392b", cex = plot_defaults$label_size * 1.1)
         dev.off()
       }
     )

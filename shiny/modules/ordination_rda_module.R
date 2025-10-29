@@ -38,33 +38,6 @@ rda_ui <- function(id) {
           # Interpretation box
           uiOutput(ns("rda_interpretation")),
           
-          # Plot Customization Panel
-          div(style = "background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 5px;",
-            h4("🎨 Plot Customization", style = "color: #2e8b57; margin-bottom: 15px; cursor: pointer;",
-               onclick = paste0("$('#", ns("plot_custom"), "').toggle();")),
-            
-            div(id = ns("plot_custom"), class = "plot-customization-grid",
-              div(selectInput(ns("theme"), "Theme:", choices = c("Clean" = "bw", "Minimal" = "minimal", "Dark" = "dark"), selected = "bw")),
-              div(selectInput(ns("font_family"), "Font:", choices = c("Sans" = "sans", "Serif" = "serif", "Mono" = "mono"), selected = "sans")),
-              div(numericInput(ns("base_size"), "Font Size:", value = 12, min = 8, max = 20, step = 1)),
-              div(numericInput(ns("title_size"), "Title Size:", value = 14, min = 10, max = 24, step = 1)),
-              div(numericInput(ns("point_size"), "Point Size:", value = 2, min = 0.5, max = 5, step = 0.5)),
-              div(selectInput(ns("point_shape"), "Shape:", choices = c("Circle" = 21, "Square" = 22, "Diamond" = 23, "Triangle" = 24), selected = 21)),
-              div(selectInput(ns("point_color"), "Point Color:", choices = c("Ördin Green" = "#2e8b57", "Blue" = "#007acc", "Orange" = "#d4a017", "Red" = "#e74c3c", "Purple" = "#9b59b6", "Teal" = "#1abc9c"), selected = "#2e8b57")),
-              div(numericInput(ns("point_lwd"), "Border Width:", value = 1.5, min = 0.5, max = 3, step = 0.5)),
-              div(checkboxInput(ns("show_grid"), "Show Grid", value = TRUE)),
-              div(checkboxInput(ns("show_labels"), "Site Labels", value = FALSE)),
-              div(numericInput(ns("plot_width"), "Width (in):", value = 8, min = 4, max = 20, step = 1)),
-              div(numericInput(ns("plot_height"), "Height (in):", value = 6, min = 4, max = 16, step = 1)),
-              div(numericInput(ns("dpi"), "DPI:", value = 300, min = 72, max = 600, step = 50)),
-              div(selectInput(ns("export_format"), "Format:", choices = c("PNG" = "png", "PDF" = "pdf", "SVG" = "svg"), selected = "png")),
-              div(numericInput(ns("label_size"), "Label Size:", value = 0.8, min = 0.3, max = 2, step = 0.1)),
-              div(selectInput(ns("label_pos"), "Label Pos:", choices = c("Auto" = 0, "Below" = 1, "Left" = 2, "Above" = 3, "Right" = 4), selected = 0)),
-              div(numericInput(ns("axis_lwd"), "Axis Width:", value = 1, min = 0.5, max = 3, step = 0.5)),
-              div(checkboxInput(ns("equal_aspect"), "Equal Aspect", value = TRUE))
-            )
-          ),
-          
           plotOutput(ns("rda_plot"), height = "500px"),
           downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm", style = "margin-top: 10px;")
         ),
@@ -95,6 +68,30 @@ rda_server <- function(id, data, env_data) {
     ns <- session$ns
     
     rda_result <- reactiveVal(NULL)
+    
+    plot_defaults <- reactiveValues(
+      theme = "bw", font_family = "sans", base_size = 12, title_size = 14,
+      point_size = 2, point_shape = "21", point_color = "#2e8b57", point_lwd = 1.5,
+      show_grid = TRUE, show_labels = FALSE, plot_width = 8, plot_height = 6,
+      dpi = 300, export_format = "png", label_size = 0.8, label_pos = "0",
+      axis_lwd = 1, equal_aspect = TRUE
+    )
+    
+    observeEvent(input$plot_theme, { plot_defaults$theme <- input$plot_theme })
+    observeEvent(input$plot_font_family, { plot_defaults$font_family <- input$plot_font_family })
+    observeEvent(input$plot_base_size, { plot_defaults$base_size <- input$plot_base_size })
+    observeEvent(input$plot_title_size, { plot_defaults$title_size <- input$plot_title_size })
+    observeEvent(input$plot_point_size, { plot_defaults$point_size <- input$plot_point_size })
+    observeEvent(input$plot_point_shape, { plot_defaults$point_shape <- input$plot_point_shape })
+    observeEvent(input$plot_point_color, { plot_defaults$point_color <- input$plot_point_color })
+    observeEvent(input$plot_point_lwd, { plot_defaults$point_lwd <- input$plot_point_lwd })
+    observeEvent(input$plot_show_grid, { plot_defaults$show_grid <- input$plot_show_grid })
+    observeEvent(input$plot_show_labels, { plot_defaults$show_labels <- input$plot_show_labels })
+    observeEvent(input$plot_label_size, { plot_defaults$label_size <- input$plot_label_size })
+    observeEvent(input$plot_width, { plot_defaults$plot_width <- input$plot_width })
+    observeEvent(input$plot_height, { plot_defaults$plot_height <- input$plot_height })
+    observeEvent(input$plot_dpi, { plot_defaults$dpi <- input$plot_dpi })
+    observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
     
     # Dynamic UI for environmental variable selection
     output$env_vars_ui <- renderUI({
@@ -164,31 +161,31 @@ rda_server <- function(id, data, env_data) {
     # Plot
     output$rda_plot <- renderPlot({  
       req(rda_result())
-      is_dark <- input$theme == "dark"
+      is_dark <- plot_defaults$theme == "dark"
       bg_color <- if(is_dark) "#1a1a1a" else "white"
       fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
       title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
       grid_color <- if(is_dark) "#404040" else "#cccccc40"
       
-      par(family = input$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-          col.lab = fg_color, col.main = title_color, cex = input$base_size / 12,
-          cex.main = input$title_size / 12, lwd = input$axis_lwd)
+      par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
+          col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
+          cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
       
-      if(input$equal_aspect) {
+      if(plot_defaults$equal_aspect) {
         plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
         usr <- par("usr"); pin <- par("pin")
         if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
         else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
       } else plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
       
-      if(input$show_grid) grid(col = grid_color, lty = 1)
-      points(rda_result(), display = "sites", pch = as.numeric(input$point_shape),
-             bg = input$point_color, cex = input$point_size, col = fg_color, lwd = input$point_lwd)
-      if(input$show_labels) text(rda_result(), display = "sites", cex = input$label_size,
-                                 pos = as.numeric(input$label_pos), col = fg_color)
+      if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
+      points(rda_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
+             bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
+      if(plot_defaults$show_labels) text(rda_result(), display = "sites", cex = plot_defaults$label_size,
+                                 pos = as.numeric(plot_defaults$label_pos), col = fg_color)
       
       # Add environmental vectors
-      text(rda_result(), display = "bp", col = if(is_dark) "#3498db" else "#2980b9", cex = input$label_size * 1.1)
+      text(rda_result(), display = "bp", col = if(is_dark) "#3498db" else "#2980b9", cex = plot_defaults$label_size * 1.1)
     })
     
     # ANOVA table
@@ -219,35 +216,35 @@ rda_server <- function(id, data, env_data) {
     
     # Export plot
     output$export_plot <- downloadHandler(
-      filename = function() paste0("rda_plot_", Sys.Date(), ".", input$export_format),
+      filename = function() paste0("rda_plot_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
-        is_dark <- input$theme == "dark"
+        is_dark <- plot_defaults$theme == "dark"
         bg_color <- if(is_dark) "#1a1a1a" else "white"
         fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
         title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
         grid_color <- if(is_dark) "#404040" else "#cccccc40"
         
-        if(input$export_format == "png") png(file, width = input$plot_width * input$dpi, height = input$plot_height * input$dpi, res = input$dpi, bg = bg_color)
-        else if(input$export_format == "pdf") pdf(file, width = input$plot_width, height = input$plot_height, bg = bg_color)
-        else svg(file, width = input$plot_width, height = input$plot_height, bg = bg_color)
+        if(plot_defaults$export_format == "png") png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
+        else if(plot_defaults$export_format == "pdf") pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        else svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
         
-        par(family = input$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-            col.lab = fg_color, col.main = title_color, cex = input$base_size / 12,
-            cex.main = input$title_size / 12, lwd = input$axis_lwd)
+        par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
+            col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
+            cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
         
-        if(input$equal_aspect) {
+        if(plot_defaults$equal_aspect) {
           plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
           usr <- par("usr"); pin <- par("pin")
           if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
           else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
         } else plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
         
-        if(input$show_grid) grid(col = grid_color, lty = 1)
-        points(rda_result(), display = "sites", pch = as.numeric(input$point_shape),
-               bg = input$point_color, cex = input$point_size, col = fg_color, lwd = input$point_lwd)
-        if(input$show_labels) text(rda_result(), display = "sites", cex = input$label_size,
-                                   pos = as.numeric(input$label_pos), col = fg_color)
-        text(rda_result(), display = "bp", col = if(is_dark) "#3498db" else "#2980b9", cex = input$label_size * 1.1)
+        if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
+        points(rda_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
+               bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
+        if(plot_defaults$show_labels) text(rda_result(), display = "sites", cex = plot_defaults$label_size,
+                                   pos = as.numeric(plot_defaults$label_pos), col = fg_color)
+        text(rda_result(), display = "bp", col = if(is_dark) "#3498db" else "#2980b9", cex = plot_defaults$label_size * 1.1)
         dev.off()
       }
     )
