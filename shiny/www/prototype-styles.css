@@ -480,17 +480,43 @@ body {
 
 .prop-item {
     display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
+    flex-direction: column;
+    padding: 8px 0;
     font-size: 12px;
 }
 
 .prop-item label {
     color: #888;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .prop-item span {
     color: #cccccc;
+}
+
+.prop-item input[type="number"],
+.prop-item input[type="text"],
+.prop-item select {
+    background: #1e1e1e;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 6px 8px;
+    font-size: 12px;
+    width: 100%;
+}
+
+.prop-item input:focus,
+.prop-item select:focus {
+    outline: none;
+    border-color: #2e8b57;
+}
+
+.prop-item input[type="checkbox"] {
+    margin-right: 8px;
 }
 
 .action-btn {

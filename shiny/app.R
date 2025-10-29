@@ -46,7 +46,7 @@ ui <- function(req) {
       tags$title("Ördin v3.0"),
       # Font Awesome 6.5 CDN
       tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"),
-      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=21"),
+      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=22"),
       tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
       tags$style(HTML("
@@ -70,9 +70,10 @@ ui <- function(req) {
     tags$script(src = "validation.js?v=3"),
     tags$script(src = "statistical-interpretation.js?v=3"),
     tags$script(src = "about-ordin-content.js?v=3"),
-    tags$script(src = "shiny-ui.js?v=7"),
-    tags$script(src = "sidebar-content.js?v=3"),
+    tags$script(src = "shiny-ui.js?v=9"),
+    tags$script(src = "sidebar-content.js?v=4"),
     tags$script(src = "fontawesome-icons.js?v=2"),
+    tags$script(src = "plot-customization-panel.js?v=2"),
     
     # Remove waiter overlay after page loads using JavaScript
     tags$script(HTML('

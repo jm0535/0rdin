@@ -76,7 +76,7 @@ function getSidebarOrdination() {
     <div class="section">
       <div class="section-header">▼ VISUALIZATION</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🎨 Plot Settings</div>
+        <div class="item" onclick="showPlotCustomization('nmds', 'nmds')" style="cursor: pointer;">🎨 Customize Plot (Right Panel)</div>
         <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📏 Axis Options</div>
         <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🏷️ Labels & Legend</div>
         <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🧩 Combine Plots (patchwork)</div>
