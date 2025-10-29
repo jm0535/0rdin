@@ -28,19 +28,27 @@
 - **⚡ Window Controls**: Custom minimize, maximize, close buttons integrated into title bar
 - **🖱️ Draggable Title Bar**: Native window dragging with `-webkit-app-region`
 - **📐 Responsive Layout**: Flexbox-based layout preventing overlap issues
-- **🔧 Right Properties Panel**: Collapsible properties panel with dataset information
+- **🔧 Right Properties Panel**: Collapsible properties panel with real-time plot customization
+- **⚙️ Settings System**: Comprehensive settings with 6 sections (Appearance, Plot Defaults, Analysis, Data, Performance, Advanced)
+- **📚 Help System**: Interactive help with 17 individual topic pages and smooth navigation
 - **✅ Error-Free Console**: Suppressed conflicting package JavaScript errors
 
 **Analysis Features:**
-- **📊 Enhanced Ordination Analysis**: 7 methods (NMDS, PCA, CA, DCA, CCA, RDA, PCoA) with advanced visualization
-- **🎨 Advanced Plot Themes**: 5 themes (Dark, Light, Classic, Minimal, Publication) with dynamic switching
-- **📉 Confidence Ellipses**: Statistical ellipses for site groups with automatic validation
-- **🌿 Species Scores**: Overlay species scores on ordination plots with customizable display
-- **🧭 Environmental Vectors**: Display environmental variables as arrows with biplot interpretation
-- **📊 Comprehensive Legends**: Detailed legends explaining all plot elements (sites, species, arrows, ellipses)
-- **💾 Dynamic Theme Updates**: Change themes without re-running analyses
-- **📤 Enhanced Exports**: Download scores, eigenvalues, and publication-quality plots
-- **📈 Improved Data Management**: Better validation and handling of environmental data
+- **📊 Enhanced Ordination Analysis**: 9 ordination methods + 2 diversity modules with modular architecture
+  - **Ordination**: NMDS, PCA, CA, DCA, PCoA, CCA, RDA, db-RDA, CAP
+  - **Diversity**: iNEXT Estimation, Diversity Indices
+- **🎨 Real-Time Plot Customization**: Right panel with 18+ controls for instant plot updates
+  - **Themes**: Clean, Minimal, Dark, Classic, Light, Void (ggplot2-based)
+  - **Typography**: Font family, sizes (base, title, axis, legend, strip)
+  - **Lines & Points**: Line width, point size, shapes, colors
+  - **Grids**: Major/minor grid toggle, axis line width
+  - **CI Ribbons**: Show/hide confidence intervals, transparency control
+  - **Legends**: Row count, size, position customization
+  - **Facets**: Label size for multi-panel plots
+- **📉 Advanced Ordination Features**: Confidence ellipses, species scores, environmental vectors
+- **💾 Dynamic Updates**: All plot changes apply in real-time without re-running analyses
+- **📤 Publication Exports**: PNG, TIFF, SVG at 300 DPI with customizable dimensions
+- **📈 Comprehensive Settings**: 6 settings sections with persistent browser storage
 
 **Technical Improvements:**
 - **⚡ Optimized Startup**: Splash screen with smooth transition to main window
@@ -106,12 +114,27 @@
 
 #### 🎨 **Enterprise-Grade Interface**
 - **Modern Design**: VS Code-inspired flat design with professional aesthetics
+- **Three-Panel Layout**: Activity bar + collapsible sidebars (left & right) + main canvas
+- **Dynamic Sidebars**: Context-aware content (Home, Data, Diversity, Ordination, Tests, Settings, Help)
 - **Theme System**: Dark/light theme toggle with persistent preferences
-- **Responsive Layout**: Adapts to different screen sizes and resolutions
+- **Real-Time Customization**: Right panel with instant plot updates (no re-rendering needed)
+- **Settings System**: 6 comprehensive sections:
+  - **Appearance**: Theme, font family, UI zoom (75-150%)
+  - **Plot Defaults**: Theme, DPI, format, dimensions
+  - **Analysis Defaults**: NMDS distance, k-dimensions, iNEXT bootstrap, permutations
+  - **Data Management**: Auto-save, validation, cache clearing
+  - **Performance**: Performance mode, caching options
+  - **Advanced**: R configuration, package versions (read-only)
+- **Help System**: 17 individual topic pages with smooth navigation:
+  - **Getting Started**: Quick Start, What is Ördin, First Steps, Data Import
+  - **Analysis Methods**: Ordination, Diversity, Statistics, Visualization
+  - **Tutorials**: Import Guide, NMDS, iNEXT, Publication Plots
+  - **Reference**: Citations, Shortcuts, Export, Troubleshooting
+  - **Support**: FAQs, Bug Reports, Feature Requests
+  - **About**: Version info, Author, GitHub repository
 - **Modular Navigation**: Tab-based interface with clear module separation
 - **Interactive Elements**: Enhanced widgets, accordions, and form controls
 - **Loading States**: Professional progress indicators and loading screens
-- **Help System**: Comprehensive sidebar navigation with detailed documentation
 
 #### 📤 **Publication-Ready Exports**
 - **Multiple Formats**: PNG, TIFF, SVG at publication quality (300 DPI)

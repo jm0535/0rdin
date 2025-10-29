@@ -4,14 +4,17 @@ Welcome to **Ördin** - your desktop companion for community ecology analysis! T
 
 ## What is Ördin?
 
-Ördin (inspired by Odin from Norse mythology) is a desktop application that makes community ecology analysis accessible and beautiful. It combines:
+Ördin (inspired by Odin from Norse mythology) is a professional-grade desktop application for community ecology analysis. It combines:
 
 - **iNEXT** for diversity estimation and rarefaction
-- **vegan** for ordination, diversity indices, and community analysis
-- A modern, VS Code-inspired flat interface with dark/light theme toggle
+- **vegan** for ordination (9 methods), diversity indices, and community analysis
+- **Real-time plot customization** with 18+ controls via right panel
+- **Interactive help system** with 17 topic pages
+- **Comprehensive settings** with 6 sections for personalization
+- A modern, VS Code-inspired interface with dark/light theme toggle
 - Cross-platform support (Windows, macOS & Linux)
 
-No command-line expertise needed - just upload your data and explore!
+No command-line expertise needed - just upload your data, customize in real-time, and explore!
 
 ---
 
@@ -136,20 +139,78 @@ You should see:
 
 ## 🎨 Customization
 
-### Toggle Dark/Light Theme (NEW in v2.3!)
+### Real-Time Plot Customization (NEW in v3.0!)
 
-Ördin now includes a professional theme toggle:
+Ördin now features a **right panel** with 18+ controls for instant plot customization:
 
-1. Look at the **far right of the navbar**
-2. Click the **☀️ (sun)** icon to switch to light theme
-3. Click the **🌙 (moon)** icon to switch back to dark theme
-4. Your preference is **automatically saved** and will persist when you restart the app!
+1. **Open the right panel**:
+   - Click any plot in Diversity or Ordination modules
+   - Look for the **"Customize Plot (Right Panel)"** menu item in the sidebar
+   - Or click the **"PROPERTIES"** panel on the far right of the window
+
+2. **Customize instantly** (no re-running needed!):
+   - **Themes**: Clean, Minimal, Dark, Classic, Light, Void
+   - **Typography**: Font family, sizes (base, title, axis, legend)
+   - **Lines & Points**: Line width, point size, shapes, colors
+   - **Grids**: Show/hide major and minor grids
+   - **Legends**: Row count, size, position
+   - **Export**: DPI, format, dimensions
+
+3. **See changes immediately**:
+   - All modifications apply in real-time
+   - No need to click "Run Analysis" again
+   - Perfect for exploring different visualizations!
+
+**Example Workflow**:
+1. Run NMDS analysis → See initial plot
+2. Open right panel → Change theme to "Publication"
+3. Adjust point size → See instant update
+4. Toggle minor grids → See instant update
+5. Set DPI to 600 → Download high-res plot
+
+### Access the Settings System (NEW in v3.0!)
+
+Ördin includes a comprehensive settings system with 6 sections:
+
+1. Click **Settings (⚙️)** icon in the activity bar (left side)
+2. Use the sidebar to navigate between sections:
+   - **🌨️ Appearance**: Theme, font, UI zoom
+   - **🎨 Plot Defaults**: Default theme, DPI, format, dimensions
+   - **🧪 Analysis Defaults**: NMDS distance, k-dimensions, bootstrap, permutations
+   - **📊 Data Management**: Auto-save, validation, cache
+   - **⚡ Performance**: Performance mode, caching options
+   - **🔧 Advanced**: R configuration, package versions
+3. Click **"Save Settings"** to persist your preferences
+
+### Use the Interactive Help System (NEW in v3.0!)
+
+Ördin features comprehensive help documentation:
+
+1. Click **Help (❓)** icon in the activity bar
+2. Browse 17 topic pages via the sidebar:
+   - **Getting Started**: Quick Start, What is Ördin, First Steps, Data Import
+   - **Analysis Methods**: Ordination, Diversity, Statistics, Visualization
+   - **Tutorials**: Import Guide, NMDS, iNEXT, Publication Plots
+   - **Reference**: Citations, Shortcuts, Export, Troubleshooting
+   - **Support**: FAQs, Bug Reports, Feature Requests
+   - **About**: Version, Author, GitHub
+3. Click any item → View that topic only (no scrolling!)
+
+### Toggle Dark/Light Theme
+
+Ördin includes a professional theme toggle:
+
+1. Look at the **far right of the navbar** (if using old version)
+2. Or use **Settings → Appearance → Theme** dropdown
+3. Click the **☀️ (sun)** icon to switch to light theme
+4. Click the **🌙 (moon)** icon to switch back to dark theme
+5. Your preference is **automatically saved**!
 
 **Benefits**:
-- 🌞 **Light theme** for bright environments (reduces eye strain)
-- 🌙 **Dark theme** for low-light work (default, easier on eyes)
-- 💾 **Persistent** - your choice is remembered
-- ⚡ **Smooth** - transitions are animated
+- 🌞 **Light theme** for bright environments
+- 🌙 **Dark theme** for low-light work (default)
+- 💾 **Persistent** - choice is remembered
+- ⚡ **Smooth** - animated transitions
 
 ### Change Theme Colors
 
@@ -258,11 +319,14 @@ setTimeout(() => {
 
 ## 💡 Tips
 
-- **Toggle theme**: Click sun/moon icon on far right of navbar
-- **Theme persists**: Your light/dark choice is saved automatically
+- **Real-time customization**: Use right panel for instant plot changes (no re-running!)
+- **Help system**: Press F1 or click Help icon for comprehensive documentation
+- **Settings**: Access Settings icon to personalize app behavior
+- **Toggle theme**: Use Settings → Appearance or navbar toggle
 - **Faster NMDS**: Use fewer dimensions (1 or 2)
-- **Better plots**: Plots automatically match your theme (dark or light backgrounds)
-- **Interactive tables**: Click column headers to sort in the summary table
+- **Better plots**: Customize theme, fonts, and colors in real-time
+- **Interactive tables**: Click column headers to sort
+- **Keyboard shortcuts**: Ctrl+Shift+I for DevTools
 
 ---
 
@@ -290,6 +354,6 @@ Now that you have Ördin running:
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 3.0.0  
 **Author**: Jimmy Moses  
 **License**: MIT

@@ -2,31 +2,115 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.0.0] - 2025-10-24
+## [3.0.0] - 2025-01-29
 
-### 🎉 Major Release: Advanced Ordination & Visualization
+### 🎉 Major Release: Real-Time Plot Customization & Interactive Help System
 
-Version 3.0.0 represents a significant advancement in Ördin's capabilities with enhanced ordination analysis, advanced visualization features, and professional theming system. This release transforms Ördin into a comprehensive community ecology analysis platform.
+Version 3.0.0 represents a transformative update with real-time plot customization, comprehensive settings system, and interactive help documentation. This release elevates Ördin to a professional-grade community ecology platform with enterprise-level UX.
 
 ### ✨ Added
 
+#### Real-Time Plot Customization System
+- **Right Panel Integration**: Collapsible properties panel with plot customization controls
+- **18+ Customization Controls**:
+  - **Themes**: 6 ggplot2 themes (Clean/bw, Minimal, Dark, Classic, Light, Void)
+  - **Typography**: Font family (Sans, Serif, Mono), base size, title size, axis title size
+  - **Lines & Points**: Line width (0.5-3), point size (1-5), CI ribbon transparency
+  - **Grids**: Major/minor grid toggles, axis line width
+  - **Legends**: Row count (1-5), legend size, position
+  - **Facets**: Strip label size for multi-panel plots
+  - **Export**: Width, height, DPI (72-600), format (PNG, PDF, SVG, TIFF)
+- **Real-Time Updates**: All changes apply instantly without re-running analyses
+- **Context-Aware UI**: Different controls for ordination vs diversity plots
+  - **Ordination**: Point shapes, colors, border width (base R graphics)
+  - **Diversity**: Line width, CI ribbons, legend layout (ggplot2)
+- **Module Integration**: Implemented across 11 modules:
+  - **9 Ordination**: NMDS, PCA, CA, DCA, PCoA, CCA, RDA, db-RDA, CAP
+  - **2 Diversity**: iNEXT Estimation, Diversity Indices
+
+#### Interactive Help Documentation System
+- **17 Individual Topic Pages** with dedicated content:
+  - **Getting Started** (4 pages): Quick Start, What is Ördin, First Steps, Data Import
+  - **Analysis Methods** (4 pages): Ordination (all 9 methods), Diversity (iNEXT + indices), Statistics, Visualization
+  - **Tutorials** (4 pages): Import Guide, NMDS Tutorial, iNEXT Tutorial, Publication Plots
+  - **Reference** (4 pages): Citations, Keyboard Shortcuts, Export Guide, Troubleshooting
+  - **Support** (3 pages): FAQs, Bug Reporting, Feature Requests
+  - **About** (6 items): Version, Author, Citation, GitHub, License, Acknowledgments
+- **Smooth Navigation**: Click sidebar item → show only that topic (no scrolling)
+- **Professional Styling**: 363 lines of custom CSS with:
+  - Hero sections with large Ö logo
+  - Gradient button hover effects
+  - Color-coded tip/warning boxes
+  - Keyboard shortcut badges with 3D effects
+  - Step-by-step instruction cards
+  - Responsive design for mobile
+  - Print-friendly styles
+- **Comprehensive Coverage**: All features documented with examples and interpretation guides
+
+#### Settings System
+- **6 Settings Sections** with independent pages:
+  1. **Appearance** (`settings-appearance`):
+     - Theme: Dark / Light
+     - Font Family: System / Sans / Serif / Mono
+     - UI Zoom: 75%-150% (real-time page zoom)
+  2. **Plot Defaults** (`settings-plot-defaults`):
+     - Default Theme: Clean, Minimal, Dark, Classic, Light, Void
+     - Default DPI: 72-600 (step: 50)
+     - Default Format: PDF, PNG, SVG, TIFF
+     - Width & Height: 3-20 inches
+  3. **Analysis Defaults** (`settings-analysis-defaults`):
+     - NMDS Distance: Bray-Curtis, Jaccard, Euclidean, Manhattan, Canberra
+     - NMDS Dimensions (k): 2-5
+     - iNEXT Bootstrap: 20-200 (step: 10)
+     - Permutations: 99-9999 (step: 100)
+  4. **Data Management** (`settings-data-management`):
+     - Auto-save results toggle
+     - Data validation toggle
+     - Clear All Data button
+  5. **Performance** (`settings-performance`):
+     - Performance Mode: Standard / High / Eco
+     - Result caching toggle
+     - Clear Browser Cache button
+  6. **Advanced** (`settings-advanced`):
+     - R Configuration info (read-only)
+     - Package Versions (vegan, iNEXT, ggplot2, shiny)
+- **Sidebar Navigation**: Click sidebar items → switch between settings sections
+- **Persistent Storage**: Settings saved to browser localStorage
+- **Action Buttons**: Save, Export, Reset to Defaults
+
 #### Enhanced Ordination Analysis
-- **7 ordination methods** with comprehensive implementation:
-  - ✅ **NMDS** - Non-metric Multidimensional Scaling (enhanced)
-  - ✅ **PCA** - Principal Components Analysis (NEW)
-  - ✅ **CA** - Correspondence Analysis (NEW)
-  - ✅ **DCA** - Detrended Correspondence Analysis (NEW)
-  - ✅ **CCA** - Canonical Correspondence Analysis (NEW - constrained)
-  - ✅ **RDA** - Redundancy Analysis (NEW - constrained)
-  - ✅ **PCoA** - Principal Coordinates Analysis (NEW)
-- **Advanced distance measures**:
-  - Bray-Curtis, Jaccard, Euclidean, Manhattan, Canberra
-- **Comprehensive ordination features**:
+- **9 Ordination Methods** with real-time customization:
+  - **NMDS** - Non-metric Multidimensional Scaling
+  - **PCA** - Principal Components Analysis
+  - **CA** - Correspondence Analysis
+  - **DCA** - Detrended Correspondence Analysis
+  - **PCoA** - Principal Coordinates Analysis
+  - **CCA** - Canonical Correspondence Analysis (constrained)
+  - **RDA** - Redundancy Analysis (constrained)
+  - **db-RDA** - Distance-based Redundancy Analysis (constrained)
+  - **CAP** - Constrained Analysis of Principal Coordinates (constrained)
+- **5 Distance Measures**: Bray-Curtis, Jaccard, Euclidean, Manhattan, Canberra
+- **Advanced Features**:
   - Multiple scaling options (1, 2, 3)
   - Data transformations (Hellinger, Chi-square, Log, Sqrt, PA, Wisconsin)
-  - Stress values and quality assessment
+  - Stress values and quality assessment (NMDS)
   - Eigenvalue percentages on axes
   - Downloadable scores and eigenvalues (CSV)
+  - Confidence ellipses for site groups
+  - Species scores overlay
+  - Environmental vectors (biplot arrows)
+
+#### Enhanced Diversity Analysis
+- **2 Diversity Modules** with real-time customization:
+  - **iNEXT Estimation**: Rarefaction/extrapolation curves with Hill numbers
+  - **Diversity Indices**: Shannon, Simpson, Evenness metrics
+- **Customization Features**:
+  - Line width and point size controls
+  - CI ribbon show/hide and transparency
+  - Legend row count and size
+  - Facet label size
+  - Theme selection
+  - Font customization
 
 #### Advanced Visualization System
 - **Confidence Ellipses**:
