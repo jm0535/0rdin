@@ -296,10 +296,27 @@ body {
     display: none;
     width: 100%;
     height: 100%;
+    padding: 30px;
+    overflow-y: auto;
 }
 
 .tab-content.active {
     display: block;
+}
+
+/* Tab content headings */
+.tab-content h2 {
+    margin-top: 0;
+}
+
+.tab-content h3 {
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+.tab-content h4 {
+    margin-top: 16px;
+    margin-bottom: 10px;
 }
 
 .welcome {
@@ -583,4 +600,371 @@ a:hover {
 
 *:focus-visible {
     animation: focusPulse 1s ease-in-out;
+}
+
+/* ===================================
+   SHINY INPUT STYLING (Dark Theme)
+   =================================== */
+
+/* Form groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #cccccc;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+/* Text inputs and file inputs */
+.form-control,
+input[type="text"],
+input[type="file"],
+input[type="number"],
+textarea {
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+    color: #cccccc !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus,
+input[type="text"]:focus,
+input[type="file"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+    border-color: #2e8b57 !important;
+    outline: none !important;
+}
+
+/* File input button */
+input[type="file"]::file-selector-button {
+    background: #2e8b57;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background: #3fa869;
+}
+
+/* Select inputs */
+select.form-control,
+.shiny-input-container select {
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+    color: #cccccc !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    cursor: pointer;
+}
+
+select.form-control:focus {
+    border-color: #2e8b57 !important;
+    outline: none !important;
+}
+
+/* Selectize (enhanced select) */
+.selectize-input {
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+    color: #cccccc !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+}
+
+.selectize-input.focus {
+    border-color: #2e8b57 !important;
+}
+
+.selectize-dropdown {
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+    color: #cccccc !important;
+}
+
+.selectize-dropdown-content .option {
+    padding: 8px 12px;
+    color: #cccccc;
+}
+
+.selectize-dropdown-content .option.active {
+    background: #2e8b57 !important;
+    color: white !important;
+}
+
+/* Action buttons */
+.btn,
+.btn-default,
+.btn-primary,
+.btn-success,
+.action-button {
+    background: #2e8b57;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn:hover,
+.btn-default:hover,
+.btn-primary:hover,
+.btn-success:hover,
+.action-button:hover {
+    background: #3fa869;
+}
+
+.btn:active {
+    background: #267a4a;
+}
+
+/* Checkboxes and radio buttons */
+.checkbox,
+.radio {
+    color: #cccccc;
+    margin-bottom: 10px;
+}
+
+.checkbox input[type="checkbox"],
+.radio input[type="radio"] {
+    margin-right: 8px;
+}
+
+/* Numeric inputs */
+.shiny-input-container input[type="number"] {
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+    color: #cccccc !important;
+}
+
+/* Sliders */
+.irs--shiny {
+    font-family: inherit;
+}
+
+.irs--shiny .irs-bar {
+    background: #2e8b57;
+}
+
+.irs--shiny .irs-handle {
+    background: #2e8b57;
+    border: 2px solid #2e8b57;
+}
+
+.irs--shiny .irs-from,
+.irs--shiny .irs-to,
+.irs--shiny .irs-single {
+    background: #2e8b57;
+    color: white;
+}
+
+/* Progress bars */
+.progress {
+    background: #3c3c3c;
+    border: 1px solid #3e3e42;
+    height: 20px;
+}
+
+.progress-bar {
+    background: #2e8b57;
+}
+
+/* DataTables styling */
+.dataTables_wrapper {
+    color: #cccccc !important;
+    margin-top: 10px;
+}
+
+#species_preview,
+#species_preview_wrapper {
+    width: 100% !important;
+}
+
+table.dataTable {
+    background: #252526 !important;
+    color: #cccccc !important;
+    border: 1px solid #3e3e42 !important;
+    width: 100% !important;
+}
+
+table.dataTable thead th {
+    background: #2d2d30 !important;
+    color: #cccccc !important;
+    border-bottom: 1px solid #3e3e42 !important;
+    padding: 10px !important;
+    font-weight: 600;
+}
+
+table.dataTable tbody td {
+    border-bottom: 1px solid #3e3e42 !important;
+    padding: 8px 10px !important;
+    color: #cccccc !important;
+}
+
+table.dataTable tbody tr:hover {
+    background: #2a2a2a !important;
+}
+
+table.dataTable.stripe tbody tr.odd,
+table.dataTable.display tbody tr.odd {
+    background: #252526 !important;
+}
+
+table.dataTable.stripe tbody tr.even,
+table.dataTable.display tbody tr.even {
+    background: #2a2a2a !important;
+}
+
+/* DataTables controls */
+.dataTables_filter,
+.dataTables_length,
+.dataTables_info,
+.dataTables_paginate {
+    color: #888 !important;
+    margin: 10px 0 !important;
+}
+
+.dataTables_filter input {
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+    color: #cccccc !important;
+    padding: 6px 10px !important;
+}
+
+.dataTables_length select {
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+    color: #cccccc !important;
+    padding: 4px 8px !important;
+}
+
+.dataTables_filter label,
+.dataTables_length label {
+    color: #888 !important;
+    font-size: 12px;
+}
+
+.paginate_button {
+    color: #cccccc !important;
+    background: #3c3c3c !important;
+    border: 1px solid #3e3e42 !important;
+}
+
+.paginate_button:hover {
+    background: #2e8b57 !important;
+    color: white !important;
+}
+
+.paginate_button.current {
+    background: #2e8b57 !important;
+    color: white !important;
+}
+
+/* Shiny notifications */
+.shiny-notification {
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 12px 16px;
+}
+
+.shiny-notification-message {
+    background: #2e8b57;
+    color: white;
+}
+
+.shiny-notification-error {
+    background: #dc3545;
+    color: white;
+}
+
+.shiny-notification-warning {
+    background: #ffc107;
+    color: #1e1e1e;
+}
+
+/* Plot output containers */
+.shiny-plot-output,
+.shiny-image-output {
+    background: #252526;
+    border: 1px solid #3e3e42;
+    padding: 10px;
+}
+
+/* Help text */
+.help-block,
+small {
+    color: #888 !important;
+    font-size: 12px !important;
+    margin-top: 6px;
+    display: block;
+}
+
+/* Control labels */
+.control-label {
+    color: #cccccc !important;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+/* Checkbox and radio labels */
+.checkbox label,
+.radio label,
+.checkbox-inline,
+.radio-inline {
+    color: #cccccc !important;
+    font-weight: normal;
+}
+
+/* Form sections with proper spacing */
+.form-group + .form-group {
+    margin-top: 20px;
+}
+
+/* Config panels */
+.config-panel,
+.diversity-estimation-workflow,
+.diversity-indices-workflow,
+.ordination-workflow {
+    max-width: 100%;
+}
+
+/* Horizontal split layout */
+.horizontal-split {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.plot-panel,
+.results-panel {
+    background: #252526;
+    border: 1px solid #3e3e42;
+    padding: 20px;
+}
+
+.results-section {
+    margin-bottom: 20px;
+}
+
+.results-section h3 {
+    color: #2e8b57;
+    font-size: 14px;
+    margin-bottom: 12px;
+    font-weight: 700;
 }

@@ -31,8 +31,8 @@ ui <- function(req) {
       tags$meta(charset = "UTF-8"),
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
-      tags$link(rel = "stylesheet", href = "prototype-styles.css"),
-      tags$link(rel = "stylesheet", href = "window-controls.css"),
+      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=8"),
+      tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
       tags$style(HTML("
         .shiny-busy-panel {
@@ -52,10 +52,10 @@ ui <- function(req) {
     use_waiter(),
     
     # Load JavaScript files (with cache-busting version)
-    tags$script(src = "validation.js?v=2"),
-    tags$script(src = "statistical-interpretation.js?v=2"),
-    tags$script(src = "about-ordin-content.js?v=2"),
-    tags$script(src = "shiny-ui.js?v=2"),
+    tags$script(src = "validation.js?v=3"),
+    tags$script(src = "statistical-interpretation.js?v=3"),
+    tags$script(src = "about-ordin-content.js?v=3"),
+    tags$script(src = "shiny-ui.js?v=4"),
     
     # Remove waiter overlay after page loads using JavaScript
     tags$script(HTML('
@@ -139,8 +139,8 @@ ui <- function(req) {
         div(class = "activity-item", onclick = "switchView('help')", title = "Help", "❓")
       ),
       
-      # PRIMARY SIDEBAR (starts collapsed like prototype)
-      div(class = "primary-sidebar collapsed", id = "sidebar",
+      # PRIMARY SIDEBAR (starts expanded for easier access)
+      div(class = "primary-sidebar", id = "sidebar",
         div(class = "sidebar-header",
           span(class = "sidebar-title", "EXPLORER"),
           tags$button(onclick = "toggleSidebar()", "◀")
@@ -150,23 +150,23 @@ ui <- function(req) {
           div(class = "section",
             div(class = "section-header", "▼ DATA SOURCES"),
             div(class = "section-content",
-              div(class = "item active", "📄 species_data.csv"),
-              div(class = "item", "📥 Import New File"),
-              div(class = "item", "📚 Sample Datasets")
+              div(class = "item active", onclick = "switchView('data')", style = "cursor: pointer;", "📄 species_data.csv"),
+              div(class = "item", onclick = "switchView('data')", style = "cursor: pointer;", "📥 Import New File"),
+              div(class = "item", onclick = "switchView('data')", style = "cursor: pointer;", "📚 Sample Datasets")
             )
           ),
           div(class = "section",
             div(class = "section-header", "▼ WORKSPACE"),
             div(class = "section-content",
-              div(class = "item", "📊 Current Dataset ", span(class = "badge", "45×12")),
-              div(class = "item", "ℹ️ Metadata"),
-              div(class = "item", "✅ Validation ", span(class = "badge success", "OK"))
+              div(class = "item", onclick = "switchView('data')", style = "cursor: pointer;", "📊 Current Dataset ", span(class = "badge", "45×12")),
+              div(class = "item", onclick = "alert('Metadata view coming soon!')", style = "cursor: pointer;", "ℹ️ Metadata"),
+              div(class = "item", onclick = "alert('Validation tools coming soon!')", style = "cursor: pointer;", "✅ Validation ", span(class = "badge success", "OK"))
             )
           ),
           div(class = "section",
             div(class = "section-header", "▼ RECENT"),
             div(class = "section-content",
-              div(class = "item", "📈 iNEXT analysis ", span(class = "badge", "2m"))
+              div(class = "item", onclick = "switchView('diversity')", style = "cursor: pointer;", "📈 iNEXT analysis ", span(class = "badge", "2m"))
             )
           )
         )
@@ -236,30 +236,95 @@ ui <- function(req) {
           
           # DATA TAB (hidden by default, shown by JS)
           div(id = "tab-data", class = "tab-content", style = "display: none;",
-            h2(style = "color: #2e8b57; margin-bottom: 20px;", "📊 Data Management"),
             
-            div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px; margin-bottom: 20px;",
-              h3(style = "color: #cccccc; margin-bottom: 16px;", "1️⃣ Species Composition Data"),
-              fileInput("species_file", "Upload Species Data (CSV or Excel):",
-                       accept = c(".csv", ".xlsx", ".xls")),
-              tags$small(style = "color: #888;", "First column = Site names | Other columns = Species abundance"),
+            # PAGE HEADER
+            div(style = "margin-bottom: 30px;",
+              h2(style = "color: #2e8b57; margin: 0 0 8px 0; font-size: 24px; font-weight: 600;", "📊 Data Management"),
+              p(style = "color: #888; font-size: 14px; margin: 0;", "Import your species data and preview before analysis")
+            ),
+            
+            # TWO-COLUMN LAYOUT
+            div(style = "display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;",
               
-              div(style = "border-top: 1px solid #3e3e42; padding-top: 20px; margin-top: 20px;",
-                h4(style = "color: #ccc;", "Or Load Sample Dataset"),
-                selectInput("sample_dataset", "Choose sample:",
-                           choices = c("None" = "", "Dune Meadow" = "dune", "Varespec" = "varespec", "BCI" = "BCI")),
-                actionButton("load_sample", "▶ Load Sample Data", class = "btn-success")
+              # LEFT COLUMN - Species Data
+              div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px;",
+                div(style = "display: flex; align-items: center; margin-bottom: 20px;",
+                  div(style = "width: 40px; height: 40px; background: #2e8b5720; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;",
+                    span(style = "font-size: 20px;", "1️⃣")
+                  ),
+                  div(
+                    h3(style = "color: #cccccc; margin: 0; font-size: 16px; font-weight: 600;", "Species Composition Data"),
+                    p(style = "color: #888; font-size: 12px; margin: 4px 0 0 0;", "Required for all analyses")
+                  )
+                ),
+                
+                # File Upload Section
+                div(style = "margin-bottom: 24px;",
+                  h4(style = "color: #aaa; font-size: 13px; margin-bottom: 12px; font-weight: 600;", "📤 UPLOAD FILE"),
+                  fileInput("species_file", "",
+                           accept = c(".csv", ".xlsx", ".xls"),
+                           placeholder = "Choose CSV or Excel file"),
+                  div(style = "background: #1e1e1e; border-left: 3px solid #2e8b57; padding: 12px; margin-top: 8px;",
+                    p(style = "color: #888; font-size: 11px; margin: 0; line-height: 1.6;",
+                      "💡 ", tags$strong("Format:"), " First column = Site names, Other columns = Species abundance")
+                  )
+                ),
+                
+                # Sample Dataset Section
+                div(style = "border-top: 1px solid #3e3e42; padding-top: 20px;",
+                  h4(style = "color: #aaa; font-size: 13px; margin-bottom: 12px; font-weight: 600;", "📚 LOAD SAMPLE"),
+                  selectInput("sample_dataset", "",
+                             choices = c("Choose a sample dataset..." = "", 
+                                        "Dune Meadow (20 sites × 30 species)" = "dune", 
+                                        "Varespec (24 sites × 44 species)" = "varespec", 
+                                        "BCI (50 sites × 225 species)" = "BCI")),
+                  actionButton("load_sample", "▶ Load Sample Data", 
+                              class = "btn-success", 
+                              style = "width: 100%; margin-top: 8px;")
+                )
+              ),
+              
+              # RIGHT COLUMN - Environmental Data
+              div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px;",
+                div(style = "display: flex; align-items: center; margin-bottom: 20px;",
+                  div(style = "width: 40px; height: 40px; background: #4a90e220; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;",
+                    span(style = "font-size: 20px;", "2️⃣")
+                  ),
+                  div(
+                    h3(style = "color: #cccccc; margin: 0; font-size: 16px; font-weight: 600;", "Environmental Data"),
+                    p(style = "color: #888; font-size: 12px; margin: 4px 0 0 0;", "Optional - for constrained ordination")
+                  )
+                ),
+                
+                h4(style = "color: #aaa; font-size: 13px; margin-bottom: 12px; font-weight: 600;", "📤 UPLOAD FILE"),
+                fileInput("env_file", "",
+                         accept = c(".csv", ".xlsx", ".xls"),
+                         placeholder = "Choose environmental data file"),
+                
+                div(style = "background: #1e1e1e; border-left: 3px solid #4a90e2; padding: 12px; margin-top: 8px;",
+                  p(style = "color: #888; font-size: 11px; margin: 0 0 8px 0; line-height: 1.6;",
+                    "💡 ", tags$strong("Examples:"), " pH, temperature, soil moisture, etc."),
+                  p(style = "color: #888; font-size: 11px; margin: 0; line-height: 1.6;",
+                    "⚠️ Must have same sites as species data")
+                )
               )
             ),
             
-            div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px; margin-bottom: 20px;",
-              h3(style = "color: #cccccc; margin-bottom: 16px;", "2️⃣ Environmental Data (Optional)"),
-              fileInput("env_file", "Upload Environmental Data:", accept = c(".csv", ".xlsx", ".xls"))
-            ),
-            
-            div(style = "margin-top: 30px;",
-              h3(style = "color: #2e8b57;", "🔍 Data Preview"),
-              DT::dataTableOutput("species_preview")
+            # DATA PREVIEW SECTION - Full Width
+            div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px;",
+              # Preview Header
+              div(style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;",
+                div(
+                  h3(style = "color: #2e8b57; margin: 0; font-size: 18px; font-weight: 600;", "🔍 Data Preview"),
+                  p(style = "color: #888; font-size: 12px; margin: 4px 0 0 0;", "Preview loaded dataset before analysis")
+                ),
+                uiOutput("data_info_badge")
+              ),
+              
+              # DataTable Container
+              div(id = "preview-container", style = "margin-top: 16px;",
+                DT::DTOutput("species_preview")
+              )
             )
           ),
           
@@ -371,48 +436,116 @@ server <- function(input, output, session) {
   
   # ============== MODULE SERVERS (WITH DATA) ==============
   # Call module servers and pass reactive data
+  # NOTE: Only NMDS module accepts env_data parameter
   diversity_estimation_server("diversity_est", data = species_data)
   diversity_indices_server("diversity_idx", data = species_data)
-  nmds_server("nmds", data = species_data, env_data = env_data)
-  pca_server("pca", data = species_data, env_data = env_data)
-  ca_server("ca", data = species_data, env_data = env_data)
-  dca_server("dca", data = species_data, env_data = env_data)
-  pcoa_server("pcoa", data = species_data, env_data = env_data)
+  nmds_server("nmds", data = species_data, env_data = env_data)  # NMDS supports environmental data
+  pca_server("pca", data = species_data)  # PCA does not use env_data
+  ca_server("ca", data = species_data)  # CA does not use env_data
+  dca_server("dca", data = species_data)  # DCA does not use env_data
+  pcoa_server("pcoa", data = species_data)  # PCoA does not use env_data
+  
+  # ============== INITIALIZE DATA PREVIEW ==============
+  # Initialize empty data table - REACTIVE to species_data changes
+  # CRITICAL: Must use renderDT from DT package, not renderDataTable
+  
+  # Data info badge
+  output$data_info_badge <- renderUI({
+    if (!is.null(species_data())) {
+      div(style = "background: #2e8b5720; border: 1px solid #2e8b57; border-radius: 4px; padding: 8px 16px; display: flex; align-items: center; gap: 8px;",
+        span(style = "color: #2e8b57; font-size: 14px; font-weight: 600;", "✓"),
+        span(style = "color: #2e8b57; font-size: 13px; font-weight: 600;",
+          paste0(nrow(species_data()), " sites × ", ncol(species_data()), " species"))
+      )
+    }
+  })
+  
+  output$species_preview <- DT::renderDT({
+    cat("\n========== DATATABLE RENDER CALLED ==========", "\n")
+    cat("Timestamp:", Sys.time(), "\n")
+    cat("species_data is null:", is.null(species_data()), "\n")
+    
+    if (is.null(species_data())) {
+      # Show empty placeholder
+      cat("Showing empty placeholder message\n")
+      cat("==========================================\n\n")
+      DT::datatable(
+        data.frame(
+          Status = "⚠️ No Data Loaded",
+          Instructions = "Upload a CSV/Excel file or load a sample dataset to get started"
+        ),
+        options = list(
+          pageLength = 5,
+          scrollX = FALSE,
+          dom = 't',
+          ordering = FALSE,
+          searching = FALSE,
+          columnDefs = list(
+            list(width = '30%', targets = 0),
+            list(width = '70%', targets = 1)
+          )
+        ),
+        rownames = FALSE,
+        style = 'bootstrap4',
+        class = 'cell-border'
+      )
+    } else {
+      # Show actual data
+      cat("Showing actual data\n")
+      cat("Rows:", nrow(species_data()), "\n")
+      cat("Cols:", ncol(species_data()), "\n")
+      cat("==========================================\n\n")
+      DT::datatable(
+        species_data(),
+        options = list(
+          pageLength = 10,
+          scrollX = TRUE,
+          scrollY = "400px",
+          paging = TRUE,
+          searching = TRUE,
+          info = TRUE,
+          autoWidth = TRUE
+        ),
+        style = 'bootstrap4',
+        class = 'cell-border stripe hover',
+        rownames = TRUE
+      )
+    }
+  })
   
   # ============== SAMPLE DATA LOADING ==============
   observeEvent(input$load_sample, {
+    cat("\n=== LOAD SAMPLE BUTTON CLICKED ===", "\n")
+    cat("sample_dataset value:", input$sample_dataset, "\n")
+    
     req(input$sample_dataset)
     
     if (input$sample_dataset == "dune") {
+      cat("Loading dune dataset...\n")
       data(dune, package = "vegan")
       species_data(as.data.frame(dune))  # Store reactively
+      cat("Dune data stored. Rows:", nrow(dune), "\n")
       
-      output$species_preview <- DT::renderDataTable({
-        DT::datatable(dune, options = list(pageLength = 10, scrollX = TRUE))
-      })
-      
-      showNotification("✅ Dune meadow data loaded successfully!", type = "message")
+      showNotification("✅ Dune meadow data loaded successfully!", type = "message", duration = 3)
       
     } else if (input$sample_dataset == "varespec") {
+      cat("Loading varespec dataset...\n")
       data(varespec, package = "vegan")
       species_data(as.data.frame(varespec))  # Store reactively
+      cat("Varespec data stored. Rows:", nrow(varespec), "\n")
       
-      output$species_preview <- DT::renderDataTable({
-        DT::datatable(varespec, options = list(pageLength = 10, scrollX = TRUE))
-      })
-      
-      showNotification("✅ Varespec data loaded successfully!", type = "message")
+      showNotification("✅ Varespec data loaded successfully!", type = "message", duration = 3)
       
     } else if (input$sample_dataset == "BCI") {
+      cat("Loading BCI dataset...\n")
       data(BCI, package = "vegan")
       species_data(as.data.frame(BCI))  # Store reactively
+      cat("BCI data stored. Rows:", nrow(BCI), "\n")
       
-      output$species_preview <- DT::renderDataTable({
-        DT::datatable(BCI, options = list(pageLength = 10, scrollX = TRUE))
-      })
-      
-      showNotification("✅ BCI data loaded successfully!", type = "message")
+      showNotification("✅ BCI data loaded successfully!", type = "message", duration = 3)
     }
+    
+    cat("=== SAMPLE DATA LOADING COMPLETE ===", "\n\n")
   })
   
   # ============== FILE UPLOAD HANDLING ==============
@@ -429,7 +562,7 @@ server <- function(input, output, session) {
         read_excel(input$species_file$datapath)
       }
     }, error = function(e) {
-      showNotification(paste("❌ Error loading file:", e$message), type = "error")
+      showNotification(paste("❌ Error loading file:", e$message), type = "error", duration = 5)
       NULL
     })
     
@@ -437,15 +570,11 @@ server <- function(input, output, session) {
       # Store as data frame
       species_data(as.data.frame(loaded_data))  # Store reactively
       
-      # Show preview
-      output$species_preview <- DT::renderDataTable({
-        DT::datatable(loaded_data, options = list(pageLength = 10, scrollX = TRUE))
-      })
-      
       showNotification(
         paste0("✅ ", input$species_file$name, " loaded successfully! (", 
                nrow(loaded_data), " rows, ", ncol(loaded_data), " columns)"),
-        type = "message"
+        type = "message",
+        duration = 3
       )
     }
   })
