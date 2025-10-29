@@ -32,7 +32,19 @@ ui <- function(req) {
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
       tags$link(rel = "stylesheet", href = "prototype-styles.css"),
-      tags$link(rel = "stylesheet", href = "window-controls.css")
+      tags$link(rel = "stylesheet", href = "window-controls.css"),
+      # Hide Shiny busy indicator (grey overlay)
+      tags$style(HTML("
+        .shiny-busy-panel {
+          display: none !important;
+        }
+        html.shiny-busy {
+          cursor: default !important;
+        }
+        html.shiny-busy::before {
+          display: none !important;
+        }
+      "))
     ),
     
     useShinyjs(),
@@ -45,15 +57,48 @@ ui <- function(req) {
     tags$script(src = "about-ordin-content.js?v=2"),
     tags$script(src = "shiny-ui.js?v=2"),
     
-    # Loading screen
-    waiter_show_on_load(
-      html = tagList(
-        spin_loaders(42, color = "#2e8b57"),
-        h2("Ördin", style = "color: #2e8b57; margin-top: 30px;"),
-        p("Loading application...", style = "color: #999;")
-      ),
-      color = "#1a1a1a"
-    ),
+    # Remove waiter overlay after page loads using JavaScript
+    tags$script(HTML('
+      // Remove overlays immediately on page load
+      $(document).ready(function() {
+        function removeOverlays() {
+          $(".waiter-overlay").remove();
+          $(".waiter").remove();
+          $("[class*=waiter]").remove();
+          $("#shiny-notification-panel").remove();
+          $(".shiny-busy-panel").remove();
+          
+          // Remove any grey overlay divs
+          $("body > div").each(function() {
+            var elem = $(this);
+            var bg = elem.css("background-color");
+            var pos = elem.css("position");
+            var zIndex = parseInt(elem.css("z-index"));
+            
+            // Check for grey fixed/absolute overlays with high z-index
+            if ((pos === "fixed" || pos === "absolute") && zIndex > 9000) {
+              if (bg && (bg.includes("153") || bg === "rgb(153, 153, 153)")) {
+                elem.remove();
+              }
+            }
+          });
+          
+          // Force remove shiny-busy class
+          $("html").removeClass("shiny-busy");
+        }
+        
+        // Run immediately
+        removeOverlays();
+        
+        // Run every 100ms for the first 5 seconds to catch late-loading overlays
+        var counter = 0;
+        var interval = setInterval(function() {
+          removeOverlays();
+          counter++;
+          if (counter > 50) clearInterval(interval);
+        }, 100);
+      });
+    ')),
     
     # Skip link for accessibility
     tags$a(href = "#main-content", class = "skip-link", "Skip to main content"),
@@ -319,61 +364,118 @@ ui <- function(req) {
 # SERVER
 server <- function(input, output, session) {
   
-  # Hide loading screen after 2 seconds
-  waiter_hide()
+  # ============== REACTIVE DATA STORAGE ==============
+  # Store loaded data reactively so modules can access it
+  species_data <- reactiveVal(NULL)
+  env_data <- reactiveVal(NULL)
   
-  # Call module servers
-  diversity_estimation_server("diversity_est")
-  diversity_indices_server("diversity_idx")
-  nmds_server("nmds")
-  pca_server("pca")
-  ca_server("ca")
-  dca_server("dca")
-  pcoa_server("pcoa")
+  # ============== MODULE SERVERS (WITH DATA) ==============
+  # Call module servers and pass reactive data
+  diversity_estimation_server("diversity_est", data = species_data)
+  diversity_indices_server("diversity_idx", data = species_data)
+  nmds_server("nmds", data = species_data, env_data = env_data)
+  pca_server("pca", data = species_data, env_data = env_data)
+  ca_server("ca", data = species_data, env_data = env_data)
+  dca_server("dca", data = species_data, env_data = env_data)
+  pcoa_server("pcoa", data = species_data, env_data = env_data)
   
-  # Sample data loading
+  # ============== SAMPLE DATA LOADING ==============
   observeEvent(input$load_sample, {
     req(input$sample_dataset)
     
     if (input$sample_dataset == "dune") {
       data(dune, package = "vegan")
+      species_data(as.data.frame(dune))  # Store reactively
+      
       output$species_preview <- DT::renderDataTable({
         DT::datatable(dune, options = list(pageLength = 10, scrollX = TRUE))
       })
+      
+      showNotification("✅ Dune meadow data loaded successfully!", type = "message")
+      
     } else if (input$sample_dataset == "varespec") {
       data(varespec, package = "vegan")
+      species_data(as.data.frame(varespec))  # Store reactively
+      
       output$species_preview <- DT::renderDataTable({
         DT::datatable(varespec, options = list(pageLength = 10, scrollX = TRUE))
       })
+      
+      showNotification("✅ Varespec data loaded successfully!", type = "message")
+      
     } else if (input$sample_dataset == "BCI") {
       data(BCI, package = "vegan")
+      species_data(as.data.frame(BCI))  # Store reactively
+      
       output$species_preview <- DT::renderDataTable({
         DT::datatable(BCI, options = list(pageLength = 10, scrollX = TRUE))
       })
+      
+      showNotification("✅ BCI data loaded successfully!", type = "message")
     }
   })
   
-  # File upload handling
+  # ============== FILE UPLOAD HANDLING ==============
+  # Species data file upload
   observeEvent(input$species_file, {
     req(input$species_file)
     
     ext <- tools::file_ext(input$species_file$name)
     
-    species_data <- tryCatch({
+    loaded_data <- tryCatch({
       if (ext == "csv") {
-        read_csv(input$species_file$datapath)
+        read_csv(input$species_file$datapath, show_col_types = FALSE)
       } else if (ext %in% c("xlsx", "xls")) {
         read_excel(input$species_file$datapath)
       }
     }, error = function(e) {
-      showNotification(paste("Error loading file:", e$message), type = "error")
+      showNotification(paste("❌ Error loading file:", e$message), type = "error")
       NULL
     })
     
-    if (!is.null(species_data)) {
+    if (!is.null(loaded_data)) {
+      # Store as data frame
+      species_data(as.data.frame(loaded_data))  # Store reactively
+      
+      # Show preview
       output$species_preview <- DT::renderDataTable({
-        DT::datatable(species_data, options = list(pageLength = 10, scrollX = TRUE))
+        DT::datatable(loaded_data, options = list(pageLength = 10, scrollX = TRUE))
       })
+      
+      showNotification(
+        paste0("✅ ", input$species_file$name, " loaded successfully! (", 
+               nrow(loaded_data), " rows, ", ncol(loaded_data), " columns)"),
+        type = "message"
+      )
+    }
+  })
+  
+  # Environmental data file upload
+  observeEvent(input$env_file, {
+    req(input$env_file)
+    
+    ext <- tools::file_ext(input$env_file$name)
+    
+    loaded_env <- tryCatch({
+      if (ext == "csv") {
+        read_csv(input$env_file$datapath, show_col_types = FALSE)
+      } else if (ext %in% c("xlsx", "xls")) {
+        read_excel(input$env_file$datapath)
+      }
+    }, error = function(e) {
+      showNotification(paste("❌ Error loading environmental data:", e$message), type = "error")
+      NULL
+    })
+    
+    if (!is.null(loaded_env)) {
+      # Store as data frame
+      env_data(as.data.frame(loaded_env))  # Store reactively
+      
+      showNotification(
+        paste0("✅ Environmental data loaded! (", 
+               nrow(loaded_env), " rows, ", ncol(loaded_env), " variables)"),
+        type = "message"
+      )
     }
   })
 }
