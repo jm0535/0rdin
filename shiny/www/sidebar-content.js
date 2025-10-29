@@ -228,28 +228,58 @@ function getSidebarSettings() {
     <div class="section">
       <div class="section-header">▼ APPEARANCE</div>
       <div class="section-content">
-        <div class="item active" style="cursor: pointer;">🌙 Dark Theme</div>
-        <div class="item" onclick="alert('Light theme - Coming soon!')" style="cursor: pointer;">☀️ Light Theme</div>
-        <div class="item" onclick="alert('Custom colors - Coming soon!')" style="cursor: pointer;">🎨 Custom Colors</div>
-        <div class="item" onclick="alert('Font size - Coming soon!')" style="cursor: pointer;">🔤 Font Size</div>
+        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🌙 Dark Theme <span class="badge success">ON</span></div>
+        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">☀️ Light Theme</div>
+        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🎨 Custom Colors</div>
+        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🔤 Increase Font Size</div>
+        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🔥 Decrease Font Size</div>
+        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🔄 Reset Zoom</div>
       </div>
     </div>
     <div class="section">
-      <div class="section-header">▼ GENERAL</div>
+      <div class="section-header">▼ PLOT DEFAULTS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Auto-save settings - Coming soon!')" style="cursor: pointer;">💾 Auto-Save <span class="badge success">ON</span></div>
-        <div class="item" onclick="alert('Notifications - Coming soon!')" style="cursor: pointer;">🔔 Notifications</div>
-        <div class="item" onclick="alert('Language - Coming soon!')" style="cursor: pointer;">🌐 Language</div>
-        <div class="item" onclick="alert('Default parameters - Coming soon!')" style="cursor: pointer;">⚙️ Default Parameters</div>
+        <div class="item" onclick="showSettingsSection('plot-defaults')" style="cursor: pointer;">🎨 Default Theme: Clean</div>
+        <div class="item" onclick="showSettingsSection('plot-defaults')" style="cursor: pointer;">📷 Default DPI: 300</div>
+        <div class="item" onclick="showSettingsSection('plot-defaults')" style="cursor: pointer;">📄 Default Format: PDF</div>
+        <div class="item" onclick="showSettingsSection('plot-defaults')" style="cursor: pointer;">📏 Width: 8 inches</div>
+        <div class="item" onclick="showSettingsSection('plot-defaults')" style="cursor: pointer;">📏 Height: 6 inches</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ DATA MANAGEMENT</div>
+      <div class="section-content">
+        <div class="item" onclick="showSettingsSection('data-management')" style="cursor: pointer;">🗑️ Clear All Data</div>
+        <div class="item" onclick="showSettingsSection('data-management')" style="cursor: pointer;">💾 Auto-Save Results <span class="badge">OFF</span></div>
+        <div class="item" onclick="showSettingsSection('data-management')" style="cursor: pointer;">📊 View Session History</div>
+        <div class="item" onclick="showSettingsSection('data-management')" style="cursor: pointer;">⚙️ Validation Settings</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ ANALYSIS DEFAULTS</div>
+      <div class="section-content">
+        <div class="item" onclick="showSettingsSection('analysis-defaults')" style="cursor: pointer;">🔵 NMDS Distance: Bray-Curtis</div>
+        <div class="item" onclick="showSettingsSection('analysis-defaults')" style="cursor: pointer;">🔢 NMDS Dimensions: 2</div>
+        <div class="item" onclick="showSettingsSection('analysis-defaults')" style="cursor: pointer;">🔄 iNEXT Bootstrap: 50</div>
+        <div class="item" onclick="showSettingsSection('analysis-defaults')" style="cursor: pointer;">🎲 Permutations: 999</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ PERFORMANCE</div>
+      <div class="section-content">
+        <div class="item" onclick="showSettingsSection('performance')" style="cursor: pointer;">⚡ Performance Mode <span class="badge">Standard</span></div>
+        <div class="item" onclick="showSettingsSection('advanced')" style="cursor: pointer;">📦 Package Versions</div>
+        <div class="item" onclick="showSettingsSection('performance')" style="cursor: pointer;">🗑️ Clear Browser Cache</div>
+        <div class="item" onclick="showSettingsSection('performance')" style="cursor: pointer;">📊 Memory Usage</div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ ADVANCED</div>
       <div class="section-content">
-        <div class="item" onclick="alert('R configuration - Coming soon!')" style="cursor: pointer;">🔧 R Configuration</div>
-        <div class="item" onclick="alert('Package manager - Coming soon!')" style="cursor: pointer;">📦 Package Manager</div>
-        <div class="item" onclick="alert('Clear cache - Coming soon!')" style="cursor: pointer;">🗑️ Clear Cache</div>
-        <div class="item" onclick="alert('Performance - Coming soon!')" style="cursor: pointer;">⚡ Performance Settings</div>
+        <div class="item" onclick="showSettingsSection('advanced')" style="cursor: pointer;">🔧 R Configuration</div>
+        <div class="item" onclick="window.open('https://github.com/jm0535/0rdin/issues', '_blank')" style="cursor: pointer;">🐛 Report Issue</div>
+        <div class="item" onclick="if(confirm('Export all settings?')) { const settings = { theme: localStorage.getItem('ordin_default_theme') || 'bw', dpi: localStorage.getItem('ordin_default_dpi') || '300' }; alert('Settings:\\n' + JSON.stringify(settings, null, 2)); }" style="cursor: pointer;">📥 Export Settings</div>
+        <div class="item" onclick="if(confirm('Reset all settings to defaults?')) { localStorage.clear(); alert('✅ Settings reset to defaults'); location.reload(); }" style="cursor: pointer;">♻️ Reset All Settings</div>
       </div>
     </div>
   `;
@@ -259,35 +289,82 @@ function getSidebarSettings() {
 function getSidebarHelp() {
   return `
     <div class="section">
-      <div class="section-header">▼ DOCUMENTATION</div>
+      <div class="section-header">▼ GETTING STARTED</div>
       <div class="section-content">
-        <div class="item" onclick="alert('User guide - Coming soon!')" style="cursor: pointer;">📖 User Guide</div>
-        <div class="item" onclick="alert('Tutorials - Coming soon!')" style="cursor: pointer;">🎓 Tutorials</div>
-        <div class="item" onclick="alert('API reference - Coming soon!')" style="cursor: pointer;">📚 API Reference</div>
-        <div class="item" onclick="alert('Video tutorials - Coming soon!')" style="cursor: pointer;">🎥 Video Tutorials</div>
+        <div class="item" onclick="showHelpTopic('quick-start')" style="cursor: pointer;">🚀 Quick Start Guide</div>
+        <div class="item" onclick="showHelpTopic('what-is-ordin')" style="cursor: pointer;">📊 What is Ördin?</div>
+        <div class="item" onclick="showHelpTopic('first-steps')" style="cursor: pointer;">👣 First Steps</div>
+        <div class="item" onclick="showHelpTopic('data-import')" style="cursor: pointer;">📊 Loading Data</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ ANALYSIS METHODS</div>
+      <div class="section-content">
+        <div class="item" onclick="showHelpTopic('ordination')" style="cursor: pointer;">📈 Ordination (NMDS, PCA, CA)</div>
+        <div class="item" onclick="showHelpTopic('diversity')" style="cursor: pointer;">🦋 Diversity (iNEXT, Indices)</div>
+        <div class="item" onclick="showHelpTopic('statistics')" style="cursor: pointer;">🧪 Statistical Tests</div>
+        <div class="item" onclick="showHelpTopic('visualization')" style="cursor: pointer;">🎨 Plot Customization</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ TUTORIALS</div>
+      <div class="section-content">
+        <div class="item" onclick="showHelpTopic('data-import')" style="cursor: pointer;">📊 Data Import Guide</div>
+        <div class="item" onclick="showHelpTopic('nmds-tutorial')" style="cursor: pointer;">🔵 Running NMDS Analysis</div>
+        <div class="item" onclick="showHelpTopic('inext-tutorial')" style="cursor: pointer;">📈 iNEXT Rarefaction</div>
+        <div class="item" onclick="showHelpTopic('publication-plots')" style="cursor: pointer;">🖼️ Publication Plots</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ REFERENCE</div>
+      <div class="section-content">
+        <div class="item" onclick="showHelpTopic('citations')" style="cursor: pointer;">📚 Citations & Papers</div>
+        <div class="item" onclick="showHelpTopic('shortcuts')" style="cursor: pointer;">⌨️ Keyboard Shortcuts</div>
+        <div class="item" onclick="showHelpTopic('export')" style="cursor: pointer;">💾 Export & Formats</div>
+        <div class="item" onclick="showHelpTopic('troubleshooting')" style="cursor: pointer;">🔧 Troubleshooting</div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ SUPPORT</div>
       <div class="section-content">
-        <div class="item" onclick="alert('FAQs - Coming soon!')" style="cursor: pointer;">❓ FAQs</div>
-        <div class="item" onclick="alert('Report bug - Coming soon!')" style="cursor: pointer;">🐛 Report Bug</div>
-        <div class="item" onclick="alert('Feature request - Coming soon!')" style="cursor: pointer;">💡 Feature Request</div>
-        <div class="item" onclick="alert('Community - Coming soon!')" style="cursor: pointer;">👥 Community Forum</div>
+        <div class="item" onclick="showHelpTopic('troubleshooting')" style="cursor: pointer;">❓ FAQs</div>
+        <div class="item" onclick="window.open('https://github.com/jm0535/0rdin/issues', '_blank')" style="cursor: pointer;">🐛 Report Bug</div>
+        <div class="item" onclick="window.open('https://github.com/jm0535/0rdin/issues', '_blank')" style="cursor: pointer;">💡 Feature Request</div>
+        <div class="item" onclick="showHelpTopic('about')" style="cursor: pointer;">👥 Community</div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ ABOUT</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Version 3.0\\nÖrdin Community Ecology Software')" style="cursor: pointer;">ℹ️ Version 3.0</div>
-        <div class="item" onclick="alert('Author: Jimmy Moses\\nEmail: jimmy.moses@pnguot.ac.pg')" style="cursor: pointer;">👤 Author: Jimmy Moses</div>
-        <div class="item" onclick="alert('Changelog - Coming soon!')" style="cursor: pointer;">📜 Changelog</div>
-        <div class="item" onclick="window.open('https://github.com', '_blank')" style="cursor: pointer;">⭐ GitHub Repository</div>
-        <div class="item" onclick="alert('MIT License - Open Source')" style="cursor: pointer;">📜 License</div>
-        <div class="item" onclick="alert('Citations - Coming soon!')" style="cursor: pointer;">📚 Citations & References</div>
+        <div class="item" onclick="showHelpTopic('about')" style="cursor: pointer;">ℹ️ Version 3.0</div>
+        <div class="item" onclick="showHelpTopic('about')" style="cursor: pointer;">👤 Author: Jimmy Moses</div>
+        <div class="item" onclick="showHelpTopic('citations')" style="cursor: pointer;">📚 How to Cite</div>
+        <div class="item" onclick="window.open('https://github.com/jm0535/0rdin', '_blank')" style="cursor: pointer;">⭐ GitHub Repository</div>
+        <div class="item" onclick="showHelpTopic('about')" style="cursor: pointer;">📜 MIT License</div>
+        <div class="item" onclick="showHelpTopic('about')" style="cursor: pointer;">🙏 Acknowledgments</div>
       </div>
     </div>
   `;
+}
+
+// ============== SETTINGS SECTION NAVIGATION ==============
+function showSettingsSection(sectionName) {
+  console.log('Showing settings section:', sectionName);
+  
+  // Hide all settings sections
+  const sections = document.querySelectorAll('.settings-section');
+  sections.forEach(section => {
+    section.style.display = 'none';
+  });
+  
+  // Show the requested section
+  const targetSection = document.getElementById('settings-' + sectionName);
+  if (targetSection) {
+    targetSection.style.display = 'block';
+    console.log('Showing section:', 'settings-' + sectionName);
+  } else {
+    console.error('Section not found:', 'settings-' + sectionName);
+  }
 }
 
 // ============== RIGHT PANEL CONTENT ==============
