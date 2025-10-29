@@ -25,6 +25,14 @@ function getSidebarDiversity() {
       </div>
     </div>
     <div class="section">
+      <div class="section-header">▼ VISUALIZATION</div>
+      <div class="section-content">
+        <div class="item" onclick="showPlotCustomization('diversity_estimation', 'diversity_est')" style="cursor: pointer;">🎨 Customize Plot (Right Panel)</div>
+        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📏 Axis Options</div>
+        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🏷️ Labels & Legend</div>
+      </div>
+    </div>
+    <div class="section">
       <div class="section-header">▼ COMPARISON TOOLS</div>
       <div class="section-content">
         <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📊 Compare Assemblages</div>

@@ -71,9 +71,9 @@ ui <- function(req) {
     tags$script(src = "statistical-interpretation.js?v=3"),
     tags$script(src = "about-ordin-content.js?v=3"),
     tags$script(src = "shiny-ui.js?v=9"),
-    tags$script(src = "sidebar-content.js?v=4"),
+    tags$script(src = "sidebar-content.js?v=6"),
     tags$script(src = "fontawesome-icons.js?v=2"),
-    tags$script(src = "plot-customization-panel.js?v=2"),
+    tags$script(src = "plot-customization-panel.js?v=4"),
     
     # Remove waiter overlay after page loads using JavaScript
     tags$script(HTML('

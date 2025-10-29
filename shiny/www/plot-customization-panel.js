@@ -9,9 +9,14 @@ function showPlotCustomization(plotType, moduleId) {
   const rightPanel = document.getElementById('rightPanel');
   const panelContent = rightPanel.querySelector('.panel-content');
   
-  if (!rightPanel || !panelContent) return;
+  if (!rightPanel || !panelContent) {
+    console.error('Right panel or content not found!');
+    return;
+  }
   
   currentPlotType = plotType;
+  
+  console.log('showPlotCustomization called:', plotType, moduleId);
   
   // Open the right panel
   rightPanel.classList.remove('collapsed');
@@ -28,11 +33,19 @@ function showPlotCustomization(plotType, moduleId) {
   // Update panel content
   panelContent.innerHTML = customizationHTML;
   
-  // Re-bind Shiny inputs if needed
-  if (window.Shiny) {
+  // CRITICAL: Re-bind Shiny inputs for dynamic controls
+  if (window.Shiny && window.Shiny.unbindAll && window.Shiny.bindAll) {
+    console.log('Unbinding and rebinding Shiny inputs...');
     Shiny.unbindAll(panelContent);
     Shiny.bindAll(panelContent);
+    console.log('Shiny inputs rebound successfully');
+  } else {
+    console.warn('Shiny binding functions not available!');
   }
+  
+  // Log all generated input IDs
+  const inputs = panelContent.querySelectorAll('input, select');
+  console.log(`Generated ${inputs.length} inputs:`, Array.from(inputs).map(i => i.id));
 }
 
 // Hide plot customization panel
@@ -46,8 +59,166 @@ function hidePlotCustomization() {
 
 // Generate HTML for plot customization controls
 function generatePlotCustomizationUI(plotType, moduleId) {
+  
+  // Check if this is a diversity/iNEXT module
+  if (plotType === 'diversity_estimation' || plotType === 'inext' || moduleId === 'estimation') {
+    return generateDiversityPlotControls(moduleId);
+  }
+  
+  // Otherwise, return ordination plot controls
+  return generateOrdinationPlotControls(moduleId);
+}
+
+// Generate controls for diversity/iNEXT plots (ggplot2-based)
+function generateDiversityPlotControls(moduleId) {
+  return `
+    <div class="prop-section">
+      <h4><i class="fas fa-palette"></i> Theme & Style</h4>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_plot_theme">Theme:</label>
+        <select id="${moduleId}-plot_plot_theme" class="shiny-input-select form-control form-control-sm">
+          <option value="bw" selected>Clean</option>
+          <option value="minimal">Minimal</option>
+          <option value="classic">Classic</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="void">Void</option>
+        </select>
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_font_family">Font Family:</label>
+        <select id="${moduleId}-plot_font_family" class="shiny-input-select form-control form-control-sm">
+          <option value="sans" selected>Sans</option>
+          <option value="serif">Serif</option>
+          <option value="mono">Mono</option>
+        </select>
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_base_size">Base Font Size:</label>
+        <input type="number" id="${moduleId}-plot_base_size" class="shiny-input-number form-control form-control-sm" 
+               value="12" min="8" max="20" step="1">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_title_size">Title Size:</label>
+        <input type="number" id="${moduleId}-plot_title_size" class="shiny-input-number form-control form-control-sm" 
+               value="14" min="10" max="24" step="1">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_axis_title_size">Axis Title Size:</label>
+        <input type="number" id="${moduleId}-plot_axis_title_size" class="shiny-input-number form-control form-control-sm" 
+               value="12" min="8" max="18" step="1">
+      </div>
+    </div>
+    
+    <div class="prop-section">
+      <h4><i class="fas fa-chart-line"></i> Lines & Ribbons</h4>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_line_size">Line Width:</label>
+        <input type="number" id="${moduleId}-plot_line_size" class="shiny-input-number form-control form-control-sm" 
+               value="1.0" min="0.5" max="3" step="0.25">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_point_size">Point Size:</label>
+        <input type="number" id="${moduleId}-plot_point_size" class="shiny-input-number form-control form-control-sm" 
+               value="2" min="0.5" max="5" step="0.5">
+      </div>
+      
+      <div class="prop-item">
+        <label>
+          <input type="checkbox" id="${moduleId}-plot_show_ci" class="shiny-input-checkbox" checked> Show CI Ribbons
+        </label>
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_ci_alpha">CI Transparency:</label>
+        <input type="number" id="${moduleId}-plot_ci_alpha" class="shiny-input-number form-control form-control-sm" 
+               value="0.3" min="0.1" max="1" step="0.1">
+      </div>
+    </div>
+    
+    <div class="prop-section">
+      <h4><i class="fas fa-text-width"></i> Legend & Facets</h4>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_legend_size">Legend Text Size:</label>
+        <input type="number" id="${moduleId}-plot_legend_size" class="shiny-input-number form-control form-control-sm" 
+               value="10" min="6" max="16" step="1">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_legend_rows">Legend Rows:</label>
+        <input type="number" id="${moduleId}-plot_legend_rows" class="shiny-input-number form-control form-control-sm" 
+               value="2" min="1" max="5" step="1">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_strip_size">Facet Label Size:</label>
+        <input type="number" id="${moduleId}-plot_strip_size" class="shiny-input-number form-control form-control-sm" 
+               value="12" min="8" max="18" step="1">
+      </div>
+    </div>
+    
+    <div class="prop-section">
+      <h4><i class="fas fa-border-all"></i> Axes & Grid</h4>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_axis_lwd">Axis Line Width:</label>
+        <input type="number" id="${moduleId}-plot_axis_lwd" class="shiny-input-number form-control form-control-sm" 
+               value="0.5" min="0.25" max="2" step="0.25">
+      </div>
+      
+      <div class="prop-item">
+        <label>
+          <input type="checkbox" id="${moduleId}-plot_show_grid_minor" class="shiny-input-checkbox"> Minor Grid Lines
+        </label>
+      </div>
+    </div>
+    
+    <div class="prop-section">
+      <h4><i class="fas fa-file-export"></i> Export Settings</h4>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_plot_width">Width (inches):</label>
+        <input type="number" id="${moduleId}-plot_plot_width" class="shiny-input-number form-control form-control-sm" 
+               value="14" min="6" max="24" step="1">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_plot_height">Height (inches):</label>
+        <input type="number" id="${moduleId}-plot_plot_height" class="shiny-input-number form-control form-control-sm" 
+               value="8" min="4" max="16" step="1">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_plot_dpi">DPI:</label>
+        <input type="number" id="${moduleId}-plot_plot_dpi" class="shiny-input-number form-control form-control-sm" 
+               value="300" min="72" max="600" step="50">
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_export_format">Format:</label>
+        <select id="${moduleId}-plot_export_format" class="shiny-input-select form-control form-control-sm">
+          <option value="png" selected>PNG</option>
+          <option value="pdf">PDF</option>
+          <option value="svg">SVG</option>
+          <option value="tiff">TIFF</option>
+        </select>
+      </div>
+    </div>
+  `;
+}
+
+// Generate controls for ordination plots (base R graphics)
+function generateOrdinationPlotControls(moduleId) {
   // Common controls for all plot types with proper Shiny input IDs
-  const commonControls = `
+  return `
     <div class="prop-section">
       <h4><i class="fas fa-palette"></i> Theme & Style</h4>
       
@@ -173,8 +344,6 @@ function generatePlotCustomizationUI(plotType, moduleId) {
       </div>
     </div>
   `;
-  
-  return commonControls;
 }
 
 // Initialize - hide panel by default

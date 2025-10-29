@@ -197,25 +197,79 @@ diversity_estimation_server <- function(id, data) {
       axis_lwd = 0.5, show_grid_minor = FALSE, point_size = 2
     )
     
-    # Observers
-    observeEvent(input$plot_plot_theme, { plot_defaults$plot_theme <- input$plot_plot_theme })
-    observeEvent(input$plot_font_family, { plot_defaults$font_family <- input$plot_font_family })
-    observeEvent(input$plot_base_size, { plot_defaults$base_size <- input$plot_base_size })
-    observeEvent(input$plot_title_size, { plot_defaults$title_size <- input$plot_title_size })
-    observeEvent(input$plot_axis_title_size, { plot_defaults$axis_title_size <- input$plot_axis_title_size })
-    observeEvent(input$plot_legend_rows, { plot_defaults$legend_rows <- input$plot_legend_rows })
-    observeEvent(input$plot_show_ci, { plot_defaults$show_ci <- input$plot_show_ci })
-    observeEvent(input$plot_ci_alpha, { plot_defaults$ci_alpha <- input$plot_ci_alpha })
-    observeEvent(input$plot_line_size, { plot_defaults$line_size <- input$plot_line_size })
-    observeEvent(input$plot_plot_width, { plot_defaults$plot_width <- input$plot_plot_width })
-    observeEvent(input$plot_plot_height, { plot_defaults$plot_height <- input$plot_plot_height })
-    observeEvent(input$plot_plot_dpi, { plot_defaults$plot_dpi <- input$plot_plot_dpi })
-    observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
-    observeEvent(input$plot_strip_size, { plot_defaults$strip_size <- input$plot_strip_size })
-    observeEvent(input$plot_legend_size, { plot_defaults$legend_size <- input$plot_legend_size })
-    observeEvent(input$plot_axis_lwd, { plot_defaults$axis_lwd <- input$plot_axis_lwd })
-    observeEvent(input$plot_show_grid_minor, { plot_defaults$show_grid_minor <- input$plot_show_grid_minor })
-    observeEvent(input$plot_point_size, { plot_defaults$point_size <- input$plot_point_size })
+    # Observers (with debug logging)
+    observeEvent(input$plot_plot_theme, { 
+      message("[DEBUG] plot_plot_theme changed to: ", input$plot_plot_theme)
+      plot_defaults$plot_theme <- input$plot_plot_theme 
+    })
+    observeEvent(input$plot_font_family, { 
+      message("[DEBUG] plot_font_family changed to: ", input$plot_font_family)
+      plot_defaults$font_family <- input$plot_font_family 
+    })
+    observeEvent(input$plot_base_size, { 
+      message("[DEBUG] plot_base_size changed to: ", input$plot_base_size)
+      plot_defaults$base_size <- input$plot_base_size 
+    })
+    observeEvent(input$plot_title_size, { 
+      message("[DEBUG] plot_title_size changed to: ", input$plot_title_size)
+      plot_defaults$title_size <- input$plot_title_size 
+    })
+    observeEvent(input$plot_axis_title_size, { 
+      message("[DEBUG] plot_axis_title_size changed to: ", input$plot_axis_title_size)
+      plot_defaults$axis_title_size <- input$plot_axis_title_size 
+    })
+    observeEvent(input$plot_legend_rows, { 
+      message("[DEBUG] plot_legend_rows changed to: ", input$plot_legend_rows)
+      plot_defaults$legend_rows <- input$plot_legend_rows 
+    })
+    observeEvent(input$plot_show_ci, { 
+      message("[DEBUG] plot_show_ci changed to: ", input$plot_show_ci)
+      plot_defaults$show_ci <- input$plot_show_ci 
+    })
+    observeEvent(input$plot_ci_alpha, { 
+      message("[DEBUG] plot_ci_alpha changed to: ", input$plot_ci_alpha)
+      plot_defaults$ci_alpha <- input$plot_ci_alpha 
+    })
+    observeEvent(input$plot_line_size, { 
+      message("[DEBUG] plot_line_size changed to: ", input$plot_line_size)
+      plot_defaults$line_size <- input$plot_line_size 
+    })
+    observeEvent(input$plot_plot_width, { 
+      message("[DEBUG] plot_plot_width changed to: ", input$plot_plot_width)
+      plot_defaults$plot_width <- input$plot_plot_width 
+    })
+    observeEvent(input$plot_plot_height, { 
+      message("[DEBUG] plot_plot_height changed to: ", input$plot_plot_height)
+      plot_defaults$plot_height <- input$plot_plot_height 
+    })
+    observeEvent(input$plot_plot_dpi, { 
+      message("[DEBUG] plot_plot_dpi changed to: ", input$plot_plot_dpi)
+      plot_defaults$plot_dpi <- input$plot_plot_dpi 
+    })
+    observeEvent(input$plot_export_format, { 
+      message("[DEBUG] plot_export_format changed to: ", input$plot_export_format)
+      plot_defaults$export_format <- input$plot_export_format 
+    })
+    observeEvent(input$plot_strip_size, { 
+      message("[DEBUG] plot_strip_size changed to: ", input$plot_strip_size)
+      plot_defaults$strip_size <- input$plot_strip_size 
+    })
+    observeEvent(input$plot_legend_size, { 
+      message("[DEBUG] plot_legend_size changed to: ", input$plot_legend_size)
+      plot_defaults$legend_size <- input$plot_legend_size 
+    })
+    observeEvent(input$plot_axis_lwd, { 
+      message("[DEBUG] plot_axis_lwd changed to: ", input$plot_axis_lwd)
+      plot_defaults$axis_lwd <- input$plot_axis_lwd 
+    })
+    observeEvent(input$plot_show_grid_minor, { 
+      message("[DEBUG] plot_show_grid_minor changed to: ", input$plot_show_grid_minor)
+      plot_defaults$show_grid_minor <- input$plot_show_grid_minor 
+    })
+    observeEvent(input$plot_point_size, { 
+      message("[DEBUG] plot_point_size changed to: ", input$plot_point_size)
+      plot_defaults$point_size <- input$plot_point_size 
+    })
     
     # Validate inputs (shinyFeedback disabled)
     # observeEvent(input$conf, {
@@ -331,6 +385,23 @@ diversity_estimation_server <- function(id, data) {
     # Render iNEXT plot
     output$inext_plot <- renderPlot({
       req(inext_result())
+      
+      # Create reactive dependency on ALL plot_defaults to trigger re-rendering
+      # This ensures plot updates in real-time when any setting changes
+      plot_defaults$plot_theme
+      plot_defaults$font_family
+      plot_defaults$base_size
+      plot_defaults$title_size
+      plot_defaults$axis_title_size
+      plot_defaults$axis_lwd
+      plot_defaults$strip_size
+      plot_defaults$legend_size
+      plot_defaults$legend_rows
+      plot_defaults$point_size
+      plot_defaults$line_size
+      plot_defaults$show_ci
+      plot_defaults$ci_alpha
+      plot_defaults$show_grid_minor
       
       # Select theme with custom font
       plot_theme <- switch(plot_defaults$plot_theme,
