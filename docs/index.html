@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ördin - Professional community ecology analysis platform for Windows, macOS, and Linux">
+    <meta name="keywords" content="community ecology, ordination, NMDS, PCA, diversity, iNEXT, vegan, R, desktop application">
+    <meta name="author" content="Jimmy Moses">
+    
+    <title>Ördin - Community Ecology Analysis Platform</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="assets/icon.png" alt="Ördin Logo" class="nav-logo">
+                <span class="nav-title">Ördin</span>
+                <span class="version-badge">v3.0</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#download">Download</a>
+                <a href="#installation">Installation</a>
+                <a href="#documentation">Docs</a>
+                <a href="https://github.com/jm0535/0rdin" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <span class="ordin-icon">Ö</span>rdin
+                    </h1>
+                    <p class="hero-subtitle">Professional Community Ecology Analysis Platform</p>
+                    <p class="hero-description">
+                        Combine R's statistical power with modern UX design. Real-time plot customization, 
+                        9 ordination methods, comprehensive diversity analysis—all in a beautiful desktop application.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#download" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download Now
+                        </a>
+                        <a href="#features" class="btn btn-secondary">
+                            <i class="fas fa-rocket"></i> Explore Features
+                        </a>
+                    </div>
+                    <div class="platform-badges">
+                        <span class="badge"><i class="fab fa-windows"></i> Windows</span>
+                        <span class="badge"><i class="fab fa-apple"></i> macOS</span>
+                        <span class="badge"><i class="fab fa-linux"></i> Linux</span>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="assets/screenshots/main-interface.png" alt="Ördin Main Interface" class="screenshot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Ördin?</h2>
+            <p class="section-subtitle">Enterprise-grade analysis with user-friendly design</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>9 Ordination Methods</h3>
+                    <p>NMDS, PCA, CA, DCA, PCoA, CCA, RDA, db-RDA, CAP with real-time customization</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-dna"></i></div>
+                    <h3>Diversity Analysis</h3>
+                    <p>iNEXT rarefaction/extrapolation, Shannon, Simpson, and Hill numbers</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-palette"></i></div>
+                    <h3>Real-Time Customization</h3>
+                    <p>18+ plot controls: themes, fonts, colors—instant updates without re-running</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-file-export"></i></div>
+                    <h3>Publication Quality</h3>
+                    <p>Export PNG, PDF, SVG, TIFF at up to 600 DPI for journals</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-flask"></i></div>
+                    <h3>Statistical Tests</h3>
+                    <p>PERMANOVA, ANOSIM, Mantel, envfit for robust analysis</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-cogs"></i></div>
+                    <h3>Comprehensive Settings</h3>
+                    <p>6 settings sections with persistent browser storage</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section class="screenshots-section">
+        <div class="container">
+            <h2 class="section-title">See Ördin in Action</h2>
+            <div class="screenshots-grid">
+                <div class="screenshot-item">
+                    <img src="assets/screenshots/ordination.png" alt="Ordination Analysis">
+                    <p>Ordination with Confidence Ellipses</p>
+                </div>
+                <div class="screenshot-item">
+                    <img src="assets/screenshots/diversity.png" alt="Diversity Estimation">
+                    <p>iNEXT Rarefaction Curves</p>
+                </div>
+                <div class="screenshot-item">
+                    <img src="assets/screenshots/customization.png" alt="Real-Time Customization">
+                    <p>Real-Time Plot Customization</p>
+                </div>
+                <div class="screenshot-item">
+                    <img src="assets/screenshots/settings.png" alt="Settings System">
+                    <p>Comprehensive Settings</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <h2 class="section-title">Download Ördin v3.0</h2>
+            <p class="section-subtitle">Choose your platform and start analyzing</p>
+            
+            <div class="download-grid">
+                <!-- Windows -->
+                <div class="download-card">
+                    <div class="os-icon"><i class="fab fa-windows"></i></div>
+                    <h3>Windows</h3>
+                    <p class="os-version">Windows 10/11 (64-bit)</p>
+                    <p class="file-size">~500 MB</p>
+                    <a href="https://github.com/jm0535/0rdin/releases/latest/download/Ordin-3.0.0-Setup.exe" class="btn btn-download">
+                        <i class="fas fa-download"></i> Download .exe
+                    </a>
+                    <div class="download-details">
+                        <p><strong>Installer:</strong> Includes R, packages, and dependencies</p>
+                        <p><strong>Requirements:</strong> Windows 10 or later</p>
+                    </div>
+                </div>
+                
+                <!-- macOS -->
+                <div class="download-card">
+                    <div class="os-icon"><i class="fab fa-apple"></i></div>
+                    <h3>macOS</h3>
+                    <p class="os-version">macOS 10.15+ (Intel & Apple Silicon)</p>
+                    <p class="file-size">~450 MB</p>
+                    <a href="https://github.com/jm0535/0rdin/releases/latest/download/Ordin-darwin-3.0.0.zip" class="btn btn-download">
+                        <i class="fas fa-download"></i> Download .zip
+                    </a>
+                    <div class="download-details">
+                        <p><strong>Package:</strong> Universal binary (Intel + ARM)</p>
+                        <p><strong>Requirements:</strong> macOS Catalina or later</p>
+                    </div>
+                </div>
+                
+                <!-- Linux (Debian/Ubuntu) -->
+                <div class="download-card">
+                    <div class="os-icon"><i class="fab fa-linux"></i></div>
+                    <h3>Linux (Debian/Ubuntu)</h3>
+                    <p class="os-version">Ubuntu 20.04+, Debian 11+</p>
+                    <p class="file-size">~400 MB</p>
+                    <a href="https://github.com/jm0535/0rdin/releases/latest/download/ordin_3.0.0_amd64.deb" class="btn btn-download">
+                        <i class="fas fa-download"></i> Download .deb
+                    </a>
+                    <div class="download-details">
+                        <p><strong>Package:</strong> Debian package with dependencies</p>
+                        <p><strong>Install:</strong> <code>sudo dpkg -i ordin_3.0.0_amd64.deb</code></p>
+                    </div>
+                </div>
+                
+                <!-- Linux (Fedora/RHEL) -->
+                <div class="download-card">
+                    <div class="os-icon"><i class="fab fa-fedora"></i></div>
+                    <h3>Linux (Fedora/RHEL)</h3>
+                    <p class="os-version">Fedora 36+, RHEL 9+</p>
+                    <p class="file-size">~400 MB</p>
+                    <a href="https://github.com/jm0535/0rdin/releases/latest/download/ordin-3.0.0-1.x86_64.rpm" class="btn btn-download">
+                        <i class="fas fa-download"></i> Download .rpm
+                    </a>
+                    <div class="download-details">
+                        <p><strong>Package:</strong> RPM package with dependencies</p>
+                        <p><strong>Install:</strong> <code>sudo dnf install ordin-3.0.0-1.x86_64.rpm</code></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="download-note">
+                <p><i class="fas fa-info-circle"></i> All downloads include portable R installation—no additional software required!</p>
+                <p>Looking for older versions? <a href="https://github.com/jm0535/0rdin/releases">View all releases</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Guide -->
+    <section id="installation" class="installation">
+        <div class="container">
+            <h2 class="section-title">Installation Guide</h2>
+            
+            <div class="install-tabs">
+                <button class="tab-btn active" data-tab="windows"><i class="fab fa-windows"></i> Windows</button>
+                <button class="tab-btn" data-tab="macos"><i class="fab fa-apple"></i> macOS</button>
+                <button class="tab-btn" data-tab="linux"><i class="fab fa-linux"></i> Linux</button>
+            </div>
+            
+            <div class="install-content">
+                <!-- Windows -->
+                <div id="windows" class="tab-content active">
+                    <h3>Windows Installation</h3>
+                    <div class="install-steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h4>Download the installer</h4>
+                                <p>Download <code>Ordin-3.0.0-Setup.exe</code> from the link above</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h4>Run the installer</h4>
+                                <p>Double-click the <code>.exe</code> file. Windows SmartScreen may appear—click "More info" → "Run anyway"</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h4>Follow the wizard</h4>
+                                <p>Accept the license, choose installation location (default: <code>C:\Program Files\Ordin</code>)</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <h4>Launch Ördin</h4>
+                                <p>Find Ördin in Start Menu or desktop shortcut. First launch shows splash screen.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="install-note">
+                        <p><strong>Note:</strong> No R installation required—everything is bundled!</p>
+                    </div>
+                </div>
+                
+                <!-- macOS -->
+                <div id="macos" class="tab-content">
+                    <h3>macOS Installation</h3>
+                    <div class="install-steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h4>Download the archive</h4>
+                                <p>Download <code>Ordin-darwin-3.0.0.zip</code></p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h4>Extract the archive</h4>
+                                <p>Double-click the <code>.zip</code> file to extract <code>Ordin.app</code></p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h4>Move to Applications</h4>
+                                <p>Drag <code>Ordin.app</code> to your <code>/Applications</code> folder</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <h4>First launch</h4>
+                                <p>Right-click → "Open" (bypasses Gatekeeper). Click "Open" in the dialog.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="install-note">
+                        <p><strong>Apple Silicon users:</strong> Universal binary works on both Intel and M1/M2/M3 Macs!</p>
+                    </div>
+                </div>
+                
+                <!-- Linux -->
+                <div id="linux" class="tab-content">
+                    <h3>Linux Installation</h3>
+                    
+                    <h4>Debian/Ubuntu (.deb)</h4>
+                    <div class="code-block">
+                        <code>
+# Download the package<br>
+wget https://github.com/jm0535/0rdin/releases/latest/download/ordin_3.0.0_amd64.deb<br>
+<br>
+# Install with dpkg<br>
+sudo dpkg -i ordin_3.0.0_amd64.deb<br>
+<br>
+# Fix missing dependencies (if any)<br>
+sudo apt-get install -f<br>
+<br>
+# Launch Ördin<br>
+ordin
+                        </code>
+                    </div>
+                    
+                    <h4>Fedora/RHEL (.rpm)</h4>
+                    <div class="code-block">
+                        <code>
+# Download the package<br>
+wget https://github.com/jm0535/0rdin/releases/latest/download/ordin-3.0.0-1.x86_64.rpm<br>
+<br>
+# Install with dnf<br>
+sudo dnf install ordin-3.0.0-1.x86_64.rpm<br>
+<br>
+# Launch Ördin<br>
+ordin
+                        </code>
+                    </div>
+                    
+                    <h4>Generic Linux (AppImage - Coming Soon)</h4>
+                    <div class="code-block">
+                        <code>
+# Make executable<br>
+chmod +x Ordin-3.0.0-x86_64.AppImage<br>
+<br>
+# Run<br>
+./Ordin-3.0.0-x86_64.AppImage
+                        </code>
+                    </div>
+                    
+                    <div class="install-note">
+                        <p><strong>Dependencies:</strong> Most are bundled, but you may need: <code>libgtk-3-0</code>, <code>libnss3</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section id="documentation" class="documentation">
+        <div class="container">
+            <h2 class="section-title">Documentation & Resources</h2>
+            
+            <div class="docs-grid">
+                <a href="https://github.com/jm0535/0rdin/blob/main/GETTING_STARTED.md" class="doc-card">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Getting Started</h3>
+                    <p>Quick start guide for first-time users</p>
+                </a>
+                
+                <a href="https://github.com/jm0535/0rdin/blob/main/README.md" class="doc-card">
+                    <i class="fas fa-book"></i>
+                    <h3>User Manual</h3>
+                    <p>Comprehensive documentation</p>
+                </a>
+                
+                <a href="https://github.com/jm0535/0rdin/blob/main/ENTERPRISE_ORDINATION_GUIDE.md" class="doc-card">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>Ordination Guide</h3>
+                    <p>All 9 ordination methods explained</p>
+                </a>
+                
+                <a href="https://github.com/jm0535/0rdin/blob/main/DATA_MANAGEMENT_GUIDE.md" class="doc-card">
+                    <i class="fas fa-database"></i>
+                    <h3>Data Management</h3>
+                    <p>Data formats and validation</p>
+                </a>
+                
+                <a href="https://github.com/jm0535/0rdin/blob/main/CHANGELOG.md" class="doc-card">
+                    <i class="fas fa-history"></i>
+                    <h3>Changelog</h3>
+                    <p>Version history and updates</p>
+                </a>
+                
+                <a href="https://github.com/jm0535/0rdin/issues" class="doc-card">
+                    <i class="fas fa-question-circle"></i>
+                    <h3>Support</h3>
+                    <p>Report bugs and get help</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Ördin</h4>
+                    <p>Professional community ecology analysis platform</p>
+                    <div class="social-links">
+                        <a href="https://github.com/jm0535/0rdin" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="mailto:jimmy.moses@pnguot.ac.pg"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#download">Download</a></li>
+                        <li><a href="https://github.com/jm0535/0rdin/blob/main/GETTING_STARTED.md">Getting Started</a></li>
+                        <li><a href="https://github.com/jm0535/0rdin/blob/main/README.md">Documentation</a></li>
+                        <li><a href="https://github.com/jm0535/0rdin/issues">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://github.com/jm0535/0rdin/blob/main/CONTRIBUTING.md">Contributing</a></li>
+                        <li><a href="https://github.com/jm0535/0rdin/blob/main/LICENSE">License (MIT)</a></li>
+                        <li><a href="https://github.com/jm0535/0rdin/releases">Releases</a></li>
+                        <li><a href="https://github.com/jm0535/0rdin/blob/main/CHANGELOG.md">Changelog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Citation</h4>
+                    <div class="citation">
+                        Moses, J. (2025). Ördin: A cross-platform desktop application for community ecology analysis. 
+                        <a href="https://github.com/jm0535/0rdin">https://github.com/jm0535/0rdin</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Jimmy Moses. Released under MIT License.</p>
+                <p>Built with R, Shiny, and Electron</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

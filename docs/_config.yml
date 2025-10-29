@@ -1,0 +1,34 @@
+# GitHub Pages Configuration for Ördin
+
+# Theme
+theme: jekyll-theme-minimal
+
+# Site Settings
+title: Ördin
+description: Professional community ecology analysis platform for Windows, macOS, and Linux
+show_downloads: false
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# SEO
+lang: en-US
+author: Jimmy Moses
+email: jimmy.moses@pnguot.ac.pg
+
+# Google Analytics (optional - add your tracking ID)
+# google_analytics: UA-XXXXXXXXX-X
+
+# Social Links
+github:
+  repository_url: https://github.com/jm0535/0rdin
+  
+# Exclude from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
