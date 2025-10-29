@@ -15,6 +15,12 @@ library(readxl)
 library(dplyr)
 library(tidyr)
 
+# Source configuration and utilities
+source("config/constants.R")
+source("config/defaults.R")
+source("R/error_handler.R")
+source("R/performance.R")
+
 # Source all modules
 source("modules/ordination_nmds_module.R")
 source("modules/ordination_pca_module.R")
@@ -38,7 +44,7 @@ ui <- function(req) {
       tags$meta(charset = "UTF-8"),
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
-      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=20"),
+      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=21"),
       tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
       tags$style(HTML("

@@ -1,0 +1,65 @@
+# Ördin Configuration File
+# Author: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
+# Central configuration for application settings
+
+default:
+  app:
+    name: "Ördin"
+    version: "3.0"
+    author: "Jimmy Moses"
+    email: "jimmy.moses@pnguot.ac.pg"
+    port: 9054
+    
+  ui:
+    theme: "dark"
+    primary_color: "#2e8b57"
+    sidebar_width: "250px"
+    
+  ordination:
+    nmds:
+      default_k: 2
+      default_trymax: 20
+      default_distance: "bray"
+    
+    permutations:
+      default: 999
+      min: 99
+      max: 9999
+      
+  diversity:
+    inext:
+      default_knots: 40
+      min_knots: 20
+      max_knots: 100
+      default_conf: 0.95
+      
+  plots:
+    default_dpi: 300
+    default_width: 8
+    default_height: 6
+    export_formats:
+      - "png"
+      - "pdf"
+      - "svg"
+      
+  data:
+    max_upload_mb: 50
+    sample_datasets:
+      - name: "dune"
+        label: "Dune Meadow (20 sites × 30 species)"
+      - name: "varespec"
+        label: "Varespec (24 sites × 44 species)"
+      - name: "BCI"
+        label: "BCI (50 sites × 225 species)"
+
+production:
+  app:
+    port: 9054
+  ui:
+    theme: "dark"
+
+development:
+  app:
+    port: 9054
+  ui:
+    theme: "dark"
