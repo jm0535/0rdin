@@ -28,18 +28,8 @@ function getSidebarDiversity() {
       <div class="section-header">▼ COMPARISON TOOLS</div>
       <div class="section-content">
         <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📊 Compare Assemblages</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🔗 Beta Diversity</div>
+        <div class="item" onclick="switchView('beta')" style="cursor: pointer;">🦠 Beta Diversity (see Beta tab →)</div>
         <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🔥 Similarity Indices</div>
-      </div>
-    </div>
-    <div class="section">
-      <div class="section-header">▼ BETA PARTITIONING (betapart)</div>
-      <div class="section-content">
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🦠 Taxonomic Beta Partitioning</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🧲 Functional Beta Diversity</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🌳 Phylogenetic Beta Diversity</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">⏱️ Temporal Beta Diversity</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📍 Distance-Decay Modeling</div>
       </div>
     </div>
   `;
@@ -90,6 +80,103 @@ function getSidebarOrdination() {
         <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📏 Axis Options</div>
         <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🏷️ Labels & Legend</div>
         <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🧩 Combine Plots (patchwork)</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============== STATISTICAL TESTS SIDEBAR ==============
+function getSidebarTests() {
+  return `
+    <div class="section">
+      <div class="section-header">▼ TEST TYPE</div>
+      <div class="section-content">
+        <div class="item active" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🧪 PERMANOVA</div>
+        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">📊 ANOSIM</div>
+        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🔗 Mantel Test</div>
+        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🌍 envfit (Variable Fitting)</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ DATA REQUIREMENTS</div>
+      <div class="section-content">
+        <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">📊 Species Data <span class="badge success">Loaded</span></div>
+        <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">🌍 Environmental Data <span class="badge">Required</span></div>
+        <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">🏷️ Categorical Variables <span class="badge">Required</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ DISTANCE METRICS</div>
+      <div class="section-content">
+        <div class="item" style="cursor: pointer;">📏 Bray-Curtis</div>
+        <div class="item" style="cursor: pointer;">🔷 Jaccard</div>
+        <div class="item" style="cursor: pointer;">📐 Euclidean</div>
+        <div class="item" style="cursor: pointer;">📊 Manhattan</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ PERMUTATION SETTINGS</div>
+      <div class="section-content">
+        <div class="item" style="cursor: pointer;">🔢 Default: 999 permutations</div>
+        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">⚙️ Adjust Permutations</div>
+        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🎲 Permutation Method</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ VISUALIZATION</div>
+      <div class="section-content">
+        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📊 Variance Partitioning Plot</div>
+        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📈 Box Plots</div>
+        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🌍 Environmental Vectors</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============== BETA PARTITIONING SIDEBAR ==============
+function getSidebarBeta() {
+  return `
+    <div class="section">
+      <div class="section-header">▼ ANALYSIS TYPE</div>
+      <div class="section-content">
+        <div class="item active" onclick="showShinyTab('tab-beta')" style="cursor: pointer;">🦠 Taxonomic Beta Partitioning</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🧬 Functional Beta Diversity</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🌳 Phylogenetic Beta Diversity</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">⏱️ Temporal Beta Diversity</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📍 Distance-Decay Modeling</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ PARTITIONING METHODS</div>
+      <div class="section-content">
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🔷 Sørensen-based</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🟩 Jaccard-based</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🔵 Bray-Curtis</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ BETA COMPONENTS</div>
+      <div class="section-content">
+        <div class="item" style="cursor: pointer;">🔄 Turnover Component</div>
+        <div class="item" style="cursor: pointer;">🎯 Nestedness Component</div>
+        <div class="item" style="cursor: pointer;">📉 Total Beta Diversity</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ DATA REQUIREMENTS</div>
+      <div class="section-content">
+        <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">📊 Species Data <span class="badge success">Loaded</span></div>
+        <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">🌳 Phylogenetic Tree <span class="badge">Optional</span></div>
+        <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">🧬 Trait Data <span class="badge">Optional</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">▼ VISUALIZATION</div>
+      <div class="section-content">
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📊 Beta Diversity Plots</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🗺️ Distance-Decay Curves</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🌐 Heatmaps</div>
+        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🌳 Dendrograms</div>
       </div>
     </div>
   `;

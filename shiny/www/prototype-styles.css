@@ -87,9 +87,13 @@ body {
     justify-content: center;
     cursor: pointer;
     color: #888;
-    font-size: 24px;
+    font-size: 20px;
     position: relative;
     transition: color 0.2s;
+}
+
+.activity-item i {
+    font-size: 20px;
 }
 
 .activity-item:hover {

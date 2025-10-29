@@ -44,6 +44,8 @@ ui <- function(req) {
       tags$meta(charset = "UTF-8"),
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
+      # Font Awesome 6.5 CDN
+      tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"),
       tags$link(rel = "stylesheet", href = "prototype-styles.css?v=21"),
       tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
@@ -68,8 +70,9 @@ ui <- function(req) {
     tags$script(src = "validation.js?v=3"),
     tags$script(src = "statistical-interpretation.js?v=3"),
     tags$script(src = "about-ordin-content.js?v=3"),
-    tags$script(src = "shiny-ui.js?v=5"),
-    tags$script(src = "sidebar-content.js?v=1"),
+    tags$script(src = "shiny-ui.js?v=7"),
+    tags$script(src = "sidebar-content.js?v=3"),
+    tags$script(src = "fontawesome-icons.js?v=2"),
     
     # Remove waiter overlay after page loads using JavaScript
     tags$script(HTML('
@@ -123,14 +126,25 @@ ui <- function(req) {
         span(class = "app-icon", "Ö"),
         span(class = "app-title", "Ördin v3.0"),
         span(class = "divider", "|"),
-        span(class = "dataset-name", "📄 species_data.csv")
+        span(class = "dataset-name", 
+          tags$i(class = "fas fa-file-csv", style = "margin-right: 6px;"),
+          "species_data.csv"
+        )
       ),
       div(class = "titlebar-center",
-        span(class = "status-badge", "● Ready")
+        span(class = "status-badge", 
+          tags$i(class = "fas fa-circle", style = "font-size: 8px; margin-right: 6px;"),
+          "Ready"
+        )
       ),
       div(class = "titlebar-right",
-        span(class = "user-info", "👤 Jimmy Moses"),
-        tags$button(class = "window-btn", onclick = "location.reload()", title = "Reload", "🔄"),
+        span(class = "user-info", 
+          tags$i(class = "fas fa-user", style = "margin-right: 6px;"),
+          "Jimmy Moses"
+        ),
+        tags$button(class = "window-btn", onclick = "location.reload()", title = "Reload", 
+          tags$i(class = "fas fa-sync-alt")
+        ),
         tags$button(class = "window-btn", onclick = "if(window.electronAPI) window.electronAPI.minimizeWindow()", title = "Minimize", "—"),
         tags$button(class = "window-btn", onclick = "if(window.electronAPI) window.electronAPI.maximizeWindow()", title = "Maximize", "□"),
         tags$button(class = "window-btn close", onclick = "if(window.electronAPI) window.electronAPI.closeWindow()", title = "Close", "×")
@@ -142,14 +156,31 @@ ui <- function(req) {
       
       # ACTIVITY BAR
       div(class = "activity-bar",
-        div(class = "activity-item active", onclick = "switchView('home')", title = "Home", "🏠"),
-        div(class = "activity-item", onclick = "switchView('data')", title = "Data", "📊"),
-        div(class = "activity-item", onclick = "switchView('diversity')", title = "Diversity", "📈"),
-        div(class = "activity-item", onclick = "switchView('ordination')", title = "Ordination", "🔵"),
-        div(class = "activity-item", onclick = "switchView('tests')", title = "Statistical Tests", "🧪"),
+        div(class = "activity-item active", onclick = "switchView('home')", title = "Home", 
+          tags$i(class = "fas fa-home")
+        ),
+        div(class = "activity-item", onclick = "switchView('data')", title = "Data", 
+          tags$i(class = "fas fa-database")
+        ),
+        div(class = "activity-item", onclick = "switchView('diversity')", title = "Diversity", 
+          tags$i(class = "fas fa-chart-line")
+        ),
+        div(class = "activity-item", onclick = "switchView('ordination')", title = "Ordination", 
+          tags$i(class = "fas fa-project-diagram")
+        ),
+        div(class = "activity-item", onclick = "switchView('tests')", title = "Statistical Tests", 
+          tags$i(class = "fas fa-flask")
+        ),
+        div(class = "activity-item", onclick = "switchView('beta')", title = "Beta Partitioning", 
+          tags$i(class = "fas fa-dna")
+        ),
         div(class = "spacer"),
-        div(class = "activity-item", onclick = "switchView('settings')", title = "Settings", "⚙️"),
-        div(class = "activity-item", onclick = "switchView('help')", title = "Help", "❓")
+        div(class = "activity-item", onclick = "switchView('settings')", title = "Settings", 
+          tags$i(class = "fas fa-cog")
+        ),
+        div(class = "activity-item", onclick = "switchView('help')", title = "Help", 
+          tags$i(class = "fas fa-question-circle")
+        )
       ),
       
       # PRIMARY SIDEBAR (starts expanded for easier access)
@@ -397,6 +428,29 @@ ui <- function(req) {
             conditionalPanel("input.test_method == 'permanova'", permanova_ui("permanova")),
             conditionalPanel("input.test_method == 'anosim'", anosim_ui("anosim")),
             conditionalPanel("input.test_method == 'mantel_envfit'", mantel_envfit_ui("mantel_envfit"))
+          ),
+          
+          # BETA PARTITIONING TAB (hidden by default)
+          div(id = "tab-beta", class = "tab-content", style = "display: none;",
+            h2(style = "color: #2e8b57; margin-bottom: 20px;", "🦠 Beta Diversity Partitioning"),
+            div(style = "background: #252526; padding: 30px; text-align: center;",
+              div(style = "font-size: 64px; margin-bottom: 20px;", "🦠"),
+              h3(style = "color: #2e8b57;", "Beta Partitioning Module"),
+              p(style = "color: #888; margin-bottom: 30px;", "Partition beta diversity into turnover and nestedness components"),
+              div(style = "max-width: 600px; margin: 0 auto; text-align: left;",
+                div(style = "background: #1e1e1e; border-left: 3px solid #2e8b57; padding: 20px; margin-bottom: 20px;",
+                  h4(style = "color: #2e8b57; margin-top: 0;", "🧬 Available Analyses:"),
+                  tags$ul(style = "color: #888; line-height: 2;",
+                    tags$li("🦠 Taxonomic Beta Partitioning"),
+                    tags$li("🧬 Functional Beta Diversity"),
+                    tags$li("🌳 Phylogenetic Beta Diversity"),
+                    tags$li("⏱️ Temporal Beta Diversity"),
+                    tags$li("📍 Distance-Decay Modeling")
+                  )
+                ),
+                p(style = "color: #666; font-size: 13px; text-align: center;", "🛠️ Module coming soon...")
+              )
+            )
           ),
           
           # RESULTS TAB
