@@ -1036,7 +1036,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .dca-workflow,
 .pcoa-workflow,
 .cca-workflow,
-.rda-workflow {
+.rda-workflow,
+.dbrda-workflow,
+.cap-workflow,
+.permanova-workflow,
+.anosim-workflow,
+.mantel-envfit-workflow {
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -1053,7 +1058,9 @@ input[type="number"]::-webkit-outer-spin-button {
 .dca-workflow h2,
 .pcoa-workflow h2,
 .cca-workflow h2,
-.rda-workflow h2 {
+.rda-workflow h2,
+.dbrda-workflow h2,
+.cap-workflow h2 {
     color: #2e8b57;
     font-size: 20px;
     font-weight: 600;
@@ -1069,7 +1076,9 @@ input[type="number"]::-webkit-outer-spin-button {
 .dca-workflow > p,
 .pcoa-workflow > p,
 .cca-workflow > p,
-.rda-workflow > p {
+.rda-workflow > p,
+.dbrda-workflow > p,
+.cap-workflow > p {
     color: #888;
     font-size: 13px;
     margin: 0 0 24px 0;
@@ -1286,6 +1295,33 @@ table.dataTable thead th {
     font-weight: 600 !important;
     background: #2d2d30 !important;
     border-bottom: 2px solid #3e3e42 !important;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+/* Ensure all containers respect viewport width */
+* {
+    box-sizing: border-box;
+}
+
+/* Prevent horizontal overflow in main containers */
+.main-canvas,
+.content-area,
+.tab-content {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Data management page specific */
+#tab-data {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+#tab-data > div {
+    max-width: 100%;
 }
 
 /* Plot Customization Grid - RESPONSIVE 4 columns to prevent overflow at 100% zoom */

@@ -23,8 +23,13 @@ source("modules/ordination_dca_module.R")
 source("modules/ordination_pcoa_module.R")
 source("modules/ordination_cca_module.R")
 source("modules/ordination_rda_module.R")
+source("modules/ordination_dbrda_module.R")
+source("modules/ordination_cap_module.R")
 source("modules/diversity_estimation_module.R")
 source("modules/diversity_indices_module.R")
+source("modules/tests_permanova_module.R")
+source("modules/tests_anosim_module.R")
+source("modules/tests_mantel_envfit_module.R")
 
 # UI - EXACT PROTOTYPE HTML STRUCTURE
 ui <- function(req) {
@@ -33,7 +38,7 @@ ui <- function(req) {
       tags$meta(charset = "UTF-8"),
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
-      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=17"),
+      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=20"),
       tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
       tags$style(HTML("
@@ -135,6 +140,7 @@ ui <- function(req) {
         div(class = "activity-item", onclick = "switchView('data')", title = "Data", "📊"),
         div(class = "activity-item", onclick = "switchView('diversity')", title = "Diversity", "📈"),
         div(class = "activity-item", onclick = "switchView('ordination')", title = "Ordination", "🔵"),
+        div(class = "activity-item", onclick = "switchView('tests')", title = "Statistical Tests", "🧪"),
         div(class = "spacer"),
         div(class = "activity-item", onclick = "switchView('settings')", title = "Settings", "⚙️"),
         div(class = "activity-item", onclick = "switchView('help')", title = "Help", "❓")
@@ -244,8 +250,8 @@ ui <- function(req) {
               p(style = "color: #888; font-size: 14px; margin: 0;", "Import your species data and preview before analysis")
             ),
             
-            # TWO-COLUMN LAYOUT
-            div(style = "display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;",
+            # TWO-COLUMN LAYOUT - Responsive to prevent overflow
+            div(style = "display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; max-width: 100%;",
               
               # LEFT COLUMN - Species Data
               div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px;",
@@ -351,14 +357,40 @@ ui <- function(req) {
           div(id = "tab-ordination", class = "tab-content", style = "display: none;",
             h2(style = "color: #2e8b57; margin-bottom: 20px;", "🗺️ Ordination Analysis"),
             selectInput("ordination_method", "Select Method:",
-                       choices = c("NMDS" = "nmds", "PCA" = "pca", "CA" = "ca", "DCA" = "dca", "PCoA" = "pcoa", "CCA (constrained)" = "cca", "RDA (constrained)" = "rda")),
+                       choices = c(
+                         "NMDS" = "nmds", 
+                         "PCA" = "pca", 
+                         "CA" = "ca", 
+                         "DCA" = "dca", 
+                         "PCoA" = "pcoa", 
+                         "CCA (constrained)" = "cca", 
+                         "RDA (constrained)" = "rda",
+                         "db-RDA (constrained)" = "dbrda",
+                         "CAP (constrained)" = "cap"
+                       )),
             conditionalPanel("input.ordination_method == 'nmds'", nmds_ui("nmds")),
             conditionalPanel("input.ordination_method == 'pca'", pca_ui("pca")),
             conditionalPanel("input.ordination_method == 'ca'", ca_ui("ca")),
             conditionalPanel("input.ordination_method == 'dca'", dca_ui("dca")),
             conditionalPanel("input.ordination_method == 'pcoa'", pcoa_ui("pcoa")),
             conditionalPanel("input.ordination_method == 'cca'", cca_ui("cca")),
-            conditionalPanel("input.ordination_method == 'rda'", rda_ui("rda"))
+            conditionalPanel("input.ordination_method == 'rda'", rda_ui("rda")),
+            conditionalPanel("input.ordination_method == 'dbrda'", dbrda_ui("dbrda")),
+            conditionalPanel("input.ordination_method == 'cap'", cap_ui("cap"))
+          ),
+          
+          # STATISTICAL TESTS TAB (hidden by default)
+          div(id = "tab-tests", class = "tab-content", style = "display: none;",
+            h2(style = "color: #2e8b57; margin-bottom: 20px;", "🧪 Statistical Tests"),
+            selectInput("test_method", "Select Test:",
+                       choices = c(
+                         "PERMANOVA" = "permanova",
+                         "ANOSIM" = "anosim",
+                         "Mantel Test & envfit" = "mantel_envfit"
+                       )),
+            conditionalPanel("input.test_method == 'permanova'", permanova_ui("permanova")),
+            conditionalPanel("input.test_method == 'anosim'", anosim_ui("anosim")),
+            conditionalPanel("input.test_method == 'mantel_envfit'", mantel_envfit_ui("mantel_envfit"))
           ),
           
           # RESULTS TAB
@@ -434,9 +466,13 @@ server <- function(input, output, session) {
   
   # ============== MODULE SERVERS (WITH DATA) ==============
   # Call module servers and pass reactive data
-  # NOTE: NMDS, CCA, and RDA modules accept env_data parameter for constrained ordination
+  # NOTE: NMDS, CCA, RDA, db-RDA, and CAP modules accept env_data parameter for constrained ordination
+  
+  # Diversity modules
   diversity_estimation_server("diversity_est", data = species_data)
   diversity_indices_server("diversity_idx", data = species_data)
+  
+  # Ordination modules
   nmds_server("nmds", data = species_data, env_data = env_data)  # NMDS supports environmental data
   pca_server("pca", data = species_data)  # PCA does not use env_data
   ca_server("ca", data = species_data)  # CA does not use env_data
@@ -444,6 +480,13 @@ server <- function(input, output, session) {
   pcoa_server("pcoa", data = species_data)  # PCoA does not use env_data
   cca_server("cca", data = species_data, env_data = env_data)  # CCA is constrained ordination
   rda_server("rda", data = species_data, env_data = env_data)  # RDA is constrained ordination
+  dbrda_server("dbrda", data = species_data, env_data = env_data)  # db-RDA is constrained ordination
+  cap_server("cap", data = species_data, env_data = env_data)  # CAP is constrained ordination
+  
+  # Statistical test modules
+  permanova_server("permanova", data = species_data, env_data = env_data)
+  anosim_server("anosim", data = species_data, env_data = env_data)
+  mantel_envfit_server("mantel_envfit", data = species_data, env_data = env_data)
   
   # ============== INITIALIZE DATA PREVIEW ==============
   # Initialize empty data table - REACTIVE to species_data changes
