@@ -31,7 +31,7 @@ ui <- function(req) {
       tags$meta(charset = "UTF-8"),
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
-      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=8"),
+      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=9"),
       tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
       tags$style(HTML("
@@ -55,7 +55,8 @@ ui <- function(req) {
     tags$script(src = "validation.js?v=3"),
     tags$script(src = "statistical-interpretation.js?v=3"),
     tags$script(src = "about-ordin-content.js?v=3"),
-    tags$script(src = "shiny-ui.js?v=4"),
+    tags$script(src = "shiny-ui.js?v=5"),
+    tags$script(src = "sidebar-content.js?v=1"),
     
     # Remove waiter overlay after page loads using JavaScript
     tags$script(HTML('
@@ -310,7 +311,7 @@ ui <- function(req) {
               )
             ),
             
-            # DATA PREVIEW SECTION - Full Width
+            # DATA PREVIEW SECTION - Full Width with proper overflow handling
             div(style = "background: #252526; border: 1px solid #3e3e42; padding: 24px;",
               # Preview Header
               div(style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;",
@@ -321,10 +322,16 @@ ui <- function(req) {
                 uiOutput("data_info_badge")
               ),
               
-              # DataTable Container
-              div(id = "preview-container", style = "margin-top: 16px;",
-                DT::DTOutput("species_preview")
-              )
+              # Species Data Preview
+              div(style = "margin-bottom: 30px;",
+                h4(style = "color: #2e8b57; font-size: 14px; margin-bottom: 12px; font-weight: 600;", "🌿 Species Composition"),
+                div(style = "width: 100%; overflow-x: auto; overflow-y: auto; max-height: 500px; border: 1px solid #3e3e42;",
+                  DT::DTOutput("species_preview")
+                )
+              ),
+              
+              # Environmental Data Preview
+              uiOutput("env_preview_section")
             )
           ),
           
@@ -399,26 +406,15 @@ ui <- function(req) {
           tags$button(onclick = "toggleRightPanel()", "▶")
         ),
         div(class = "panel-content",
-          div(class = "prop-section",
-            h4("Dataset Info"),
-            div(class = "prop-item",
-              tags$label("Rows:"),
-              span("45")
-            ),
-            div(class = "prop-item",
-              tags$label("Columns:"),
-              span("12")
-            ),
-            div(class = "prop-item",
-              tags$label("Type:"),
-              span("Abundance")
-            )
-          ),
+          # Dataset Info (reactive)
+          uiOutput("right_panel_dataset_info"),
+          
+          # Quick Actions
           div(class = "prop-section",
             h4("Quick Actions"),
-            tags$button(class = "action-btn", "Export CSV"),
-            tags$button(class = "action-btn", "Export Excel"),
-            tags$button(class = "action-btn", "View Metadata")
+            tags$button(class = "action-btn", onclick = "alert('CSV export - Coming soon!')", "Export CSV"),
+            tags$button(class = "action-btn", onclick = "alert('Excel export - Coming soon!')", "Export Excel"),
+            tags$button(class = "action-btn", onclick = "alert('Metadata - Coming soon!')", "View Metadata")
           )
         )
       )
@@ -451,11 +447,71 @@ server <- function(input, output, session) {
   
   # Data info badge
   output$data_info_badge <- renderUI({
-    if (!is.null(species_data())) {
-      div(style = "background: #2e8b5720; border: 1px solid #2e8b57; border-radius: 4px; padding: 8px 16px; display: flex; align-items: center; gap: 8px;",
-        span(style = "color: #2e8b57; font-size: 14px; font-weight: 600;", "✓"),
-        span(style = "color: #2e8b57; font-size: 13px; font-weight: 600;",
-          paste0(nrow(species_data()), " sites × ", ncol(species_data()), " species"))
+    species_count <- if (!is.null(species_data())) paste0(nrow(species_data()), " sites × ", ncol(species_data()), " species") else ""
+    env_count <- if (!is.null(env_data())) paste0(ncol(env_data()), " variables") else ""
+    
+    if (!is.null(species_data()) || !is.null(env_data())) {
+      div(style = "display: flex; gap: 12px;",
+        if (!is.null(species_data())) {
+          div(style = "background: #2e8b5720; border: 1px solid #2e8b57; border-radius: 4px; padding: 8px 16px; display: flex; align-items: center; gap: 8px;",
+            span(style = "color: #2e8b57; font-size: 14px; font-weight: 600;", "✓"),
+            span(style = "color: #2e8b57; font-size: 13px; font-weight: 600;", species_count)
+          )
+        },
+        if (!is.null(env_data())) {
+          div(style = "background: #4a90e220; border: 1px solid #4a90e2; border-radius: 4px; padding: 8px 16px; display: flex; align-items: center; gap: 8px;",
+            span(style = "color: #4a90e2; font-size: 14px; font-weight: 600;", "✓"),
+            span(style = "color: #4a90e2; font-size: 13px; font-weight: 600;", env_count)
+          )
+        }
+      )
+    }
+  })
+  
+  # Environmental data preview section (conditional)
+  output$env_preview_section <- renderUI({
+    if (!is.null(env_data())) {
+      div(
+        h4(style = "color: #4a90e2; font-size: 14px; margin-bottom: 12px; font-weight: 600;", "🌍 Environmental Data"),
+        div(style = "width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border: 1px solid #3e3e42;",
+          DT::DTOutput("env_preview")
+        )
+      )
+    }
+  })
+  
+  # Right Panel - Dataset Info (reactive to loaded data)
+  output$right_panel_dataset_info <- renderUI({
+    if (is.null(species_data())) {
+      # No data loaded
+      div(class = "prop-section",
+        h4("Dataset Info"),
+        div(style = "color: #888; font-size: 12px; padding: 12px; text-align: center;",
+          "⚠️ No dataset loaded"
+        )
+      )
+    } else {
+      # Show actual data info
+      div(class = "prop-section",
+        h4("Dataset Info"),
+        div(class = "prop-item",
+          tags$label("Rows (Sites):"),
+          span(style = "color: #2e8b57; font-weight: 600;", nrow(species_data()))
+        ),
+        div(class = "prop-item",
+          tags$label("Columns (Species):"),
+          span(style = "color: #2e8b57; font-weight: 600;", ncol(species_data()))
+        ),
+        div(class = "prop-item",
+          tags$label("Type:"),
+          span(style = "color: #cccccc;", "Abundance")
+        ),
+        if (!is.null(env_data())) {
+          div(class = "prop-item",
+            tags$label("Env Variables:"),
+            span(style = "color: #4a90e2; font-weight: 600;", ncol(env_data()))
+          )
+        }
       )
     }
   })
@@ -499,15 +555,50 @@ server <- function(input, output, session) {
         species_data(),
         options = list(
           pageLength = 10,
-          scrollX = TRUE,
-          scrollY = "400px",
+          scrollX = FALSE,
+          scrollY = FALSE,
           paging = TRUE,
           searching = TRUE,
           info = TRUE,
-          autoWidth = TRUE
+          autoWidth = TRUE,
+          dom = 'frtip',
+          columnDefs = list(
+            list(width = '70px', targets = '_all')
+          )
         ),
         style = 'bootstrap4',
-        class = 'cell-border stripe hover',
+        class = 'cell-border stripe hover compact',
+        rownames = TRUE
+      )
+    }
+  })
+  
+  # Environmental data preview table
+  output$env_preview <- DT::renderDT({
+    cat("\n========== ENV DATATABLE RENDER ==========\n")
+    cat("env_data is null:", is.null(env_data()), "\n")
+    
+    if (!is.null(env_data())) {
+      cat("Showing environmental data\n")
+      cat("Rows:", nrow(env_data()), "\n")
+      cat("Cols:", ncol(env_data()), "\n")
+      DT::datatable(
+        env_data(),
+        options = list(
+          pageLength = 10,
+          scrollX = FALSE,
+          scrollY = FALSE,
+          paging = TRUE,
+          searching = TRUE,
+          info = TRUE,
+          autoWidth = TRUE,
+          dom = 'frtip',
+          columnDefs = list(
+            list(width = '100px', targets = '_all')
+          )
+        ),
+        style = 'bootstrap4',
+        class = 'cell-border stripe hover compact',
         rownames = TRUE
       )
     }
@@ -526,7 +617,12 @@ server <- function(input, output, session) {
       species_data(as.data.frame(dune))  # Store reactively
       cat("Dune data stored. Rows:", nrow(dune), "\n")
       
-      showNotification("✅ Dune meadow data loaded successfully!", type = "message", duration = 3)
+      # Also load dune.env environmental data
+      data(dune.env, package = "vegan")
+      env_data(as.data.frame(dune.env))
+      cat("Dune.env data stored. Rows:", nrow(dune.env), "\n")
+      
+      showNotification("✅ Dune meadow data + environmental data loaded successfully!", type = "message", duration = 3)
       
     } else if (input$sample_dataset == "varespec") {
       cat("Loading varespec dataset...\n")

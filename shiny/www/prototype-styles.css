@@ -786,10 +786,23 @@ select.form-control:focus {
 .dataTables_wrapper {
     color: #cccccc !important;
     margin-top: 10px;
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+.dataTables_scroll {
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+.dataTables_scrollBody {
+    overflow: visible !important;
 }
 
 #species_preview,
-#species_preview_wrapper {
+#species_preview_wrapper,
+#env_preview,
+#env_preview_wrapper {
     width: 100% !important;
 }
 
@@ -798,6 +811,17 @@ table.dataTable {
     color: #cccccc !important;
     border: 1px solid #3e3e42 !important;
     width: 100% !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+}
+
+table.dataTable.compact {
+    font-size: 11px !important;
+}
+
+table.dataTable.compact thead th,
+table.dataTable.compact tbody td {
+    padding: 6px 8px !important;
 }
 
 table.dataTable thead th {
@@ -806,6 +830,9 @@ table.dataTable thead th {
     border-bottom: 1px solid #3e3e42 !important;
     padding: 10px !important;
     font-weight: 600;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 table.dataTable tbody td {

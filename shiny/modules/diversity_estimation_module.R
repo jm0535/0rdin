@@ -80,6 +80,17 @@ diversity_estimation_ui <- function(id) {
         ),
         tags$small("Leave empty for 2× reference sample size"),
         
+        # Knots (for curve smoothness)
+        numericInput(
+          ns("knots"),
+          "Number of knots (curve smoothness):",
+          value = 40,
+          min = 20,
+          max = 100,
+          step = 10
+        ),
+        tags$small("Higher values = smoother curves (40 is recommended)"),
+        
         # Bootstrap replications
         numericInput(
           ns("nboot"),
@@ -193,6 +204,16 @@ diversity_estimation_server <- function(id, data) {
       req(data())
       req(input$q_values)
       
+      # Validate data
+      if (nrow(data()) < 1 || ncol(data()) < 1) {
+        showNotification(
+          "❌ Data is empty. Please load a dataset first.",
+          type = "error",
+          duration = 5
+        )
+        return()
+      }
+      
       # Show loading spinner
       waiter_show(html = tagList(
         spin_fading_circles(),
@@ -202,20 +223,55 @@ diversity_estimation_server <- function(id, data) {
       # Prepare data based on type
       q_vals <- as.numeric(input$q_values)
       
-      # Run iNEXT
-      result <- tryCatch({
-        iNEXT(
-          data(), 
-          q = q_vals,
-          datatype = input$data_type,
-          endpoint = input$endpoint,
-          nboot = input$nboot,
-          conf = input$conf
-        )
+      # Prepare data for iNEXT
+      # iNEXT expects: rows = species, columns = sites (opposite of vegan)
+      inext_data <- tryCatch({
+        # Convert to matrix and transpose
+        data_matrix <- as.matrix(data())
+        t(data_matrix)  # Transpose: rows become columns
       }, error = function(e) {
         waiter_hide()
         showNotification(
-          paste("❌ iNEXT failed:", e$message), 
+          paste("❌ Data preparation failed:", e$message),
+          type = "error",
+          duration = 10
+        )
+        return(NULL)
+      })
+      
+      if (is.null(inext_data)) return()
+      
+      # Prepare iNEXT arguments
+      inext_args <- list(
+        x = inext_data,
+        q = q_vals,
+        datatype = input$data_type,
+        nboot = input$nboot,
+        conf = input$conf,
+        knots = input$knots  # Add knots for curve smoothness
+      )
+      
+      # Only add endpoint if user provided a value
+      if (!is.null(input$endpoint) && !is.na(input$endpoint) && input$endpoint > 0) {
+        inext_args$endpoint <- input$endpoint
+      }
+      
+      # Run iNEXT
+      result <- tryCatch({
+        do.call(iNEXT, inext_args)
+      }, error = function(e) {
+        waiter_hide()
+        
+        # Provide helpful error message
+        error_msg <- e$message
+        if (grepl("missing value", error_msg, ignore.case = TRUE)) {
+          error_msg <- "Data contains missing values (NA). Please clean your dataset or use complete cases only."
+        } else if (grepl("endpoint", error_msg, ignore.case = TRUE)) {
+          error_msg <- "Invalid endpoint value. Try leaving it empty or use a value larger than your sample sizes."
+        }
+        
+        showNotification(
+          paste("❌ iNEXT failed:", error_msg), 
           type = "error", 
           duration = 10
         )
@@ -239,6 +295,19 @@ diversity_estimation_server <- function(id, data) {
     output$inext_plot <- renderPlot({
       req(inext_result())
       
+      # Get number of assemblages
+      n_assemblages <- length(inext_result()$iNextEst)
+      
+      # Generate enough colors for all assemblages
+      if (n_assemblages <= 3) {
+        color_palette <- c("#2e8b57", "#007acc", "#d4a017")
+        fill_palette <- c("#2e8b5740", "#007acc40", "#d4a01740")
+      } else {
+        # Use a color ramp for many assemblages
+        color_palette <- colorRampPalette(c("#2e8b57", "#007acc", "#d4a017", "#e74c3c", "#9b59b6"))(n_assemblages)
+        fill_palette <- paste0(color_palette, "40")  # Add transparency
+      }
+      
       # Create plot
       p <- ggiNEXT(inext_result(), type = as.numeric(input$plot_type)) +
         theme_bw() +
@@ -246,10 +315,12 @@ diversity_estimation_server <- function(id, data) {
           plot.title = element_text(color = "#2e8b57", size = 16, face = "bold"),
           axis.title = element_text(size = 12),
           legend.position = "right",
+          legend.text = element_text(size = 9),
+          legend.title = element_text(size = 10, face = "bold"),
           panel.grid.minor = element_blank()
         ) +
-        scale_color_manual(values = c("#2e8b57", "#007acc", "#d4a017")) +
-        scale_fill_manual(values = c("#2e8b5740", "#007acc40", "#d4a01740"))
+        scale_color_manual(values = color_palette) +
+        scale_fill_manual(values = fill_palette)
       
       print(p)
     })
@@ -279,9 +350,27 @@ diversity_estimation_server <- function(id, data) {
         paste0("inext_plot_", Sys.Date(), ".png")
       },
       content = function(file) {
+        # Get number of assemblages
+        n_assemblages <- length(inext_result()$iNextEst)
+        
+        # Generate enough colors
+        if (n_assemblages <= 3) {
+          color_palette <- c("#2e8b57", "#007acc", "#d4a017")
+          fill_palette <- c("#2e8b5740", "#007acc40", "#d4a01740")
+        } else {
+          color_palette <- colorRampPalette(c("#2e8b57", "#007acc", "#d4a017", "#e74c3c", "#9b59b6"))(n_assemblages)
+          fill_palette <- paste0(color_palette, "40")
+        }
+        
         p <- ggiNEXT(inext_result(), type = as.numeric(input$plot_type)) +
           theme_bw() +
-          scale_color_manual(values = c("#2e8b57", "#007acc", "#d4a017"))
+          theme(
+            legend.position = "right",
+            legend.text = element_text(size = 9),
+            panel.grid.minor = element_blank()
+          ) +
+          scale_color_manual(values = color_palette) +
+          scale_fill_manual(values = fill_palette)
         
         ggsave(file, plot = p, width = 12, height = 8, dpi = 300)
       }
