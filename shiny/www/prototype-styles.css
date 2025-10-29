@@ -114,20 +114,23 @@ body {
     flex: 1;
 }
 
-/* Primary Sidebar */
+/* Primary Sidebar - ALWAYS 250px regardless of content */
 .primary-sidebar {
-    width: 250px;
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
     background: #252526;
     border-right: 1px solid #3e3e42;
     display: flex;
     flex-direction: column;
     transition: width 0.2s;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .primary-sidebar.collapsed {
-    width: 0;
-    min-width: 0;
+    width: 0 !important;
+    min-width: 0 !important;
 }
 
 .sidebar-header {
@@ -287,8 +290,11 @@ body {
 .content-area {
     flex: 1;
     overflow-y: auto;
-    padding: 40px;
+    overflow-x: hidden;
+    padding: 24px;
     position: relative;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* Tab Content */
@@ -958,40 +964,407 @@ small {
 }
 
 /* Form sections with proper spacing */
-.form-group + .form-group {
-    margin-top: 20px;
+.form-group {
+    margin-bottom: 16px;
 }
 
-/* Config panels */
-.config-panel,
+.form-group + .form-group {
+    margin-top: 0;
+}
+
+/* Global Form Controls - Compact & Consistent */
+select.form-control,
+input.form-control,
+textarea.form-control,
+.shiny-input-container select,
+.shiny-input-container input[type="text"],
+.shiny-input-container input[type="number"],
+.shiny-input-container input[type="email"],
+.shiny-input-container input[type="password"] {
+    background: #3e3e42 !important;
+    border: 1px solid #555 !important;
+    color: #ccc !important;
+    padding: 6px 10px !important;
+    height: 34px !important;
+    line-height: 1.4 !important;
+    font-size: 13px !important;
+    border-radius: 3px !important;
+    box-sizing: border-box !important;
+}
+
+/* Select dropdowns with custom arrow */
+select.form-control,
+.shiny-input-container select {
+    padding-right: 28px !important;
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"%3e%3cpath fill="%23ccc" d="M6 9L1 4h10z"/%3e%3c/svg%3e') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    background-size: 10px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+/* Focus states */
+select.form-control:focus,
+input.form-control:focus,
+textarea.form-control:focus,
+.shiny-input-container select:focus,
+.shiny-input-container input:focus {
+    border-color: #2e8b57 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(46, 139, 87, 0.2) !important;
+}
+
+/* Number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    height: 32px;
+}
+
+/* ========================================
+   WORKFLOW LAYOUTS - Enterprise Grade
+   VERTICAL FLOW: Config → Results → Customization
+   ======================================== */
+
+/* All workflow containers use VERTICAL single-column flow */
 .diversity-estimation-workflow,
 .diversity-indices-workflow,
-.ordination-workflow {
-    max-width: 100%;
+.nmds-workflow,
+.pca-workflow,
+.ca-workflow,
+.dca-workflow,
+.pcoa-workflow,
+.cca-workflow,
+.rda-workflow {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    padding: 32px;
 }
 
-/* Horizontal split layout */
+/* Module Headers */
+.diversity-estimation-workflow h2,
+.diversity-indices-workflow h2,
+.nmds-workflow h2,
+.pca-workflow h2,
+.ca-workflow h2,
+.dca-workflow h2,
+.pcoa-workflow h2,
+.cca-workflow h2,
+.rda-workflow h2 {
+    color: #2e8b57;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.3px;
+}
+
+.diversity-estimation-workflow > p,
+.diversity-indices-workflow > p,
+.nmds-workflow > p,
+.pca-workflow > p,
+.ca-workflow > p,
+.dca-workflow > p,
+.pcoa-workflow > p,
+.cca-workflow > p,
+.rda-workflow > p {
+    color: #888;
+    font-size: 13px;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+}
+
+/* Configuration panel - AT THE TOP */
+.config-panel {
+    width: 100%;
+    background: #252526;
+    border: 1px solid #3e3e42;
+    padding: 24px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.config-panel h3 {
+    color: #2e8b57;
+    font-size: 13px;
+    margin: 24px 0 16px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.config-panel h3:first-child {
+    margin-top: 0;
+}
+
+.config-panel label {
+    color: #ccc;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.config-panel small,
+.config-panel .help-block {
+    color: #888;
+    font-size: 11px;
+    line-height: 1.4;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Tip/Info Boxes */
+.tip-box {
+    background: #1a3a2e;
+    border-left: 3px solid #2e8b57;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.tip-box-title {
+    color: #2e8b57;
+    font-weight: 600;
+    font-size: 12px;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tip-box-content {
+    color: #cccccc;
+    font-size: 11px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.tip-box-content strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Horizontal split layout for plot + results side-by-side IN THE MIDDLE */
 .horizontal-split {
     display: grid;
     grid-template-columns: 70% 30%;
     gap: 20px;
-    margin-top: 20px;
+    width: 100%;
 }
 
-.plot-panel,
+/* Plot panel - LEFT side of horizontal split */
+.plot-panel {
+    background: #252526;
+    border: 1px solid #3e3e42;
+    padding: 24px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.plot-panel h3,
+.plot-panel h4 {
+    color: #ccc;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+}
+
+/* Results panel - RIGHT side of horizontal split */
 .results-panel {
     background: #252526;
     border: 1px solid #3e3e42;
-    padding: 20px;
+    padding: 24px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    max-height: 700px;
 }
 
 .results-section {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+}
+
+.results-section:last-child {
+    margin-bottom: 0;
 }
 
 .results-section h3 {
     color: #2e8b57;
-    font-size: 14px;
-    margin-bottom: 12px;
-    font-weight: 700;
+    font-size: 13px;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2e8b57 0%, #257046 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(46, 139, 87, 0.2);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #257046 0%, #1e5a37 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3);
+}
+
+.btn-success:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(46, 139, 87, 0.2);
+}
+
+.btn-sm {
+    padding: 8px 14px;
+    font-size: 12px;
+}
+
+/* ========================================
+   DATA TABLES - Prevent Overflow
+   ======================================== */
+
+/* DataTables wrapper */
+.dataTables_wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto;
+}
+
+.dataTables_wrapper table {
+    width: 100% !important;
+    max-width: 100%;
+    table-layout: auto;
+}
+
+/* DT Output containers */
+.shiny-html-output {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto;
+}
+
+/* Data preview sections */
+#species_preview_wrapper,
+#env_preview_wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto;
+}
+
+/* Ensure tables don't overflow parent */
+table.dataTable {
+    width: 100% !important;
+    max-width: 100%;
+    margin: 0 !important;
+}
+
+/* Table cell padding - more compact */
+table.dataTable thead th,
+table.dataTable tbody td {
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+}
+
+table.dataTable thead th {
+    font-weight: 600 !important;
+    background: #2d2d30 !important;
+    border-bottom: 2px solid #3e3e42 !important;
+}
+
+/* Plot Customization Grid - RESPONSIVE 4 columns to prevent overflow at 100% zoom */
+.plot-customization-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    align-items: start;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Ensure form controls don't overflow */
+.plot-customization-grid > div {
+    min-width: 0;
+    width: 100%;
+}
+
+.plot-customization-grid .form-group {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+/* Compact form controls */
+.plot-customization-grid .form-control,
+.plot-customization-grid select,
+.plot-customization-grid input[type="number"],
+.plot-customization-grid input[type="text"] {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 12px;
+    padding: 6px 8px !important;
+    height: 32px !important;
+    line-height: 1.2 !important;
+    background: #3e3e42 !important;
+    border: 1px solid #555 !important;
+    color: #ccc !important;
+    border-radius: 3px;
+}
+
+.plot-customization-grid select {
+    padding: 5px 24px 5px 8px !important;
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"%3e%3cpath fill="%23ccc" d="M6 9L1 4h10z"/%3e%3c/svg%3e');
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.plot-customization-grid label {
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 3px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+/* Checkbox inputs */
+.plot-customization-grid input[type="checkbox"] {
+    width: auto !important;
+    height: auto !important;
+    margin-right: 6px;
+}
+
+.plot-customization-grid .checkbox {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.plot-customization-grid .checkbox label {
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
 }

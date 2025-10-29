@@ -150,11 +150,43 @@ diversity_estimation_ui <- function(id) {
             selected = 1
           ),
           
+          # Plot Customization Panel (Collapsible)
+          div(style = "background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 5px;",
+            h4("🎨 Plot Customization", style = "color: #2e8b57; margin-bottom: 15px; cursor: pointer;",
+               onclick = paste0("$('#", ns("plot_custom"), "').toggle();")),
+            
+            div(id = ns("plot_custom"), class = "plot-customization-grid",
+              # Row 1
+              div(selectInput(ns("plot_theme"), "Theme:",
+                choices = c("Clean" = "bw", "Minimal" = "minimal", "Dark" = "dark", "Void" = "void"), selected = "bw")),
+              div(selectInput(ns("font_family"), "Font:",
+                choices = c("Sans" = "sans", "Serif" = "serif", "Mono" = "mono"), selected = "sans")),
+              div(numericInput(ns("base_size"), "Font Size:", value = 11, min = 8, max = 20, step = 1)),
+              div(numericInput(ns("title_size"), "Title Size:", value = 14, min = 10, max = 24, step = 1)),
+              div(numericInput(ns("axis_title_size"), "Axis Title:", value = 12, min = 8, max = 18, step = 1)),
+              div(numericInput(ns("legend_rows"), "Legend Rows:", value = 4, min = 1, max = 10, step = 1)),
+              # Row 2
+              div(checkboxInput(ns("show_ci"), "95% CI Ribbons", value = TRUE)),
+              div(numericInput(ns("ci_alpha"), "CI Transp.:", value = 0.3, min = 0, max = 1, step = 0.1)),
+              div(numericInput(ns("line_size"), "Line Width:", value = 1.5, min = 0.5, max = 3, step = 0.25)),
+              div(numericInput(ns("plot_width"), "Width (in):", value = 14, min = 6, max = 24, step = 1)),
+              div(numericInput(ns("plot_height"), "Height (in):", value = 6, min = 4, max = 16, step = 1)),
+              div(numericInput(ns("plot_dpi"), "DPI:", value = 300, min = 72, max = 600, step = 50)),
+              # Row 3
+              div(selectInput(ns("export_format"), "Format:", choices = c("PNG" = "png", "PDF" = "pdf", "SVG" = "svg"), selected = "png")),
+              div(numericInput(ns("strip_size"), "Panel Label:", value = 11, min = 8, max = 16, step = 1)),
+              div(numericInput(ns("legend_size"), "Legend Text:", value = 8, min = 6, max = 14, step = 1)),
+              div(numericInput(ns("axis_lwd"), "Axis Width:", value = 0.5, min = 0.3, max = 2, step = 0.1)),
+              div(checkboxInput(ns("show_grid_minor"), "Minor Grid", value = FALSE)),
+              div(numericInput(ns("point_size"), "Point Size:", value = 2, min = 0.5, max = 5, step = 0.5))
+            )
+          ),
+          
           plotOutput(ns("inext_plot"), height = "500px"),
           
           # Plot controls
           div(class = "plot-controls", style = "margin-top: 10px;",
-            downloadButton(ns("export_plot"), "💾 Export PNG", class = "btn-sm")
+            downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm")
           )
         ),
         
@@ -224,11 +256,19 @@ diversity_estimation_server <- function(id, data) {
       q_vals <- as.numeric(input$q_values)
       
       # Prepare data for iNEXT
-      # iNEXT expects: rows = species, columns = sites (opposite of vegan)
+      # iNEXT expects: list of assemblages OR matrix with rows=species, cols=sites
       inext_data <- tryCatch({
-        # Convert to matrix and transpose
         data_matrix <- as.matrix(data())
-        t(data_matrix)  # Transpose: rows become columns
+        
+        if (input$data_type == "abundance") {
+          # For abundance data: transpose so rows=species, cols=sites
+          # Each column becomes a separate assemblage
+          t(data_matrix)
+        } else {
+          # For incidence data: same structure
+          # First row should be number of sampling units, followed by species incidence
+          t(data_matrix)
+        }
       }, error = function(e) {
         waiter_hide()
         showNotification(
@@ -295,32 +335,51 @@ diversity_estimation_server <- function(id, data) {
     output$inext_plot <- renderPlot({
       req(inext_result())
       
-      # Get number of assemblages
-      n_assemblages <- length(inext_result()$iNextEst)
+      # Select theme with custom font
+      plot_theme <- switch(input$plot_theme,
+        "bw" = theme_bw(base_size = input$base_size, base_family = input$font_family),
+        "minimal" = theme_minimal(base_size = input$base_size, base_family = input$font_family),
+        "classic" = theme_classic(base_size = input$base_size, base_family = input$font_family),
+        "light" = theme_light(base_size = input$base_size, base_family = input$font_family),
+        "dark" = theme_dark(base_size = input$base_size, base_family = input$font_family),
+        "void" = theme_void(base_size = input$base_size, base_family = input$font_family),
+        theme_bw(base_size = input$base_size, base_family = input$font_family)  # default
+      )
       
-      # Generate enough colors for all assemblages
-      if (n_assemblages <= 3) {
-        color_palette <- c("#2e8b57", "#007acc", "#d4a017")
-        fill_palette <- c("#2e8b5740", "#007acc40", "#d4a01740")
-      } else {
-        # Use a color ramp for many assemblages
-        color_palette <- colorRampPalette(c("#2e8b57", "#007acc", "#d4a017", "#e74c3c", "#9b59b6"))(n_assemblages)
-        fill_palette <- paste0(color_palette, "40")  # Add transparency
-      }
+      # Determine colors based on theme
+      is_dark <- input$plot_theme == "dark"
+      title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
+      bg_color <- if(is_dark) "#1a1a1a" else "white"
+      strip_bg <- if(is_dark) "#2a2a2a" else "white"
+      strip_border <- if(is_dark) "#404040" else "grey80"
       
-      # Create plot
-      p <- ggiNEXT(inext_result(), type = as.numeric(input$plot_type)) +
-        theme_bw() +
+      # Create faceted plot with ggiNEXT (se controls CI ribbons)
+      p <- ggiNEXT(inext_result(), type = as.numeric(input$plot_type), facet.var = "Order.q", se = input$show_ci) +
+        plot_theme +
         theme(
-          plot.title = element_text(color = "#2e8b57", size = 16, face = "bold"),
-          axis.title = element_text(size = 12),
-          legend.position = "right",
-          legend.text = element_text(size = 9),
-          legend.title = element_text(size = 10, face = "bold"),
-          panel.grid.minor = element_blank()
+          plot.title = element_text(color = title_color, face = "bold", size = input$title_size, family = input$font_family),
+          axis.title = element_text(size = input$axis_title_size, family = input$font_family),
+          axis.text = element_text(size = input$base_size - 2, family = input$font_family),
+          axis.line = element_line(linewidth = input$axis_lwd),
+          strip.text = element_text(face = "bold", size = input$strip_size, family = input$font_family),
+          strip.background = element_rect(fill = strip_bg, color = strip_border),
+          legend.position = "bottom",
+          legend.text = element_text(size = input$legend_size, family = input$font_family),
+          legend.title = element_text(face = "bold", size = input$base_size - 2, family = input$font_family),
+          legend.box = "horizontal",
+          panel.grid.minor = if(input$show_grid_minor) element_line(linewidth = 0.25) else element_blank(),
+          panel.background = element_rect(fill = bg_color),
+          plot.background = element_rect(fill = bg_color)
         ) +
-        scale_color_manual(values = color_palette) +
-        scale_fill_manual(values = fill_palette)
+        guides(
+          color = guide_legend(nrow = input$legend_rows, order = 1, title = "Site", override.aes = list(size = input$point_size)),
+          fill = guide_legend(nrow = input$legend_rows, order = 1, title = "Site"),
+          linetype = guide_legend(order = 2, title = "Method", override.aes = list(linewidth = input$line_size))
+        )
+      
+      # Adjust line size globally via geom defaults
+      p$layers[[1]]$aes_params$linewidth <- input$line_size
+      if(length(p$layers) > 1) p$layers[[2]]$aes_params$linewidth <- input$line_size
       
       print(p)
     })
@@ -332,47 +391,86 @@ diversity_estimation_server <- function(id, data) {
       # Extract asymptotic estimates
       asym_data <- inext_result()$AsyEst
       
+      # Identify numeric columns dynamically for rounding
+      numeric_cols <- names(asym_data)[sapply(asym_data, is.numeric)]
+      
       DT::datatable(
         asym_data,
         options = list(
           pageLength = 10,
           scrollX = TRUE,
-          dom = 't'
+          dom = 't',
+          columnDefs = list(
+            list(className = 'dt-center', targets = '_all')
+          )
         ),
         rownames = FALSE
       ) %>%
-        DT::formatRound(columns = c('Observed', 'Estimator', 's.e.', 'LCL', 'UCL'), digits = 3)
+        DT::formatRound(columns = numeric_cols, digits = 3)
     })
     
     # Export plot
     output$export_plot <- downloadHandler(
       filename = function() {
-        paste0("inext_plot_", Sys.Date(), ".png")
+        ext <- input$export_format
+        paste0("inext_plot_", Sys.Date(), ".", ext)
       },
       content = function(file) {
-        # Get number of assemblages
-        n_assemblages <- length(inext_result()$iNextEst)
+        # Select theme with custom font
+        plot_theme <- switch(input$plot_theme,
+          "bw" = theme_bw(base_size = input$base_size, base_family = input$font_family),
+          "minimal" = theme_minimal(base_size = input$base_size, base_family = input$font_family),
+          "classic" = theme_classic(base_size = input$base_size, base_family = input$font_family),
+          "light" = theme_light(base_size = input$base_size, base_family = input$font_family),
+          "dark" = theme_dark(base_size = input$base_size, base_family = input$font_family),
+          "void" = theme_void(base_size = input$base_size, base_family = input$font_family),
+          theme_bw(base_size = input$base_size, base_family = input$font_family)
+        )
         
-        # Generate enough colors
-        if (n_assemblages <= 3) {
-          color_palette <- c("#2e8b57", "#007acc", "#d4a017")
-          fill_palette <- c("#2e8b5740", "#007acc40", "#d4a01740")
-        } else {
-          color_palette <- colorRampPalette(c("#2e8b57", "#007acc", "#d4a017", "#e74c3c", "#9b59b6"))(n_assemblages)
-          fill_palette <- paste0(color_palette, "40")
-        }
+        # Determine colors based on theme
+        is_dark <- input$plot_theme == "dark"
+        title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
+        bg_color <- if(is_dark) "#1a1a1a" else "white"
+        strip_bg <- if(is_dark) "#2a2a2a" else "white"
+        strip_border <- if(is_dark) "#404040" else "grey80"
         
-        p <- ggiNEXT(inext_result(), type = as.numeric(input$plot_type)) +
-          theme_bw() +
+        # Create publication-ready plot
+        p <- ggiNEXT(inext_result(), type = as.numeric(input$plot_type), facet.var = "Order.q", se = input$show_ci) +
+          plot_theme +
           theme(
-            legend.position = "right",
-            legend.text = element_text(size = 9),
-            panel.grid.minor = element_blank()
+            plot.title = element_text(color = title_color, face = "bold", size = input$title_size, family = input$font_family),
+            axis.title = element_text(size = input$axis_title_size, family = input$font_family),
+            axis.text = element_text(size = input$base_size - 2, family = input$font_family),
+            axis.line = element_line(linewidth = input$axis_lwd),
+            strip.text = element_text(face = "bold", size = input$strip_size, family = input$font_family),
+            strip.background = element_rect(fill = strip_bg, color = strip_border),
+            legend.position = "bottom",
+            legend.text = element_text(size = input$legend_size, family = input$font_family),
+            legend.title = element_text(face = "bold", size = input$base_size - 2, family = input$font_family),
+            legend.box = "horizontal",
+            panel.grid.minor = if(input$show_grid_minor) element_line(linewidth = 0.25) else element_blank(),
+            panel.background = element_rect(fill = bg_color),
+            plot.background = element_rect(fill = bg_color)
           ) +
-          scale_color_manual(values = color_palette) +
-          scale_fill_manual(values = fill_palette)
+          guides(
+            color = guide_legend(nrow = input$legend_rows, order = 1, title = "Site", override.aes = list(size = input$point_size)),
+            fill = guide_legend(nrow = input$legend_rows, order = 1, title = "Site"),
+            linetype = guide_legend(order = 2, title = "Method", override.aes = list(linewidth = input$line_size))
+          )
         
-        ggsave(file, plot = p, width = 12, height = 8, dpi = 300)
+        # Adjust line size
+        p$layers[[1]]$aes_params$linewidth <- input$line_size
+        if(length(p$layers) > 1) p$layers[[2]]$aes_params$linewidth <- input$line_size
+        
+        # Save with custom settings
+        ggsave(
+          file, 
+          plot = p, 
+          width = input$plot_width, 
+          height = input$plot_height, 
+          dpi = input$plot_dpi,
+          device = input$export_format
+        )
       }
     )
     

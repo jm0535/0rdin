@@ -1,34 +1,42 @@
-# Ördin - CA Module  
+# Ördin - RDA Module
 # Author: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
-# Correspondence Analysis (CA) ordination workflow
+# Redundancy Analysis (RDA) - Constrained ordination
 
 library(shiny)
 library(vegan)
 library(waiter)
-# library(shinyFeedback)  # Disabled - conflicts with custom HTML
 
-#' CA Module UI
-ca_ui <- function(id) {
+#' RDA Module UI
+rda_ui <- function(id) {
   ns <- NS(id)
-  
   tagList(
-    useShinyFeedback(),
-    
-    div(class = "ca-workflow",
+    div(class = "rda-workflow",
       div(class = "config-panel",
-        h3("⚙️ CA Configuration"),
+        h3("⚙️ RDA Configuration"),
         
-        helpText("CA is ideal for unimodal species responses and gradient analysis."),
+        helpText("RDA constrains ordination by environmental variables. Ideal for linear species responses."),
+        
+        # Environmental variables selection
+        uiOutput(ns("env_vars_ui")),
+        
+        # Scaling
+        selectInput(ns("scaling"), "Scaling:",
+                   choices = c("Type 1 (sites)" = 1, "Type 2 (species)" = 2),
+                   selected = 2),
+        
+        # Permutation tests
+        numericInput(ns("permutations"), "Permutations:", value = 999, min = 99, max = 9999, step = 100),
         
         # Run button
         div(class = "action-buttons", style = "margin-top: 20px;",
-          actionButton(ns("run_ca"), "▶ Run CA", class = "btn-success", style = "width: 100%;")
+          actionButton(ns("run_rda"), "▶ Run RDA", class = "btn-success", style = "width: 100%;")
         )
       ),
       
       div(class = "horizontal-split",
         div(class = "plot-panel",
-          uiOutput(ns("inertia_interpretation")),
+          # Interpretation box
+          uiOutput(ns("rda_interpretation")),
           
           # Plot Customization Panel
           div(style = "background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 5px;",
@@ -57,16 +65,19 @@ ca_ui <- function(id) {
             )
           ),
           
-          plotOutput(ns("ca_plot"), height = "500px"),
-          div(class = "plot-controls", style = "margin-top: 10px;",
-            downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm")
-          )
+          plotOutput(ns("rda_plot"), height = "500px"),
+          downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm", style = "margin-top: 10px;")
         ),
         
         div(class = "results-panel",
           div(class = "results-section",
-            h3("📊 INERTIA & VARIANCE"),
-            tableOutput(ns("inertia_table"))
+            h3("📊 ANOVA RESULTS"),
+            tableOutput(ns("anova_table"))
+          ),
+          
+          div(class = "results-section", style = "margin-top: 20px;",
+            h3("📈 VARIANCE"),
+            tableOutput(ns("variance_table"))
           ),
           
           div(class = "action-buttons", style = "margin-top: 20px;",
@@ -78,127 +89,174 @@ ca_ui <- function(id) {
   )
 }
 
-#' CA Module Server
-ca_server <- function(id, data) {
+#' RDA Module Server
+rda_server <- function(id, data, env_data) {
   moduleServer(id, function(input, output, session) {
-    ca_result <- reactiveVal(NULL)
+    ns <- session$ns
     
-    observeEvent(input$run_ca, {
-      req(data())
+    rda_result <- reactiveVal(NULL)
+    
+    # Dynamic UI for environmental variable selection
+    output$env_vars_ui <- renderUI({
+      req(env_data())
+      
+      selectInput(ns("env_vars"), 
+                 "Environmental Variables:",
+                 choices = names(env_data()),
+                 selected = names(env_data()),
+                 multiple = TRUE)
+    })
+    
+    # Run RDA
+    observeEvent(input$run_rda, {
+      req(data(), env_data(), input$env_vars)
       
       waiter_show(html = tagList(
         spin_fading_circles(),
-        h3("Running CA...", style = "color: #2e8b57; margin-top: 20px;")
+        h3("Running RDA...", style = "color: #2e8b57; margin-top: 20px;")
       ))
       
       result <- tryCatch({
-        cca(data())  # cca() without constraints = CA
+        env_subset <- env_data()[, input$env_vars, drop = FALSE]
+        rda(data() ~ ., data = env_subset)
       }, error = function(e) {
         waiter_hide()
-        showNotification(paste("❌ CA failed:", e$message), type = "error")
+        showNotification(paste("❌ RDA failed:", e$message), type = "error")
         NULL
       })
       
       waiter_hide()
       
       if (!is.null(result)) {
-        ca_result(result)
+        rda_result(result)
         
-        eig <- eigenvals(result)
-        var_exp <- sum(eig[1:2]) / sum(eig) * 100
+        # Calculate variance explained
+        total_var <- result$tot.chi
+        constrained_var <- result$CCA$tot.chi
+        var_exp <- (constrained_var / total_var) * 100
         
         showNotification(
-          HTML(sprintf("<strong>✓ CA Complete!</strong><br/>First 2 axes: %.1f%% inertia", var_exp)),
+          HTML(sprintf("<strong>✓ RDA Complete!</strong><br/>Constrained variance: %.1f%%", var_exp)),
           type = "message"
         )
       }
     })
     
-    output$inertia_interpretation <- renderUI({
-      req(ca_result())
+    # Interpretation box
+    output$rda_interpretation <- renderUI({
+      req(rda_result())
       
-      eig <- eigenvals(ca_result())
-      var_ca1 <- eig[1] / sum(eig) * 100
-      var_ca2 <- eig[2] / sum(eig) * 100
-      total <- var_ca1 + var_ca2
+      total_var <- rda_result()$tot.chi
+      constrained_var <- rda_result()$CCA$tot.chi
+      var_exp <- (constrained_var / total_var) * 100
       
-      color <- if(total >= 50) "#2e8b57" else "#d4a017"
+      color <- if(var_exp >= 50) "#2e8b57" else if(var_exp >= 25) "#d4a017" else "#888"
+      quality <- if(var_exp >= 50) "Strong" else if(var_exp >= 25) "Moderate" else "Weak"
       
       HTML(sprintf('
         <div style="background: %s20; border-left: 3px solid %s; padding: 16px; margin: 20px 0;">
-          <h4 style="color: %s; margin: 0 0 8px 0;">Total inertia explained: %.1f%%</h4>
-          <p style="color: #ccc; font-size: 12px;">CA1: %.1f%% | CA2: %.1f%%</p>
+          <h4 style="color: %s; margin: 0 0 8px 0;">%s constraint (%.1f%% explained)</h4>
+          <p style="color: #ccc; font-size: 12px;">Environmental variables explain %.1f%% of species variance</p>
         </div>
-      ', color, color, color, total, var_ca1, var_ca2))
+      ', color, color, color, quality, var_exp, var_exp))
     })
     
-    output$ca_plot <- renderPlot({  
-      req(ca_result())
+    # Plot
+    output$rda_plot <- renderPlot({  
+      req(rda_result())
       is_dark <- input$theme == "dark"
       bg_color <- if(is_dark) "#1a1a1a" else "white"
       fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
       title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
       grid_color <- if(is_dark) "#404040" else "#cccccc40"
+      
       par(family = input$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
           col.lab = fg_color, col.main = title_color, cex = input$base_size / 12,
           cex.main = input$title_size / 12, lwd = input$axis_lwd)
+      
       if(input$equal_aspect) {
-        plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
+        plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
         usr <- par("usr"); pin <- par("pin")
         if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
         else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
-      } else plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
+      } else plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
+      
       if(input$show_grid) grid(col = grid_color, lty = 1)
-      points(ca_result(), display = "sites", pch = as.numeric(input$point_shape),
+      points(rda_result(), display = "sites", pch = as.numeric(input$point_shape),
              bg = input$point_color, cex = input$point_size, col = fg_color, lwd = input$point_lwd)
-      if(input$show_labels) text(ca_result(), display = "sites", cex = input$label_size,
+      if(input$show_labels) text(rda_result(), display = "sites", cex = input$label_size,
                                  pos = as.numeric(input$label_pos), col = fg_color)
+      
+      # Add environmental vectors
+      text(rda_result(), display = "bp", col = if(is_dark) "#3498db" else "#2980b9", cex = input$label_size * 1.1)
     })
     
-    output$inertia_table <- renderTable({
-      req(ca_result())
-      eig <- eigenvals(ca_result())
+    # ANOVA table
+    output$anova_table <- renderTable({
+      req(rda_result())
+      anova_result <- anova(rda_result(), permutations = input$permutations)
       data.frame(
-        Axis = paste0("CA", 1:min(6, length(eig))),
-        Eigenvalue = sprintf("%.4f", eig[1:min(6, length(eig))]),
-        `Inertia (%)` = sprintf("%.2f", eig[1:min(6, length(eig))] / sum(eig) * 100),
+        Source = "Model",
+        Df = anova_result$Df[1],
+        Variance = sprintf("%.4f", anova_result$Variance[1]),
+        `F-value` = sprintf("%.4f", anova_result$F[1]),
+        `p-value` = sprintf("%.4f", anova_result$`Pr(>F)`[1]),
         check.names = FALSE
       )
     })
     
+    # Variance table
+    output$variance_table <- renderTable({
+      req(rda_result())
+      eig <- eigenvals(rda_result(), constrained = TRUE)
+      data.frame(
+        Axis = paste0("RDA", 1:min(4, length(eig))),
+        Eigenvalue = sprintf("%.4f", eig[1:min(4, length(eig))]),
+        `Explained (%)` = sprintf("%.2f", eig[1:min(4, length(eig))] / rda_result()$tot.chi * 100),
+        check.names = FALSE
+      )
+    })
+    
+    # Export plot
     output$export_plot <- downloadHandler(
-      filename = function() paste0("ca_plot_", Sys.Date(), ".", input$export_format),
+      filename = function() paste0("rda_plot_", Sys.Date(), ".", input$export_format),
       content = function(file) {
         is_dark <- input$theme == "dark"
         bg_color <- if(is_dark) "#1a1a1a" else "white"
         fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
         title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
         grid_color <- if(is_dark) "#404040" else "#cccccc40"
+        
         if(input$export_format == "png") png(file, width = input$plot_width * input$dpi, height = input$plot_height * input$dpi, res = input$dpi, bg = bg_color)
         else if(input$export_format == "pdf") pdf(file, width = input$plot_width, height = input$plot_height, bg = bg_color)
         else svg(file, width = input$plot_width, height = input$plot_height, bg = bg_color)
+        
         par(family = input$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
             col.lab = fg_color, col.main = title_color, cex = input$base_size / 12,
             cex.main = input$title_size / 12, lwd = input$axis_lwd)
+        
         if(input$equal_aspect) {
-          plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
+          plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
           usr <- par("usr"); pin <- par("pin")
           if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
           else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
-        } else plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
+        } else plot(rda_result(), type = "none", main = "RDA Triplot", font.main = 2, scaling = as.numeric(input$scaling))
+        
         if(input$show_grid) grid(col = grid_color, lty = 1)
-        points(ca_result(), display = "sites", pch = as.numeric(input$point_shape),
+        points(rda_result(), display = "sites", pch = as.numeric(input$point_shape),
                bg = input$point_color, cex = input$point_size, col = fg_color, lwd = input$point_lwd)
-        if(input$show_labels) text(ca_result(), display = "sites", cex = input$label_size,
+        if(input$show_labels) text(rda_result(), display = "sites", cex = input$label_size,
                                    pos = as.numeric(input$label_pos), col = fg_color)
+        text(rda_result(), display = "bp", col = if(is_dark) "#3498db" else "#2980b9", cex = input$label_size * 1.1)
         dev.off()
       }
     )
     
+    # Export results
     output$export_results <- downloadHandler(
-      filename = function() paste0("ca_results_", Sys.Date(), ".csv"),
+      filename = function() paste0("rda_results_", Sys.Date(), ".csv"),
       content = function(file) {
-        scores_df <- as.data.frame(scores(ca_result(), display = "sites"))
+        scores_df <- as.data.frame(scores(rda_result(), display = "sites"))
         write.csv(scores_df, file, row.names = TRUE)
       }
     )

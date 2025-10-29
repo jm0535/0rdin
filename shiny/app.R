@@ -21,6 +21,8 @@ source("modules/ordination_pca_module.R")
 source("modules/ordination_ca_module.R")
 source("modules/ordination_dca_module.R")
 source("modules/ordination_pcoa_module.R")
+source("modules/ordination_cca_module.R")
+source("modules/ordination_rda_module.R")
 source("modules/diversity_estimation_module.R")
 source("modules/diversity_indices_module.R")
 
@@ -31,7 +33,7 @@ ui <- function(req) {
       tags$meta(charset = "UTF-8"),
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
-      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=9"),
+      tags$link(rel = "stylesheet", href = "prototype-styles.css?v=17"),
       tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
       tags$style(HTML("
@@ -133,8 +135,6 @@ ui <- function(req) {
         div(class = "activity-item", onclick = "switchView('data')", title = "Data", "📊"),
         div(class = "activity-item", onclick = "switchView('diversity')", title = "Diversity", "📈"),
         div(class = "activity-item", onclick = "switchView('ordination')", title = "Ordination", "🔵"),
-        div(class = "activity-item", onclick = "switchView('results')", title = "Results", "📋"),
-        div(class = "activity-item", onclick = "switchRightPanel('properties')", title = "Properties", "🔧"),
         div(class = "spacer"),
         div(class = "activity-item", onclick = "switchView('settings')", title = "Settings", "⚙️"),
         div(class = "activity-item", onclick = "switchView('help')", title = "Help", "❓")
@@ -351,12 +351,14 @@ ui <- function(req) {
           div(id = "tab-ordination", class = "tab-content", style = "display: none;",
             h2(style = "color: #2e8b57; margin-bottom: 20px;", "🗺️ Ordination Analysis"),
             selectInput("ordination_method", "Select Method:",
-                       choices = c("NMDS" = "nmds", "PCA" = "pca", "CA" = "ca", "DCA" = "dca", "PCoA" = "pcoa")),
+                       choices = c("NMDS" = "nmds", "PCA" = "pca", "CA" = "ca", "DCA" = "dca", "PCoA" = "pcoa", "CCA (constrained)" = "cca", "RDA (constrained)" = "rda")),
             conditionalPanel("input.ordination_method == 'nmds'", nmds_ui("nmds")),
             conditionalPanel("input.ordination_method == 'pca'", pca_ui("pca")),
             conditionalPanel("input.ordination_method == 'ca'", ca_ui("ca")),
             conditionalPanel("input.ordination_method == 'dca'", dca_ui("dca")),
-            conditionalPanel("input.ordination_method == 'pcoa'", pcoa_ui("pcoa"))
+            conditionalPanel("input.ordination_method == 'pcoa'", pcoa_ui("pcoa")),
+            conditionalPanel("input.ordination_method == 'cca'", cca_ui("cca")),
+            conditionalPanel("input.ordination_method == 'rda'", rda_ui("rda"))
           ),
           
           # RESULTS TAB
@@ -432,7 +434,7 @@ server <- function(input, output, session) {
   
   # ============== MODULE SERVERS (WITH DATA) ==============
   # Call module servers and pass reactive data
-  # NOTE: Only NMDS module accepts env_data parameter
+  # NOTE: NMDS, CCA, and RDA modules accept env_data parameter for constrained ordination
   diversity_estimation_server("diversity_est", data = species_data)
   diversity_indices_server("diversity_idx", data = species_data)
   nmds_server("nmds", data = species_data, env_data = env_data)  # NMDS supports environmental data
@@ -440,6 +442,8 @@ server <- function(input, output, session) {
   ca_server("ca", data = species_data)  # CA does not use env_data
   dca_server("dca", data = species_data)  # DCA does not use env_data
   pcoa_server("pcoa", data = species_data)  # PCoA does not use env_data
+  cca_server("cca", data = species_data, env_data = env_data)  # CCA is constrained ordination
+  rda_server("rda", data = species_data, env_data = env_data)  # RDA is constrained ordination
   
   # ============== INITIALIZE DATA PREVIEW ==============
   # Initialize empty data table - REACTIVE to species_data changes
