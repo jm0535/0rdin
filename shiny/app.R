@@ -556,9 +556,9 @@ ui <- function(req) {
             div(id = "settings-analysis-defaults", class = "settings-section", style = "display: none;",
               div(style = "background: #252526; padding: 20px; margin-bottom: 20px; border-radius: 4px;",
                 h3(style = "color: #ccc; margin-bottom: 16px;", "🧪 Analysis Defaults"),
-              
-              div(style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;",
-                div(class = "setting-item",
+                
+                div(style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;",
+                  div(class = "setting-item",
                   tags$label(style = "color: #888; font-size: 13px; display: block; margin-bottom: 8px;", "NMDS Distance"),
                   selectInput("settings_nmds_distance", NULL,
                     choices = c("Bray-Curtis" = "bray", "Jaccard" = "jaccard", "Euclidean" = "euclidean",
@@ -578,7 +578,8 @@ ui <- function(req) {
                 div(class = "setting-item",
                   tags$label(style = "color: #888; font-size: 13px; display: block; margin-bottom: 8px;", "Permutations"),
                   numericInput("settings_permutations", NULL, value = 999, min = 99, max = 9999, step = 100, width = "100%")
-                ),
+                )
+              ),
                 
                 div(style = "margin-top: 20px;",
                   actionButton("settings_save_analysis", "Apply Analysis Defaults",
@@ -663,7 +664,7 @@ ui <- function(req) {
               actionButton("settings_save", "Save Settings",
                 style = "background: #2e8b57; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer;")
             )
-          ),
+          ),  # CLOSES SETTINGS TAB
           
           # HELP TAB
           div(id = "tab-help", class = "tab-content", style = "display: none;",
