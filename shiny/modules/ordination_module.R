@@ -1,6 +1,6 @@
-# Ördin - NMDS Module
+# Ördin - Ordination Module
 # Author: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
-# Non-metric Multidimensional Scaling (NMDS) ordination workflow
+# Ordination analysis workflow - supports multiple methods (NMDS, PCA, CA, DCA, etc.)
 
 library(shiny)
 library(vegan)
@@ -59,42 +59,6 @@ nmds_ui <- function(id) {
           min = 99,
           max = 9999,
           step = 100
-        ),
-        
-        # Grouping variable for ellipses (conditional on env data)
-        conditionalPanel(
-          condition = sprintf("output['%s']", ns("has_env_data")),
-          selectInput(
-            ns("group_var"),
-            "Grouping Variable (for ellipses):",
-            choices = NULL
-          ),
-          checkboxInput(
-            ns("show_ellipses"),
-            "Show confidence ellipses",
-            value = FALSE
-          ),
-          conditionalPanel(
-            condition = sprintf("input['%s']", ns("show_ellipses")),
-            selectInput(
-              ns("ellipse_type"),
-              "Ellipse Type:",
-              choices = c(
-                "Normal (parametric)" = "norm",
-                "Student's t" = "t",
-                "Euclidean" = "euclid"
-              ),
-              selected = "norm"
-            ),
-            sliderInput(
-              ns("ellipse_level"),
-              "Confidence Level:",
-              min = 0.50,
-              max = 0.99,
-              value = 0.95,
-              step = 0.05
-            )
-          )
         ),
         
         # Run button
@@ -177,19 +141,6 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
     nmds_result <- reactiveVal(NULL)
     permanova_result <- reactiveVal(NULL)
     
-    # Update grouping variable choices when env data changes
-    observe({
-      if (!is.null(env_data())) {
-        # Get factor and character columns from env data
-        env_df <- env_data()
-        factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
-        
-        updateSelectInput(session, "group_var",
-                         choices = c("None" = "", factor_cols),
-                         selected = if(length(factor_cols) > 0) factor_cols[1] else "")
-      }
-    })
-    
     # Default plot customization values (since controls moved to right sidebar)
     plot_defaults <- reactiveValues(
       theme = "bw",
@@ -228,6 +179,31 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
     observeEvent(input$plot_height, { plot_defaults$plot_height <- input$plot_height })
     observeEvent(input$plot_dpi, { plot_defaults$dpi <- input$plot_dpi })
     observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
+    
+    # Populate grouping variable dropdown when env data changes
+    observe({
+      req(env_data())
+      
+      # Get factor and character columns from env data
+      env_df <- env_data()
+      factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+      
+      # Build choices list
+      choices_list <- list()
+      choices_list[[""]] <- "None"
+      for (col in factor_cols) {
+        choices_list[[col]] <- col
+      }
+      
+      # Update the grouping variable dropdown in the right panel via JavaScript
+      session$sendCustomMessage(
+        type = "updateGroupingVar",
+        message = list(
+          moduleId = "nmds-",
+          choices = choices_list
+        )
+      )
+    })
     
     # Validate dimensions (k)
     observeEvent(input$k, {
@@ -337,12 +313,12 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
     output$nmds_plot <- renderPlot({  
       req(nmds_result())
       
-      # Get grouping variable if ellipses are enabled
+      # Get grouping variable if ellipses are enabled (from right panel)
       grouping_var <- NULL
-      if (!is.null(input$show_ellipses) && input$show_ellipses && 
-          !is.null(input$group_var) && input$group_var != "" && 
+      if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
+          !is.null(input$plot_group_var) && input$plot_group_var != "" && 
           !is.null(env_data())) {
-        grouping_var <- env_data()[[input$group_var]]
+        grouping_var <- env_data()[[input$plot_group_var]]
         if (!is.factor(grouping_var)) {
           grouping_var <- as.factor(grouping_var)
         }
@@ -352,13 +328,15 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
       p <- generate_nmds_plot(nmds_result(), plot_defaults, grouping_var)
       
       # Add confidence ellipses if requested
-      if (!is.null(grouping_var)) {
+      if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
+        ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
+        
         p <- add_confidence_ellipses(
           p, 
           nmds_result(), 
           grouping_var,
-          ellipse_type = input$ellipse_type,
-          conf_level = input$ellipse_level
+          ellipse_type = input$plot_ellipse_type,
+          conf_level = ellipse_level
         )
       }
       
@@ -453,12 +431,12 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
         paste0("nmds_plot_k", input$k, "_", Sys.Date(), ".", ext)
       },
       content = function(file) {
-        # Get grouping variable if ellipses are enabled
+        # Get grouping variable if ellipses are enabled (from right panel)
         grouping_var <- NULL
-        if (!is.null(input$show_ellipses) && input$show_ellipses && 
-            !is.null(input$group_var) && input$group_var != "" && 
+        if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
+            !is.null(input$plot_group_var) && input$plot_group_var != "" && 
             !is.null(env_data())) {
-          grouping_var <- env_data()[[input$group_var]]
+          grouping_var <- env_data()[[input$plot_group_var]]
           if (!is.factor(grouping_var)) {
             grouping_var <- as.factor(grouping_var)
           }
@@ -468,13 +446,15 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
         p <- generate_nmds_plot(nmds_result(), plot_defaults, grouping_var)
         
         # Add confidence ellipses if requested
-        if (!is.null(grouping_var)) {
+        if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
+          ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
+          
           p <- add_confidence_ellipses(
             p, 
             nmds_result(), 
             grouping_var,
-            ellipse_type = input$ellipse_type,
-            conf_level = input$ellipse_level
+            ellipse_type = input$plot_ellipse_type,
+            conf_level = ellipse_level
           )
         }
         

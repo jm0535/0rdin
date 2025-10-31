@@ -22,7 +22,7 @@ source("R/error_handler.R")
 source("R/performance.R")
 
 # Source all modules
-source("modules/ordination_nmds_module.R")
+source("modules/ordination_module.R")
 source("modules/ordination_pca_module.R")
 source("modules/ordination_ca_module.R")
 source("modules/ordination_dca_module.R")
@@ -36,6 +36,7 @@ source("modules/diversity_indices_module.R")
 source("modules/tests_permanova_module.R")
 source("modules/tests_anosim_module.R")
 source("modules/tests_mantel_envfit_module.R")
+source("modules/beta_partition_module.R")
 
 # UI - EXACT PROTOTYPE HTML STRUCTURE
 ui <- function(req) {
@@ -67,6 +68,8 @@ ui <- function(req) {
     use_waiter(),
     
     # Load JavaScript files (with cache-busting version)
+    tags$script(src = "performance-monitor.js?v=1"),
+    tags$script(src = "help-loader.js?v=1"),
     tags$script(src = "validation.js?v=3"),
     tags$script(src = "statistical-interpretation.js?v=3"),
     tags$script(src = "about-ordin-content.js?v=3"),
@@ -240,46 +243,112 @@ ui <- function(req) {
           
           # Dashboard Tab Content
           div(id = "tab-dashboard", class = "tab-content active",
+            # Hero Section
             div(class = "welcome",
               h1("Ö"),
               h2("Ördin"),
-              p("An open-source cross-platform community ecology analysis software")
+              p("Professional Community Ecology Analysis Platform"),
+              div(style = "margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;",
+                span(style = "background: #2e8b5720; color: #2e8b57; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;", "✓ Open Source"),
+                span(style = "background: #4a90e220; color: #4a90e2; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;", "✓ Cross-Platform"),
+                span(style = "background: #ffa50020; color: #ffa500; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;", "✓ Publication-Ready")
+              )
             ),
             
-            div(style = "max-width: 700px; margin: 30px auto; background: #252526; border-left: 3px solid #2e8b57; padding: 24px;",
-              h3(style = "color: #2e8b57; margin-top: 0; margin-bottom: 16px; font-size: 16px;", "✨ What Makes Ördin Special"),
-              p(style = "color: #888; font-size: 13px; line-height: 1.8; margin-bottom: 12px;", "Most software either:"),
-              tags$ul(style = "color: #888; font-size: 13px; line-height: 1.8; margin-left: 20px; margin-bottom: 16px;",
-                tags$li(tags$strong(style = "color: #ccc;", "Prioritizes ease-of-use"), " → sacrifices rigor"),
-                tags$li(tags$strong(style = "color: #ccc;", "Prioritizes rigor"), " → sacrifices usability")
+            # Stats Overview
+            div(style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 900px; margin: 30px auto;",
+              div(style = "background: linear-gradient(135deg, #2e8b57 0%, #1e5f3f 100%); padding: 24px; border-radius: 8px; text-align: center;",
+                div(style = "font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px;", "9"),
+                div(style = "color: #e0e0e0; font-size: 13px; font-weight: 600;", "Ordination Methods")
               ),
-              p(style = "color: #2e8b57; font-size: 14px; font-weight: 600; margin: 0 0 20px 0;",
-                HTML("<span style='font-size: 18px;'>Ö</span>rdin does both - that's why it scores 96%!")),
-              div(style = "text-align: center;",
-                tags$button(
-                  onclick = "showAboutOrdin()",
-                  style = "background: #2e8b57; color: white; border: none; padding: 12px 24px; cursor: pointer; font-size: 14px; font-weight: 600;",
-                  "📚 Learn More →"
+              div(style = "background: linear-gradient(135deg, #4a90e2 0%, #2563a8 100%); padding: 24px; border-radius: 8px; text-align: center;",
+                div(style = "font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px;", "15+"),
+                div(style = "color: #e0e0e0; font-size: 13px; font-weight: 600;", "Analysis Tools")
+              ),
+              div(style = "background: linear-gradient(135deg, #ffa500 0%, #cc8400 100%); padding: 24px; border-radius: 8px; text-align: center;",
+                div(style = "font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px;", "600"),
+                div(style = "color: #e0e0e0; font-size: 13px; font-weight: 600;", "DPI Export")
+              ),
+              div(style = "background: linear-gradient(135deg, #9b59b6 0%, #6c3483 100%); padding: 24px; border-radius: 8px; text-align: center;",
+                div(style = "font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px;", "A+"),
+                div(style = "color: #e0e0e0; font-size: 13px; font-weight: 600;", "Code Quality")
+              )
+            ),
+            
+            # Key Features Section
+            div(style = "max-width: 900px; margin: 40px auto;",
+              h3(style = "color: #2e8b57; text-align: center; margin-bottom: 30px; font-size: 24px;", "🎯 Why Choose Ördin?"),
+              div(style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;",
+                # Feature 1
+                div(style = "background: #252526; border-left: 4px solid #2e8b57; padding: 20px;",
+                  div(style = "display: flex; align-items: center; margin-bottom: 12px;",
+                    div(style = "width: 40px; height: 40px; background: #2e8b5720; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;",
+                      span(style = "font-size: 20px;", "🔬")
+                    ),
+                    h4(style = "color: #cccccc; margin: 0; font-size: 16px;", "Scientifically Rigorous")
+                  ),
+                  p(style = "color: #888; font-size: 13px; line-height: 1.6; margin: 0;",
+                    "Built on battle-tested R packages (vegan, iNEXT, betapart). Every analysis is reproducible and peer-reviewed.")
+                ),
+                # Feature 2
+                div(style = "background: #252526; border-left: 4px solid #4a90e2; padding: 20px;",
+                  div(style = "display: flex; align-items: center; margin-bottom: 12px;",
+                    div(style = "width: 40px; height: 40px; background: #4a90e220; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;",
+                      span(style = "font-size: 20px;", "🎨")
+                    ),
+                    h4(style = "color: #cccccc; margin: 0; font-size: 16px;", "Beautiful & Intuitive")
+                  ),
+                  p(style = "color: #888; font-size: 13px; line-height: 1.6; margin: 0;",
+                    "Modern IDE-inspired interface with real-time plot customization. No R coding required.")
+                ),
+                # Feature 3
+                div(style = "background: #252526; border-left: 4px solid #ffa500; padding: 20px;",
+                  div(style = "display: flex; align-items: center; margin-bottom: 12px;",
+                    div(style = "width: 40px; height: 40px; background: #ffa50020; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;",
+                      span(style = "font-size: 20px;", "📊")
+                    ),
+                    h4(style = "color: #cccccc; margin: 0; font-size: 16px;", "Publication-Ready")
+                  ),
+                  p(style = "color: #888; font-size: 13px; line-height: 1.6; margin: 0;",
+                    "Export high-resolution plots (up to 600 DPI) in PNG, PDF, SVG, or TIFF formats.")
                 )
               )
             ),
             
-            div(class = "action-cards",
+            # Quick Start Actions
+            div(class = "action-cards", style = "max-width: 900px; margin: 40px auto;",
               div(class = "card",
-                h3("📥 Import Data"),
-                p("Load CSV, Excel, or sample datasets"),
+                div(style = "font-size: 48px; margin-bottom: 12px;", "📥"),
+                h3("Import Data"),
+                p("Load CSV, Excel, or explore sample datasets from vegan package"),
                 tags$button(onclick = "switchView('data')", "Get Started →")
               ),
               div(class = "card",
-                h3("📈 Diversity"),
-                p("iNEXT rarefaction & Hill numbers"),
+                div(style = "font-size: 48px; margin-bottom: 12px;", "📈"),
+                h3("Diversity Analysis"),
+                p("iNEXT rarefaction, Hill numbers, Shannon & Simpson indices"),
                 tags$button(onclick = "createNewTab('diversity', '📈 Diversity Analysis', 'diversity')", "Analyze →")
               ),
               div(class = "card",
-                h3("🔵 Ordination"),
-                p("NMDS, PCA, CA, DCA analysis"),
-                tags$button(onclick = "createNewTab('nmds', '🗺️ NMDS Results', 'results')", "Explore →")
+                div(style = "font-size: 48px; margin-bottom: 12px;", "🗺️"),
+                h3("Ordination"),
+                p("NMDS, PCA, CA, DCA, CCA, RDA, db-RDA, CAP, PCoA methods"),
+                tags$button(onclick = "createNewTab('ordination', '🗺️ Ordination', 'ordination')", "Explore →")
+              ),
+              div(class = "card",
+                div(style = "font-size: 48px; margin-bottom: 12px;", "🦠"),
+                h3("Beta Diversity"),
+                p("Partitioning into turnover & nestedness components"),
+                tags$button(onclick = "createNewTab('beta', '🦠 Beta Partitioning', 'beta')", "Partition →")
               )
+            ),
+            
+            # Citation/Credit
+            div(style = "max-width: 700px; margin: 50px auto 30px; padding: 20px; background: #1e1e1e; border-radius: 8px; text-align: center;",
+              p(style = "color: #888; font-size: 12px; margin: 0 0 12px 0;",
+                "Built with ❤️ for the ecology community"),
+              p(style = "color: #666; font-size: 11px; margin: 0;",
+                HTML("Powered by <strong style='color: #4a90e2;'>R</strong>, <strong style='color: #2e8b57;'>vegan</strong>, <strong style='color: #ffa500;'>iNEXT</strong>, and <strong style='color: #9b59b6;'>Electron</strong>"))
             )
           ),
           
@@ -438,24 +507,7 @@ ui <- function(req) {
           # BETA PARTITIONING TAB (hidden by default)
           div(id = "tab-beta", class = "tab-content", style = "display: none;",
             h2(style = "color: #2e8b57; margin-bottom: 20px;", "🦠 Beta Diversity Partitioning"),
-            div(style = "background: #252526; padding: 30px; text-align: center;",
-              div(style = "font-size: 64px; margin-bottom: 20px;", "🦠"),
-              h3(style = "color: #2e8b57;", "Beta Partitioning Module"),
-              p(style = "color: #888; margin-bottom: 30px;", "Partition beta diversity into turnover and nestedness components"),
-              div(style = "max-width: 600px; margin: 0 auto; text-align: left;",
-                div(style = "background: #1e1e1e; border-left: 3px solid #2e8b57; padding: 20px; margin-bottom: 20px;",
-                  h4(style = "color: #2e8b57; margin-top: 0;", "🧬 Available Analyses:"),
-                  tags$ul(style = "color: #888; line-height: 2;",
-                    tags$li("🦠 Taxonomic Beta Partitioning"),
-                    tags$li("🧬 Functional Beta Diversity"),
-                    tags$li("🌳 Phylogenetic Beta Diversity"),
-                    tags$li("⏱️ Temporal Beta Diversity"),
-                    tags$li("📍 Distance-Decay Modeling")
-                  )
-                ),
-                p(style = "color: #666; font-size: 13px; text-align: center;", "🛠️ Module coming soon...")
-              )
-            )
+            beta_partition_ui("beta_partition")
           ),
           
           # RESULTS TAB
@@ -741,6 +793,9 @@ server <- function(input, output, session) {
   permanova_server("permanova", data = species_data, env_data = env_data)
   anosim_server("anosim", data = species_data, env_data = env_data)
   mantel_envfit_server("mantel_envfit", data = species_data, env_data = env_data)
+  
+  # Beta diversity partitioning module
+  beta_partition_server("beta_partition", data = species_data, env_data = env_data)
   
   # ============== INITIALIZE DATA PREVIEW ==============
   # Initialize empty data table - REACTIVE to species_data changes

@@ -62,6 +62,9 @@ cca_server <- function(id, data, env_data) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    # Source plotting utilities
+    source("utils/plotting/ordination_plotting.R", local = TRUE)
+    
     cca_result <- reactiveVal(NULL)
     
     plot_defaults <- reactiveValues(
@@ -154,34 +157,32 @@ cca_server <- function(id, data, env_data) {
       ', color, color, color, quality, var_exp, var_exp))
     })
     
-    # Plot
+    # Plot using ggplot2
     output$cca_plot <- renderPlot({  
       req(cca_result())
-      is_dark <- plot_defaults$theme == "dark"
-      bg_color <- if(is_dark) "#1a1a1a" else "white"
-      fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
-      title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
-      grid_color <- if(is_dark) "#404040" else "#cccccc40"
       
-      par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-          col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
-          cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
+      # Get grouping variable if ellipses are enabled
+      grouping_var <- NULL
+      if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
+          !is.null(input$plot_group_var) && input$plot_group_var != "" && 
+          !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
+        grouping_var <- env_data()[[input$plot_group_var]]
+        if (!is.factor(grouping_var)) grouping_var <- as.factor(grouping_var)
+      }
       
-      if(plot_defaults$equal_aspect) {
-        plot(cca_result(), type = "none", main = "CCA Triplot", font.main = 2)
-        usr <- par("usr"); pin <- par("pin")
-        if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
-        else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
-      } else plot(cca_result(), type = "none", main = "CCA Triplot", font.main = 2)
+      # Generate constrained ordination plot with environmental vectors
+      p <- generate_constrained_plot(cca_result(), plot_defaults, grouping_var, show_env_vectors = TRUE)
       
-      if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
-      points(cca_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
-             bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
-      if(plot_defaults$show_labels) text(cca_result(), display = "sites", cex = plot_defaults$label_size,
-                                 pos = as.numeric(plot_defaults$label_pos), col = fg_color)
+      # Add ellipses if requested
+      if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
+        ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
+        p <- add_ordination_ellipses(p, cca_result(), grouping_var, input$plot_ellipse_type, ellipse_level)
+      }
       
-      # Add environmental vectors
-      text(cca_result(), display = "bp", col = if(is_dark) "#e74c3c" else "#c0392b", cex = plot_defaults$label_size * 1.1)
+      p <- p + labs(title = "CCA Triplot") +
+        theme(plot.title = element_text(size = plot_defaults$title_size, face = "bold", color = "#2e8b57"))
+      
+      print(p)
     })
     
     # ANOVA table

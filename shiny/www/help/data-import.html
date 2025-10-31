@@ -1,0 +1,35 @@
+<div class="help-container">
+  <div class="help-hero">
+    <h1 style="font-size: 48px; margin: 0; color: #2e8b57; font-weight: 300;">📊</h1>
+    <h2 style="margin: 8px 0; color: #cccccc;">Data Import Guide</h2>
+  </div>
+  <div class="help-content">
+    <section class="help-section">
+      <h2>Loading Your Data</h2>
+      
+      <h3>Supported Formats</h3>
+      <ul>
+        <li><strong>CSV:</strong> Comma-separated values with headers</li>
+        <li><strong>Excel:</strong> .xlsx, .xls (first sheet imported)</li>
+        <li><strong>Samples:</strong> Built-in datasets from vegan (dune, varespec, BCI)</li>
+      </ul>
+      
+      <h3>Data Structure</h3>
+      <h4>Species/Abundance Data (Required)</h4>
+      <div class="code-block"># Rows = Sites, Columns = Species
+          Sp1  Sp2  Sp3
+Site1    12    5    0
+Site2     8   15   23</div>
+      
+      <h4>Environmental Data (Optional)</h4>
+      <div class="code-block"># Must match site names
+          pH   Temp
+Site1   6.5   18.2
+Site2   7.1   19.8</div>
+      
+      <div class="help-tip">
+        <strong>💡 Tip:</strong> For constrained ordination (CCA, RDA, db-RDA), row names must match exactly!
+      </div>
+    </section>
+  </div>
+</div>

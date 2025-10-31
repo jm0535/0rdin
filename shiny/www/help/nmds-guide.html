@@ -1,0 +1,37 @@
+<div class="help-container">
+  <div class="help-hero">
+    <h1 style="font-size: 48px; margin: 0; color: #2e8b57; font-weight: 300;">📈</h1>
+    <h2 style="margin: 8px 0; color: #cccccc;">NMDS Guide</h2>
+  </div>
+  <div class="help-content">
+    <section class="help-section">
+      <h2>Non-metric Multidimensional Scaling</h2>
+      
+      <h3>What is NMDS?</h3>
+      <p>NMDS is a rank-based ordination method that preserves the rank order of dissimilarities between samples. It's ideal for ecological data with non-linear relationships.</p>
+      
+      <h3>Stress Interpretation</h3>
+      <ul>
+        <li><strong>&lt; 0.05:</strong> Excellent representation</li>
+        <li><strong>&lt; 0.10:</strong> Good representation</li>
+        <li><strong>&lt; 0.20:</strong> Usable representation</li>
+        <li><strong>&gt; 0.20:</strong> Poor representation (increase dimensions or check data)</li>
+      </ul>
+      
+      <h3>Key Parameters</h3>
+      <h4>Distance Metric</h4>
+      <ul>
+        <li><strong>Bray-Curtis:</strong> Default for abundance data</li>
+        <li><strong>Jaccard:</strong> Presence-absence data</li>
+        <li><strong>Euclidean:</strong> Continuous environmental data</li>
+      </ul>
+      
+      <h4>Dimensions (k)</h4>
+      <p>Start with k=2 for visualization. If stress is high (&gt;0.20), try k=3.</p>
+      
+      <div class="help-tip">
+        <strong>💡 Best Practice:</strong> Always check stress! Multiple runs may converge to different solutions - NMDS finds local minima.
+      </div>
+    </section>
+  </div>
+</div>

@@ -215,7 +215,7 @@ function generateDiversityPlotControls(moduleId) {
   `;
 }
 
-// Generate controls for ordination plots (base R graphics)
+// Generate controls for ordination plots (ggplot2-based)
 function generateOrdinationPlotControls(moduleId) {
   // Common controls for all plot types with proper Shiny input IDs
   return `
@@ -227,7 +227,10 @@ function generateOrdinationPlotControls(moduleId) {
         <select id="${moduleId}-plot_theme" class="shiny-input-select form-control form-control-sm">
           <option value="bw" selected>Clean</option>
           <option value="minimal">Minimal</option>
+          <option value="classic">Classic</option>
+          <option value="light">Light</option>
           <option value="dark">Dark</option>
+          <option value="void">Void</option>
         </select>
       </div>
       
@@ -292,6 +295,39 @@ function generateOrdinationPlotControls(moduleId) {
     </div>
     
     <div class="prop-section">
+      <h4><i class="fas fa-draw-polygon"></i> Confidence Ellipses</h4>
+      
+      <div class="prop-item">
+        <label>
+          <input type="checkbox" id="${moduleId}-plot_show_ellipses" class="shiny-input-checkbox"> Show Ellipses
+        </label>
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_group_var">Grouping Variable:</label>
+        <select id="${moduleId}-plot_group_var" class="shiny-input-select form-control form-control-sm">
+          <option value="" selected>None</option>
+        </select>
+        <small class="text-muted">Requires environmental data</small>
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_ellipse_type">Ellipse Type:</label>
+        <select id="${moduleId}-plot_ellipse_type" class="shiny-input-select form-control form-control-sm">
+          <option value="norm" selected>Normal</option>
+          <option value="t">Student's t</option>
+          <option value="euclid">Euclidean</option>
+        </select>
+      </div>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_ellipse_level">Confidence Level:</label>
+        <input type="number" id="${moduleId}-plot_ellipse_level" class="shiny-input-number form-control form-control-sm" 
+               value="0.95" min="0.50" max="0.99" step="0.05">
+      </div>
+    </div>
+    
+    <div class="prop-section">
       <h4><i class="fas fa-tags"></i> Labels & Grid</h4>
       
       <div class="prop-item">
@@ -349,4 +385,27 @@ function generateOrdinationPlotControls(moduleId) {
 // Initialize - hide panel by default
 $(document).ready(function() {
   hidePlotCustomization();
+  
+  // Listen for custom messages from R to update grouping variable dropdown
+  if (window.Shiny) {
+    Shiny.addCustomMessageHandler('updateGroupingVar', function(message) {
+      const selectId = message.moduleId + 'plot_group_var';
+      const selectElement = document.getElementById(selectId);
+      
+      if (selectElement && message.choices) {
+        // Clear existing options
+        selectElement.innerHTML = '';
+        
+        // Add new options
+        Object.keys(message.choices).forEach(function(key) {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = message.choices[key];
+          selectElement.appendChild(option);
+        });
+        
+        console.log('Updated grouping variable dropdown with', Object.keys(message.choices).length, 'options');
+      }
+    });
+  }
 });

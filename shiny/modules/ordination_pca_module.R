@@ -126,6 +126,7 @@ pca_server <- function(id, data) {
     # Source utilities
     source("utils/validation.R", local = TRUE)
     source("utils/reproducibility.R", local = TRUE)
+    source("utils/plotting/ordination_plotting.R", local = TRUE)
     
     # Reactive values
     pca_result <- reactiveVal(NULL)
@@ -240,84 +241,52 @@ pca_server <- function(id, data) {
          color, if(total_var >= 70) "most" else if(total_var >= 50) "a substantial portion" else "some"))
     })
     
-    # Render PCA biplot
+    # Render PCA biplot using ggplot2
     output$pca_plot <- renderPlot({  
       req(pca_result())
       
-      # Determine colors based on theme
-      is_dark <- plot_defaults$theme == "dark"
-      bg_color <- if(is_dark) "#1a1a1a" else "white"
-      fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
-      title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
-      grid_color <- if(is_dark) "#404040" else "#cccccc40"
-      
-      # Set plot parameters
-      par(
-        family = plot_defaults$font_family,
-        bg = bg_color,
-        fg = fg_color,
-        col.axis = fg_color,
-        col.lab = fg_color,
-        col.main = title_color,
-        cex = plot_defaults$base_size / 12,
-        cex.main = plot_defaults$title_size / 12,
-        cex.axis = plot_defaults$base_size / 12,
-        cex.lab = plot_defaults$base_size / 12,
-        lwd = plot_defaults$axis_lwd
-      )
-      
-      # Create base ordination plot
-      if(plot_defaults$equal_aspect) {
-        plot(pca_result(), type = "none", main = "PCA Biplot", font.main = 2)
-        usr <- par("usr")
-        pin <- par("pin")
-        if(pin[1] > pin[2]) {
-          par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
-        } else {
-          par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
+      # Get grouping variable if ellipses are enabled (from right panel)
+      grouping_var <- NULL
+      if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
+          !is.null(input$plot_group_var) && input$plot_group_var != "" && 
+          !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
+        grouping_var <- env_data()[[input$plot_group_var]]
+        if (!is.factor(grouping_var)) {
+          grouping_var <- as.factor(grouping_var)
         }
-      } else {
-        plot(pca_result(), type = "none", main = "PCA Biplot", font.main = 2)
       }
       
-      # Add grid if enabled
-      if(plot_defaults$show_grid) {
-        grid(col = grid_color, lty = 1)
+      # Generate base ggplot2 plot
+      p <- generate_ordination_plot(pca_result(), plot_defaults, grouping_var)
+      
+      # Add confidence ellipses if requested
+      if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
+        ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
+        
+        p <- add_ordination_ellipses(
+          p, 
+          pca_result(), 
+          grouping_var,
+          ellipse_type = input$plot_ellipse_type,
+          conf_level = ellipse_level
+        )
       }
       
-      # Add sample points
-      points(pca_result(), 
-             display = "sites", 
-             pch = as.numeric(plot_defaults$point_shape),
-             bg = plot_defaults$point_color, 
-             cex = plot_defaults$point_size,
-             col = fg_color,
-             lwd = plot_defaults$point_lwd)
-      
-      # Add labels if enabled
-      if(plot_defaults$show_labels) {
-        text(pca_result(), 
-             display = "sites",
-             cex = plot_defaults$label_size,
-             pos = as.numeric(plot_defaults$label_pos),
-             col = fg_color)
-      }
-      
-      # Add species vectors (if not too many)
-      if (ncol(data()) <= 30) {
-        text(pca_result(), 
-             display = "species",
-             col = if(is_dark) "#007acc" else "#007acc",
-             cex = plot_defaults$label_size)
-      }
-      
-      # Add variance annotation
+      # Add title with variance info
       eig <- eigenvals(pca_result())
       var_pc1 <- eig[1] / sum(eig) * 100
       var_pc2 <- eig[2] / sum(eig) * 100
       
-      mtext(sprintf("PC1: %.1f%% | PC2: %.1f%%", var_pc1, var_pc2),
-            side = 3, line = 0.5, col = title_color, font = 2, adj = 0, cex = plot_defaults$base_size / 12)
+      p <- p + labs(
+        title = "PCA Biplot",
+        subtitle = sprintf("PC1: %.1f%% | PC2: %.1f%%", var_pc1, var_pc2)
+      ) +
+      theme(
+        plot.title = element_text(size = plot_defaults$title_size, face = "bold", color = "#2e8b57"),
+        plot.subtitle = element_text(color = "#2e8b57", face = "bold")
+      )
+      
+      print(p)
     })
     
     # Eigenvalues table
@@ -352,65 +321,63 @@ pca_server <- function(id, data) {
                     rownames = FALSE)
     })
     
-    # Export plot with custom settings
+    # Export plot with custom settings using ggplot2
     output$export_plot <- downloadHandler(
       filename = function() {
         ext <- plot_defaults$export_format
         paste0("pca_plot_", Sys.Date(), ".", ext)
       },
       content = function(file) {
-        # Determine colors
-        is_dark <- plot_defaults$theme == "dark"
-        bg_color <- if(is_dark) "#1a1a1a" else "white"
-        fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
-        title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
-        grid_color <- if(is_dark) "#404040" else "#cccccc40"
-        
-        # Open device
-        if(plot_defaults$export_format == "png") {
-          png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
-        } else if(plot_defaults$export_format == "pdf") {
-          pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
-        } else if(plot_defaults$export_format == "svg") {
-          svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
-        }
-        
-        par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-            col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
-            cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
-        
-        # Plot without asp parameter
-        if(plot_defaults$equal_aspect) {
-          plot(pca_result(), type = "none", main = "PCA Biplot", font.main = 2)
-          usr <- par("usr")
-          pin <- par("pin")
-          if(pin[1] > pin[2]) {
-            par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
-          } else {
-            par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
+        # Get grouping variable if ellipses are enabled
+        grouping_var <- NULL
+        if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
+            !is.null(input$plot_group_var) && input$plot_group_var != "" && 
+            !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
+          grouping_var <- env_data()[[input$plot_group_var]]
+          if (!is.factor(grouping_var)) {
+            grouping_var <- as.factor(grouping_var)
           }
-        } else {
-          plot(pca_result(), type = "none", main = "PCA Biplot", font.main = 2)
         }
         
-        if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
-        points(pca_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
-               bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
-        if(plot_defaults$show_labels) {
-          text(pca_result(), display = "sites", cex = plot_defaults$label_size,
-               pos = as.numeric(plot_defaults$label_pos), col = fg_color)
-        }
-        if (ncol(data()) <= 30) {
-          text(pca_result(), display = "species", col = if(is_dark) "#007acc" else "#007acc", cex = plot_defaults$label_size)
+        # Generate ggplot2 plot
+        p <- generate_ordination_plot(pca_result(), plot_defaults, grouping_var)
+        
+        # Add confidence ellipses if requested
+        if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
+          ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
+          
+          p <- add_ordination_ellipses(
+            p, 
+            pca_result(), 
+            grouping_var,
+            ellipse_type = input$plot_ellipse_type,
+            conf_level = ellipse_level
+          )
         }
         
+        # Add title with variance info
         eig <- eigenvals(pca_result())
         var_pc1 <- eig[1] / sum(eig) * 100
         var_pc2 <- eig[2] / sum(eig) * 100
-        mtext(sprintf("PC1: %.1f%% | PC2: %.1f%%", var_pc1, var_pc2),
-              side = 3, line = 0.5, col = title_color, font = 2, adj = 0, cex = plot_defaults$base_size / 12)
         
-        dev.off()
+        p <- p + labs(
+          title = "PCA Biplot",
+          subtitle = sprintf("PC1: %.1f%% | PC2: %.1f%%", var_pc1, var_pc2)
+        ) +
+        theme(
+          plot.title = element_text(size = plot_defaults$title_size, face = "bold", color = "#2e8b57"),
+          plot.subtitle = element_text(color = "#2e8b57", face = "bold")
+        )
+        
+        # Export using utility function
+        export_ordination_plot(
+          p, 
+          file, 
+          width = plot_defaults$plot_width, 
+          height = plot_defaults$plot_height,
+          dpi = plot_defaults$dpi, 
+          format = plot_defaults$export_format
+        )
       }
     )
     

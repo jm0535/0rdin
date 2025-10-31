@@ -52,9 +52,12 @@ ca_ui <- function(id) {
 }
 
 #' CA Module Server
-ca_server <- function(id, data) {
+ca_server <- function(id, data, env_data = reactive(NULL)) {
   moduleServer(id, function(input, output, session) {
     ca_result <- reactiveVal(NULL)
+    
+    # Source plotting utilities
+    source("utils/plotting/ordination_plotting.R", local = TRUE)
     
     # Default plot customization values
     plot_defaults <- reactiveValues(
@@ -133,25 +136,31 @@ ca_server <- function(id, data) {
     
     output$ca_plot <- renderPlot({  
       req(ca_result())
-      is_dark <- plot_defaults$theme == "dark"
-      bg_color <- if(is_dark) "#1a1a1a" else "white"
-      fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
-      title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
-      grid_color <- if(is_dark) "#404040" else "#cccccc40"
-      par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-          col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
-          cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
-      if(plot_defaults$equal_aspect) {
-        plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
-        usr <- par("usr"); pin <- par("pin")
-        if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
-        else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
-      } else plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
-      if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
-      points(ca_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
-             bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
-      if(plot_defaults$show_labels) text(ca_result(), display = "sites", cex = plot_defaults$label_size,
-                                 pos = as.numeric(plot_defaults$label_pos), col = fg_color)
+      
+      # Get grouping variable if ellipses are enabled
+      grouping_var <- NULL
+      if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
+          !is.null(input$plot_group_var) && input$plot_group_var != "" && 
+          !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
+        grouping_var <- env_data()[[input$plot_group_var]]
+        if (!is.factor(grouping_var)) {
+          grouping_var <- as.factor(grouping_var)
+        }
+      }
+      
+      # Generate ggplot2 plot
+      p <- generate_ordination_plot(ca_result(), plot_defaults, grouping_var)
+      
+      # Add ellipses if requested
+      if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
+        ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
+        p <- add_ordination_ellipses(p, ca_result(), grouping_var, input$plot_ellipse_type, ellipse_level)
+      }
+      
+      p <- p + labs(title = "CA Ordination") +
+        theme(plot.title = element_text(size = plot_defaults$title_size, face = "bold", color = "#2e8b57"))
+      
+      print(p)
     })
     
     output$inertia_table <- renderTable({
@@ -168,29 +177,25 @@ ca_server <- function(id, data) {
     output$export_plot <- downloadHandler(
       filename = function() paste0("ca_plot_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
-        is_dark <- plot_defaults$theme == "dark"
-        bg_color <- if(is_dark) "#1a1a1a" else "white"
-        fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
-        title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
-        grid_color <- if(is_dark) "#404040" else "#cccccc40"
-        if(plot_defaults$export_format == "png") png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
-        else if(plot_defaults$export_format == "pdf") pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
-        else svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
-        par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-            col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
-            cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
-        if(plot_defaults$equal_aspect) {
-          plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
-          usr <- par("usr"); pin <- par("pin")
-          if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
-          else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
-        } else plot(ca_result(), type = "none", main = "CA Ordination", font.main = 2)
-        if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
-        points(ca_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
-               bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
-        if(plot_defaults$show_labels) text(ca_result(), display = "sites", cex = plot_defaults$label_size,
-                                   pos = as.numeric(plot_defaults$label_pos), col = fg_color)
-        dev.off()
+        grouping_var <- NULL
+        if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
+            !is.null(input$plot_group_var) && input$plot_group_var != "" && 
+            !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
+          grouping_var <- env_data()[[input$plot_group_var]]
+          if (!is.factor(grouping_var)) grouping_var <- as.factor(grouping_var)
+        }
+        
+        p <- generate_ordination_plot(ca_result(), plot_defaults, grouping_var)
+        if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
+          ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
+          p <- add_ordination_ellipses(p, ca_result(), grouping_var, input$plot_ellipse_type, ellipse_level)
+        }
+        
+        p <- p + labs(title = "CA Ordination") +
+          theme(plot.title = element_text(size = plot_defaults$title_size, face = "bold", color = "#2e8b57"))
+        
+        export_ordination_plot(p, file, plot_defaults$plot_width, plot_defaults$plot_height,
+                              plot_defaults$dpi, plot_defaults$export_format)
       }
     )
     
