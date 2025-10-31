@@ -88,33 +88,38 @@ permanova_server <- function(id, data, env_data) {
     
     # Dynamic UI for grouping variable selection
     output$group_vars_ui <- renderUI({
-      req(env_data())
-      
-      # Detect categorical/factor variables
-      categorical_vars <- names(env_data())[sapply(env_data(), function(x) is.factor(x) || is.character(x))]
-      
-      if (length(categorical_vars) == 0) {
+      if (is.null(env_data()) || nrow(env_data()) == 0) {
         div(style = "background: #d4a01720; border-left: 3px solid #d4a017; padding: 12px; margin: 10px 0;",
           p(style = "color: #d4a017; font-size: 12px; margin: 0;",
-            "⚠️ No categorical variables found. PERMANOVA requires at least one grouping factor.")
+            "⚠️ No environmental data loaded. Upload environmental variables to use PERMANOVA.")
         )
       } else {
-        selectInput(ns("group_vars"), 
-                   "Grouping Variables:",
-                   choices = categorical_vars,
-                   selected = categorical_vars[1],
-                   multiple = TRUE)
+        # Detect categorical/factor variables
+        categorical_vars <- names(env_data())[sapply(env_data(), function(x) is.factor(x) || is.character(x))]
+        
+        if (length(categorical_vars) == 0) {
+          div(style = "background: #d4a01720; border-left: 3px solid #d4a017; padding: 12px; margin: 10px 0;",
+            p(style = "color: #d4a017; font-size: 12px; margin: 0;",
+              "⚠️ No categorical variables found. PERMANOVA requires at least one grouping factor.")
+          )
+        } else {
+          selectInput(ns("group_vars"), 
+                     "Grouping Variables:",
+                     choices = categorical_vars,
+                     selected = categorical_vars[1],
+                     multiple = TRUE)
+        }
       }
     })
     
     # Run PERMANOVA
     observeEvent(input$run_permanova, {
-      req(data(), env_data())
+      req(data())
       
       # Check if environmental data exists
       if (is.null(env_data()) || nrow(env_data()) == 0) {
         showNotification(
-          "❌ PERMANOVA requires environmental data. Please upload environmental variables first.",
+          HTML("<strong>❌ PERMANOVA requires environmental data</strong><br/>Please upload environmental variables in the Data Management tab first."),
           type = "error",
           duration = 8
         )
@@ -124,7 +129,7 @@ permanova_server <- function(id, data, env_data) {
       # Check if grouping variables are selected
       if (is.null(input$group_vars) || length(input$group_vars) == 0) {
         showNotification(
-          "❌ Please select at least one grouping variable.",
+          HTML("<strong>❌ Please select at least one grouping variable</strong><br/>Use the 'Grouping Variables' dropdown to select categorical variables from your environmental data."),
           type = "error",
           duration = 8
         )

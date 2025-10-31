@@ -612,7 +612,7 @@ create_beta_plot <- function(beta_result, index_family,
   
   # Plot 1: Beta total
   p1 <- ggplot(beta_total_df, aes(x = Var1, y = Var2, fill = value)) +
-    geom_tile(color = tile_border, size = 0.5) +
+    geom_tile(color = tile_border, linewidth = 0.5) +
     create_fill_scale() +
     labs(title = paste0("β-Total (", index_family, ")"),
          x = NULL, y = NULL, fill = "Dissimilarity") +
@@ -621,7 +621,7 @@ create_beta_plot <- function(beta_result, index_family,
   
   # Plot 2: Turnover
   p2 <- ggplot(turnover_df, aes(x = Var1, y = Var2, fill = value)) +
-    geom_tile(color = tile_border, size = 0.5) +
+    geom_tile(color = tile_border, linewidth = 0.5) +
     create_fill_scale() +
     labs(title = "Turnover Component",
          x = NULL, y = NULL, fill = "Turnover") +
@@ -630,7 +630,7 @@ create_beta_plot <- function(beta_result, index_family,
   
   # Plot 3: Nestedness
   p3 <- ggplot(nestedness_df, aes(x = Var1, y = Var2, fill = value)) +
-    geom_tile(color = tile_border, size = 0.5) +
+    geom_tile(color = tile_border, linewidth = 0.5) +
     create_fill_scale() +
     labs(title = "Nestedness Component",
          x = NULL, y = NULL, fill = "Nestedness") +
