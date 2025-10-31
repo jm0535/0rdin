@@ -463,6 +463,14 @@ div[id*="plot"] {
     gap: 16px;
     font-size: 11px;
     color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.status-bar > span {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
 /* Right Panel */

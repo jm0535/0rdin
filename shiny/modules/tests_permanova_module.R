@@ -10,67 +10,76 @@ library(waiter)
 permanova_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    div(class = "permanova-workflow",
-      div(class = "config-panel",
+    div(
+      class = "permanova-workflow",
+      div(
+        class = "config-panel",
         h3("⚙️ PERMANOVA Configuration"),
-        
+
         # When to use PERMANOVA
-        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+        div(
+          style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
           h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE PERMANOVA"),
-          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+          tags$ul(
+            style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
             tags$li("Test if **group centroids differ** in multivariate space"),
             tags$li("Compare **multiple groups** (3+ levels) across environmental factors"),
             tags$li("Multivariate version of ANOVA using **distance matrices**"),
             tags$li("Example: Does species composition differ by habitat type?")
           )
         ),
-        
         helpText("Tests if group centroids differ across environmental/categorical variables (multivariate ANOVA using distances)."),
-        
+
         # Distance metric
         selectInput(ns("distance"), "Distance/Dissimilarity:",
-                   choices = c("Bray-Curtis" = "bray", "Jaccard" = "jaccard", 
-                              "Euclidean" = "euclidean", "Manhattan" = "manhattan"),
-                   selected = "bray"),
-        
+          choices = c(
+            "Bray-Curtis" = "bray", "Jaccard" = "jaccard",
+            "Euclidean" = "euclidean", "Manhattan" = "manhattan"
+          ),
+          selected = "bray"
+        ),
+
         # Grouping variable selection
         uiOutput(ns("group_vars_ui")),
-        
+
         # Permutation settings
         numericInput(ns("permutations"), "Permutations:", value = 999, min = 99, max = 9999, step = 100),
-        
         selectInput(ns("method"), "Permutation Method:",
-                   choices = c("Unrestricted" = "free", "Within strata" = "strata"),
-                   selected = "free"),
-        
+          choices = c("Unrestricted" = "free", "Within strata" = "strata"),
+          selected = "free"
+        ),
+
         # Run button
-        div(class = "action-buttons", style = "margin-top: 20px;",
+        div(
+          class = "action-buttons", style = "margin-top: 20px;",
           actionButton(ns("run_permanova"), "▶ Run PERMANOVA", class = "btn-success", style = "width: 100%;")
         )
       ),
-      
-      div(class = "horizontal-split",
-        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
+      div(
+        class = "horizontal-split",
+        div(
+          class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           # Interpretation box
           uiOutput(ns("permanova_interpretation")),
-          
+
           # Results visualization
           h4("📊 Variance Partitioning", style = "color: #2e8b57; margin: 20px 0 10px 0;"),
           plotOutput(ns("variance_plot"), width = "100%", height = "500px")
         ),
-        
-        div(class = "results-panel",
-          div(class = "results-section",
+        div(
+          class = "results-panel",
+          div(
+            class = "results-section",
             h3("📊 PERMANOVA TABLE"),
             tableOutput(ns("permanova_table"))
           ),
-          
-          div(class = "results-section", style = "margin-top: 20px;",
+          div(
+            class = "results-section", style = "margin-top: 20px;",
             h3("📈 R-SQUARED VALUES"),
             tableOutput(ns("r2_table"))
           ),
-          
-          div(class = "action-buttons", style = "margin-top: 20px;",
+          div(
+            class = "action-buttons", style = "margin-top: 20px;",
             downloadButton(ns("export_results"), "📋 Export CSV", class = "btn-sm")
           )
         )
@@ -83,39 +92,46 @@ permanova_ui <- function(id) {
 permanova_server <- function(id, data, env_data) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    
+
     permanova_result <- reactiveVal(NULL)
-    
+
     # Dynamic UI for grouping variable selection
     output$group_vars_ui <- renderUI({
       if (is.null(env_data()) || nrow(env_data()) == 0) {
-        div(style = "background: #d4a01720; border-left: 3px solid #d4a017; padding: 12px; margin: 10px 0;",
-          p(style = "color: #d4a017; font-size: 12px; margin: 0;",
-            "⚠️ No environmental data loaded. Upload environmental variables to use PERMANOVA.")
+        div(
+          style = "background: #d4a01720; border-left: 3px solid #d4a017; padding: 12px; margin: 10px 0;",
+          p(
+            style = "color: #d4a017; font-size: 12px; margin: 0;",
+            "⚠️ No environmental data loaded. Upload environmental variables to use PERMANOVA."
+          )
         )
       } else {
         # Detect categorical/factor variables
         categorical_vars <- names(env_data())[sapply(env_data(), function(x) is.factor(x) || is.character(x))]
-        
+
         if (length(categorical_vars) == 0) {
-          div(style = "background: #d4a01720; border-left: 3px solid #d4a017; padding: 12px; margin: 10px 0;",
-            p(style = "color: #d4a017; font-size: 12px; margin: 0;",
-              "⚠️ No categorical variables found. PERMANOVA requires at least one grouping factor.")
+          div(
+            style = "background: #d4a01720; border-left: 3px solid #d4a017; padding: 12px; margin: 10px 0;",
+            p(
+              style = "color: #d4a017; font-size: 12px; margin: 0;",
+              "⚠️ No categorical variables found. PERMANOVA requires at least one grouping factor."
+            )
           )
         } else {
-          selectInput(ns("group_vars"), 
-                     "Grouping Variables:",
-                     choices = categorical_vars,
-                     selected = categorical_vars[1],
-                     multiple = TRUE)
+          selectInput(ns("group_vars"),
+            "Grouping Variables:",
+            choices = categorical_vars,
+            selected = categorical_vars[1],
+            multiple = TRUE
+          )
         }
       }
     })
-    
+
     # Run PERMANOVA
     observeEvent(input$run_permanova, {
       req(data())
-      
+
       # Check if environmental data exists
       if (is.null(env_data()) || nrow(env_data()) == 0) {
         showNotification(
@@ -125,7 +141,7 @@ permanova_server <- function(id, data, env_data) {
         )
         return()
       }
-      
+
       # Check if grouping variables are selected
       if (is.null(input$group_vars) || length(input$group_vars) == 0) {
         showNotification(
@@ -135,65 +151,74 @@ permanova_server <- function(id, data, env_data) {
         )
         return()
       }
-      
+
       waiter_show(html = tagList(
         spin_fading_circles(),
         h3("Running PERMANOVA...", style = "color: #2e8b57; margin-top: 20px;")
       ))
-      
-      result <- tryCatch({
-        # Validate that data and env have same number of rows
-        if (nrow(data()) != nrow(env_data())) {
-          stop("Species data and environmental data must have the same number of sites/rows")
+
+      result <- tryCatch(
+        {
+          # Validate that data and env have same number of rows
+          if (nrow(data()) != nrow(env_data())) {
+            stop("Species data and environmental data must have the same number of sites/rows")
+          }
+
+          # Compute distance matrix
+          dist_matrix <- vegdist(data(), method = input$distance)
+
+          # Build formula using environmental variables
+          formula_str <- paste("dist_matrix ~", paste(input$group_vars, collapse = " + "))
+          formula_obj <- as.formula(formula_str)
+
+          # Run adonis2 with distance matrix
+          adonis2(formula_obj,
+            data = env_data(),
+            permutations = input$permutations
+          )
+        },
+        error = function(e) {
+          waiter_hide()
+          showNotification(paste("❌ PERMANOVA failed:", e$message), type = "error", duration = 8)
+          NULL
         }
-        
-        # Compute distance matrix
-        dist_matrix <- vegdist(data(), method = input$distance)
-        
-        # Build formula using environmental variables
-        formula_str <- paste("dist_matrix ~", paste(input$group_vars, collapse = " + "))
-        formula_obj <- as.formula(formula_str)
-        
-        # Run adonis2 with distance matrix
-        adonis2(formula_obj, 
-               data = env_data(), 
-               permutations = input$permutations)
-      }, error = function(e) {
-        waiter_hide()
-        showNotification(paste("❌ PERMANOVA failed:", e$message), type = "error", duration = 8)
-        NULL
-      })
-      
+      )
+
       waiter_hide()
-      
+
       if (!is.null(result)) {
         permanova_result(result)
-        
+
         # Get main effect p-value
         p_value <- result$`Pr(>F)`[1]
-        
-        significance <- if(p_value < 0.001) "***"
-        else if(p_value < 0.01) "**"
-        else if(p_value < 0.05) "*"
-        else "ns"
-        
+
+        significance <- if (p_value < 0.001) {
+          "***"
+        } else if (p_value < 0.01) {
+          "**"
+        } else if (p_value < 0.05) {
+          "*"
+        } else {
+          "ns"
+        }
+
         showNotification(
           HTML(sprintf("<strong>✓ PERMANOVA Complete!</strong><br/>p-value: %.4f %s", p_value, significance)),
-          type = if(p_value < 0.05) "message" else "warning"
+          type = if (p_value < 0.05) "message" else "warning"
         )
       }
     })
-    
+
     # Interpretation box
     output$permanova_interpretation <- renderUI({
       req(permanova_result())
-      
+
       p_value <- permanova_result()$`Pr(>F)`[1]
       r2 <- permanova_result()$R2[1]
-      
-      color <- if(p_value < 0.05) "#2e8b57" else "#888"
-      result_text <- if(p_value < 0.05) "Significant difference" else "No significant difference"
-      
+
+      color <- if (p_value < 0.05) "#2e8b57" else "#888"
+      result_text <- if (p_value < 0.05) "Significant difference" else "No significant difference"
+
       HTML(sprintf('
         <div style="background: %s20; border-left: 3px solid %s; padding: 16px; margin: 20px 0;">
           <h4 style="color: %s; margin: 0 0 8px 0;">%s (p = %.4f)</h4>
@@ -201,29 +226,32 @@ permanova_server <- function(id, data, env_data) {
         </div>
       ', color, color, color, result_text, p_value, r2 * 100, r2))
     })
-    
+
     # PERMANOVA table
-    output$permanova_table <- renderTable({
-      req(permanova_result())
-      
-      df <- as.data.frame(permanova_result())
-      df$Source <- rownames(df)
-      df <- df[, c("Source", "Df", "SumOfSqs", "R2", "F", "Pr(>F)")]
-      names(df) <- c("Source", "Df", "Sum of Squares", "R-squared", "F-value", "p-value")
-      
-      # Format numbers
-      df$`Sum of Squares` <- sprintf("%.4f", df$`Sum of Squares`)
-      df$`R-squared` <- sprintf("%.4f", df$`R-squared`)
-      df$`F-value` <- sprintf("%.4f", df$`F-value`)
-      df$`p-value` <- ifelse(is.na(df$`p-value`), "", sprintf("%.4f", df$`p-value`))
-      
-      df
-    }, rownames = FALSE)
-    
+    output$permanova_table <- renderTable(
+      {
+        req(permanova_result())
+
+        df <- as.data.frame(permanova_result())
+        df$Source <- rownames(df)
+        df <- df[, c("Source", "Df", "SumOfSqs", "R2", "F", "Pr(>F)")]
+        names(df) <- c("Source", "Df", "Sum of Squares", "R-squared", "F-value", "p-value")
+
+        # Format numbers
+        df$`Sum of Squares` <- sprintf("%.4f", df$`Sum of Squares`)
+        df$`R-squared` <- sprintf("%.4f", df$`R-squared`)
+        df$`F-value` <- sprintf("%.4f", df$`F-value`)
+        df$`p-value` <- ifelse(is.na(df$`p-value`), "", sprintf("%.4f", df$`p-value`))
+
+        df
+      },
+      rownames = FALSE
+    )
+
     # R² table
     output$r2_table <- renderTable({
       req(permanova_result())
-      
+
       r2_vals <- permanova_result()$R2
       data.frame(
         Component = rownames(permanova_result()),
@@ -232,34 +260,42 @@ permanova_server <- function(id, data, env_data) {
         check.names = FALSE
       )
     })
-    
+
     # Variance partitioning plot
-    output$variance_plot <- renderPlot({
-      req(permanova_result())
-      
-      r2_vals <- permanova_result()$R2
-      labels <- rownames(permanova_result())
-      
-      # Use safe, conservative margins
-      par(family = "sans", bg = "#252526", fg = "#cccccc", 
-          col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57", 
-          mar = c(5, 8, 4, 2))  # Fixed safe margins
-      
-      barplot(r2_vals * 100, horiz = TRUE, las = 1, 
-              names.arg = labels,
-              col = c(rep("#2e8b57", length(r2_vals)-1), "#888888"),
-              border = NA,
-              xlab = "Variance Explained (%)",
-              main = "PERMANOVA Variance Partitioning",
-              xlim = c(0, max(r2_vals * 100) * 1.2),
-              cex.names = 0.85,  # Smaller label text
-              cex.axis = 0.9,
-              cex.lab = 1.0,
-              cex.main = 1.1)
-      
-      grid(col = "#404040", lty = 1)
-    }, res = 96, height = 500)
-    
+    output$variance_plot <- renderPlot(
+      {
+        req(permanova_result())
+
+        r2_vals <- permanova_result()$R2
+        labels <- rownames(permanova_result())
+
+        # Use safe, conservative margins
+        par(
+          family = "sans", bg = "#252526", fg = "#cccccc",
+          col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+          mar = c(5, 8, 4, 2)
+        ) # Fixed safe margins
+
+        barplot(r2_vals * 100,
+          horiz = TRUE, las = 1,
+          names.arg = labels,
+          col = c(rep("#2e8b57", length(r2_vals) - 1), "#888888"),
+          border = NA,
+          xlab = "Variance Explained (%)",
+          main = "PERMANOVA Variance Partitioning",
+          xlim = c(0, max(r2_vals * 100) * 1.2),
+          cex.names = 0.85, # Smaller label text
+          cex.axis = 0.9,
+          cex.lab = 1.0,
+          cex.main = 1.1
+        )
+
+        grid(col = "#404040", lty = 1)
+      },
+      res = 96,
+      height = 500
+    )
+
     # Export results
     output$export_results <- downloadHandler(
       filename = function() paste0("permanova_results_", Sys.Date(), ".csv"),
