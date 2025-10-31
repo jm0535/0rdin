@@ -1,0 +1,346 @@
+# Ördin - CCA Module
+# Author: Jimmy Moses (jimmy.moses@pnguot.ac.pg)
+# Canonical Correspondence Analysis (CCA) - Constrained ordination
+
+library(shiny)
+library(vegan)
+library(waiter)
+
+#' CCA Module UI
+cca_ui <- function(id) {
+  ns <- NS(id)
+  tagList(
+    div(class = "cca-workflow",
+      div(class = "config-panel",
+        h3("⚙️ CCA Configuration"),
+        
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE CCA"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("**Constrained ordination** relating species to **environmental variables**"),
+            tags$li("Best for **unimodal species responses** (use RDA for linear)"),
+            tags$li("Test which **environmental factors drive community patterns**"),
+            tags$li("Example: Which env variables (pH, nutrients) explain species composition?")
+          )
+        ),
+        
+        helpText("CCA constrains ordination by environmental variables. Ideal for unimodal species responses."),
+        
+        # Environmental variables selection
+        uiOutput(ns("env_vars_ui")),
+        
+        # Permutation tests
+        numericInput(ns("permutations"), "Permutations:", value = 999, min = 99, max = 9999, step = 100),
+        
+        # Run button
+        div(class = "action-buttons", style = "margin-top: 20px;",
+          actionButton(ns("run_cca"), "▶ Run CCA", class = "btn-success", style = "width: 100%;")
+        )
+      ),
+      
+      div(class = "horizontal-split",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
+          # Interpretation box
+          uiOutput(ns("cca_interpretation")),
+          
+          plotOutput(ns("cca_plot"), width = "100%", height = "500px"),
+          downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm", style = "margin-top: 10px;")
+        ),
+        
+        div(class = "results-panel",
+          div(class = "results-section",
+            h3("📊 ANOVA RESULTS"),
+            tableOutput(ns("anova_table"))
+          ),
+          
+          div(class = "results-section", style = "margin-top: 20px;",
+            h3("📈 INERTIA"),
+            tableOutput(ns("inertia_table"))
+          ),
+          
+          div(class = "action-buttons", style = "margin-top: 20px;",
+            downloadButton(ns("export_results"), "📋 Export CSV", class = "btn-sm")
+          )
+        )
+      )
+    )
+  )
+}
+
+#' CCA Module Server
+cca_server <- function(id, data, env_data) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+    
+    # Source plotting utilities
+    source("utils/plotting/ordination_plotting.R", local = TRUE)
+    
+    cca_result <- reactiveVal(NULL)
+    
+    plot_defaults <- reactiveValues(
+      theme = "bw", font_family = "sans", base_size = 12, title_size = 14,
+      point_size = 2, point_shape = "21", point_color = "#2e8b57", point_lwd = 1.5,
+      show_grid = TRUE, show_labels = FALSE, plot_width = 8, plot_height = 6,
+      dpi = 300, export_format = "png", label_size = 0.8, label_pos = "0",
+      axis_lwd = 1, equal_aspect = TRUE,
+      # Ellipse controls
+      show_ellipses = FALSE, group_var = "", ellipse_type = "norm", ellipse_level = 0.95,
+      # Constrained ordination controls
+      show_vectors = TRUE, show_species = TRUE, plot_type = "triplot"
+    )
+    
+    observeEvent(input$plot_theme, { plot_defaults$theme <- input$plot_theme })
+    observeEvent(input$plot_font_family, { plot_defaults$font_family <- input$plot_font_family })
+    observeEvent(input$plot_base_size, { plot_defaults$base_size <- input$plot_base_size })
+    observeEvent(input$plot_title_size, { plot_defaults$title_size <- input$plot_title_size })
+    observeEvent(input$plot_point_size, { plot_defaults$point_size <- input$plot_point_size })
+    observeEvent(input$plot_point_shape, { plot_defaults$point_shape <- input$plot_point_shape })
+    observeEvent(input$plot_point_color, { plot_defaults$point_color <- input$plot_point_color })
+    observeEvent(input$plot_point_lwd, { plot_defaults$point_lwd <- input$plot_point_lwd })
+    observeEvent(input$plot_show_grid, { plot_defaults$show_grid <- input$plot_show_grid })
+    observeEvent(input$plot_show_labels, { plot_defaults$show_labels <- input$plot_show_labels })
+    observeEvent(input$plot_label_size, { plot_defaults$label_size <- input$plot_label_size })
+    observeEvent(input$plot_width, { plot_defaults$plot_width <- input$plot_width })
+    observeEvent(input$plot_height, { plot_defaults$plot_height <- input$plot_height })
+    observeEvent(input$plot_dpi, { plot_defaults$dpi <- input$plot_dpi })
+    observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
+    
+    # CRITICAL: Observers for ellipse and ordination controls
+    observeEvent(input$plot_show_ellipses, { plot_defaults$show_ellipses <- input$plot_show_ellipses }, ignoreNULL = FALSE)
+    observeEvent(input$plot_group_var, { plot_defaults$group_var <- input$plot_group_var }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_type, { plot_defaults$ellipse_type <- input$plot_ellipse_type }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_level, { plot_defaults$ellipse_level <- input$plot_ellipse_level }, ignoreNULL = FALSE)
+    observeEvent(input$plot_show_vectors, { plot_defaults$show_vectors <- input$plot_show_vectors }, ignoreNULL = FALSE)
+    observeEvent(input$plot_show_species, { plot_defaults$show_species <- input$plot_show_species }, ignoreNULL = FALSE)
+    observeEvent(input$plot_plot_type, { plot_defaults$plot_type <- input$plot_plot_type }, ignoreNULL = FALSE)
+    
+    # Dynamic UI for environmental variable selection
+    output$env_vars_ui <- renderUI({
+      req(env_data())
+      
+      checkboxGroupInput(ns("env_vars"), 
+                 "Environmental Variables:",
+                 choices = names(env_data()),
+                 selected = names(env_data()))
+    })
+    
+    # Run CCA
+    observeEvent(input$run_cca, {
+      req(data(), env_data(), input$env_vars)
+      
+      waiter_show(html = tagList(
+        spin_fading_circles(),
+        h3("Running CCA...", style = "color: #2e8b57; margin-top: 20px;")
+      ))
+      
+      result <- tryCatch({
+        env_subset <- env_data()[, input$env_vars, drop = FALSE]
+        cca(data() ~ ., data = env_subset)
+      }, error = function(e) {
+        waiter_hide()
+        showNotification(paste("❌ CCA failed:", e$message), type = "error")
+        NULL
+      })
+      
+      waiter_hide()
+      
+      if (!is.null(result)) {
+        cca_result(result)
+        
+        # Calculate variance explained
+        eig <- eigenvals(result, constrained = TRUE)
+        total_inertia <- result$tot.chi
+        constrained_inertia <- result$CCA$tot.chi
+        var_exp <- (constrained_inertia / total_inertia) * 100
+        
+        # CRITICAL: Trigger plot customization panel to open
+        session$sendCustomMessage(
+          type = "showPlotCustomization",
+          message = list(
+            plotType = "ordination",
+            moduleId = "cca"
+          )
+        )
+        
+        # CRITICAL: Populate grouping variable dropdown AFTER panel is shown
+        if (!is.null(env_data())) {
+          env_df <- env_data()
+          factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+          
+          choices_list <- list()
+          choices_list[[""]] <- "None"
+          for (col in factor_cols) {
+            choices_list[[col]] <- col
+          }
+          
+          # Delay to ensure dropdown exists
+          shinyjs::delay(1000, {
+            session$sendCustomMessage(
+              type = "updateGroupingVar",
+              message = list(
+                moduleId = "cca",
+                choices = choices_list
+              )
+            )
+          })
+        }
+        
+        showNotification(
+          HTML(sprintf("<strong>✓ CCA Complete!</strong><br/>Constrained inertia: %.1f%%", var_exp)),
+          type = "message"
+        )
+      }
+    })
+    
+    # Populate grouping variable dropdown
+    observe({
+      req(env_data())
+      env_df <- env_data()
+      factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+      choices_list <- list()
+      choices_list[[""]] <- "None"
+      for (col in factor_cols) choices_list[[col]] <- col
+      session$sendCustomMessage(type = "updateGroupingVar", message = list(moduleId = "cca", choices = choices_list))
+    })
+    
+    # Interpretation box
+    output$cca_interpretation <- renderUI({
+      req(cca_result())
+      
+      total_inertia <- cca_result()$tot.chi
+      constrained_inertia <- cca_result()$CCA$tot.chi
+      var_exp <- (constrained_inertia / total_inertia) * 100
+      
+      color <- if(var_exp >= 30) "#2e8b57" else if(var_exp >= 15) "#d4a017" else "#888"
+      quality <- if(var_exp >= 30) "Strong" else if(var_exp >= 15) "Moderate" else "Weak"
+      
+      HTML(sprintf('
+        <div style="background: %s20; border-left: 3px solid %s; padding: 16px; margin: 20px 0;">
+          <h4 style="color: %s; margin: 0 0 8px 0;">%s constraint (%.1f%% explained)</h4>
+          <p style="color: #ccc; font-size: 12px;">Environmental variables explain %.1f%% of species variation</p>
+        </div>
+      ', color, color, color, quality, var_exp, var_exp))
+    })
+    
+    # Plot using ggplot2 (reactive to right panel controls)
+    output$cca_plot <- renderPlot({  
+      req(cca_result())
+      
+      # Force reactivity by reading ALL plot_defaults reactiveValues
+      plot_theme <- plot_defaults$theme
+      plot_font_family <- plot_defaults$font_family
+      plot_base_size <- plot_defaults$base_size
+      plot_title_size <- plot_defaults$title_size
+      plot_point_size <- plot_defaults$point_size
+      plot_point_shape <- plot_defaults$point_shape
+      plot_point_color <- plot_defaults$point_color
+      plot_point_lwd <- plot_defaults$point_lwd
+      plot_show_grid <- plot_defaults$show_grid
+      plot_show_labels <- plot_defaults$show_labels
+      plot_label_size <- plot_defaults$label_size
+      # Ellipse controls from plot_defaults
+      plot_show_ellipses <- plot_defaults$show_ellipses
+      plot_group_var <- plot_defaults$group_var
+      plot_ellipse_type <- plot_defaults$ellipse_type
+      plot_ellipse_level <- plot_defaults$ellipse_level
+      # Ordination controls from plot_defaults
+      plot_show_vectors <- plot_defaults$show_vectors
+      
+      # Get grouping variable if ellipses are enabled
+      grouping_var <- NULL
+      if (!is.null(plot_show_ellipses) && plot_show_ellipses && 
+          !is.null(plot_group_var) && plot_group_var != "" && 
+          !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
+        grouping_var <- env_data()[[plot_group_var]]
+        if (!is.factor(grouping_var)) grouping_var <- as.factor(grouping_var)
+      }
+      
+      show_env_vectors <- !is.null(plot_show_vectors) && plot_show_vectors
+      
+      # Generate constrained ordination plot with environmental vectors
+      p <- generate_constrained_plot(cca_result(), plot_defaults, grouping_var, show_env_vectors = show_env_vectors)
+      
+      # Add ellipses if requested
+      if (!is.null(grouping_var) && !is.null(plot_ellipse_type)) {
+        ellipse_level <- if (!is.null(plot_ellipse_level)) plot_ellipse_level else 0.95
+        p <- add_ordination_ellipses(p, cca_result(), grouping_var, plot_ellipse_type, ellipse_level)
+      }
+      
+      p <- p + labs(title = "CCA Triplot") +
+        theme(plot.title = element_text(size = plot_defaults$title_size, face = "bold", color = "#2e8b57"))
+      
+      print(p)
+    })
+    
+    # ANOVA table
+    output$anova_table <- renderTable({
+      req(cca_result())
+      anova_result <- anova(cca_result(), permutations = input$permutations)
+      data.frame(
+        Source = "Model",
+        Df = anova_result$Df[1],
+        `Chi-square` = sprintf("%.4f", anova_result$ChiSquare[1]),
+        `F-value` = sprintf("%.4f", anova_result$F[1]),
+        `p-value` = sprintf("%.4f", anova_result$`Pr(>F)`[1]),
+        check.names = FALSE
+      )
+    })
+    
+    # Inertia table
+    output$inertia_table <- renderTable({
+      req(cca_result())
+      eig <- eigenvals(cca_result(), constrained = TRUE)
+      data.frame(
+        Axis = paste0("CCA", 1:min(4, length(eig))),
+        Eigenvalue = sprintf("%.4f", eig[1:min(4, length(eig))]),
+        `Explained (%)` = sprintf("%.2f", eig[1:min(4, length(eig))] / cca_result()$tot.chi * 100),
+        check.names = FALSE
+      )
+    })
+    
+    # Export plot
+    output$export_plot <- downloadHandler(
+      filename = function() paste0("cca_plot_", Sys.Date(), ".", plot_defaults$export_format),
+      content = function(file) {
+        is_dark <- plot_defaults$theme == "dark"
+        bg_color <- if(is_dark) "#1a1a1a" else "white"
+        fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
+        title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
+        grid_color <- if(is_dark) "#404040" else "#cccccc40"
+        
+        if(plot_defaults$export_format == "png") png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
+        else if(plot_defaults$export_format == "pdf") pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        else svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        
+        par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
+            col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
+            cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
+        
+        if(plot_defaults$equal_aspect) {
+          plot(cca_result(), type = "none", main = "CCA Triplot", font.main = 2)
+          usr <- par("usr"); pin <- par("pin")
+          if(pin[1] > pin[2]) par(usr = c(mean(usr[1:2]) - diff(usr[3:4])/2, mean(usr[1:2]) + diff(usr[3:4])/2, usr[3:4]))
+          else par(usr = c(usr[1:2], mean(usr[3:4]) - diff(usr[1:2])/2, mean(usr[3:4]) + diff(usr[1:2])/2))
+        } else plot(cca_result(), type = "none", main = "CCA Triplot", font.main = 2)
+        
+        if(plot_defaults$show_grid) grid(col = grid_color, lty = 1)
+        points(cca_result(), display = "sites", pch = as.numeric(plot_defaults$point_shape),
+               bg = plot_defaults$point_color, cex = plot_defaults$point_size, col = fg_color, lwd = plot_defaults$point_lwd)
+        if(plot_defaults$show_labels) text(cca_result(), display = "sites", cex = plot_defaults$label_size,
+                                   pos = as.numeric(plot_defaults$label_pos), col = fg_color)
+        text(cca_result(), display = "bp", col = if(is_dark) "#e74c3c" else "#c0392b", cex = plot_defaults$label_size * 1.1)
+        dev.off()
+      }
+    )
+    
+    # Export results
+    output$export_results <- downloadHandler(
+      filename = function() paste0("cca_results_", Sys.Date(), ".csv"),
+      content = function(file) {
+        scores_df <- as.data.frame(scores(cca_result(), display = "sites"))
+        write.csv(scores_df, file, row.names = TRUE)
+      }
+    )
+  })
+}

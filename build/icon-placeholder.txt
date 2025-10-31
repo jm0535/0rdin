@@ -1,0 +1,17 @@
+# This is a placeholder for the icon.png file
+# 
+# To create a proper icon for Ördin:
+# 1. Create a 1024x1024 PNG image with your branding
+# 2. Replace this file with your actual icon.png
+# 3. Convert to platform-specific formats:
+#    - Windows: icon.ico (use ImageMagick or online converter)
+#    - macOS: icon.icns (use iconutil or online converter)
+#
+# Suggested design elements for Ördin:
+# - Odin-inspired symbols: ravens, spears, all-seeing eye
+# - Nature elements: trees, leaves, biodiversity symbols
+# - Color scheme: Forest green (#2e8b57) on dark background
+#
+# See build/README.md for detailed instructions
+
+PLACEHOLDER_ICON_FILE=true

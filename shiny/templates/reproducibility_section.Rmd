@@ -1,0 +1,118 @@
+# Reproducibility
+
+## Analysis Configuration
+
+This section documents all parameters and settings used in the analysis to ensure full reproducibility.
+
+### Dataset Information
+
+- **Dataset Name:** `r params$dataset_name`
+- **Number of Sites/Samples:** `r if(!is.null(params$n_sites)) params$n_sites else "Not specified"`
+- **Number of Species/Variables:** `r if(!is.null(params$n_species)) params$n_species else "Not specified"`
+- **Analysis Type:** `r if(!is.null(params$analysis_type)) params$analysis_type else "Not specified"`
+- **Analysis Date:** `r if(!is.null(params$analysis_date)) format(params$analysis_date, '%B %d, %Y') else format(Sys.Date(), '%B %d, %Y')`
+- **Analysis Time:** `r if(!is.null(params$analysis_time)) params$analysis_time else format(Sys.time(), '%H:%M:%S')`
+
+### Analysis Parameters
+
+```{r repro_params_table, eval=exists("repro_df", inherits=FALSE)}
+# This chunk renders the analysis-specific parameters table
+# The parent report must define 'repro_df' data frame with columns:
+# - Parameter: Name of the parameter
+# - Value: Value used in the analysis  
+# - Description: What the parameter means
+
+if (exists("repro_df", inherits = FALSE)) {
+  knitr::kable(repro_df, 
+               format = "latex", 
+               booktabs = TRUE,
+               caption = paste(params$analysis_type, "Configuration"),
+               longtable = TRUE,
+               align = c("l", "l", "l")) %>%
+    kable_styling(latex_options = c("HOLD_position", "repeat_header", "striped"),
+                  font_size = 9)
+}
+```
+
+### Software Environment
+
+```{r software_environment_table}
+# Build software environment table
+software_df <- data.frame(
+  Component = c(
+    "Analysis Platform",
+    "Platform Version",
+    "R Version",
+    "Operating System"
+  ),
+  Version = c(
+    "Ördin",
+    if(!is.null(params$ordin_version)) paste0("v", params$ordin_version) else "v3.0",
+    if(!is.null(params$r_version)) params$r_version else as.character(getRversion()),
+    if(!is.null(params$os)) params$os else Sys.info()["sysname"]
+  ),
+  stringsAsFactors = FALSE
+)
+
+# Add key package versions if available
+package_params <- c("vegan_version", "inext_version", "ggplot2_version", 
+                   "rmarkdown_version", "knitr_version")
+
+for (pkg_param in package_params) {
+  if (!is.null(params[[pkg_param]])) {
+    pkg_name <- gsub("_version", "", pkg_param)
+    software_df <- rbind(software_df, data.frame(
+      Component = paste0(pkg_name, " package"),
+      Version = params[[pkg_param]],
+      stringsAsFactors = FALSE
+    ))
+  }
+}
+
+knitr::kable(software_df, 
+             format = "latex", 
+             booktabs = TRUE,
+             caption = "Software Environment",
+             align = c("l", "l")) %>%
+  kable_styling(latex_options = c("HOLD_position", "striped"))
+```
+
+### Reproducing This Analysis
+
+To reproduce this exact analysis:
+
+```{r repro_instructions, eval=exists("repro_code", inherits=FALSE), results='asis'}
+# This chunk renders reproduction code if provided
+# The parent report must define 'repro_code' character string
+
+if (exists("repro_code", inherits = FALSE)) {
+  cat(repro_code)
+} else {
+  # Default generic instructions
+  cat(paste0(
+    "1. **Load your data** with the same structure:\\n",
+    "   - Rows = Sites/Samples (", 
+    if(!is.null(params$n_sites)) params$n_sites else "N", " sites)\\n",
+    "   - Columns = Species/Variables (", 
+    if(!is.null(params$n_species)) params$n_species else "M", " species)\\n\\n",
+    "2. **Install required packages** as shown in the Software Environment table above.\\n\\n",
+    "3. **Run the analysis** using the parameters documented in the Analysis Parameters table.\\n\\n",
+    "4. **Verify results** match the values reported in this document.\\n"
+  ))
+}
+```
+
+**Note:** Due to random number generation (if applicable), exact numerical values may differ slightly between runs, but overall patterns and statistical conclusions should be identical. For exact reproducibility, set a random seed before running the analysis.
+
+\vspace{0.5cm}
+
+### Session Information
+
+For complete transparency, the following packages were loaded during this analysis:
+
+```{r session_info, eval=FALSE}
+# Session info can be captured with:
+sessionInfo()
+```
+
+**Important:** Save this report along with your original data to maintain a complete audit trail of your analysis.

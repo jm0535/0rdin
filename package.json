@@ -1,0 +1,105 @@
+{
+  "name": "ordin",
+  "productName": "Ördin",
+  "version": "3.0.0",
+  "description": "A Community Ecology Analysis Platform - Enterprise-Grade v3.0 with Advanced UI/UX, Multi-Format Export, Keyboard Shortcuts, Auto-Save, Data Preview, Loading Screens, and Full Accessibility Support",
+  "main": "src/index.js",
+  "author": "Jimmy Moses <jimmy.moses@pnguot.ac.pg>",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
+  },
+  "keywords": [
+    "community-ecology",
+    "ecology",
+    "ordination",
+    "diversity",
+    "vegan",
+    "iNEXT",
+    "R",
+    "shiny",
+    "electron"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jm0535/0rdin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jm0535/0rdin/issues"
+  },
+  "homepage": "https://github.com/jm0535/0rdin#readme",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.2.0",
+    "@electron-forge/maker-deb": "^7.2.0",
+    "@electron-forge/maker-rpm": "^7.2.0",
+    "@electron-forge/maker-squirrel": "^7.2.0",
+    "@electron-forge/maker-zip": "^7.2.0",
+    "electron": "^28.0.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "name": "Ördin",
+        "executableName": "ordin",
+        "icon": "./build/icon",
+        "asar": true,
+        "asarUnpack": [
+          "**/node_modules/native-*/**/*"
+        ],
+        "extraResource": [
+          "r-win",
+          "shiny"
+        ]
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "ordin",
+            "setupIcon": "./build/icon.ico"
+          },
+          "platforms": ["win32"]
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin",
+            "win32",
+            "linux"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {
+            "options": {
+              "maintainer": "Jimmy Moses",
+              "homepage": "https://github.com/jmoses/ordin",
+              "icon": "./build/icon.png",
+              "categories": ["Science", "Education"],
+              "section": "science"
+            }
+          },
+          "platforms": ["linux"]
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {
+            "options": {
+              "homepage": "https://github.com/jmoses/ordin",
+              "icon": "./build/icon.png",
+              "categories": ["Science", "Education"]
+            }
+          },
+          "platforms": ["linux"]
+        }
+      ]
+    }
+  }
+}

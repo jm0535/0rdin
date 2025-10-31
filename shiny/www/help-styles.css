@@ -1,0 +1,362 @@
+/* Help & Documentation Styles */
+/* Author: Jimmy Moses (jimmy.moses@pnguot.ac.pg) */
+
+.help-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 60px;
+  color: #cccccc;
+  line-height: 1.7;
+}
+
+/* Hero Section */
+.help-hero {
+  text-align: center;
+  padding: 60px 0;
+  border-bottom: 2px solid #2e8b57;
+  margin-bottom: 40px;
+}
+
+.help-hero h1 {
+  font-size: 72px;
+  font-weight: 200;
+  margin: 0;
+  color: #2e8b57;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.help-hero h2 {
+  font-size: 28px;
+  font-weight: 300;
+  margin: 16px 0 8px 0;
+  color: #e0e0e0;
+}
+
+.help-hero p {
+  font-size: 14px;
+  color: #888;
+  margin: 8px 0 0 0;
+}
+
+/* Quick Navigation */
+.help-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  padding: 30px 0;
+  border-bottom: 1px solid #3e3e42;
+  margin-bottom: 40px;
+}
+
+.help-nav-btn {
+  background: linear-gradient(135deg, #2a2a2a 0%, #252526 100%);
+  border: 1px solid #3e3e42;
+  color: #cccccc;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.help-nav-btn:hover {
+  background: linear-gradient(135deg, #2e8b57 0%, #25704a 100%);
+  border-color: #2e8b57;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+}
+
+/* Content Sections */
+.help-content {
+  padding: 20px 0;
+}
+
+.help-section {
+  margin-bottom: 60px;
+  scroll-margin-top: 20px;
+}
+
+.help-section h2 {
+  font-size: 32px;
+  font-weight: 400;
+  color: #2e8b57;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #2e8b5730;
+}
+
+.help-section h3 {
+  font-size: 22px;
+  font-weight: 500;
+  color: #e0e0e0;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.help-section h4 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #cccccc;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.help-section p {
+  margin-bottom: 16px;
+  color: #b8b8b8;
+}
+
+.help-section ul, .help-section ol {
+  margin-left: 24px;
+  margin-bottom: 16px;
+  color: #b8b8b8;
+}
+
+.help-section li {
+  margin-bottom: 8px;
+}
+
+.help-section strong {
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+.help-section a {
+  color: #4a90e2;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.help-section a:hover {
+  border-bottom-color: #4a90e2;
+}
+
+/* Code Blocks */
+.code-block {
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-left: 3px solid #2e8b57;
+  padding: 16px 20px;
+  margin: 16px 0;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #d4d4d4;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Step-by-Step Instructions */
+.help-steps {
+  margin: 24px 0;
+}
+
+.help-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 28px;
+  padding: 20px;
+  background: #1e1e1e;
+  border-radius: 8px;
+  border: 1px solid #3e3e42;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2e8b57 0%, #25704a 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.step-content h4 {
+  margin: 0 0 8px 0;
+  color: #e0e0e0;
+  font-size: 16px;
+}
+
+.step-content p {
+  margin: 0;
+  color: #b8b8b8;
+  font-size: 14px;
+}
+
+/* Tip Boxes */
+.help-tip {
+  background: linear-gradient(135deg, #2e8b5715 0%, #2e8b5708 100%);
+  border-left: 4px solid #2e8b57;
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+  color: #d4d4d4;
+}
+
+.help-tip strong {
+  color: #2e8b57;
+}
+
+/* Warning Boxes */
+.help-warning {
+  background: linear-gradient(135deg, #d4a01715 0%, #d4a01708 100%);
+  border-left: 4px solid #d4a017;
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+  color: #d4d4d4;
+}
+
+.help-warning strong {
+  color: #d4a017;
+}
+
+/* Citation Blocks */
+.citation-block {
+  background: #1e1e1e;
+  border-left: 3px solid #4a90e2;
+  padding: 14px 18px;
+  margin: 16px 0;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #b8b8b8;
+}
+
+.citation-block strong {
+  color: #4a90e2;
+  font-size: 14px;
+}
+
+.citation-block em {
+  color: #888;
+  font-size: 12px;
+  display: block;
+  margin-top: 6px;
+}
+
+/* Keyboard Shortcuts Grid */
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.shortcut-item {
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  padding: 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shortcut-item kbd {
+  background: #2a2a2a;
+  border: 1px solid #4e4e4e;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e0e0e0;
+  box-shadow: 0 2px 0 #1a1a1a;
+  min-width: 36px;
+  text-align: center;
+}
+
+.shortcut-item span {
+  color: #b8b8b8;
+  font-size: 13px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .help-container {
+    padding: 20px 24px;
+  }
+
+  .help-hero {
+    padding: 40px 0;
+  }
+
+  .help-hero h1 {
+    font-size: 48px;
+  }
+
+  .help-hero h2 {
+    font-size: 22px;
+  }
+
+  .help-nav {
+    flex-direction: column;
+  }
+
+  .help-nav-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .help-section h2 {
+    font-size: 26px;
+  }
+
+  .help-section h3 {
+    font-size: 19px;
+  }
+
+  .help-step {
+    flex-direction: column;
+  }
+
+  .step-number {
+    align-self: flex-start;
+  }
+
+  .shortcuts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .help-hero {
+    border-bottom-color: #000;
+    page-break-after: avoid;
+  }
+
+  .help-nav {
+    display: none;
+  }
+
+  .help-section {
+    page-break-inside: avoid;
+  }
+
+  .help-section h2 {
+    color: #000;
+    border-bottom-color: #ccc;
+  }
+
+  .code-block {
+    border-color: #ccc;
+    background: #f5f5f5;
+    color: #000;
+  }
+
+  .help-tip, .help-warning {
+    border-left-color: #000;
+    background: #f5f5f5;
+  }
+}
