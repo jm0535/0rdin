@@ -27,10 +27,10 @@ ca_ui <- function(id) {
       ),
       
       div(class = "horizontal-split",
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           uiOutput(ns("inertia_interpretation")),
           
-          plotOutput(ns("ca_plot"), height = "500px"),
+          plotOutput(ns("ca_plot"), width = "100%", height = "500px"),
           div(class = "plot-controls", style = "margin-top: 10px;",
             downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm")
           )

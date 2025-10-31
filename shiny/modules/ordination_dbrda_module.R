@@ -41,11 +41,11 @@ dbrda_ui <- function(id) {
       ),
       
       div(class = "horizontal-split",
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           # Interpretation box
           uiOutput(ns("dbrda_interpretation")),
           
-          plotOutput(ns("dbrda_plot"), height = "500px"),
+          plotOutput(ns("dbrda_plot"), width = "100%", height = "500px"),
           downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm", style = "margin-top: 10px;")
         ),
         

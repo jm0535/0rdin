@@ -15,8 +15,8 @@ pcoa_ui <- function(id) {
       actionButton(ns("run_pcoa"), "▶ Run PCoA", class = "btn-success", style = "width: 100%;")
     ),
     div(class = "horizontal-split",
-      div(class = "plot-panel",
-        plotOutput(ns("pcoa_plot"), height = "500px"),
+      div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
+        plotOutput(ns("pcoa_plot"), width = "100%", height = "500px"),
         downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm", style = "margin-top: 10px;")
       ),
       div(class = "results-panel",

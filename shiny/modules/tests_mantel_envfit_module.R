@@ -75,9 +75,9 @@ mantel_envfit_ui <- function(id) {
         ),
         
         div(class = "horizontal-split",
-          div(class = "plot-panel",
+          div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
             uiOutput(ns("envfit_interpretation")),
-            plotOutput(ns("envfit_plot"), height = "500px")
+            plotOutput(ns("envfit_plot"), width = "100%", height = "500px")
           ),
           
           div(class = "results-panel",

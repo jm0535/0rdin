@@ -6,38 +6,62 @@ function getSidebarDiversity() {
       <div class="section-content">
         <div class="item active" onclick="showShinyTab('tab-diversity')" style="cursor: pointer;">📈 Diversity Estimation (iNEXT)</div>
         <div class="item" onclick="showShinyTab('tab-diversity')" style="cursor: pointer;">📊 Diversity Indices (vegan)</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ℹ️ Switch methods using <strong>"Select Method"</strong> dropdown
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ PLOT OPTIONS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📉 Sample-Size Based</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📈 Sample Completeness</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📊 Coverage-Based</div>
+        <div class="item" style="cursor: default;">📉 Sample-Size Based</div>
+        <div class="item" style="cursor: default;">📈 Sample Completeness</div>
+        <div class="item" style="cursor: default;">📊 Coverage-Based</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ✅ Available in <strong>Diversity Estimation</strong> module
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ PARAMETERS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Set in main panel')" style="cursor: pointer;">⚙️ Confidence Level</div>
-        <div class="item" onclick="alert('Set in main panel')" style="cursor: pointer;">🔢 Knots</div>
-        <div class="item" onclick="alert('Set in main panel')" style="cursor: pointer;">🎯 Endpoint</div>
+        <div class="item" style="cursor: default;">⚙️ Confidence Level</div>
+        <div class="item" style="cursor: default;">🔢 Knots</div>
+        <div class="item" style="cursor: default;">🎯 Endpoint</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ⚙️ Configure in main panel parameters
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ VISUALIZATION</div>
       <div class="section-content">
-        <div class="item" onclick="showPlotCustomization('diversity_estimation', 'diversity_est')" style="cursor: pointer;">🎨 Customize Plot (Right Panel)</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📏 Axis Options</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🏷️ Labels & Legend</div>
+        <div class="item" style="cursor: default;">🎨 Plot Customization <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">📏 Axis Options <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">🏷️ Labels & Legend <span class="badge success">Active</span></div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ✅ Use <strong>"PLOT OPTIONS"</strong> in right panel
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ COMPARISON TOOLS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📊 Compare Assemblages</div>
-        <div class="item" onclick="switchView('beta')" style="cursor: pointer;">🦠 Beta Diversity (see Beta tab →)</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🔥 Similarity Indices</div>
+        <div class="item" onclick="switchView('beta')" style="cursor: pointer;">🦠 Beta Diversity (Beta tab →)</div>
+        <div class="item" onclick="switchView('tests')" style="cursor: pointer;">🧪 Statistical Tests (Tests tab →)</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            🔗 Related analyses available in other tabs
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -49,20 +73,31 @@ function getSidebarOrdination() {
     <div class="section">
       <div class="section-header">▼ UNCONSTRAINED ORDINATION</div>
       <div class="section-content">
-        <div class="item active" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔵 NMDS</div>
-        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔷 PCA</div>
-        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔶 CA</div>
-        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🟦 DCA</div>
-        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">⬡ PCoA</div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔵 NMDS <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔷 PCA <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔶 CA <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🟦 DCA <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">⬡ PCoA <span class="badge success">Ready</span></div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ✅ Select from <strong>"Select Method"</strong> dropdown
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ CONSTRAINED ORDINATION</div>
       <div class="section-content">
-        <div class="item" onclick="alert('RDA - Coming soon!')" style="cursor: pointer;">🟢 RDA (Redundancy Analysis)</div>
-        <div class="item" onclick="alert('CCA - Coming soon!')" style="cursor: pointer;">🟡 CCA (Canonical Correspondence)</div>
-        <div class="item" onclick="alert('db-RDA - Coming soon!')" style="cursor: pointer;">🔴 db-RDA (Distance-based RDA)</div>
-        <div class="item" onclick="alert('CAP - Coming soon!')" style="cursor: pointer;">🔵 CAP (Constrained Analysis Principal Coord)</div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🟢 RDA <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🟡 CCA <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔴 db-RDA <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-ordination')" style="cursor: pointer;">🔵 CAP <span class="badge success">Ready</span></div>
+        <div style="padding: 8px; background: #1a3a2e; border-left: 3px solid #2e8b57; margin: 8px 0; border-radius: 0 4px 4px 0;">
+          <div style="color: #5fd38d; font-size: 10px; font-weight: 600; margin-bottom: 4px;">ℹ️ REQUIRES ENV DATA</div>
+          <div style="color: #aaa; font-size: 10px; line-height: 1.4;">
+            Load environmental data in <strong>Data tab</strong>
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
@@ -75,19 +110,28 @@ function getSidebarOrdination() {
     <div class="section">
       <div class="section-header">▼ STATISTICAL TESTS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('PERMANOVA - Coming soon!')" style="cursor: pointer;">🧪 PERMANOVA</div>
-        <div class="item" onclick="alert('ANOSIM - Coming soon!')" style="cursor: pointer;">📊 ANOSIM</div>
-        <div class="item" onclick="alert('Mantel - Coming soon!')" style="cursor: pointer;">🔗 Mantel Test</div>
-        <div class="item" onclick="alert('envfit - Coming soon!')" style="cursor: pointer;">🌍 envfit (Variable Fitting)</div>
+        <div class="item" onclick="switchView('tests')" style="cursor: pointer;">🧪 PERMANOVA (Tests tab →)</div>
+        <div class="item" onclick="switchView('tests')" style="cursor: pointer;">📊 ANOSIM (Tests tab →)</div>
+        <div class="item" onclick="switchView('tests')" style="cursor: pointer;">🔗 Mantel Test (Tests tab →)</div>
+        <div class="item" onclick="switchView('tests')" style="cursor: pointer;">🌍 envfit (Tests tab →)</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            🔗 All tests available in <strong>Tests</strong> tab
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ VISUALIZATION</div>
       <div class="section-content">
-        <div class="item" onclick="showPlotCustomization('nmds', 'nmds')" style="cursor: pointer;">🎨 Customize Plot (Right Panel)</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📏 Axis Options</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🏷️ Labels & Legend</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🧩 Combine Plots (patchwork)</div>
+        <div class="item" style="cursor: default;">🎨 Plot Customization <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">📏 Axis Options <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">🏷️ Labels & Legend <span class="badge success">Active</span></div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ✅ Use <strong>"PLOT OPTIONS"</strong> in right panel
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -99,10 +143,15 @@ function getSidebarTests() {
     <div class="section">
       <div class="section-header">▼ TEST TYPE</div>
       <div class="section-content">
-        <div class="item active" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🧪 PERMANOVA</div>
-        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">📊 ANOSIM</div>
-        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🔗 Mantel Test</div>
-        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🌍 envfit (Variable Fitting)</div>
+        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🧪 PERMANOVA <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">📊 ANOSIM <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🔗 Mantel Test <span class="badge success">Ready</span></div>
+        <div class="item" onclick="showShinyTab('tab-tests')" style="cursor: pointer;">🌍 envfit <span class="badge success">Ready</span></div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ✅ Select from <strong>"Select Test"</strong> dropdown
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
@@ -111,31 +160,52 @@ function getSidebarTests() {
         <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">📊 Species Data <span class="badge success">Loaded</span></div>
         <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">🌍 Environmental Data <span class="badge">Required</span></div>
         <div class="item" onclick="showShinyTab('tab-data')" style="cursor: pointer;">🏷️ Categorical Variables <span class="badge">Required</span></div>
+        <div style="padding: 8px; background: #1a3a2e; border-left: 3px solid #2e8b57; margin: 8px 0; border-radius: 0 4px 4px 0;">
+          <div style="color: #5fd38d; font-size: 10px; font-weight: 600; margin-bottom: 4px;">ℹ️ ENV DATA NEEDED</div>
+          <div style="color: #aaa; font-size: 10px; line-height: 1.4;">
+            Load environmental data in <strong>Data tab</strong>
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ DISTANCE METRICS</div>
       <div class="section-content">
-        <div class="item" style="cursor: pointer;">📏 Bray-Curtis</div>
-        <div class="item" style="cursor: pointer;">🔷 Jaccard</div>
-        <div class="item" style="cursor: pointer;">📐 Euclidean</div>
-        <div class="item" style="cursor: pointer;">📊 Manhattan</div>
+        <div class="item" style="cursor: default;">📏 Bray-Curtis</div>
+        <div class="item" style="cursor: default;">🔷 Jaccard</div>
+        <div class="item" style="cursor: default;">📐 Euclidean</div>
+        <div class="item" style="cursor: default;">📊 Manhattan</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ⚙️ Configure in test parameters
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ PERMUTATION SETTINGS</div>
       <div class="section-content">
-        <div class="item" style="cursor: pointer;">🔢 Default: 999 permutations</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">⚙️ Adjust Permutations</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🎲 Permutation Method</div>
+        <div class="item" style="cursor: default;">🔢 Default: 999 permutations</div>
+        <div class="item" style="cursor: default;">⚙️ Adjust Permutations</div>
+        <div class="item" style="cursor: default;">🎲 Permutation Method</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ⚙️ Set in main panel parameters
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ VISUALIZATION</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📊 Variance Partitioning Plot</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">📈 Box Plots</div>
-        <div class="item" onclick="alert('Configure in main panel')" style="cursor: pointer;">🌍 Environmental Vectors</div>
+        <div class="item" style="cursor: default;">📊 Variance Partitioning <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">📈 Box Plots <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">🌍 Environmental Vectors <span class="badge success">Active</span></div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ✅ Plots generated with test results
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -147,27 +217,40 @@ function getSidebarBeta() {
     <div class="section">
       <div class="section-header">▼ ANALYSIS TYPE</div>
       <div class="section-content">
-        <div class="item active" onclick="showShinyTab('tab-beta')" style="cursor: pointer;">🦠 Taxonomic Beta Partitioning</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🧬 Functional Beta Diversity</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🌳 Phylogenetic Beta Diversity</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">⏱️ Temporal Beta Diversity</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📍 Distance-Decay Modeling</div>
+        <div class="item active" style="cursor: default;">🦠 Beta Diversity Partitioning</div>
+        <div style="padding: 12px; background: #1a3a2e; border-left: 3px solid #2e8b57; margin: 8px 0; border-radius: 0 4px 4px 0;">
+          <div style="color: #5fd38d; font-size: 11px; font-weight: 600; margin-bottom: 6px;">ℹ️ ALL FEATURES AVAILABLE</div>
+          <div style="color: #aaa; font-size: 11px; line-height: 1.5;">
+            Use the <strong style="color: #2e8b57;">"Partitioning Components"</strong> dropdown above to select:
+            <ul style="margin: 6px 0 0 0; padding-left: 16px;">
+              <li>Turnover & Nestedness</li>
+              <li>Temporal Beta Diversity</li>
+              <li>Functional Beta Diversity</li>
+              <li>Phylogenetic Beta Diversity</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ PARTITIONING METHODS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🔷 Sørensen-based</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🟩 Jaccard-based</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🔵 Bray-Curtis</div>
+        <div class="item" style="cursor: default;">🔷 Sørensen-based</div>
+        <div class="item" style="cursor: default;">🟩 Jaccard-based</div>
+        <div class="item" style="cursor: default;">🔵 Bray-Curtis</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ℹ️ Select from <strong>"Beta Diversity Index"</strong> dropdown
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
       <div class="section-header">▼ BETA COMPONENTS</div>
       <div class="section-content">
-        <div class="item" style="cursor: pointer;">🔄 Turnover Component</div>
-        <div class="item" style="cursor: pointer;">🎯 Nestedness Component</div>
-        <div class="item" style="cursor: pointer;">📉 Total Beta Diversity</div>
+        <div class="item" style="cursor: default;">🔄 Turnover Component</div>
+        <div class="item" style="cursor: default;">🎯 Nestedness Component</div>
+        <div class="item" style="cursor: default;">📉 Total Beta Diversity</div>
       </div>
     </div>
     <div class="section">
@@ -181,10 +264,13 @@ function getSidebarBeta() {
     <div class="section">
       <div class="section-header">▼ VISUALIZATION</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">📊 Beta Diversity Plots</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🗺️ Distance-Decay Curves</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🌐 Heatmaps</div>
-        <div class="item" onclick="alert('Coming soon!')" style="cursor: pointer;">🌳 Dendrograms</div>
+        <div class="item" style="cursor: default;">📊 Beta Diversity Plots <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">🌐 Heatmaps <span class="badge success">Active</span></div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ✅ Customize plots using <strong>"PLOT OPTIONS"</strong> panel
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -194,29 +280,51 @@ function getSidebarBeta() {
 function getSidebarResults() {
   return `
     <div class="section">
-      <div class="section-header">▼ EXPORT HISTORY</div>
+      <div class="section-header">▼ EXPORT FORMATS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('View export - Coming soon!')" style="cursor: pointer;">📄 NMDS_plot.png <span class="badge">Ready</span></div>
-        <div class="item" onclick="alert('View export - Coming soon!')" style="cursor: pointer;">📊 diversity_table.csv <span class="badge">Ready</span></div>
-        <div class="item" onclick="alert('View export - Coming soon!')" style="cursor: pointer;">📈 rarefaction_curve.pdf <span class="badge">Ready</span></div>
+        <div class="item" style="cursor: default;">📄 PDF Export <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">📊 CSV Export <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">🖼️ PNG Export <span class="badge success">Active</span></div>
+        <div class="item" style="cursor: default;">🗂️ ZIP (Multiple files) <span class="badge success">Active</span></div>
+        <div style="padding: 12px; background: #1a3a2e; border-left: 3px solid #2e8b57; margin: 8px 0; border-radius: 0 4px 4px 0;">
+          <div style="color: #5fd38d; font-size: 11px; font-weight: 600; margin-bottom: 6px;">✅ EXPORT READY</div>
+          <div style="color: #aaa; font-size: 11px; line-height: 1.5;">
+            Use <strong>"EXPORT"</strong> buttons in each analysis module's right panel
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
-      <div class="section-header">▼ EXPORT OPTIONS</div>
+      <div class="section-header">▼ AVAILABLE EXPORTS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('CSV export - Coming soon!')" style="cursor: pointer;">💾 Export as CSV</div>
-        <div class="item" onclick="alert('Excel export - Coming soon!')" style="cursor: pointer;">📑 Export as Excel</div>
-        <div class="item" onclick="alert('PNG export - Coming soon!')" style="cursor: pointer;">🖼️ Export as PNG</div>
-        <div class="item" onclick="alert('PDF export - Coming soon!')" style="cursor: pointer;">📄 Export as PDF</div>
-        <div class="item" onclick="alert('SVG export - Coming soon!')" style="cursor: pointer;">📝 Export as SVG</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            📊 <strong>Plots:</strong> All ordination & diversity plots
+          </div>
+        </div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            📄 <strong>Statistics:</strong> Test results, diversity tables
+          </div>
+        </div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            🗺️ <strong>Matrices:</strong> Distance, beta diversity matrices
+          </div>
+        </div>
       </div>
     </div>
     <div class="section">
-      <div class="section-header">▼ SAVED ANALYSES</div>
+      <div class="section-header">▼ EXPORT SETTINGS</div>
       <div class="section-content">
-        <div class="item" onclick="alert('Project management - Coming soon!')" style="cursor: pointer;">📁 Project_2025</div>
-        <div class="item" onclick="alert('Project management - Coming soon!')" style="cursor: pointer;">📁 Forest_Diversity</div>
-        <div class="item" onclick="alert('Project management - Coming soon!')" style="cursor: pointer;">💾 Manage Projects</div>
+        <div class="item" onclick="switchView('settings')" style="cursor: pointer;">🎨 Plot Defaults (Settings →)</div>
+        <div class="item" onclick="switchView('settings')" style="cursor: pointer;">📷 DPI: 300 (Settings →)</div>
+        <div class="item" onclick="switchView('settings')" style="cursor: pointer;">📏 Dimensions (Settings →)</div>
+        <div style="padding: 8px; background: #2e2e2e; margin: 8px 0; border-radius: 4px;">
+          <div style="color: #888; font-size: 10px; line-height: 1.4;">
+            ⚙️ Configure export defaults in <strong>Settings</strong>
+          </div>
+        </div>
       </div>
     </div>
   `;

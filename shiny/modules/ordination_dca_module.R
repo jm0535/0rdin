@@ -12,8 +12,8 @@ dca_ui <- function(id) {
       actionButton(ns("run_dca"), "▶ Run DCA", class = "btn-success", style = "width: 100%;")
     ),
     div(class = "horizontal-split",
-      div(class = "plot-panel",
-        plotOutput(ns("dca_plot"), height = "500px"),
+      div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
+        plotOutput(ns("dca_plot"), width = "100%", height = "500px"),
         downloadButton(ns("export_plot"), "💾 Export Plot", class = "btn-sm", style = "margin-top: 10px;")
       ),
       div(class = "results-panel",

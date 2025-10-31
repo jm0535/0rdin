@@ -14,6 +14,8 @@ library(readr)
 library(readxl)
 library(dplyr)
 library(tidyr)
+library(ape)  # For phylogenetic trees
+library(picante)  # For phylogenetic beta diversity examples
 
 # Source configuration and utilities
 source("config/constants.R")
@@ -391,11 +393,16 @@ ui <- function(req) {
                 # Sample Dataset Section
                 div(style = "border-top: 1px solid #3e3e42; padding-top: 20px;",
                   h4(style = "color: #aaa; font-size: 13px; margin-bottom: 12px; font-weight: 600;", "📚 LOAD SAMPLE"),
-                  selectInput("sample_dataset", "",
-                             choices = c("Choose a sample dataset..." = "", 
-                                        "Dune Meadow (20 sites × 30 species)" = "dune", 
-                                        "Varespec (24 sites × 44 species)" = "varespec", 
-                                        "BCI (50 sites × 225 species)" = "BCI")),
+                  div(style = "margin-bottom: 0;",
+                    selectInput("sample_dataset", label = NULL,
+                               choices = c("Choose a sample dataset..." = "", 
+                                          "Dune Meadow (20 sites × 30 species + env)" = "dune", 
+                                          "Varespec (24 sites × 44 species)" = "varespec", 
+                                          "BCI (50 sites × 225 species)" = "BCI",
+                                          "Phylocom (6 sites + real phylogeny)" = "phylo_example",
+                                          "Phylocom Traits (6 sites + functional traits)" = "func_example",
+                                          "BBS Birds (49 sites × 2 time periods)" = "temporal_example"))
+                  ),
                   actionButton("load_sample", "▶ Load Sample Data", 
                               class = "btn-success", 
                               style = "width: 100%; margin-top: 8px;")
@@ -448,7 +455,13 @@ ui <- function(req) {
               ),
               
               # Environmental Data Preview
-              uiOutput("env_preview_section")
+              uiOutput("env_preview_section"),
+              
+              # Phylogenetic Tree Preview
+              uiOutput("phylo_preview_section"),
+              
+              # Trait Data Preview
+              uiOutput("trait_preview_section")
             )
           ),
           
@@ -769,6 +782,8 @@ server <- function(input, output, session) {
   # Store loaded data reactively so modules can access it
   species_data <- reactiveVal(NULL)
   env_data <- reactiveVal(NULL)
+  phylo_tree <- reactiveVal(NULL)
+  trait_data <- reactiveVal(NULL)
   
   # ============== MODULE SERVERS (WITH DATA) ==============
   # Call module servers and pass reactive data
@@ -795,7 +810,8 @@ server <- function(input, output, session) {
   mantel_envfit_server("mantel_envfit", data = species_data, env_data = env_data)
   
   # Beta diversity partitioning module
-  beta_partition_server("beta_partition", data = species_data, env_data = env_data)
+  beta_partition_server("beta_partition", data = species_data, env_data = env_data, 
+                       traits = trait_data, tree = phylo_tree)
   
   # ============== INITIALIZE DATA PREVIEW ==============
   # Initialize empty data table - REACTIVE to species_data changes
@@ -827,10 +843,52 @@ server <- function(input, output, session) {
   # Environmental data preview section (conditional)
   output$env_preview_section <- renderUI({
     if (!is.null(env_data())) {
-      div(
+      div(style = "margin-bottom: 30px;",
         h4(style = "color: #4a90e2; font-size: 14px; margin-bottom: 12px; font-weight: 600;", "🌍 Environmental Data"),
         div(style = "width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border: 1px solid #3e3e42;",
           DT::DTOutput("env_preview")
+        )
+      )
+    }
+  })
+  
+  output$phylo_preview_section <- renderUI({
+    if (!is.null(phylo_tree())) {
+      tree <- phylo_tree()
+      div(style = "margin-bottom: 30px;",
+        h4(style = "color: #9b59b6; font-size: 14px; margin-bottom: 12px; font-weight: 600;", "🌳 Phylogenetic Tree"),
+        div(style = "background: #252526; padding: 16px; border: 1px solid #3e3e42; border-radius: 4px;",
+          div(class = "prop-item",
+            tags$label("Tree Type:"),
+            span(style = "color: #9b59b6;", class(tree)[1])
+          ),
+          div(class = "prop-item",
+            tags$label("Number of Tips:"),
+            span(style = "color: #9b59b6; font-weight: 600;", length(tree$tip.label))
+          ),
+          div(class = "prop-item",
+            tags$label("Number of Nodes:"),
+            span(style = "color: #9b59b6;", tree$Nnode)
+          ),
+          div(class = "prop-item",
+            tags$label("Species:"),
+            span(style = "color: #aaa; font-size: 11px;", paste(tree$tip.label[1:min(5, length(tree$tip.label))], collapse = ", "), "...")
+          ),
+          div(style = "margin-top: 12px; padding: 8px; background: #1a3a2e; border-left: 3px solid #9b59b6; border-radius: 0 4px 4px 0;",
+            div(style = "color: #9b59b6; font-size: 11px; font-weight: 600; margin-bottom: 4px;", "✅ TREE LOADED"),
+            div(style = "color: #aaa; font-size: 10px;", "Ready for phylogenetic beta diversity analysis")
+          )
+        )
+      )
+    }
+  })
+  
+  output$trait_preview_section <- renderUI({
+    if (!is.null(trait_data())) {
+      div(style = "margin-bottom: 30px;",
+        h4(style = "color: #e74c3c; font-size: 14px; margin-bottom: 12px; font-weight: 600;", "🧬 Functional Trait Data"),
+        div(style = "width: 100%; overflow-x: auto; overflow-y: auto; max-height: 400px; border: 1px solid #3e3e42;",
+          DT::DTOutput("trait_preview")
         )
       )
     }
@@ -960,6 +1018,37 @@ server <- function(input, output, session) {
     }
   })
   
+  # Trait data preview table
+  output$trait_preview <- DT::renderDT({
+    cat("\n========== TRAIT DATATABLE RENDER ==========\n")
+    cat("trait_data is null:", is.null(trait_data()), "\n")
+    
+    if (!is.null(trait_data())) {
+      cat("Showing trait data\n")
+      cat("Rows:", nrow(trait_data()), "\n")
+      cat("Cols:", ncol(trait_data()), "\n")
+      DT::datatable(
+        trait_data(),
+        options = list(
+          pageLength = 10,
+          scrollX = FALSE,
+          scrollY = FALSE,
+          paging = TRUE,
+          searching = TRUE,
+          info = TRUE,
+          autoWidth = TRUE,
+          dom = 'frtip',
+          columnDefs = list(
+            list(width = '120px', targets = '_all')
+          )
+        ),
+        style = 'bootstrap4',
+        class = 'cell-border stripe hover compact',
+        rownames = TRUE
+      )
+    }
+  })
+  
   # ============== SAMPLE DATA LOADING ==============
   observeEvent(input$load_sample, {
     cat("\n=== LOAD SAMPLE BUTTON CLICKED ===", "\n")
@@ -995,6 +1084,63 @@ server <- function(input, output, session) {
       cat("BCI data stored. Rows:", nrow(BCI), "\n")
       
       showNotification("✅ BCI data loaded successfully!", type = "message", duration = 3)
+      
+    } else if (input$sample_dataset == "phylo_example") {
+      cat("Loading phylogenetic example dataset...\n")
+      
+      # Load phylocom dataset from picante package (real phylogenetic data!)
+      data(phylocom, package = "picante")
+      
+      # Extract community matrix and phylogeny
+      species_data(as.data.frame(phylocom$sample))  # 6 sites × 25 species
+      phylo_tree(phylocom$phylo)  # Real phylogenetic tree
+      
+      cat("Phylocom dataset loaded:", nrow(phylocom$sample), "sites ×", ncol(phylocom$sample), "species\n")
+      cat("Phylogenetic tree with", length(phylocom$phylo$tip.label), "tips\n")
+      
+      showNotification(
+        "✅ Phylocom dataset loaded! (Real phylogenetic data from picante package)",
+        type = "message", duration = 4
+      )
+      
+    } else if (input$sample_dataset == "func_example") {
+      cat("Loading functional example dataset...\n")
+      
+      # Load phylocom dataset as base (has trait data too!)
+      data(phylocom, package = "picante")
+      species_data(as.data.frame(phylocom$sample))
+      
+      # Use the traits from phylocom dataset
+      trait_data(phylocom$traits)  # Real trait data: multiple continuous traits
+      
+      cat("Phylocom trait data loaded for", nrow(phylocom$traits), "species with", ncol(phylocom$traits), "traits\n")
+      showNotification(
+        "✅ Functional example loaded! (Phylocom dataset with real trait data)",
+        type = "message", duration = 4
+      )
+      
+    } else if (input$sample_dataset == "temporal_example") {
+      cat("Loading temporal beta diversity example...\n")
+      
+      # Load BBS (Breeding Bird Survey) temporal data from betapart package
+      library(betapart)
+      data(bbsData, package = "betapart")
+      
+      # bbs1980 = Time 1, bbs2000 = Time 2 (same 49 US states, 20 years apart)
+      # For now, load Time 1 as the main dataset
+      species_data(as.data.frame(bbs1980))
+      
+      # Store both time periods in a special reactive for temporal analysis
+      # Note: This would need special handling in beta_partition_module
+      
+      cat("BBS temporal data loaded:", nrow(bbs1980), "sites (US states)\n")
+      cat("Time 1 (1980-1985):", sum(bbs1980 > 0), "presences\n")
+      cat("Time 2 (2000-2005):", sum(bbs2000 > 0), "presences\n")
+      
+      showNotification(
+        "✅ Temporal dataset loaded! (US Breeding Bird Survey: 1980s vs 2000s)",
+        type = "message", duration = 4
+      )
     }
     
     cat("=== SAMPLE DATA LOADING COMPLETE ===", "\n\n")

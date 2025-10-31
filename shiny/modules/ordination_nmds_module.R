@@ -111,12 +111,12 @@ nmds_ui <- function(id) {
       # Results Area (70% plot + 30% stats - horizontal split)
       div(class = "horizontal-split",
         # Plot Panel (70%)
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           # Stress interpretation box (auto-generated)
           uiOutput(ns("stress_interpretation")),
           
           # NMDS plot
-          plotOutput(ns("nmds_plot"), height = "500px"),
+          plotOutput(ns("nmds_plot"), width = "100%", height = "500px"),
           
           # Plot controls
           div(class = "plot-controls", style = "margin-top: 10px;",

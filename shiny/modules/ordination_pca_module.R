@@ -74,12 +74,12 @@ pca_ui <- function(id) {
       # Results Area
       div(class = "horizontal-split",
         # Plot Panel (70%)
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           # Variance interpretation box
           uiOutput(ns("variance_interpretation")),
           
           # PCA biplot
-          plotOutput(ns("pca_plot"), height = "500px"),
+          plotOutput(ns("pca_plot"), width = "100%", height = "500px"),
           
           # Plot controls
           div(class = "plot-controls", style = "margin-top: 10px;",
@@ -376,8 +376,16 @@ pca_server <- function(id, data, env_data = reactive(NULL)) {
       scores_df <- scores_df[, c("Sample", colnames(scores_df)[1:(ncol(scores_df)-1)])]
       
       DT::datatable(scores_df,
-                    options = list(pageLength = 10, scrollX = TRUE),
-                    rownames = FALSE)
+                    options = list(
+                      pageLength = 10, 
+                      scrollX = TRUE,
+                      dom = 'frtip',  # Enable full pagination controls
+                      paging = TRUE,
+                      searching = TRUE,
+                      info = TRUE
+                    ),
+                    rownames = FALSE,
+                    class = 'cell-border stripe hover compact')
     })
     
     # Export plot with custom settings using ggplot2

@@ -71,11 +71,11 @@ diversity_indices_ui <- function(id) {
       # Results Area
       div(class = "horizontal-split",
         # Plot Panel (70%)
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           # Interpretation box
           uiOutput(ns("indices_interpretation")),
           
-          plotOutput(ns("indices_plot"), height = "500px"),
+          plotOutput(ns("indices_plot"), width = "100%", height = "500px"),
           
           # Plot controls
           div(class = "plot-controls", style = "margin-top: 10px;",
@@ -232,9 +232,14 @@ diversity_indices_server <- function(id, data) {
         indices_results(),
         options = list(
           pageLength = 10,
-          scrollX = TRUE
+          scrollX = TRUE,
+          dom = 'frtip',  # Enable full pagination controls
+          paging = TRUE,
+          searching = TRUE,
+          info = TRUE
         ),
-        rownames = FALSE
+        rownames = FALSE,
+        class = 'cell-border stripe hover compact'
       ) %>%
         DT::formatRound(columns = setdiff(names(indices_results()), "Sample"), digits = 4)
     })

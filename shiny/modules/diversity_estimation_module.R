@@ -137,7 +137,7 @@ diversity_estimation_ui <- function(id) {
       # Results Area
       div(class = "horizontal-split",
         # Plot Panel (70%)
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           # Plot type selector
           selectInput(
             ns("plot_type"),
@@ -150,7 +150,7 @@ diversity_estimation_ui <- function(id) {
             selected = 1
           ),
           
-          plotOutput(ns("inext_plot"), height = "500px"),
+          plotOutput(ns("inext_plot"), width = "100%", height = "500px"),
           
           # Plot controls
           div(class = "plot-controls", style = "margin-top: 10px;",
@@ -449,12 +449,16 @@ diversity_estimation_server <- function(id, data) {
         options = list(
           pageLength = 10,
           scrollX = TRUE,
-          dom = 't',
+          dom = 'frtip',  # Enable full pagination controls
+          paging = TRUE,
+          searching = TRUE,
+          info = TRUE,
           columnDefs = list(
             list(className = 'dt-center', targets = '_all')
           )
         ),
-        rownames = FALSE
+        rownames = FALSE,
+        class = 'cell-border stripe hover compact'
       ) %>%
         DT::formatRound(columns = numeric_cols, digits = 3)
     })
