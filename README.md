@@ -11,7 +11,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18%20%7C%2020-green)](https://nodejs.org/)
 [![Code Quality](https://img.shields.io/badge/code%20quality-A%2B-brightgreen)](https://github.com/jm0535/0rdin)
 
-**Professional Community Ecology Analysis Platform**
+**Next-Gen Open-Source Community Ecology Analysis Platform**
 
 *Combining R's statistical power with modern UX design*
 
@@ -44,13 +44,13 @@ Most ecological analysis software faces a critical trade-off:
 
 ## Overview
 
-Ördin is an **open-source, cross-platform desktop application** that brings professional community ecology analysis to everyone. No R coding required—just upload your data and start analyzing.
+Ördin is a **next-gen, open-source, cross-platform desktop application** that brings modern community ecology analysis to everyone. No R coding required—just upload your data and start analyzing.
 
 ### 🎯 Perfect For
 
 - **Researchers** - Publication-ready analyses and exports
 - **Students** - Learn ecology without programming barriers  
-- **Consultants** - Professional reports with minimal setup
+- **Consultants** - Next-gen reports with minimal setup
 - **Educators** - Teaching tool with reproducible workflows
 
 ### ✨ What's New in v3.0
@@ -169,11 +169,11 @@ Most ecological analysis software faces a critical trade-off:
   - **About**: Version info, Author, GitHub repository
 - **Modular Navigation**: Tab-based interface with clear module separation
 - **Interactive Elements**: Enhanced widgets, accordions, and form controls
-- **Loading States**: Professional progress indicators and loading screens
+- **Loading States**: Modern progress indicators and loading screens
 
-#### 📤 **Publication-Ready Exports**
+#### 📤 **Publication-Quality Exports**
 - **Multiple Formats**: PNG, TIFF, SVG at publication quality (300 DPI)
-- **Consistent Dimensions**: 12"×8" professional standard sizes
+- **Consistent Dimensions**: 12"×8" standard sizes
 - **Theme Support**: Exports respect selected plot themes
 - **Data Exports**: CSV, Excel, JSON for all analysis results
 - **Plot Components**: Download scores, eigenvalues, and summary statistics
@@ -371,7 +371,7 @@ ordin/
 
 ### Toggle Between Dark and Light Themes
 
-**Ördin v2.3+** includes a professional theme toggle button on the far right of the navbar:
+**Ördin v2.3+** includes a theme toggle button on the far right of the navbar:
 - Click the **☀️ (sun)** icon in dark mode to switch to light theme
 - Click the **🌙 (moon)** icon in light mode to switch to dark theme
 - Your preference is automatically saved and persists across app restarts
@@ -462,7 +462,7 @@ npm install
 
 ### 📈 Advanced Visualization Features
 
-**Ördin v3.0** introduces professional visualization capabilities:
+**Ördin v3.0** introduces next-gen visualization capabilities:
 
 - **Confidence Ellipses**: Statistical ellipses for site groups with validation
 - **Species Scores**: Overlay species positions with customizable display
@@ -474,7 +474,7 @@ npm install
 
 ### 💾 Publication-Quality Exports
 
-Ördin provides professional export options for all analyses:
+Ördin provides publication-quality export options for all analyses:
 
 **Raster Formats** (300 DPI - publication standard):
 - **PNG** - Universal compatibility, lossless compression

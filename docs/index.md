@@ -1,10 +1,10 @@
-# Ördin - Professional Community Ecology Analysis
+# Ördin - Next-Gen Open-Source Community Ecology Analysis
 
 <div align="center">
 
 ![Ördin Logo](../build/icon.png)
 
-**The Modern Way to Analyze Ecological Communities**
+**The Next-Gen Way to Analyze Ecological Communities**
 
 [![Download](https://img.shields.io/badge/Download-v3.0.0-brightgreen?style=for-the-badge)](https://github.com/jm0535/0rdin/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](https://opensource.org/licenses/MIT)
@@ -22,7 +22,7 @@ Most ecological software forces you to choose:
 - ❌ **User-friendly** tools → Lack statistical rigor
 - ❌ **Rigorous** tools → Steep learning curves
 
-**Ördin delivers both.** Professional-grade analyses powered by R's trusted packages (vegan, iNEXT, betapart) wrapped in an intuitive, modern interface.
+**Ördin delivers both.** Next-gen analyses powered by R's trusted packages (vegan, iNEXT, betapart) wrapped in an intuitive, modern interface.
 
 ### At a Glance
 
@@ -117,7 +117,7 @@ Most ecological software forces you to choose:
 - Three-panel layout: Activity bar + Sidebars + Canvas
 - Multi-tab workspace
 - Dark/Light theme toggle
-- Responsive, professional design
+- Responsive, modern design
 
 **Real-Time Plot Customization** ⚡
 - 18+ parameters with instant updates
@@ -134,7 +134,7 @@ Most ecological software forces you to choose:
 - Performance optimization
 - Data validation
 
-### 📤 Publication-Ready Exports
+### 📤 Publication-Quality Exports
 
 **Plot Formats**
 - PNG, PDF, SVG, TIFF
@@ -178,7 +178,7 @@ Most ecological software forces you to choose:
 
 ### Dashboard
 ![Dashboard](screenshots/dashboard.png)
-*Modern, professional interface with quick access to all features*
+*Modern interface with quick access to all features*
 
 ### NMDS Ordination
 ![NMDS](screenshots/nmds.png)

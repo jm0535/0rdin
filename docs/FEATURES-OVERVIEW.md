@@ -69,7 +69,7 @@ Version 2.0.0 represents a major milestone in professional biodiversity analysis
 
 ### UI/UX Organization (IMPROVED in v2.0)
 
-**Streamlined interface** following enterprise best practices:
+**Streamlined interface** following modern best practices:
 
 #### Sidebar Optimization:
 - \u274c **Removed**: Redundant "Download Summary CSV" (already in table toolbar)
@@ -162,7 +162,7 @@ Version 2.0.0 represents a major milestone in professional biodiversity analysis
 - **Line styles**: Solid (rarefaction) vs. Dashed (extrapolation)
 - **Color-coded sites** for easy comparison
 - **Informative subtitle** showing all parameters used
-- **Dark theme optimized** for professional presentations
+- **Dark theme optimized** for modern presentations
 
 #### Sample Datasets:
 - `spider-abundance.csv` - Spider communities (abundance)
