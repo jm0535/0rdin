@@ -249,7 +249,7 @@ ui <- function(req) {
             div(class = "welcome",
               h1("Ö"),
               h2("Ördin"),
-              p("Professional Community Ecology Analysis Platform"),
+              p("Next-Gen Open-Source Community Ecology Analysis Platform"),
               div(style = "margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;",
                 span(style = "background: #2e8b5720; color: #2e8b57; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;", "✓ Open Source"),
                 span(style = "background: #4a90e220; color: #4a90e2; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;", "✓ Cross-Platform"),
