@@ -27,16 +27,21 @@ function showPlotCustomization(plotType, moduleId) {
     panelHeader.textContent = 'PLOT CUSTOMIZATION';
   }
   
+  // CRITICAL: Unbind ALL existing inputs BEFORE clearing HTML to prevent duplicates
+  if (window.Shiny && window.Shiny.unbindAll) {
+    console.log('Unbinding old Shiny inputs...');
+    Shiny.unbindAll(panelContent);
+  }
+  
   // Generate customization UI based on plot type
   const customizationHTML = generatePlotCustomizationUI(plotType, moduleId);
   
-  // Update panel content
+  // Clear old content and set new HTML
   panelContent.innerHTML = customizationHTML;
   
-  // CRITICAL: Re-bind Shiny inputs for dynamic controls
-  if (window.Shiny && window.Shiny.unbindAll && window.Shiny.bindAll) {
-    console.log('Unbinding and rebinding Shiny inputs...');
-    Shiny.unbindAll(panelContent);
+  // CRITICAL: Re-bind Shiny inputs for new controls
+  if (window.Shiny && window.Shiny.bindAll) {
+    console.log('Binding new Shiny inputs...');
     Shiny.bindAll(panelContent);
     console.log('Shiny inputs rebound successfully');
   } else {
@@ -217,8 +222,11 @@ function generateDiversityPlotControls(moduleId) {
 
 // Generate controls for ordination plots (ggplot2-based)
 function generateOrdinationPlotControls(moduleId) {
+  console.log('=== GENERATING ORDINATION PLOT CONTROLS ===');
+  console.log('Module ID:', moduleId);
+  
   // Common controls for all plot types with proper Shiny input IDs
-  return `
+  const html = `
     <div class="prop-section">
       <h4><i class="fas fa-palette"></i> Theme & Style</h4>
       
@@ -327,6 +335,33 @@ function generateOrdinationPlotControls(moduleId) {
       </div>
     </div>
     
+    <div class="prop-section" id="${moduleId}-biplot-section">
+      <h4><i class="fas fa-project-diagram"></i> Constrained Ordination</h4>
+      
+      <div class="prop-item">
+        <label for="${moduleId}-plot_plot_type">Plot Type:</label>
+        <select id="${moduleId}-plot_plot_type" class="shiny-input-select form-control form-control-sm">
+          <option value="triplot" selected>Triplot (sites + species + vectors)</option>
+          <option value="biplot">Biplot (sites + vectors)</option>
+          <option value="sites_only">Sites Only</option>
+        </select>
+        <small class="text-muted">For CCA, RDA, db-RDA, CAP</small>
+      </div>
+      
+      <div class="prop-item">
+        <label>
+          <input type="checkbox" id="${moduleId}-plot_show_vectors" class="shiny-input-checkbox" checked> Show Environmental Vectors
+        </label>
+      </div>
+      
+      <div class="prop-item">
+        <label>
+          <input type="checkbox" id="${moduleId}-plot_show_species" class="shiny-input-checkbox" checked> Show Species
+        </label>
+        <small class="text-muted">Only for triplot</small>
+      </div>
+    </div>
+    
     <div class="prop-section">
       <h4><i class="fas fa-tags"></i> Labels & Grid</h4>
       
@@ -380,16 +415,28 @@ function generateOrdinationPlotControls(moduleId) {
       </div>
     </div>
   `;
+  
+  console.log('Generated HTML length:', html.length);
+  console.log('HTML includes Ellipses:', html.includes('Confidence Ellipses'));
+  console.log('HTML includes Constrained:', html.includes('Constrained Ordination'));
+  
+  return html;
 }
 
 // Initialize - hide panel by default
 $(document).ready(function() {
   hidePlotCustomization();
   
-  // Listen for custom messages from R to update grouping variable dropdown
+  // Listen for server-triggered showPlotCustomization messages
   if (window.Shiny) {
+    Shiny.addCustomMessageHandler('showPlotCustomization', function(message) {
+      console.log('Received showPlotCustomization message from server:', message);
+      showPlotCustomization(message.plotType, message.moduleId);
+    });
+    
+    // Listen for custom messages from R to update grouping variable dropdown
     Shiny.addCustomMessageHandler('updateGroupingVar', function(message) {
-      const selectId = message.moduleId + 'plot_group_var';
+      const selectId = message.moduleId + '-plot_group_var';
       const selectElement = document.getElementById(selectId);
       
       if (selectElement && message.choices) {

@@ -209,7 +209,9 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
       label_size = 0.8,
       label_pos = "0",
       axis_lwd = 1,
-      equal_aspect = TRUE
+      equal_aspect = TRUE,
+      # Ellipse controls
+      show_ellipses = FALSE, group_var = "", ellipse_type = "norm", ellipse_level = 0.95
     )
     
     # Observers to sync right panel inputs with plot_defaults
@@ -228,6 +230,35 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
     observeEvent(input$plot_height, { plot_defaults$plot_height <- input$plot_height })
     observeEvent(input$plot_dpi, { plot_defaults$dpi <- input$plot_dpi })
     observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
+    
+    # CRITICAL: Observers for ellipse controls
+    observeEvent(input$plot_show_ellipses, { plot_defaults$show_ellipses <- input$plot_show_ellipses }, ignoreNULL = FALSE)
+    observeEvent(input$plot_group_var, { plot_defaults$group_var <- input$plot_group_var }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_type, { plot_defaults$ellipse_type <- input$plot_ellipse_type }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_level, { plot_defaults$ellipse_level <- input$plot_ellipse_level }, ignoreNULL = FALSE)
+    
+    # Populate grouping variable dropdown when environmental data loads
+    observe({
+      req(env_data())
+      
+      env_df <- env_data()
+      factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+      
+      # Build choices list manually
+      choices_list <- list()
+      choices_list[[""]] <- "None"
+      for (col in factor_cols) {
+        choices_list[[col]] <- col
+      }
+      
+      session$sendCustomMessage(
+        type = "updateGroupingVar",
+        message = list(
+          moduleId = "nmds",
+          choices = choices_list
+        )
+      )
+    })
     
     # Validate dimensions (k)
     observeEvent(input$k, {
@@ -300,6 +331,38 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
         # Interpret stress
         stress_interp <- interpretNMDSStress(result$stress)
         
+        # CRITICAL: Trigger plot customization panel to open
+        session$sendCustomMessage(
+          type = "showPlotCustomization",
+          message = list(
+            plotType = "ordination",
+            moduleId = "nmds"
+          )
+        )
+        
+        # CRITICAL: Populate grouping variable dropdown AFTER panel is shown
+        if (!is.null(env_data())) {
+          env_df <- env_data()
+          factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+          
+          choices_list <- list()
+          choices_list[[""]] <- "None"
+          for (col in factor_cols) {
+            choices_list[[col]] <- col
+          }
+          
+          # Delay to ensure dropdown exists
+          shinyjs::delay(1000, {
+            session$sendCustomMessage(
+              type = "updateGroupingVar",
+              message = list(
+                moduleId = "nmds",
+                choices = choices_list
+              )
+            )
+          })
+        }
+        
         # Show success notification with stress interpretation
         showNotification(
           HTML(sprintf(
@@ -337,12 +400,30 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
     output$nmds_plot <- renderPlot({  
       req(nmds_result())
       
+      # Force reactivity by reading ALL plot_defaults reactiveValues
+      plot_theme <- plot_defaults$theme
+      plot_font_family <- plot_defaults$font_family
+      plot_base_size <- plot_defaults$base_size
+      plot_title_size <- plot_defaults$title_size
+      plot_point_size <- plot_defaults$point_size
+      plot_point_shape <- plot_defaults$point_shape
+      plot_point_color <- plot_defaults$point_color
+      plot_point_lwd <- plot_defaults$point_lwd
+      plot_show_grid <- plot_defaults$show_grid
+      plot_show_labels <- plot_defaults$show_labels
+      plot_label_size <- plot_defaults$label_size
+      # Ellipse controls from plot_defaults
+      plot_show_ellipses <- plot_defaults$show_ellipses
+      plot_group_var <- plot_defaults$group_var
+      plot_ellipse_type <- plot_defaults$ellipse_type
+      plot_ellipse_level <- plot_defaults$ellipse_level
+      
       # Get grouping variable if ellipses are enabled
       grouping_var <- NULL
-      if (!is.null(input$show_ellipses) && input$show_ellipses && 
-          !is.null(input$group_var) && input$group_var != "" && 
+      if (!is.null(plot_show_ellipses) && plot_show_ellipses && 
+          !is.null(plot_group_var) && plot_group_var != "" && 
           !is.null(env_data())) {
-        grouping_var <- env_data()[[input$group_var]]
+        grouping_var <- env_data()[[plot_group_var]]
         if (!is.factor(grouping_var)) {
           grouping_var <- as.factor(grouping_var)
         }
@@ -352,13 +433,13 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
       p <- generate_nmds_plot(nmds_result(), plot_defaults, grouping_var)
       
       # Add confidence ellipses if requested
-      if (!is.null(grouping_var)) {
+      if (!is.null(grouping_var) && !is.null(plot_ellipse_type)) {
         p <- add_confidence_ellipses(
           p, 
           nmds_result(), 
           grouping_var,
-          ellipse_type = input$ellipse_type,
-          conf_level = input$ellipse_level
+          ellipse_type = plot_ellipse_type,
+          conf_level = plot_ellipse_level
         )
       }
       

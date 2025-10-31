@@ -65,7 +65,9 @@ ca_server <- function(id, data, env_data = reactive(NULL)) {
       point_size = 2, point_shape = "21", point_color = "#2e8b57", point_lwd = 1.5,
       show_grid = TRUE, show_labels = FALSE, plot_width = 8, plot_height = 6,
       dpi = 300, export_format = "png", label_size = 0.8, label_pos = "0",
-      axis_lwd = 1, equal_aspect = TRUE
+      axis_lwd = 1, equal_aspect = TRUE,
+      # Ellipse controls
+      show_ellipses = FALSE, group_var = "", ellipse_type = "norm", ellipse_level = 0.95
     )
     
     # Observers
@@ -84,6 +86,12 @@ ca_server <- function(id, data, env_data = reactive(NULL)) {
     observeEvent(input$plot_height, { plot_defaults$plot_height <- input$plot_height })
     observeEvent(input$plot_dpi, { plot_defaults$dpi <- input$plot_dpi })
     observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
+    
+    # Observers for ellipse controls
+    observeEvent(input$plot_show_ellipses, { plot_defaults$show_ellipses <- input$plot_show_ellipses }, ignoreNULL = FALSE)
+    observeEvent(input$plot_group_var, { plot_defaults$group_var <- input$plot_group_var }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_type, { plot_defaults$ellipse_type <- input$plot_ellipse_type }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_level, { plot_defaults$ellipse_level <- input$plot_ellipse_level }, ignoreNULL = FALSE)
     
     observeEvent(input$run_ca, {
       req(data())
@@ -108,6 +116,27 @@ ca_server <- function(id, data, env_data = reactive(NULL)) {
         
         eig <- eigenvals(result)
         var_exp <- sum(eig[1:2]) / sum(eig) * 100
+        
+        # Trigger plot customization
+        session$sendCustomMessage(
+          type = "showPlotCustomization",
+          message = list(plotType = "ordination", moduleId = "ca")
+        )
+        
+        # Populate grouping variable if env_data available
+        if (!is.null(env_data()) && nrow(env_data()) > 0) {
+          env_df <- env_data()
+          factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+          if (length(factor_cols) > 0) {
+            choices_list <- list()
+            choices_list[[""]] <- "None"
+            for (col in factor_cols) choices_list[[col]] <- col
+            shinyjs::delay(1000, {
+              session$sendCustomMessage(type = "updateGroupingVar",
+                message = list(moduleId = "ca", choices = choices_list))
+            })
+          }
+        }
         
         showNotification(
           HTML(sprintf("<strong>✓ CA Complete!</strong><br/>First 2 axes: %.1f%% inertia", var_exp)),
@@ -137,24 +166,25 @@ ca_server <- function(id, data, env_data = reactive(NULL)) {
     output$ca_plot <- renderPlot({  
       req(ca_result())
       
-      # Get grouping variable if ellipses are enabled
+      # Force reactivity
+      plot_show_ellipses <- plot_defaults$show_ellipses
+      plot_group_var <- plot_defaults$group_var
+      plot_ellipse_type <- plot_defaults$ellipse_type
+      plot_ellipse_level <- plot_defaults$ellipse_level
+      
       grouping_var <- NULL
-      if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
-          !is.null(input$plot_group_var) && input$plot_group_var != "" && 
-          !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
-        grouping_var <- env_data()[[input$plot_group_var]]
-        if (!is.factor(grouping_var)) {
-          grouping_var <- as.factor(grouping_var)
-        }
+      if (!is.null(plot_show_ellipses) && plot_show_ellipses && 
+          !is.null(plot_group_var) && plot_group_var != "" && 
+          !is.null(env_data()) && nrow(env_data()) > 0) {
+        grouping_var <- env_data()[[plot_group_var]]
+        if (!is.factor(grouping_var)) grouping_var <- as.factor(grouping_var)
       }
       
-      # Generate ggplot2 plot
       p <- generate_ordination_plot(ca_result(), plot_defaults, grouping_var)
       
-      # Add ellipses if requested
-      if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
-        ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
-        p <- add_ordination_ellipses(p, ca_result(), grouping_var, input$plot_ellipse_type, ellipse_level)
+      if (!is.null(grouping_var) && !is.null(plot_ellipse_type)) {
+        ellipse_level <- if (!is.null(plot_ellipse_level)) plot_ellipse_level else 0.95
+        p <- add_ordination_ellipses(p, ca_result(), grouping_var, plot_ellipse_type, ellipse_level)
       }
       
       p <- p + labs(title = "CA Ordination") +

@@ -72,7 +72,11 @@ cca_server <- function(id, data, env_data) {
       point_size = 2, point_shape = "21", point_color = "#2e8b57", point_lwd = 1.5,
       show_grid = TRUE, show_labels = FALSE, plot_width = 8, plot_height = 6,
       dpi = 300, export_format = "png", label_size = 0.8, label_pos = "0",
-      axis_lwd = 1, equal_aspect = TRUE
+      axis_lwd = 1, equal_aspect = TRUE,
+      # Ellipse controls
+      show_ellipses = FALSE, group_var = "", ellipse_type = "norm", ellipse_level = 0.95,
+      # Constrained ordination controls
+      show_vectors = TRUE, show_species = TRUE, plot_type = "triplot"
     )
     
     observeEvent(input$plot_theme, { plot_defaults$theme <- input$plot_theme })
@@ -91,15 +95,23 @@ cca_server <- function(id, data, env_data) {
     observeEvent(input$plot_dpi, { plot_defaults$dpi <- input$plot_dpi })
     observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
     
+    # CRITICAL: Observers for ellipse and ordination controls
+    observeEvent(input$plot_show_ellipses, { plot_defaults$show_ellipses <- input$plot_show_ellipses }, ignoreNULL = FALSE)
+    observeEvent(input$plot_group_var, { plot_defaults$group_var <- input$plot_group_var }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_type, { plot_defaults$ellipse_type <- input$plot_ellipse_type }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_level, { plot_defaults$ellipse_level <- input$plot_ellipse_level }, ignoreNULL = FALSE)
+    observeEvent(input$plot_show_vectors, { plot_defaults$show_vectors <- input$plot_show_vectors }, ignoreNULL = FALSE)
+    observeEvent(input$plot_show_species, { plot_defaults$show_species <- input$plot_show_species }, ignoreNULL = FALSE)
+    observeEvent(input$plot_plot_type, { plot_defaults$plot_type <- input$plot_plot_type }, ignoreNULL = FALSE)
+    
     # Dynamic UI for environmental variable selection
     output$env_vars_ui <- renderUI({
       req(env_data())
       
-      selectInput(ns("env_vars"), 
+      checkboxGroupInput(ns("env_vars"), 
                  "Environmental Variables:",
                  choices = names(env_data()),
-                 selected = names(env_data()),
-                 multiple = TRUE)
+                 selected = names(env_data()))
     })
     
     # Run CCA
@@ -131,11 +143,54 @@ cca_server <- function(id, data, env_data) {
         constrained_inertia <- result$CCA$tot.chi
         var_exp <- (constrained_inertia / total_inertia) * 100
         
+        # CRITICAL: Trigger plot customization panel to open
+        session$sendCustomMessage(
+          type = "showPlotCustomization",
+          message = list(
+            plotType = "ordination",
+            moduleId = "cca"
+          )
+        )
+        
+        # CRITICAL: Populate grouping variable dropdown AFTER panel is shown
+        if (!is.null(env_data())) {
+          env_df <- env_data()
+          factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+          
+          choices_list <- list()
+          choices_list[[""]] <- "None"
+          for (col in factor_cols) {
+            choices_list[[col]] <- col
+          }
+          
+          # Delay to ensure dropdown exists
+          shinyjs::delay(1000, {
+            session$sendCustomMessage(
+              type = "updateGroupingVar",
+              message = list(
+                moduleId = "cca",
+                choices = choices_list
+              )
+            )
+          })
+        }
+        
         showNotification(
           HTML(sprintf("<strong>✓ CCA Complete!</strong><br/>Constrained inertia: %.1f%%", var_exp)),
           type = "message"
         )
       }
+    })
+    
+    # Populate grouping variable dropdown
+    observe({
+      req(env_data())
+      env_df <- env_data()
+      factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+      choices_list <- list()
+      choices_list[[""]] <- "None"
+      for (col in factor_cols) choices_list[[col]] <- col
+      session$sendCustomMessage(type = "updateGroupingVar", message = list(moduleId = "cca", choices = choices_list))
     })
     
     # Interpretation box
@@ -157,26 +212,48 @@ cca_server <- function(id, data, env_data) {
       ', color, color, color, quality, var_exp, var_exp))
     })
     
-    # Plot using ggplot2
+    # Plot using ggplot2 (reactive to right panel controls)
     output$cca_plot <- renderPlot({  
       req(cca_result())
       
+      # Force reactivity by reading ALL plot_defaults reactiveValues
+      plot_theme <- plot_defaults$theme
+      plot_font_family <- plot_defaults$font_family
+      plot_base_size <- plot_defaults$base_size
+      plot_title_size <- plot_defaults$title_size
+      plot_point_size <- plot_defaults$point_size
+      plot_point_shape <- plot_defaults$point_shape
+      plot_point_color <- plot_defaults$point_color
+      plot_point_lwd <- plot_defaults$point_lwd
+      plot_show_grid <- plot_defaults$show_grid
+      plot_show_labels <- plot_defaults$show_labels
+      plot_label_size <- plot_defaults$label_size
+      # Ellipse controls from plot_defaults
+      plot_show_ellipses <- plot_defaults$show_ellipses
+      plot_group_var <- plot_defaults$group_var
+      plot_ellipse_type <- plot_defaults$ellipse_type
+      plot_ellipse_level <- plot_defaults$ellipse_level
+      # Ordination controls from plot_defaults
+      plot_show_vectors <- plot_defaults$show_vectors
+      
       # Get grouping variable if ellipses are enabled
       grouping_var <- NULL
-      if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
-          !is.null(input$plot_group_var) && input$plot_group_var != "" && 
+      if (!is.null(plot_show_ellipses) && plot_show_ellipses && 
+          !is.null(plot_group_var) && plot_group_var != "" && 
           !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
-        grouping_var <- env_data()[[input$plot_group_var]]
+        grouping_var <- env_data()[[plot_group_var]]
         if (!is.factor(grouping_var)) grouping_var <- as.factor(grouping_var)
       }
       
+      show_env_vectors <- !is.null(plot_show_vectors) && plot_show_vectors
+      
       # Generate constrained ordination plot with environmental vectors
-      p <- generate_constrained_plot(cca_result(), plot_defaults, grouping_var, show_env_vectors = TRUE)
+      p <- generate_constrained_plot(cca_result(), plot_defaults, grouping_var, show_env_vectors = show_env_vectors)
       
       # Add ellipses if requested
-      if (!is.null(grouping_var) && !is.null(input$plot_ellipse_type)) {
-        ellipse_level <- if (!is.null(input$plot_ellipse_level)) input$plot_ellipse_level else 0.95
-        p <- add_ordination_ellipses(p, cca_result(), grouping_var, input$plot_ellipse_type, ellipse_level)
+      if (!is.null(grouping_var) && !is.null(plot_ellipse_type)) {
+        ellipse_level <- if (!is.null(plot_ellipse_level)) plot_ellipse_level else 0.95
+        p <- add_ordination_ellipses(p, cca_result(), grouping_var, plot_ellipse_type, ellipse_level)
       }
       
       p <- p + labs(title = "CCA Triplot") +

@@ -117,9 +117,10 @@ pca_ui <- function(id) {
 #'
 #' @param id Module namespace ID
 #' @param data Reactive containing species abundance matrix
+#' @param env_data Reactive containing environmental data (optional)
 #' @return Server logic for PCA analysis
 #' @export
-pca_server <- function(id, data) {
+pca_server <- function(id, data, env_data = reactive(NULL)) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -150,7 +151,9 @@ pca_server <- function(id, data) {
       label_size = 0.8,
       label_pos = "0",
       axis_lwd = 1,
-      equal_aspect = TRUE
+      equal_aspect = TRUE,
+      # Ellipse controls
+      show_ellipses = FALSE, group_var = "", ellipse_type = "norm", ellipse_level = 0.95
     )
     
     # Observers to sync right panel inputs with plot_defaults
@@ -169,6 +172,12 @@ pca_server <- function(id, data) {
     observeEvent(input$plot_height, { plot_defaults$plot_height <- input$plot_height })
     observeEvent(input$plot_dpi, { plot_defaults$dpi <- input$plot_dpi })
     observeEvent(input$plot_export_format, { plot_defaults$export_format <- input$plot_export_format })
+    
+    # Observers for ellipse controls
+    observeEvent(input$plot_show_ellipses, { plot_defaults$show_ellipses <- input$plot_show_ellipses }, ignoreNULL = FALSE)
+    observeEvent(input$plot_group_var, { plot_defaults$group_var <- input$plot_group_var }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_type, { plot_defaults$ellipse_type <- input$plot_ellipse_type }, ignoreNULL = FALSE)
+    observeEvent(input$plot_ellipse_level, { plot_defaults$ellipse_level <- input$plot_ellipse_level }, ignoreNULL = FALSE)
     
     # Run PCA Analysis
     observeEvent(input$run_pca, {
@@ -201,6 +210,39 @@ pca_server <- function(id, data) {
         # Calculate variance explained by first 2 axes
         eig <- eigenvals(result)
         var_exp <- sum(eig[1:2]) / sum(eig) * 100
+        
+        # CRITICAL: Trigger plot customization panel to open
+        session$sendCustomMessage(
+          type = "showPlotCustomization",
+          message = list(
+            plotType = "ordination",
+            moduleId = "pca"
+          )
+        )
+        
+        # CRITICAL: Populate grouping variable dropdown if env_data available
+        if (!is.null(env_data()) && nrow(env_data()) > 0) {
+          env_df <- env_data()
+          factor_cols <- names(env_df)[sapply(env_df, function(x) is.factor(x) || is.character(x))]
+          
+          if (length(factor_cols) > 0) {
+            choices_list <- list()
+            choices_list[[""]] <- "None"
+            for (col in factor_cols) {
+              choices_list[[col]] <- col
+            }
+            
+            shinyjs::delay(1000, {
+              session$sendCustomMessage(
+                type = "updateGroupingVar",
+                message = list(
+                  moduleId = "pca",
+                  choices = choices_list
+                )
+              )
+            })
+          }
+        }
         
         showNotification(
           HTML(sprintf(
@@ -245,12 +287,29 @@ pca_server <- function(id, data) {
     output$pca_plot <- renderPlot({  
       req(pca_result())
       
-      # Get grouping variable if ellipses are enabled (from right panel)
+      # Force reactivity by reading plot_defaults
+      plot_theme <- plot_defaults$theme
+      plot_font_family <- plot_defaults$font_family
+      plot_base_size <- plot_defaults$base_size
+      plot_title_size <- plot_defaults$title_size
+      plot_point_size <- plot_defaults$point_size
+      plot_point_shape <- plot_defaults$point_shape
+      plot_point_color <- plot_defaults$point_color
+      plot_point_lwd <- plot_defaults$point_lwd
+      plot_show_grid <- plot_defaults$show_grid
+      plot_show_labels <- plot_defaults$show_labels
+      plot_label_size <- plot_defaults$label_size
+      plot_show_ellipses <- plot_defaults$show_ellipses
+      plot_group_var <- plot_defaults$group_var
+      plot_ellipse_type <- plot_defaults$ellipse_type
+      plot_ellipse_level <- plot_defaults$ellipse_level
+      
+      # Get grouping variable if ellipses are enabled
       grouping_var <- NULL
-      if (!is.null(input$plot_show_ellipses) && input$plot_show_ellipses && 
-          !is.null(input$plot_group_var) && input$plot_group_var != "" && 
-          !is.null(env_data) && is.function(env_data) && !is.null(env_data())) {
-        grouping_var <- env_data()[[input$plot_group_var]]
+      if (!is.null(plot_show_ellipses) && plot_show_ellipses && 
+          !is.null(plot_group_var) && plot_group_var != "" && 
+          !is.null(env_data()) && nrow(env_data()) > 0) {
+        grouping_var <- env_data()[[plot_group_var]]
         if (!is.factor(grouping_var)) {
           grouping_var <- as.factor(grouping_var)
         }

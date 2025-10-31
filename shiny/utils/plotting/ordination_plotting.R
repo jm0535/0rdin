@@ -213,8 +213,32 @@ generate_constrained_plot <- function(ord_result, plot_defaults, grouping_var = 
   # Base plot with sites
   p <- generate_ordination_plot(ord_result, plot_defaults, grouping_var, axes = c(1, 2))
   
-  # Add environmental vectors if requested
-  if (show_env_vectors) {
+  # Check plot_type to determine what to show
+  plot_type <- if (!is.null(plot_defaults$plot_type)) plot_defaults$plot_type else "triplot"
+  
+  # Add species if triplot
+  if (plot_type == "triplot") {
+    spp_scores <- scores(ord_result, display = "species", choices = c(1, 2))
+    
+    if (!is.null(spp_scores) && nrow(spp_scores) > 0) {
+      spp_df <- as.data.frame(spp_scores)
+      colnames(spp_df) <- c("Axis1", "Axis2")
+      spp_df$Label <- rownames(spp_df)
+      
+      p <- p +
+        geom_text(
+          data = spp_df,
+          aes(x = Axis1, y = Axis2, label = Label),
+          size = plot_defaults$label_size * 2.5,
+          color = "#e74c3c",
+          alpha = 0.6,
+          inherit.aes = FALSE
+        )
+    }
+  }
+  
+  # Add environmental vectors if requested AND plot_type is not "sites_only"
+  if (show_env_vectors && plot_type != "sites_only") {
     bp_scores <- scores(ord_result, display = "bp", choices = c(1, 2))
     
     if (!is.null(bp_scores) && nrow(bp_scores) > 0) {
@@ -227,15 +251,17 @@ generate_constrained_plot <- function(ord_result, plot_defaults, grouping_var = 
           data = bp_df,
           aes(x = 0, y = 0, xend = Axis1, yend = Axis2),
           arrow = arrow(length = unit(0.3, "cm")),
-          color = "#e74c3c",
+          color = "#3498db",
           alpha = 0.7,
+          size = 1.2,
           inherit.aes = FALSE
         ) +
         geom_text(
           data = bp_df,
           aes(x = Axis1 * 1.1, y = Axis2 * 1.1, label = Label),
           size = plot_defaults$label_size * 3.5,
-          color = "#c0392b",
+          color = "#2980b9",
+          fontface = "bold",
           inherit.aes = FALSE
         )
     }
