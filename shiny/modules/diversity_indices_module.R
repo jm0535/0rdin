@@ -17,6 +17,17 @@ diversity_indices_ui <- function(id) {
       h2("📋 Diversity Indices (vegan)", style = "color: #2e8b57; margin-bottom: 20px;"),
       p("Calculate Shannon, Simpson, and other diversity metrics", style = "color: #888; margin-bottom: 30px;"),
       
+      # WHEN TO USE guidance box
+      div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+        h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE DIVERSITY INDICES"),
+        tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+          tags$li("Calculate **alpha diversity** within sites using classic metrics"),
+          tags$li("Quantify both **species richness** (S) and **evenness** (Pielou's J')"),
+          tags$li("Compare diversity patterns across sites using **Shannon** or **Simpson**"),
+          tags$li("Example: Is grassland more diverse than forest in terms of species evenness?")
+        )
+      ),
+      
       # TIP BOX: Choosing Indices
       div(style = "background: #1a3a2e; border-left: 3px solid #2e8b57; padding: 12px 16px; margin-bottom: 20px;",
         p(style = "color: #2e8b57; font-weight: 600; margin: 0 0 8px 0;", "ℹ️ TIP: Choosing the Right Index"),

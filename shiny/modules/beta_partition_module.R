@@ -22,6 +22,17 @@ beta_partition_ui <- function(id) {
     useShinyFeedback(),
     
     div(class = "beta-partition-workflow",
+      # WHEN TO USE guidance box
+      div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+        h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE BETA DIVERSITY PARTITIONING"),
+        tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+          tags$li("Decompose **beta diversity** into **turnover** (species replacement) and **nestedness** (richness differences)"),
+          tags$li("Identify dominant **assembly processes**: dispersal limitation vs. environmental filtering"),
+          tags$li("Compare **taxonomic, phylogenetic, functional, or temporal** beta diversity"),
+          tags$li("Example: Is beta diversity driven by species replacement or nested subsets?")
+        )
+      ),
+      
       # DATASET REQUIREMENTS INFO BOX
       div(style = "background: #1a3a2e; border-left: 4px solid #2e8b57; padding: 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;",
         h4(style = "color: #2e8b57; margin: 0 0 12px 0; font-size: 14px; font-weight: 600;",

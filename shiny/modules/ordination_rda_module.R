@@ -14,6 +14,17 @@ rda_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ RDA Configuration"),
         
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE RDA"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("**Constrained ordination** for **linear species responses**"),
+            tags$li("Test which **environmental variables explain community variation**"),
+            tags$li("Use when DCA axis 1 < 3 SD (linear gradients, not unimodal)"),
+            tags$li("Example: How do temperature and precipitation drive species patterns?")
+          )
+        ),
+        
         helpText("RDA constrains ordination by environmental variables. Ideal for linear species responses."),
         
         # Environmental variables selection

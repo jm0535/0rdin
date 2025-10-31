@@ -14,6 +14,17 @@ permanova_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ PERMANOVA Configuration"),
         
+        # When to use PERMANOVA
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE PERMANOVA"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("Test if **group centroids differ** in multivariate space"),
+            tags$li("Compare **multiple groups** (3+ levels) across environmental factors"),
+            tags$li("Multivariate version of ANOVA using **distance matrices**"),
+            tags$li("Example: Does species composition differ by habitat type?")
+          )
+        ),
+        
         helpText("Tests if group centroids differ across environmental/categorical variables (multivariate ANOVA using distances)."),
         
         # Distance metric
@@ -39,13 +50,13 @@ permanova_ui <- function(id) {
       ),
       
       div(class = "horizontal-split",
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           # Interpretation box
           uiOutput(ns("permanova_interpretation")),
           
           # Results visualization
           h4("📊 Variance Partitioning", style = "color: #2e8b57; margin: 20px 0 10px 0;"),
-          plotOutput(ns("variance_plot"), height = "400px")
+          plotOutput(ns("variance_plot"), width = "100%", height = "500px")
         ),
         
         div(class = "results-panel",
@@ -106,18 +117,25 @@ permanova_server <- function(id, data, env_data) {
       ))
       
       result <- tryCatch({
-        # Build formula
-        formula_str <- paste("data() ~", paste(input$group_vars, collapse = " + "))
+        # Validate that data and env have same number of rows
+        if (nrow(data()) != nrow(env_data())) {
+          stop("Species data and environmental data must have the same number of sites/rows")
+        }
+        
+        # Compute distance matrix
+        dist_matrix <- vegdist(data(), method = input$distance)
+        
+        # Build formula using environmental variables
+        formula_str <- paste("dist_matrix ~", paste(input$group_vars, collapse = " + "))
         formula_obj <- as.formula(formula_str)
         
-        # Run adonis2
+        # Run adonis2 with distance matrix
         adonis2(formula_obj, 
                data = env_data(), 
-               permutations = input$permutations,
-               method = input$distance)
+               permutations = input$permutations)
       }, error = function(e) {
         waiter_hide()
-        showNotification(paste("❌ PERMANOVA failed:", e$message), type = "error")
+        showNotification(paste("❌ PERMANOVA failed:", e$message), type = "error", duration = 8)
         NULL
       })
       
@@ -197,9 +215,10 @@ permanova_server <- function(id, data, env_data) {
       r2_vals <- permanova_result()$R2
       labels <- rownames(permanova_result())
       
-      # Create bar plot
-      par(family = "sans", bg = "#252526", fg = "#cccccc", col.axis = "#cccccc",
-          col.lab = "#cccccc", col.main = "#2e8b57", mar = c(5, 10, 4, 2))
+      # Use safe, conservative margins
+      par(family = "sans", bg = "#252526", fg = "#cccccc", 
+          col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57", 
+          mar = c(5, 8, 4, 2))  # Fixed safe margins
       
       barplot(r2_vals * 100, horiz = TRUE, las = 1, 
               names.arg = labels,
@@ -207,10 +226,14 @@ permanova_server <- function(id, data, env_data) {
               border = NA,
               xlab = "Variance Explained (%)",
               main = "PERMANOVA Variance Partitioning",
-              xlim = c(0, max(r2_vals * 100) * 1.2))
+              xlim = c(0, max(r2_vals * 100) * 1.2),
+              cex.names = 0.85,  # Smaller label text
+              cex.axis = 0.9,
+              cex.lab = 1.0,
+              cex.main = 1.1)
       
       grid(col = "#404040", lty = 1)
-    })
+    }, res = 96, height = 500)
     
     # Export results
     output$export_results <- downloadHandler(

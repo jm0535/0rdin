@@ -14,6 +14,17 @@ dbrda_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ db-RDA Configuration"),
         
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE db-RDA"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("**Distance-based RDA** with **any dissimilarity metric** (not limited to Euclidean)"),
+            tags$li("Constrain ordination by environmental variables using **Bray-Curtis, Jaccard**, etc."),
+            tags$li("Ideal when **non-Euclidean distances** better represent community structure"),
+            tags$li("Example: How do soil nutrients explain species patterns using Bray-Curtis?")
+          )
+        ),
+        
         helpText("Distance-based RDA allows constrained ordination with any distance metric (not limited to Euclidean)."),
         
         # Distance metric

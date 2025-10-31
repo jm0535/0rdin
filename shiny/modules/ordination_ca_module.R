@@ -18,6 +18,17 @@ ca_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ CA Configuration"),
         
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE CA"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("Visualize **unimodal species responses** along gradients"),
+            tags$li("Best for **long gradients** (DCA axis > 4 SD units)"),
+            tags$li("Analyze **presence-absence** or **abundance** data with chi-square distance"),
+            tags$li("Example: How do species respond to ecological gradients?")
+          )
+        ),
+        
         helpText("CA is ideal for unimodal species responses and gradient analysis."),
         
         # Run button

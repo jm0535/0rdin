@@ -25,6 +25,17 @@ nmds_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ NMDS Configuration"),
         
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE NMDS"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("Visualize **non-linear relationships** in community composition"),
+            tags$li("Best for **unimodal species responses** and **complex gradients**"),
+            tags$li("Use when **stress < 0.20** for reliable ordination"),
+            tags$li("Example: How do species communities vary across environmental gradients?")
+          )
+        ),
+        
         # Distance Metric
         selectInput(
           ns("distance"),

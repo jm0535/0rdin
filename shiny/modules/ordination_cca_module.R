@@ -14,6 +14,17 @@ cca_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ CCA Configuration"),
         
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE CCA"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("**Constrained ordination** relating species to **environmental variables**"),
+            tags$li("Best for **unimodal species responses** (use RDA for linear)"),
+            tags$li("Test which **environmental factors drive community patterns**"),
+            tags$li("Example: Which env variables (pH, nutrients) explain species composition?")
+          )
+        ),
+        
         helpText("CCA constrains ordination by environmental variables. Ideal for unimodal species responses."),
         
         # Environmental variables selection

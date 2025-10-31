@@ -14,6 +14,17 @@ cap_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ CAP Configuration"),
         
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE CAP"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("**Constrained PCoA** - combines PCoA with environmental constraints"),
+            tags$li("Test which **env variables** explain patterns in **dissimilarity space**"),
+            tags$li("Use when you want **discrimination** among predefined groups"),
+            tags$li("Example: Which factors best separate community types in ordination space?")
+          )
+        ),
+        
         helpText("CAP is a constrained form of PCoA. Ideal for analyzing community patterns constrained by environmental factors."),
         
         # Distance metric

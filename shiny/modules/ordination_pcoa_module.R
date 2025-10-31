@@ -9,6 +9,18 @@ pcoa_ui <- function(id) {
   tagList(
     div(class = "config-panel",
       h3("⚙️ PCoA Configuration"),
+      
+      # WHEN TO USE guidance box
+      div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+        h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE PCoA"),
+        tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+          tags$li("Visualize **dissimilarity matrices** (e.g., Bray-Curtis, Jaccard)"),
+          tags$li("Use when you have a **distance/dissimilarity matrix** rather than raw data"),
+          tags$li("Handles **non-Euclidean distances** better than PCA"),
+          tags$li("Example: Compare community composition using ecological dissimilarity metrics")
+        )
+      ),
+      
       selectInput(ns("distance"), "Distance:",
                  choices = c("Bray-Curtis" = "bray", "Jaccard" = "jaccard", 
                             "Euclidean" = "euclidean")),

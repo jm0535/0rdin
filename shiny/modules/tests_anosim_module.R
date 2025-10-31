@@ -14,6 +14,17 @@ anosim_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ ANOSIM Configuration"),
         
+        # When to use ANOSIM
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE ANOSIM"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("Test if **groups are well separated** using **rank-based** approach"),
+            tags$li("Compare **2 or more groups** (simpler than PERMANOVA)"),
+            tags$li("R statistic: **0 = no separation**, **1 = complete separation**"),
+            tags$li("Example: Are forest vs grassland communities different?")
+          )
+        ),
+        
         helpText("Tests if group centroids differ (rank-based approach, similar to PERMANOVA)."),
         
         selectInput(ns("distance"), "Distance/Dissimilarity:",
@@ -30,9 +41,9 @@ anosim_ui <- function(id) {
       ),
       
       div(class = "horizontal-split",
-        div(class = "plot-panel",
+        div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           uiOutput(ns("anosim_interpretation")),
-          plotOutput(ns("anosim_plot"), height = "400px")
+          plotOutput(ns("anosim_plot"), width = "100%", height = "400px")
         ),
         
         div(class = "results-panel",
@@ -118,11 +129,13 @@ anosim_server <- function(id, data, env_data) {
     
     output$anosim_plot <- renderPlot({
       req(anosim_result())
-      par(family = "sans", bg = "#252526", fg = "#cccccc", col.axis = "#cccccc",
-          col.lab = "#cccccc", col.main = "#2e8b57")
-      plot(anosim_result(), main = "ANOSIM Rank Dissimilarities", col = c("#2e8b57", "#d4a017"))
+      par(family = "sans", bg = "#252526", fg = "#cccccc", 
+          col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+          mar = c(5, 4, 4, 2))  # Standard margins
+      plot(anosim_result(), main = "ANOSIM Rank Dissimilarities", 
+           col = c("#2e8b57", "#d4a017"))
       grid(col = "#404040", lty = 1)
-    })
+    }, res = 96)
     
     output$export_results <- downloadHandler(
       filename = function() paste0("anosim_results_", Sys.Date(), ".csv"),

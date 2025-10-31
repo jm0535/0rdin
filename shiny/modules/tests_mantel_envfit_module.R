@@ -12,7 +12,7 @@ mantel_envfit_ui <- function(id) {
   ns <- NS(id)
   tagList(
     div(class = "mantel-envfit-workflow",
-      selectInput(ns("test_type"), "Select Test:",
+      selectInput(ns("test_type"), "Analysis Type:",
                  choices = c("Mantel Test" = "mantel", "Environmental Fitting (envfit)" = "envfit"),
                  selected = "mantel"),
       
@@ -21,6 +21,18 @@ mantel_envfit_ui <- function(id) {
         condition = sprintf("input['%s'] == 'mantel'", ns("test_type")),
         div(class = "config-panel",
           h3("⚙️ Mantel Test Configuration"),
+          
+          # When to use Mantel Test
+          div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+            h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE MANTEL TEST"),
+            tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+              tags$li("Test **correlation between two distance matrices**"),
+              tags$li("Example: Does **species distance** correlate with **environmental distance**?"),
+              tags$li("r close to **1** = strong positive correlation"),
+              tags$li("Useful for **spatial autocorrelation** analysis")
+            )
+          ),
+          
           helpText("Tests correlation between two distance/dissimilarity matrices."),
           
           selectInput(ns("distance1"), "Species Distance:",
@@ -39,9 +51,9 @@ mantel_envfit_ui <- function(id) {
         ),
         
         div(class = "horizontal-split",
-          div(class = "plot-panel",
+          div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
             uiOutput(ns("mantel_interpretation")),
-            plotOutput(ns("mantel_plot"), height = "400px")
+            plotOutput(ns("mantel_plot"), width = "100%", height = "400px")
           ),
           
           div(class = "results-panel",
@@ -58,6 +70,18 @@ mantel_envfit_ui <- function(id) {
         condition = sprintf("input['%s'] == 'envfit'", ns("test_type")),
         div(class = "config-panel",
           h3("⚙️ envfit Configuration"),
+          
+          # When to use envfit
+          div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+            h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE ENVFIT"),
+            tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+              tags$li("Fit **environmental vectors/surfaces** onto ordination plot"),
+              tags$li("Visualize which **env variables drive patterns** in community"),
+              tags$li("Shows **direction & strength** of environmental gradients"),
+              tags$li("Example: Which factors (pH, temp) correlate with NMDS axes?")
+            )
+          ),
+          
           helpText("Fits environmental variables as vectors/surfaces onto ordination."),
           
           div(style = "background: #d4a01720; border-left: 3px solid #d4a017; padding: 12px; margin: 10px 0;",
@@ -156,8 +180,9 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
       dist1 <- vegdist(data(), method = input$distance1)
       dist2 <- vegdist(env_data(), method = input$distance2)
       
-      par(family = "sans", bg = "#252526", fg = "#cccccc", col.axis = "#cccccc",
-          col.lab = "#cccccc", col.main = "#2e8b57")
+      par(family = "sans", bg = "#252526", fg = "#cccccc", 
+          col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+          mar = c(5, 4, 4, 2))  # Standard margins
       
       plot(as.vector(dist1), as.vector(dist2),
            xlab = paste(input$distance1, "distance (species)"),
@@ -168,9 +193,10 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
       abline(lm(as.vector(dist2) ~ as.vector(dist1)), col = "#d4a017", lwd = 2)
       grid(col = "#404040", lty = 1)
       
-      legend("topleft", legend = sprintf("r = %.4f\np = %.4f", mantel_result()$statistic, mantel_result()$signif),
-             bty = "n", text.col = "#2e8b57", cex = 1.2)
-    })
+      legend("topleft", 
+             legend = sprintf("r = %.4f\np = %.4f", mantel_result()$statistic, mantel_result()$signif),
+             bty = "n", text.col = "#2e8b57", cex = 1.0)
+    }, res = 96)
     
     # envfit
     output$env_vars_ui <- renderUI({
@@ -235,13 +261,14 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
       
       ord <- metaMDS(data(), distance = "bray", trymax = 20, trace = 0)
       
-      par(family = "sans", bg = "#252526", fg = "#cccccc", col.axis = "#cccccc",
-          col.lab = "#cccccc", col.main = "#2e8b57")
+      par(family = "sans", bg = "#252526", fg = "#cccccc", 
+          col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+          mar = c(5, 4, 4, 2))  # Standard margins
       
       plot(ord, type = "n", main = "envfit: Environmental Vectors on NMDS")
       points(ord, pch = 21, bg = "#2e8b5760", col = "#2e8b57", cex = 1.5)
       plot(envfit_result(), col = "#d4a017", lwd = 2, cex = 0.8)
       grid(col = "#404040", lty = 1)
-    })
+    }, res = 96)
   })
 }

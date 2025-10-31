@@ -24,6 +24,17 @@ pca_ui <- function(id) {
       div(class = "config-panel",
         h3("⚙️ PCA Configuration"),
         
+        # WHEN TO USE guidance box
+        div(style = "background: #4a90e220; border-left: 3px solid #4a90e2; padding: 12px; margin-bottom: 16px;",
+          h4(style = "color: #4a90e2; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;", "📘 WHEN TO USE PCA"),
+          tags$ul(style = "color: #ccc; font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6;",
+            tags$li("Visualize **linear relationships** in multivariate data"),
+            tags$li("Best for **short gradients** and **linear species responses**"),
+            tags$li("Maximize **variance explained** in first few axes (typically >70%)"),
+            tags$li("Example: What are the main axes of variation in species composition?")
+          )
+        ),
+        
         # Scaling method
         selectInput(
           ns("scaling"),
