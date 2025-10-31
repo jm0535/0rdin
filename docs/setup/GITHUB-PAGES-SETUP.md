@@ -35,7 +35,7 @@ Once published, your site will be at:
 
 ### Hero Section
 - ✅ Large Ö logo with gradient background
-- ✅ Professional tagline: "Professional Community Ecology Analysis Platform"
+- ✅ Professional tagline: "Next-Gen Open-Source Community Ecology Analysis Platform"
 - ✅ Two CTAs: "Download Now" + "Explore Features"
 - ✅ Platform badges: Windows, macOS, Linux
 - ✅ Hero screenshot of main interface

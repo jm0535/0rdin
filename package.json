@@ -2,7 +2,7 @@
   "name": "ordin",
   "productName": "Ördin",
   "version": "3.0.0",
-  "description": "A Community Ecology Analysis Platform - Enterprise-Grade v3.0 with Advanced UI/UX, Multi-Format Export, Keyboard Shortcuts, Auto-Save, Data Preview, Loading Screens, and Full Accessibility Support",
+  "description": "Next-Gen Open-Source Community Ecology Analysis Platform - v3.0 with Advanced UI/UX, Multi-Format Export, Keyboard Shortcuts, Auto-Save, Data Preview, Loading Screens, and Full Accessibility Support",
   "main": "src/index.js",
   "author": "Jimmy Moses <jimmy.moses@pnguot.ac.pg>",
   "license": "MIT",
