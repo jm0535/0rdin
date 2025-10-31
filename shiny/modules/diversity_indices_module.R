@@ -126,6 +126,19 @@ diversity_indices_server <- function(id, data) {
     # Reactive values
     indices_results <- reactiveVal(NULL)
     
+    # Plot customization defaults
+    plot_defaults <- reactiveValues(
+      theme = "bw",
+      base_size = 12,
+      title_size = 16,
+      color_palette = c("#2e8b57", "#007acc", "#d4a017", "#ff6b6b", "#4ade80")
+    )
+    
+    # Observers for plot customization (when right panel is added later)
+    observeEvent(input$plot_theme, { plot_defaults$theme <- input$plot_theme }, ignoreNULL = FALSE)
+    observeEvent(input$plot_base_size, { plot_defaults$base_size <- input$plot_base_size }, ignoreNULL = FALSE)
+    observeEvent(input$plot_title_size, { plot_defaults$title_size <- input$plot_title_size }, ignoreNULL = FALSE)
+    
     # Calculate diversity indices
     observeEvent(input$run_indices, {
       req(data())
@@ -174,6 +187,16 @@ diversity_indices_server <- function(id, data) {
       
       if (!is.null(results)) {
         indices_results(results)
+        
+        # CRITICAL: Trigger plot customization panel to open
+        session$sendCustomMessage(
+          type = "showPlotCustomization",
+          message = list(
+            plotType = "diversity",
+            moduleId = "diversity_idx"
+          )
+        )
+        
         showNotification("✓ Diversity indices calculated!", type = "message")
       }
     })
@@ -206,6 +229,11 @@ diversity_indices_server <- function(id, data) {
     output$indices_plot <- renderPlot({
       req(indices_results())
       
+      # Force reactivity by observing ALL plot customization inputs
+      plot_theme <- if(!is.null(input$plot_plot_theme)) input$plot_plot_theme else plot_defaults$theme
+      plot_base_size <- if(!is.null(input$plot_base_size)) input$plot_base_size else plot_defaults$base_size
+      plot_title_size <- if(!is.null(input$plot_title_size)) input$plot_title_size else plot_defaults$title_size
+      
       # Reshape data for plotting
       plot_data <- tidyr::pivot_longer(
         indices_results(),
@@ -214,20 +242,31 @@ diversity_indices_server <- function(id, data) {
         values_to = "Value"
       )
       
+      # Select theme
+      selected_theme <- switch(plot_theme,
+        "bw" = theme_bw(base_size = plot_base_size),
+        "minimal" = theme_minimal(base_size = plot_base_size),
+        "classic" = theme_classic(base_size = plot_base_size),
+        "light" = theme_light(base_size = plot_base_size),
+        "dark" = theme_dark(base_size = plot_base_size),
+        "void" = theme_void(base_size = plot_base_size),
+        theme_bw(base_size = plot_base_size)
+      )
+      
       ggplot(plot_data, aes(x = Sample, y = Value, fill = Index)) +
         geom_col(position = "dodge", color = "#1e1e1e") +
         facet_wrap(~Index, scales = "free_y", ncol = 1) +
-        theme_bw() +
+        selected_theme +
         theme(
-          plot.title = element_text(color = "#2e8b57", size = 16, face = "bold"),
-          axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
-          axis.title = element_text(size = 12),
+          plot.title = element_text(color = "#2e8b57", size = plot_title_size, face = "bold"),
+          axis.text.x = element_text(angle = 45, hjust = 1, size = plot_base_size - 4),
+          axis.title = element_text(size = plot_base_size),
           legend.position = "none",
           panel.grid.minor = element_blank(),
           strip.background = element_rect(fill = "#252526"),
-          strip.text = element_text(color = "#2e8b57", face = "bold")
+          strip.text = element_text(color = "#2e8b57", face = "bold", size = plot_base_size)
         ) +
-        scale_fill_manual(values = c("#2e8b57", "#007acc", "#d4a017", "#ff6b6b", "#4ade80")) +
+        scale_fill_manual(values = plot_defaults$color_palette) +
         labs(
           title = "Diversity Indices by Site",
           x = "Sample Site",

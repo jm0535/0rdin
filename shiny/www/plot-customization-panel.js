@@ -66,7 +66,8 @@ function hidePlotCustomization() {
 function generatePlotCustomizationUI(plotType, moduleId) {
   
   // Check if this is a diversity/iNEXT module
-  if (plotType === 'diversity_estimation' || plotType === 'inext' || moduleId === 'estimation') {
+  if (plotType === 'diversity_estimation' || plotType === 'diversity' || plotType === 'inext' || 
+      moduleId === 'estimation' || moduleId === 'diversity_est' || moduleId === 'diversity_idx') {
     return generateDiversityPlotControls(moduleId);
   }
   

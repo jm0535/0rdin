@@ -258,7 +258,7 @@ ui <- function(req) {
             ),
             
             # Stats Overview
-            div(style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 900px; margin: 30px auto;",
+            div(style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%; margin: 30px 0;",
               div(style = "background: linear-gradient(135deg, #2e8b57 0%, #1e5f3f 100%); padding: 24px; border-radius: 8px; text-align: center;",
                 div(style = "font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px;", "9"),
                 div(style = "color: #e0e0e0; font-size: 13px; font-weight: 600;", "Ordination Methods")
@@ -278,7 +278,7 @@ ui <- function(req) {
             ),
             
             # Key Features Section
-            div(style = "max-width: 900px; margin: 40px auto;",
+            div(style = "width: 100%; margin: 40px 0;",
               h3(style = "color: #2e8b57; text-align: center; margin-bottom: 30px; font-size: 24px;", "🎯 Why Choose Ördin?"),
               div(style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;",
                 # Feature 1
@@ -318,7 +318,7 @@ ui <- function(req) {
             ),
             
             # Quick Start Actions
-            div(class = "action-cards", style = "max-width: 900px; margin: 40px auto;",
+            div(class = "action-cards", style = "width: 100%; margin: 40px 0;",
               div(class = "card",
                 div(style = "font-size: 48px; margin-bottom: 12px;", "📥"),
                 h3("Import Data"),
@@ -346,7 +346,7 @@ ui <- function(req) {
             ),
             
             # Citation/Credit
-            div(style = "max-width: 700px; margin: 50px auto 30px; padding: 20px; background: #1e1e1e; border-radius: 8px; text-align: center;",
+            div(style = "width: 100%; margin: 50px 0 30px; padding: 20px; background: #1e1e1e; border-radius: 8px; text-align: center;",
               p(style = "color: #888; font-size: 12px; margin: 0 0 12px 0;",
                 "Built with ❤️ for the ecology community"),
               p(style = "color: #666; font-size: 11px; margin: 0;",

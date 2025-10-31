@@ -367,6 +367,15 @@ diversity_estimation_server <- function(id, data) {
       if (!is.null(result)) {
         inext_result(result)
         
+        # CRITICAL: Trigger plot customization panel to open
+        session$sendCustomMessage(
+          type = "showPlotCustomization",
+          message = list(
+            plotType = "diversity_estimation",
+            moduleId = "diversity_est"
+          )
+        )
+        
         showNotification(
           HTML("<strong>✓ iNEXT Complete!</strong><br/>Rarefaction & extrapolation curves generated"),
           type = "message",
