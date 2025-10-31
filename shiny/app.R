@@ -1149,14 +1149,8 @@ server <- function(input, output, session) {
   })
 
   output$species_preview <- DT::renderDT({
-    cat("\n========== DATATABLE RENDER CALLED ==========", "\n")
-    cat("Timestamp:", Sys.time(), "\n")
-    cat("species_data is null:", is.null(species_data()), "\n")
-
     if (is.null(species_data())) {
       # Show empty placeholder
-      cat("Showing empty placeholder message\n")
-      cat("==========================================\n\n")
       DT::datatable(
         data.frame(
           Status = "⚠️ No Data Loaded",
@@ -1179,10 +1173,6 @@ server <- function(input, output, session) {
       )
     } else {
       # Show actual data
-      cat("Showing actual data\n")
-      cat("Rows:", nrow(species_data()), "\n")
-      cat("Cols:", ncol(species_data()), "\n")
-      cat("==========================================\n\n")
       DT::datatable(
         species_data(),
         options = list(
@@ -1207,13 +1197,7 @@ server <- function(input, output, session) {
 
   # Environmental data preview table
   output$env_preview <- DT::renderDT({
-    cat("\n========== ENV DATATABLE RENDER ==========\n")
-    cat("env_data is null:", is.null(env_data()), "\n")
-
     if (!is.null(env_data())) {
-      cat("Showing environmental data\n")
-      cat("Rows:", nrow(env_data()), "\n")
-      cat("Cols:", ncol(env_data()), "\n")
       DT::datatable(
         env_data(),
         options = list(
@@ -1238,13 +1222,7 @@ server <- function(input, output, session) {
 
   # Trait data preview table
   output$trait_preview <- DT::renderDT({
-    cat("\n========== TRAIT DATATABLE RENDER ==========\n")
-    cat("trait_data is null:", is.null(trait_data()), "\n")
-
     if (!is.null(trait_data())) {
-      cat("Showing trait data\n")
-      cat("Rows:", nrow(trait_data()), "\n")
-      cat("Cols:", ncol(trait_data()), "\n")
       DT::datatable(
         trait_data(),
         options = list(
@@ -1269,73 +1247,52 @@ server <- function(input, output, session) {
 
   # ============== SAMPLE DATA LOADING ==============
   observeEvent(input$load_sample, {
-    cat("\n=== LOAD SAMPLE BUTTON CLICKED ===", "\n")
-    cat("sample_dataset value:", input$sample_dataset, "\n")
-
     req(input$sample_dataset)
 
     if (input$sample_dataset == "dune") {
-      cat("Loading dune dataset...\n")
       data(dune, package = "vegan")
-      species_data(as.data.frame(dune)) # Store reactively
-      cat("Dune data stored. Rows:", nrow(dune), "\n")
+      species_data(as.data.frame(dune))
 
       # Also load dune.env environmental data
       data(dune.env, package = "vegan")
       env_data(as.data.frame(dune.env))
-      cat("Dune.env data stored. Rows:", nrow(dune.env), "\n")
 
       showNotification("✅ Dune meadow data + environmental data loaded successfully!", type = "message", duration = 3)
     } else if (input$sample_dataset == "varespec") {
-      cat("Loading varespec dataset...\n")
       data(varespec, package = "vegan")
-      species_data(as.data.frame(varespec)) # Store reactively
-      cat("Varespec data stored. Rows:", nrow(varespec), "\n")
+      species_data(as.data.frame(varespec))
 
       showNotification("✅ Varespec data loaded successfully!", type = "message", duration = 3)
     } else if (input$sample_dataset == "BCI") {
-      cat("Loading BCI dataset...\n")
       data(BCI, package = "vegan")
-      species_data(as.data.frame(BCI)) # Store reactively
-      cat("BCI data stored. Rows:", nrow(BCI), "\n")
+      species_data(as.data.frame(BCI))
 
       showNotification("✅ BCI data loaded successfully!", type = "message", duration = 3)
     } else if (input$sample_dataset == "phylo_example") {
-      cat("Loading phylogenetic example dataset...\n")
-
-      # Load phylocom dataset from picante package (real phylogenetic data!)
+      # Load phylocom dataset from picante package
       data(phylocom, package = "picante")
 
       # Extract community matrix and phylogeny
-      species_data(as.data.frame(phylocom$sample)) # 6 sites × 25 species
-      phylo_tree(phylocom$phylo) # Real phylogenetic tree
-
-      cat("Phylocom dataset loaded:", nrow(phylocom$sample), "sites ×", ncol(phylocom$sample), "species\n")
-      cat("Phylogenetic tree with", length(phylocom$phylo$tip.label), "tips\n")
+      species_data(as.data.frame(phylocom$sample))
+      phylo_tree(phylocom$phylo)
 
       showNotification(
         "✅ Phylocom dataset loaded! (Real phylogenetic data from picante package)",
         type = "message", duration = 4
       )
     } else if (input$sample_dataset == "func_example") {
-      cat("Loading functional example dataset...\n")
-
-      # Load phylocom dataset as base (has trait data too!)
+      # Load phylocom dataset as base
       data(phylocom, package = "picante")
       species_data(as.data.frame(phylocom$sample))
 
       # Use the traits from phylocom dataset
-      trait_data(phylocom$traits) # Real trait data: multiple continuous traits
-
-      cat("Phylocom trait data loaded for", nrow(phylocom$traits), "species with", ncol(phylocom$traits), "traits\n")
+      trait_data(phylocom$traits)
       showNotification(
         "✅ Functional example loaded! (Phylocom dataset with real trait data)",
         type = "message", duration = 4
       )
     } else if (input$sample_dataset == "temporal_example") {
-      cat("Loading temporal beta diversity example...\n")
-
-      # Load BBS (Breeding Bird Survey) temporal data from betapart package
+      # Load BBS temporal data from betapart package
       library(betapart)
       data(bbsData, package = "betapart")
 

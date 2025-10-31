@@ -2,11 +2,78 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.0.0] - 2025-01-29
+## [3.0.0] - 2025-01-31 (Production Release)
 
-### 🎉 Major Release: Real-Time Plot Customization & Interactive Help System
+### 🎉 Production-Ready Release: Enterprise-Grade Community Ecology Platform
 
-Version 3.0.0 represents a transformative update with real-time plot customization, comprehensive settings system, and interactive help documentation. This release elevates Ördin to a professional-grade community ecology platform with enterprise-level UX.
+Version 3.0.0 is now **production-ready** with all critical bugs fixed, debug code removed, and professional polish applied. This release represents a complete transformation from prototype to professional-grade community ecology analysis platform.
+
+### 🐛 Final Bug Fixes (Pre-Production)
+
+#### Window Management
+- **Fixed**: Title bar now draggable on Windows
+  - Added `-webkit-app-region: drag` CSS property to `.titlebar`
+  - Added `-webkit-app-region: no-drag` to window control buttons
+  - Users can now move the Electron window by dragging the title bar
+
+#### Statistical Tests Module
+- **Fixed**: Mantel test "input data must be numeric" error
+  - Implemented safe column subsetting with `any()` validation
+  - Automatically filters environmental data to numeric columns only
+  - Shows clear error message when no numeric variables found
+  - Prevents R crash from undefined column selection
+
+- **Fixed**: envfit results table crash with mixed data types
+  - Properly handles both continuous (vectors) and categorical (factors) variables
+  - Displays separate "Type" column (Continuous vs Factor)
+  - Extracts R² and p-values correctly for both variable types
+  - No more "undefined columns selected" errors
+
+#### UI/UX Improvements
+- **Fixed**: Environmental variable selection layout
+  - Changed from confusing multi-select dropdown to **checkboxes**
+  - All variables visible at once with clear selection state
+  - Intuitive click-to-toggle interaction
+  - Much clearer for selecting multiple environmental variables
+
+### 🧹 Production Cleanup
+
+#### Debug Code Removed
+- Removed all `cat()` debug statements from `app.R`:
+  - `========== DATATABLE RENDER CALLED ==========`
+  - `Timestamp:` console logging
+  - `=== LOAD SAMPLE BUTTON CLICKED ===`
+  - Row/column count debugging for data preview tables
+  - Cleaned up 40+ lines of debug output
+
+- DevTools already disabled in `src/index.js` (commented out)
+- Clean console output in production builds
+
+#### Branding Consistency
+- **Copyright year**: Updated to **2025** across all files
+- **PC username**: Auto-detected in status bar and title bar (no hardcoded names)
+- **App name**: "Ördin" with umlaut consistently used
+- **Icon**: 'Ö' character as primary logo
+
+### 📦 Packaging & Distribution
+
+#### Build Configuration
+- **Electron Forge** fully configured for production
+- **Platform support**:
+  - Windows (Squirrel installer `.exe`)
+  - macOS (ZIP distribution)
+  - Linux (DEB + RPM packages)
+- **ASAR packaging**: Enabled for code protection
+- **Icons**: Complete icon set (16, 32, 48, 64, 128, 256, 512, 1024px)
+
+#### Quality Assurance
+- ✅ All 9 ordination methods tested
+- ✅ Mantel test with numeric validation working
+- ✅ envfit with checkbox selection working
+- ✅ Beta diversity partitioning functional
+- ✅ Export functionality verified (PNG, SVG, TIFF, CSV)
+- ✅ No crash-causing bugs
+- ✅ Professional error handling throughout
 
 ### ✨ Added
 
