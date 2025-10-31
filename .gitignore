@@ -19,6 +19,8 @@ r-portable/
 # OS files
 .DS_Store
 Thumbs.db
+$null
+*.tmp
 
 # IDE
 .vscode/
@@ -30,3 +32,6 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Archive directory (project history)
+archive/
