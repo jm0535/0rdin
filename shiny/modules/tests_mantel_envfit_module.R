@@ -141,8 +141,22 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
       waiter_show(html = tagList(spin_fading_circles(), h3("Running Mantel Test...", style = "color: #2e8b57; margin-top: 20px;")))
       
       result <- tryCatch({
+        # Calculate species distance
         dist1 <- vegdist(data(), method = input$distance1)
-        dist2 <- vegdist(env_data(), method = input$distance2)
+        
+        # Get only numeric columns from environmental data
+        numeric_cols <- sapply(env_data(), is.numeric)
+        
+        if (!any(numeric_cols)) {
+          stop("No numeric environmental variables found. Mantel test requires numeric data.")
+        }
+        
+        env_numeric <- env_data()[, numeric_cols, drop = FALSE]
+        
+        # Calculate environmental distance using numeric data only
+        dist2 <- vegdist(env_numeric, method = input$distance2)
+        
+        # Run Mantel test
         mantel(dist1, dist2, permutations = input$mantel_perm)
       }, error = function(e) {
         waiter_hide()
@@ -188,7 +202,11 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
       
       # Create scatter plot of distance matrices
       dist1 <- vegdist(data(), method = input$distance1)
-      dist2 <- vegdist(env_data(), method = input$distance2)
+      
+      # Get only numeric columns from environmental data
+      numeric_cols <- sapply(env_data(), is.numeric)
+      env_numeric <- env_data()[, numeric_cols, drop = FALSE]
+      dist2 <- vegdist(env_numeric, method = input$distance2)
       
       par(family = "sans", bg = "#252526", fg = "#cccccc", 
           col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
@@ -211,10 +229,17 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
     # envfit
     output$env_vars_ui <- renderUI({
       req(env_data())
-      selectInput(ns("env_vars"), "Environmental Variables:",
-                 choices = names(env_data()),
-                 selected = names(env_data()),
-                 multiple = TRUE)
+      
+      # Use checkboxes for better UX
+      div(style = "margin-bottom: 16px;",
+        tags$label("Environmental Variables:", style = "display: block; margin-bottom: 12px; color: #888; font-size: 12px; font-weight: 600;"),
+        checkboxGroupInput(
+          ns("env_vars"),
+          label = NULL,
+          choices = names(env_data()),
+          selected = names(env_data())
+        )
+      )
     })
     
     observeEvent(input$run_envfit, {
@@ -273,17 +298,57 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
     output$envfit_table <- renderTable({
       req(envfit_result())
       
-      # Extract vectors
-      vec_df <- as.data.frame(envfit_result()$vectors$r)
-      vec_df$Variable <- rownames(vec_df)
-      vec_df$`R-squared` <- envfit_result()$vectors$r
-      vec_df$`p-value` <- envfit_result()$vectors$pvals
+      result_list <- list()
       
-      vec_df <- vec_df[, c("Variable", "R-squared", "p-value")]
-      vec_df$`R-squared` <- sprintf("%.4f", vec_df$`R-squared`)
-      vec_df$`p-value` <- sprintf("%.4f", vec_df$`p-value`)
+      # Extract vectors (continuous variables)
+      if (!is.null(envfit_result()$vectors)) {
+        vec_r2 <- envfit_result()$vectors$r
+        vec_p <- envfit_result()$vectors$pvals
+        
+        if (length(vec_r2) > 0) {
+          vec_df <- data.frame(
+            Variable = names(vec_r2),
+            Type = "Continuous",
+            `R-squared` = sprintf("%.4f", vec_r2),
+            `p-value` = sprintf("%.4f", vec_p),
+            stringsAsFactors = FALSE,
+            check.names = FALSE
+          )
+          result_list[[1]] <- vec_df
+        }
+      }
       
-      vec_df
+      # Extract factors (categorical variables)
+      if (!is.null(envfit_result()$factors)) {
+        fac_r2 <- envfit_result()$factors$r
+        fac_p <- envfit_result()$factors$pvals
+        
+        if (length(fac_r2) > 0) {
+          fac_df <- data.frame(
+            Variable = names(fac_r2),
+            Type = "Factor",
+            `R-squared` = sprintf("%.4f", fac_r2),
+            `p-value` = sprintf("%.4f", fac_p),
+            stringsAsFactors = FALSE,
+            check.names = FALSE
+          )
+          result_list[[2]] <- fac_df
+        }
+      }
+      
+      # Combine results
+      if (length(result_list) > 0) {
+        do.call(rbind, result_list)
+      } else {
+        data.frame(
+          Variable = character(0),
+          Type = character(0),
+          `R-squared` = character(0),
+          `p-value` = character(0),
+          stringsAsFactors = FALSE,
+          check.names = FALSE
+        )
+      }
     }, rownames = FALSE)
     
     output$envfit_plot <- renderPlot({

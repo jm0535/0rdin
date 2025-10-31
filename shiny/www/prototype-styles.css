@@ -77,12 +77,18 @@ div[id*="plot"] {
     padding: 0 12px;
     color: #888;
     font-size: 12px;
+    -webkit-app-region: drag;  /* Make titlebar draggable */
 }
 
 .titlebar-left, .titlebar-center, .titlebar-right {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* Make buttons non-draggable */
+.titlebar .window-btn {
+    -webkit-app-region: no-drag;
 }
 
 .app-icon {
