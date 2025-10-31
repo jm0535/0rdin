@@ -350,7 +350,7 @@ ui <- function(req) {
               p(style = "color: #888; font-size: 12px; margin: 0 0 12px 0;",
                 "Built with ❤️ for the ecology community"),
               p(style = "color: #666; font-size: 11px; margin: 0;",
-                HTML("Powered by <strong style='color: #4a90e2;'>R</strong>, <strong style='color: #2e8b57;'>vegan</strong>, <strong style='color: #ffa500;'>iNEXT</strong>, and <strong style='color: #9b59b6;'>Electron</strong>"))
+                HTML("Powered by <strong style='color: #4a90e2;'>R</strong>, <strong style='color: #2e8b57;'>vegan</strong>, <strong style='color: #ffa500;'>iNEXT</strong>, <strong style='color: #e74c3c;'>betapart</strong>, and <strong style='color: #9b59b6;'>Electron</strong>"))
             )
           ),
           
@@ -399,6 +399,9 @@ ui <- function(req) {
                                           "Dune Meadow (20 sites × 30 species + env)" = "dune", 
                                           "Varespec (24 sites × 44 species)" = "varespec", 
                                           "BCI (50 sites × 225 species)" = "BCI",
+                                          "Ciliates Incidence (3 sites × 300 species, P/A)" = "ciliates_incidence",
+                                          "Ant Incidence (17 sites, incidence freq)" = "ant_incidence",
+                                          "Plant Presence (17 sites × 46 species, P/A)" = "plant_presence",
                                           "Phylocom (6 sites + real phylogeny)" = "phylo_example",
                                           "Phylocom Traits (6 sites + functional traits)" = "func_example",
                                           "BBS Birds (49 sites × 2 time periods)" = "temporal_example"))
@@ -1140,6 +1143,51 @@ server <- function(input, output, session) {
       showNotification(
         "✅ Temporal dataset loaded! (US Breeding Bird Survey: 1980s vs 2000s)",
         type = "message", duration = 4
+      )
+      
+    } else if (input$sample_dataset == "ciliates_incidence") {
+      cat("Loading ciliates incidence dataset...\n")
+      
+      # Load from sample-data folder
+      ciliates <- read.csv("../sample-data/ciliates-incidence-raw.csv", row.names = 1)
+      species_data(as.data.frame(ciliates))
+      
+      cat("Ciliates incidence data loaded:", nrow(ciliates), "sites ×", ncol(ciliates), "species\n")
+      cat("Data type: Presence/Absence (0/1)\n")
+      
+      showNotification(
+        "✅ Ciliates incidence data loaded! (Presence/Absence)",
+        type = "message", duration = 3
+      )
+      
+    } else if (input$sample_dataset == "ant_incidence") {
+      cat("Loading ant incidence frequency dataset...\n")
+      
+      # Load from sample-data folder
+      ants <- read.csv("../sample-data/ant-incidence-freq.csv", row.names = 1)
+      species_data(as.data.frame(ants))
+      
+      cat("Ant incidence data loaded:", nrow(ants), "sites ×", ncol(ants), "species\n")
+      cat("Data type: Incidence frequency (for iNEXT)\n")
+      
+      showNotification(
+        "✅ Ant incidence data loaded! (Incidence frequency format)",
+        type = "message", duration = 3
+      )
+      
+    } else if (input$sample_dataset == "plant_presence") {
+      cat("Loading plant presence dataset...\n")
+      
+      # Load from sample-data folder
+      plants <- read.csv("../sample-data/plant-presence.csv", row.names = 1)
+      species_data(as.data.frame(plants))
+      
+      cat("Plant presence data loaded:", nrow(plants), "sites ×", ncol(plants), "species\n")
+      cat("Data type: Presence/Absence (0/1)\n")
+      
+      showNotification(
+        "✅ Plant presence data loaded! (Presence/Absence)",
+        type = "message", duration = 3
       )
     }
     

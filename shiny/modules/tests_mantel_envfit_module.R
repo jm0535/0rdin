@@ -126,7 +126,17 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
     
     # Mantel Test
     observeEvent(input$run_mantel, {
-      req(data(), env_data())
+      req(data())
+      
+      # Check if environmental data exists
+      if (is.null(env_data()) || nrow(env_data()) == 0) {
+        showNotification(
+          "❌ Mantel Test requires environmental data. Please upload environmental variables first.",
+          type = "error",
+          duration = 8
+        )
+        return()
+      }
       
       waiter_show(html = tagList(spin_fading_circles(), h3("Running Mantel Test...", style = "color: #2e8b57; margin-top: 20px;")))
       
@@ -208,7 +218,27 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
     })
     
     observeEvent(input$run_envfit, {
-      req(data(), env_data(), input$env_vars)
+      req(data())
+      
+      # Check if environmental data exists
+      if (is.null(env_data()) || nrow(env_data()) == 0) {
+        showNotification(
+          "❌ envfit requires environmental data. Please upload environmental variables first.",
+          type = "error",
+          duration = 8
+        )
+        return()
+      }
+      
+      # Check if env variables are selected
+      if (is.null(input$env_vars) || length(input$env_vars) == 0) {
+        showNotification(
+          "❌ Please select at least one environmental variable.",
+          type = "error",
+          duration = 8
+        )
+        return()
+      }
       
       waiter_show(html = tagList(spin_fading_circles(), h3("Fitting Environmental Vectors...", style = "color: #2e8b57; margin-top: 20px;")))
       

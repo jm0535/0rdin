@@ -80,7 +80,27 @@ anosim_server <- function(id, data, env_data) {
     })
     
     observeEvent(input$run_anosim, {
-      req(data(), env_data(), input$group_var)
+      req(data())
+      
+      # Check if environmental data exists
+      if (is.null(env_data()) || nrow(env_data()) == 0) {
+        showNotification(
+          "❌ ANOSIM requires environmental data. Please upload environmental variables first.",
+          type = "error",
+          duration = 8
+        )
+        return()
+      }
+      
+      # Check if grouping variable is selected
+      if (is.null(input$group_var) || input$group_var == "") {
+        showNotification(
+          "❌ Please select a grouping variable.",
+          type = "error",
+          duration = 8
+        )
+        return()
+      }
       
       waiter_show(html = tagList(spin_fading_circles(), h3("Running ANOSIM...", style = "color: #2e8b57; margin-top: 20px;")))
       

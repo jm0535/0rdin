@@ -109,7 +109,27 @@ permanova_server <- function(id, data, env_data) {
     
     # Run PERMANOVA
     observeEvent(input$run_permanova, {
-      req(data(), env_data(), input$group_vars)
+      req(data(), env_data())
+      
+      # Check if environmental data exists
+      if (is.null(env_data()) || nrow(env_data()) == 0) {
+        showNotification(
+          "❌ PERMANOVA requires environmental data. Please upload environmental variables first.",
+          type = "error",
+          duration = 8
+        )
+        return()
+      }
+      
+      # Check if grouping variables are selected
+      if (is.null(input$group_vars) || length(input$group_vars) == 0) {
+        showNotification(
+          "❌ Please select at least one grouping variable.",
+          type = "error",
+          duration = 8
+        )
+        return()
+      }
       
       waiter_show(html = tagList(
         spin_fading_circles(),
