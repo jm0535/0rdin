@@ -461,19 +461,42 @@ npm install
 
 ### 📚 User Guides
 
-Detailed guides available in the repository:
+Detailed guides organized in the [`docs/`](docs/) directory:
 
-- [`ENTERPRISE_ORDINATION_GUIDE.md`](ENTERPRISE_ORDINATION_GUIDE.md) - Comprehensive ordination analysis
-- [`DATA_MANAGEMENT_GUIDE.md`](DATA_MANAGEMENT_GUIDE.md) - Data handling and validation
-- [`SETTINGS_GUIDE.md`](SETTINGS_GUIDE.md) - Application configuration
-- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](ESTIMATES-AND-RAREFACTION-TYPES.md) - Diversity estimation theory
+**Analysis Guides** (`docs/guides/`):
+- [Ordination Guide](docs/guides/ENTERPRISE_ORDINATION_GUIDE.md) - Comprehensive ordination analysis
+- [Data Management](docs/guides/DATA_MANAGEMENT_GUIDE.md) - Data handling and validation
+- [Biplot Guide](docs/guides/BIPLOT_GUIDE.md) - Biplot interpretation
+- [CCA/RDA Guide](docs/guides/CCA_RDA_GUIDE.md) - Constrained ordination
+- [Plot Customization](docs/guides/PLOT-CUSTOMIZATION-GUIDE.md) - Customization options
+- [Settings Guide](docs/guides/SETTINGS_GUIDE.md) - Application configuration
 
-### 📘 Technical Documentation
+**Setup Guides** (`docs/setup/`):
+- [Linux Setup](docs/setup/SETUP-LINUX.md) - Linux installation
+- [WSL Setup](docs/setup/SETUP-WSL.md) - Windows Subsystem for Linux
+- [Fedora Quick Start](docs/setup/FEDORA-QUICKSTART.md) - Fedora-specific setup
+- [Publishing Guide](docs/setup/PUBLISH.md) - How to publish releases
 
-- [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md) - Architecture and technology stack
-- [`CHANGELOG.md`](CHANGELOG.md) - Complete version history
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) - Development guidelines
-- [`docs/`](docs/) - Comprehensive technical guides
+**Developer Documentation** (`docs/development/`):
+- [Project Overview](docs/development/PROJECT_OVERVIEW.md) - Architecture and technology stack
+- [Reproducibility Guide](docs/development/DEVELOPER-GUIDE-REPRODUCIBILITY.md) - Reproducible research
+- [Security Audit](docs/development/SECURITY-AUDIT.md) - Security review
+- [Test Checklist](docs/development/TEST_CHECKLIST.md) - Testing guidelines
+
+### 📘 Community Guidelines
+
+- [Getting Started](.github/GETTING_STARTED.md) - Quick start guide
+- [Contributing](.github/CONTRIBUTING.md) - Development guidelines
+- [Code of Conduct](.github/CODE_OF_CONDUCT.md) - Community standards
+- [Code Standards](.github/CODE_STANDARDS.md) - Coding conventions
+
+### 📜 Version History
+
+- [CHANGELOG.md](CHANGELOG.md) - Complete version history and release notes
+
+### 🗄️ Archived Documentation
+
+Historical documentation and implementation logs are preserved in the [`archive/`](archive/) directory for reference.
 
 ## License
 
