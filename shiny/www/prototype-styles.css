@@ -1332,12 +1332,33 @@ body.light-theme .app-container {
 }
 
 body.light-theme .sidebar {
+    background: #f5f5f5 !important;
+    border-right: 1px solid #d0d0d0 !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme .sidebar-header {
+    background: #e8e8e8 !important;
+    border-bottom: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme .sidebar-title {
+    color: #4a4a4a !important;
+}
+
+body.light-theme .sidebar-content {
+    background: #f5f5f5 !important;
+}
+
+body.light-theme .activity-bar {
     background: #e8e8e8 !important;
     border-right: 1px solid #d0d0d0 !important;
 }
 
-body.light-theme .activity-bar {
-    background: #2c2c2c !important;
+body.light-theme .titlebar {
+    background: #f3f3f3 !important;
+    border-bottom: 1px solid #d0d0d0 !important;
+    color: #1e1e1e !important;
 }
 
 body.light-theme .main-content {
@@ -1427,6 +1448,45 @@ body.light-theme .settings-section {
 
 body.light-theme label {
     color: #4a4a4a !important;
+}
+
+body.light-theme .section {
+    background: #f5f5f5 !important;
+}
+
+body.light-theme .section-header {
+    background: #e8e8e8 !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme .section-content {
+    background: #f5f5f5 !important;
+}
+
+body.light-theme .item {
+    color: #1e1e1e !important;
+}
+
+body.light-theme .item:hover {
+    background: #e0e0e0 !important;
+}
+
+body.light-theme select,
+body.light-theme input,
+body.light-theme textarea {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme .shiny-input-container {
+    color: #1e1e1e !important;
+}
+
+body.light-theme .form-control {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+    border: 1px solid #d0d0d0 !important;
 }
 
 /* ========================================
