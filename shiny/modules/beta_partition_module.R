@@ -61,7 +61,8 @@ beta_partition_ui <- function(id) {
                 "Presence-Absence (Incidence)" = "incidence",
                 "Abundance" = "abundance"
               ),
-              selected = "incidence"
+              selected = "incidence",
+              selectize = FALSE
             )
           ),
           column(3,
@@ -74,7 +75,8 @@ beta_partition_ui <- function(id) {
                 "Jaccard" = "jaccard",
                 "Bray-Curtis (abundance only)" = "bray"
               ),
-              selected = "sorensen"
+              selected = "sorensen",
+              selectize = FALSE
             )
           ),
           column(3,
@@ -88,6 +90,7 @@ beta_partition_ui <- function(id) {
                 "Functional Beta Diversity" = "functional",
                 "Phylogenetic Beta Diversity" = "phylogenetic"
               ),
+              selectize = FALSE,
               selected = "standard"
             )
           ),
@@ -138,11 +141,11 @@ beta_partition_ui <- function(id) {
               column(6, selectInput(ns("plot_theme"), "Theme", 
                 choices = c("Clean (bw)" = "bw", "Minimal" = "minimal", "Dark" = "dark", 
                            "Classic" = "classic", "Light" = "light"),
-                selected = "bw")),
+                selected = "bw", selectize = FALSE)),
               column(6, selectInput(ns("color_palette"), "Colors", 
                 choices = c("Green-Gold-Red" = "default", "Blue-White-Red" = "bwr", 
                            "Viridis" = "viridis", "Spectral" = "spectral"),
-                selected = "default"))
+                selected = "default", selectize = FALSE))
             ),
             fluidRow(
               column(6, numericInput(ns("base_size"), "Base Size", value = 12, min = 8, max = 20, step = 1)),

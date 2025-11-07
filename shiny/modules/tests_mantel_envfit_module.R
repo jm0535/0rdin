@@ -14,7 +14,8 @@ mantel_envfit_ui <- function(id) {
     div(class = "mantel-envfit-workflow",
       selectInput(ns("test_type"), "Analysis Type:",
                  choices = c("Mantel Test" = "mantel", "Environmental Fitting (envfit)" = "envfit"),
-                 selected = "mantel"),
+                 selected = "mantel",
+                 selectize = FALSE),
       
       # Mantel Test Panel
       conditionalPanel(
@@ -37,11 +38,13 @@ mantel_envfit_ui <- function(id) {
           
           selectInput(ns("distance1"), "Species Distance:",
                      choices = c("Bray-Curtis" = "bray", "Euclidean" = "euclidean"),
-                     selected = "bray"),
+                     selected = "bray",
+                     selectize = FALSE),
           
           selectInput(ns("distance2"), "Environmental Distance:",
                      choices = c("Euclidean" = "euclidean", "Manhattan" = "manhattan"),
-                     selected = "euclidean"),
+                     selected = "euclidean",
+                     selectize = FALSE),
           
           numericInput(ns("mantel_perm"), "Permutations:", value = 999, min = 99, max = 9999),
           

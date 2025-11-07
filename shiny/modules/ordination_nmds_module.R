@@ -48,7 +48,8 @@ nmds_ui <- function(id) {
             "Canberra" = "canberra",
             "Horn" = "horn"
           ),
-          selected = "bray"
+          selected = "bray",
+          selectize = FALSE
         ),
         
         # Dimensions (k)
@@ -78,7 +79,8 @@ nmds_ui <- function(id) {
           selectInput(
             ns("group_var"),
             "Grouping Variable (for ellipses):",
-            choices = NULL
+            choices = NULL,
+            selectize = FALSE
           ),
           checkboxInput(
             ns("show_ellipses"),
@@ -95,7 +97,8 @@ nmds_ui <- function(id) {
                 "Student's t" = "t",
                 "Euclidean" = "euclid"
               ),
-              selected = "norm"
+              selected = "norm",
+              selectize = FALSE
             ),
             sliderInput(
               ns("ellipse_level"),

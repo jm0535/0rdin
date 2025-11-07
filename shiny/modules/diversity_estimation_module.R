@@ -54,7 +54,8 @@ diversity_estimation_ui <- function(id) {
             "Abundance (individual-based)" = "abundance",
             "Incidence (sampling-unit-based)" = "incidence"
           ),
-          selected = "abundance"
+          selected = "abundance",
+          selectize = FALSE
         ),
         
         # TIP BOX: Parameters
@@ -158,6 +159,7 @@ diversity_estimation_ui <- function(id) {
               "Sample Completeness Curve" = 2,
               "Coverage-based R/E Curve" = 3
             ),
+            selectize = FALSE,
             selected = 1
           ),
           

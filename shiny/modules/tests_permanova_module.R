@@ -36,7 +36,8 @@ permanova_ui <- function(id) {
             "Bray-Curtis" = "bray", "Jaccard" = "jaccard",
             "Euclidean" = "euclidean", "Manhattan" = "manhattan"
           ),
-          selected = "bray"
+          selected = "bray",
+          selectize = FALSE
         ),
 
         # Grouping variable selection
@@ -46,7 +47,8 @@ permanova_ui <- function(id) {
         numericInput(ns("permutations"), "Permutations:", value = 999, min = 99, max = 9999, step = 100),
         selectInput(ns("method"), "Permutation Method:",
           choices = c("Unrestricted" = "free", "Within strata" = "strata"),
-          selected = "free"
+          selected = "free",
+          selectize = FALSE
         ),
 
         # Run button

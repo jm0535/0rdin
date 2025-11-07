@@ -38,7 +38,8 @@ plot_customization_ui <- function(id, plot_types = NULL) {
               "Dark" = "dark",
               "Publication (Nature)" = "publication"
             ),
-            selected = "bw"
+            selected = "bw",
+            selectize = FALSE
           )
         ),
         
@@ -70,7 +71,8 @@ plot_customization_ui <- function(id, plot_types = NULL) {
               ns("legend_position"),
               NULL,
               choices = c("Right" = "right", "Left" = "left", "Top" = "top", "Bottom" = "bottom", "None" = "none"),
-              selected = "right"
+              selected = "right",
+              selectize = FALSE
             )
           )
         ),
@@ -98,7 +100,8 @@ plot_customization_ui <- function(id, plot_types = NULL) {
               "Grayscale" = "gray",
               "Publication (Black)" = "black"
             ),
-            selected = "ordin"
+            selected = "ordin",
+            selectize = FALSE
           )
         ),
         
@@ -121,7 +124,8 @@ plot_customization_ui <- function(id, plot_types = NULL) {
                 ns("dpi"),
                 NULL,
                 choices = c("300 (Print)" = "300", "600 (High-res)" = "600", "150 (Screen)" = "150"),
-                selected = "300"
+                selected = "300",
+                selectize = FALSE
               )
             )
           )

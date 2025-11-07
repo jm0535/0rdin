@@ -29,7 +29,8 @@ anosim_ui <- function(id) {
         
         selectInput(ns("distance"), "Distance/Dissimilarity:",
                    choices = c("Bray-Curtis" = "bray", "Jaccard" = "jaccard"),
-                   selected = "bray"),
+                   selected = "bray",
+                   selectize = FALSE),
         
         uiOutput(ns("group_var_ui")),
         
