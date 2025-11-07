@@ -555,6 +555,65 @@ body.light-theme p[style*="color: #888"],
 body.light-theme p[style*="color: #ccc"],
 body.light-theme p[style*="color: #666"],
 body.light-theme h4[style*="color: #ccc"],
+body.light-theme h2[style*="color: #ccc"],
+body.light-theme h3[style*="color: #ccc"],
 body.light-theme span[style*="color: #888"] {
     color: #333333 !important;
+}
+
+/* ========================================
+   HELP/ABOUT PAGE SPECIFIC OVERRIDES
+   Targets dynamically generated content
+   ======================================== */
+body.light-theme #help-content-container div[style],
+body.light-theme #tab-help div[style] {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+body.light-theme #help-content-container div[style*="border"],
+body.light-theme #tab-help div[style*="border"] {
+    border-color: #e0e0e0 !important;
+}
+
+body.light-theme #help-content-container table,
+body.light-theme #tab-help table {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+body.light-theme #help-content-container tr,
+body.light-theme #tab-help tr {
+    background: #ffffff !important;
+}
+
+body.light-theme #help-content-container th,
+body.light-theme #tab-help th {
+    background: #f3f3f3 !important;
+    color: #333333 !important;
+}
+
+body.light-theme #help-content-container td,
+body.light-theme #tab-help td {
+    color: #333333 !important;
+}
+
+body.light-theme #help-content-container p,
+body.light-theme #tab-help p {
+    color: #333333 !important;
+}
+
+body.light-theme #help-content-container h2,
+body.light-theme #help-content-container h3,
+body.light-theme #tab-help h2,
+body.light-theme #tab-help h3 {
+    color: #2e8b57 !important;
+}
+
+/* Sidebar info boxes */
+body.light-theme .sidebar div[style*="background: #2e2e2e"],
+body.light-theme .sidebar div[style*="background:#2e2e2e"] {
+    background: #f3f3f3 !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #616161 !important;
 }
