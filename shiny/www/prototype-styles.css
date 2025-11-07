@@ -1229,10 +1229,34 @@ div.shiny-input-container + div.shiny-input-container {
     display: block !important;
 }
 
+/* HIDE any checkbox/radio icons that appear before select elements */
+.shiny-input-container select::before,
+.shiny-input-container select::after,
+select.form-control::before,
+select.form-control::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Remove any wrapper divs that add checkboxes */
+.shiny-input-container > div > select {
+    display: block !important;
+    width: 100% !important;
+}
+
+/* Hide any icon elements inside select containers */
+.shiny-input-container .icon,
+.shiny-input-container i,
+.shiny-input-container .checkbox-icon,
+.shiny-input-container .radio-icon {
+    display: none !important;
+}
+
 /* Select dropdowns with custom arrow */
 select.form-control,
 .shiny-input-container select {
     padding-right: 28px !important;
+    padding-left: 10px !important;
     background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"%3e%3cpath fill="%23ccc" d="M6 9L1 4h10z"/%3e%3c/svg%3e') !important;
     background-repeat: no-repeat !important;
     background-position: right 8px center !important;
