@@ -1,0 +1,418 @@
+/* ========================================
+   COMPLETE VS CODE LIGHT THEME
+   Overrides ALL dark components
+   ======================================== */
+
+/* Base body and containers */
+body.light-theme {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+body.light-theme #app-container,
+body.light-theme .app-container {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+/* Titlebar */
+body.light-theme .titlebar {
+    background: #f3f3f3 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .app-title,
+body.light-theme .titlebar-left,
+body.light-theme .titlebar-center {
+    color: #333333 !important;
+}
+
+/* Activity Bar */
+body.light-theme .activity-bar {
+    background: #e8e8e8 !important;
+    border-right: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme .activity-item {
+    color: #616161 !important;
+}
+
+body.light-theme .activity-item:hover {
+    background: #d0d0d0 !important;
+}
+
+body.light-theme .activity-item.active::before {
+    background: #007acc !important;
+}
+
+/* Sidebar */
+body.light-theme .sidebar {
+    background: #f3f3f3 !important;
+    border-right: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .sidebar-header {
+    background: #f3f3f3 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme .sidebar-title {
+    color: #616161 !important;
+}
+
+body.light-theme .sidebar-content {
+    background: #f3f3f3 !important;
+}
+
+/* Sections */
+body.light-theme .section {
+    background: #f3f3f3 !important;
+}
+
+body.light-theme .section-header {
+    background: #f3f3f3 !important;
+    color: #616161 !important;
+}
+
+body.light-theme .section-header:hover {
+    background: #e8e8e8 !important;
+}
+
+body.light-theme .section-content {
+    background: #f3f3f3 !important;
+}
+
+/* Items */
+body.light-theme .item {
+    color: #333333 !important;
+    background: transparent !important;
+}
+
+body.light-theme .item:hover {
+    background: #e8e8e8 !important;
+}
+
+body.light-theme .item.active {
+    background: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+/* Badges */
+body.light-theme .badge {
+    background: #e0e0e0 !important;
+    color: #616161 !important;
+}
+
+body.light-theme .badge.success {
+    background: #2e8b57 !important;
+    color: #ffffff !important;
+}
+
+/* Breadcrumb */
+body.light-theme .breadcrumb {
+    background: #f3f3f3 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+/* Tab Bar and Tabs */
+body.light-theme .tab-bar {
+    background: #f3f3f3 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme .tab,
+body.light-theme [role="tab"] {
+    background: #ececec !important;
+    border-right: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .tab:hover {
+    background: #e8e8e8 !important;
+}
+
+body.light-theme .tab.active,
+body.light-theme [role="tab"][aria-selected="true"] {
+    background: #ffffff !important;
+    border-bottom: 2px solid #007acc !important;
+    color: #333333 !important;
+}
+
+/* Main Content */
+body.light-theme .main-content {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+body.light-theme .tab-content {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+/* Cards */
+body.light-theme .card {
+    background: #f9f9f9 !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .card button {
+    background: #2e8b57 !important;
+    color: #ffffff !important;
+}
+
+body.light-theme .card button:hover {
+    background: #3fa869 !important;
+}
+
+/* Status Bar */
+body.light-theme .status-bar {
+    background: #f3f3f3 !important;
+    border-top: 1px solid #e0e0e0 !important;
+    color: #616161 !important;
+}
+
+/* Right Panel */
+body.light-theme .right-panel {
+    background: #f3f3f3 !important;
+    border-left: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme .panel-header {
+    background: #f3f3f3 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+/* Form Controls */
+body.light-theme input[type="text"],
+body.light-theme input[type="email"],
+body.light-theme input[type="password"],
+body.light-theme input[type="file"],
+body.light-theme input[type="number"],
+body.light-theme textarea,
+body.light-theme select,
+body.light-theme .form-control {
+    background: #ffffff !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme input[type="file"]::file-selector-button {
+    background: #2e8b57 !important;
+    color: #ffffff !important;
+}
+
+body.light-theme input[type="file"]::file-selector-button:hover {
+    background: #3fa869 !important;
+}
+
+/* Selectize */
+body.light-theme .selectize-input {
+    background: #ffffff !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .selectize-dropdown {
+    background: #ffffff !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .selectize-dropdown-content .option:hover {
+    background: #e8e8e8 !important;
+}
+
+body.light-theme .selectize-dropdown-content .option.active {
+    background: #2e8b57 !important;
+    color: #ffffff !important;
+}
+
+/* Buttons */
+body.light-theme button,
+body.light-theme .btn,
+body.light-theme .action-button {
+    background: #f0f0f0 !important;
+    color: #333333 !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme button:hover,
+body.light-theme .btn:hover {
+    background: #e0e0e0 !important;
+}
+
+body.light-theme .btn-primary,
+body.light-theme .btn-success,
+body.light-theme button[style*="2e8b57"] {
+    background: #2e8b57 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+body.light-theme .btn-primary:hover,
+body.light-theme .btn-success:hover {
+    background: #3fa869 !important;
+}
+
+/* Checkboxes and Radio */
+body.light-theme .shiny-input-radiogroup .radio:hover,
+body.light-theme .shiny-input-checkboxgroup .checkbox:hover {
+    background-color: #e8e8e8 !important;
+}
+
+/* Sliders */
+body.light-theme .irs--shiny .irs-bar {
+    background: #2e8b57 !important;
+}
+
+body.light-theme .irs--shiny .irs-handle {
+    background: #2e8b57 !important;
+    border: 2px solid #2e8b57 !important;
+}
+
+body.light-theme .irs--shiny .irs-from,
+body.light-theme .irs--shiny .irs-to,
+body.light-theme .irs--shiny .irs-single {
+    background: #2e8b57 !important;
+    color: #ffffff !important;
+}
+
+/* Progress Bars */
+body.light-theme .progress {
+    background: #e0e0e0 !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme .progress-bar {
+    background: #2e8b57 !important;
+}
+
+/* DataTables */
+body.light-theme table.dataTable {
+    background: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme table.dataTable thead th {
+    background: #f3f3f3 !important;
+    color: #333333 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme table.dataTable tbody td {
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme table.dataTable tbody tr:hover {
+    background: #f9f9f9 !important;
+}
+
+body.light-theme table.dataTable.stripe tbody tr.odd,
+body.light-theme table.dataTable.display tbody tr.odd {
+    background: #f9f9f9 !important;
+}
+
+body.light-theme table.dataTable.stripe tbody tr.even,
+body.light-theme table.dataTable.display tbody tr.even {
+    background: #ffffff !important;
+}
+
+/* Scrollbars */
+body.light-theme ::-webkit-scrollbar-thumb {
+    background: #d0d0d0 !important;
+}
+
+body.light-theme ::-webkit-scrollbar-thumb:hover {
+    background: #b0b0b0 !important;
+}
+
+/* Action Buttons */
+body.light-theme .action-btn {
+    background: #f0f0f0 !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .action-btn:hover {
+    background: #e0e0e0 !important;
+    border-color: #2e8b57 !important;
+}
+
+/* Panels and Boxes */
+body.light-theme .panel,
+body.light-theme .box,
+body.light-theme .well {
+    background: #f9f9f9 !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+/* Info Boxes */
+body.light-theme .info-box,
+body.light-theme .alert {
+    background: #e8f5e9 !important;
+    color: #1b5e20 !important;
+    border: 1px solid #c8e6c9 !important;
+}
+
+/* Results Panels */
+body.light-theme .results-panel,
+body.light-theme .results-section {
+    background: #f9f9f9 !important;
+    color: #333333 !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+/* Settings Sections */
+body.light-theme .settings-section {
+    background: #ffffff !important;
+}
+
+/* Workflow Containers */
+body.light-theme .diversity-estimation-workflow,
+body.light-theme .nmds-workflow,
+body.light-theme .pca-workflow,
+body.light-theme .diversity-indices-workflow,
+body.light-theme .beta-partition-workflow,
+body.light-theme .permanova-workflow,
+body.light-theme .anosim-workflow,
+body.light-theme .mantel-workflow {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+/* Config Panels */
+body.light-theme .config-panel,
+body.light-theme .customization-panel {
+    background: #f9f9f9 !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+/* Headings */
+body.light-theme h1,
+body.light-theme h2,
+body.light-theme h3,
+body.light-theme h4,
+body.light-theme h5,
+body.light-theme h6 {
+    color: #333333 !important;
+}
+
+/* Labels */
+body.light-theme label {
+    color: #616161 !important;
+}
+
+/* Paragraphs */
+body.light-theme p {
+    color: #333333 !important;
+}
+
+/* Spans */
+body.light-theme span {
+    color: inherit !important;
+}

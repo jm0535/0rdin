@@ -85,6 +85,7 @@ ui <- function(req) {
 
     # Load CSS files
     tags$link(rel = "stylesheet", href = "help-styles.css?v=1"),
+    tags$link(rel = "stylesheet", href = "light-theme-complete.css?v=1"),
 
     # Remove waiter overlay after page loads using JavaScript
     tags$script(HTML('
