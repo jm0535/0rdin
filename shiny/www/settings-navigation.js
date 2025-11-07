@@ -70,4 +70,12 @@ $(document).ready(function() {
   
   // Show appearance section by default
   showSettingsSection('appearance');
+  
+  // Listen for theme changes from Shiny
+  if (typeof Shiny !== 'undefined') {
+    Shiny.addCustomMessageHandler('applyTheme', function(theme) {
+      console.log('Applying theme from Shiny:', theme);
+      toggleTheme(theme);
+    });
+  }
 });

@@ -1373,6 +1373,11 @@ server <- function(input, output, session) {
   # ============== FILE UPLOAD HANDLING ==============
   # ============== SETTINGS HANDLERS ==============
 
+  # Theme dropdown change
+  observeEvent(input$settings_theme, {
+    session$sendCustomMessage("applyTheme", input$settings_theme)
+  })
+
   # UI Zoom slider
   observeEvent(input$settings_zoom, {
     session$sendCustomMessage("setZoom", input$settings_zoom / 100)
