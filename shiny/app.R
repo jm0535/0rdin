@@ -661,16 +661,6 @@ ui <- function(req) {
                   style = "display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;",
                   div(
                     class = "setting-item",
-                    tags$label(style = "color: #888; font-size: 13px; display: block; margin-bottom: 8px;", "Theme"),
-                    selectInput("settings_theme", NULL,
-                      choices = c("Dark" = "dark", "Light" = "light"),
-                      selected = "dark",
-                      width = "100%",
-                      selectize = FALSE
-                    )
-                  ),
-                  div(
-                    class = "setting-item",
                     tags$label(style = "color: #888; font-size: 13px; display: block; margin-bottom: 8px;", "Font Family"),
                     selectInput("settings_font", NULL,
                       choices = c("System" = "system", "Sans" = "sans", "Serif" = "serif", "Mono" = "mono"),
@@ -1374,14 +1364,8 @@ server <- function(input, output, session) {
   # ============== FILE UPLOAD HANDLING ==============
   # ============== SETTINGS HANDLERS ==============
 
-  # Theme dropdown change
-  observeEvent(input$settings_theme, {
-    session$sendCustomMessage("applyTheme", input$settings_theme)
-  })
-  
   # Apply Appearance Settings button
   observeEvent(input$settings_save_appearance, {
-    session$sendCustomMessage("applyTheme", input$settings_theme)
     session$sendCustomMessage("applyFont", input$settings_font)
     session$sendCustomMessage("setZoom", input$settings_zoom / 100)
     showNotification("✅ Appearance settings applied!", type = "message", duration = 2)
@@ -1396,7 +1380,6 @@ server <- function(input, output, session) {
   observeEvent(input$settings_save, {
     # Save to browser localStorage via JavaScript
     settings <- list(
-      theme = input$settings_theme,
       font = input$settings_font,
       zoom = input$settings_zoom,
       plot_theme = input$settings_plot_theme,
@@ -1421,7 +1404,6 @@ server <- function(input, output, session) {
   # Export Settings Button
   observeEvent(input$settings_export, {
     settings <- list(
-      theme = input$settings_theme,
       plot_defaults = list(
         theme = input$settings_plot_theme,
         dpi = input$settings_plot_dpi,
