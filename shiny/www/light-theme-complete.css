@@ -416,3 +416,94 @@ body.light-theme p {
 body.light-theme span {
     color: inherit !important;
 }
+
+/* ========================================
+   HELP SECTION LIGHT THEME
+   ======================================== */
+body.light-theme .help-nav-btn {
+    background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%) !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .help-nav-btn:hover {
+    background: linear-gradient(135deg, #2e8b57 0%, #25704a 100%) !important;
+    border-color: #2e8b57 !important;
+    color: #ffffff !important;
+}
+
+body.light-theme .help-section-icon {
+    background: linear-gradient(135deg, #2e8b57 0%, #25704a 100%) !important;
+    color: #ffffff !important;
+}
+
+body.light-theme .help-tip {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f2 100%) !important;
+    border-left: 4px solid #2e8b57 !important;
+    color: #1b5e20 !important;
+}
+
+body.light-theme .shortcut-item kbd {
+    background: #f0f0f0 !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+/* ========================================
+   WINDOW CONTROLS & MISC
+   ======================================== */
+body.light-theme .window-btn {
+    color: #616161 !important;
+}
+
+body.light-theme .window-btn:hover {
+    background: #e0e0e0 !important;
+}
+
+body.light-theme .window-btn.close:hover {
+    background: #e81123 !important;
+    color: #ffffff !important;
+}
+
+/* Plot Customization Panel */
+body.light-theme .plot-customization-panel {
+    background: #f3f3f3 !important;
+    border-left: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme .customization-header {
+    background: #f3f3f3 !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+/* Shiny Notifications */
+body.light-theme #shiny-notification-panel {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .shiny-notification {
+    background: #f9f9f9 !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #333333 !important;
+}
+
+body.light-theme .shiny-notification-error {
+    background: #ffebee !important;
+    border-color: #ef5350 !important;
+    color: #c62828 !important;
+}
+
+body.light-theme .shiny-notification-warning {
+    background: #fff3e0 !important;
+    border-color: #ffa726 !important;
+    color: #e65100 !important;
+}
+
+body.light-theme .shiny-notification-message {
+    background: #e8f5e9 !important;
+    border-color: #66bb6a !important;
+    color: #2e7d32 !important;
+}
