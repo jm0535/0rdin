@@ -45,7 +45,7 @@ anosim_ui <- function(id) {
           uiOutput(ns("anosim_interpretation")),
           plotOutput(ns("anosim_plot"), width = "100%", height = "400px"),
           div(class = "action-buttons", style = "margin-top: 10px;",
-            downloadButton(ns("download_plot"), "📊 Download Plot", class = "btn-sm")
+            downloadButton(ns("download_plot"), "📋 Export Plot", class = "btn-sm")
           )
         ),
         

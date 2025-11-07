@@ -55,7 +55,7 @@ mantel_envfit_ui <- function(id) {
             uiOutput(ns("mantel_interpretation")),
             plotOutput(ns("mantel_plot"), width = "100%", height = "400px"),
             div(class = "action-buttons", style = "margin-top: 10px;",
-              downloadButton(ns("download_mantel_plot"), "📊 Download Plot", class = "btn-sm")
+              downloadButton(ns("download_mantel_plot"), "📋 Export Plot", class = "btn-sm")
             )
           ),
           
@@ -106,7 +106,7 @@ mantel_envfit_ui <- function(id) {
             uiOutput(ns("envfit_interpretation")),
             plotOutput(ns("envfit_plot"), width = "100%", height = "500px"),
             div(class = "action-buttons", style = "margin-top: 10px;",
-              downloadButton(ns("download_envfit_plot"), "📊 Download Plot", class = "btn-sm")
+              downloadButton(ns("download_envfit_plot"), "📋 Export Plot", class = "btn-sm")
             )
           ),
           

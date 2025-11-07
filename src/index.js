@@ -1,4 +1,4 @@
-﻿const path = require('path');
+const path = require('path');
 const { spawn } = require('child_process');
 const axios = require('axios');
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
@@ -150,7 +150,12 @@ function startShiny() {
 async function checkShinyReady(maxAttempts = 30, interval = 1000) {
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      await axios.get(`http://${SHINY_HOST}:${SHINY_PORT}`);
+      const response = await axios.get(`http://${SHINY_HOST}:${SHINY_PORT}`, {
+        timeout: 5000,
+        validateStatus: function (status) {
+          return status < 500; // Accept any status < 500 as success
+        }
+      });
       console.log('Shiny server is ready');
       return true;
     } catch (error) {

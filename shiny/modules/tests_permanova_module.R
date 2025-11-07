@@ -66,7 +66,7 @@ permanova_ui <- function(id) {
           h4("📊 Variance Partitioning", style = "color: #2e8b57; margin: 20px 0 10px 0;"),
           plotOutput(ns("variance_plot"), width = "100%", height = "500px"),
           div(class = "action-buttons", style = "margin-top: 10px;",
-            downloadButton(ns("download_plot"), "📊 Download Plot", class = "btn-sm")
+            downloadButton(ns("download_plot"), "📋 Export Plot", class = "btn-sm")
           )
         ),
         div(
