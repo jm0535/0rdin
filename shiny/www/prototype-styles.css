@@ -850,7 +850,7 @@ select.form-control:focus {
     margin-bottom: 0 !important;
 }
 
-/* Radio button groups - make them compact */
+/* Radio button groups - HIDE radio buttons/checkboxes completely for dropdown-style appearance */
 .shiny-input-radiogroup,
 .shiny-input-checkboxgroup {
     margin: 0 !important;
@@ -865,6 +865,13 @@ select.form-control:focus {
     min-height: 32px !important;
     display: flex !important;
     align-items: center !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s !important;
+}
+
+.shiny-input-radiogroup .radio:hover,
+.shiny-input-checkboxgroup .checkbox:hover {
+    background-color: #3e3e42 !important;
 }
 
 .shiny-input-radiogroup .radio label,
@@ -875,12 +882,25 @@ select.form-control:focus {
     display: flex !important;
     align-items: center !important;
     width: 100% !important;
+    cursor: pointer !important;
 }
 
+/* HIDE the actual radio button and checkbox inputs */
 .shiny-input-radiogroup .radio input[type="radio"],
 .shiny-input-checkboxgroup .checkbox input[type="checkbox"] {
-    margin: 0 8px 0 0 !important;
-    flex-shrink: 0 !important;
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Show selected state with background color instead */
+.shiny-input-radiogroup .radio input[type="radio"]:checked + span,
+.shiny-input-checkboxgroup .checkbox input[type="checkbox"]:checked + span {
+    color: #2e8b57 !important;
+    font-weight: 600 !important;
 }
 
 /* Numeric inputs */
