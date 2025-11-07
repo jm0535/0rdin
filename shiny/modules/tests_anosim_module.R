@@ -43,7 +43,10 @@ anosim_ui <- function(id) {
       div(class = "horizontal-split",
         div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
           uiOutput(ns("anosim_interpretation")),
-          plotOutput(ns("anosim_plot"), width = "100%", height = "400px")
+          plotOutput(ns("anosim_plot"), width = "100%", height = "400px"),
+          div(class = "action-buttons", style = "margin-top: 10px;",
+            downloadButton(ns("download_plot"), "📊 Download Plot", class = "btn-sm")
+          )
         ),
         
         div(class = "results-panel",
@@ -156,6 +159,20 @@ anosim_server <- function(id, data, env_data) {
            col = c("#2e8b57", "#d4a017"))
       grid(col = "#404040", lty = 1)
     }, res = 96)
+    
+    output$download_plot <- downloadHandler(
+      filename = function() paste0("anosim_plot_", Sys.Date(), ".png"),
+      content = function(file) {
+        png(file, width = 1200, height = 800, res = 150)
+        par(family = "sans", bg = "#252526", fg = "#cccccc", 
+            col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+            mar = c(5, 4, 4, 2))
+        plot(anosim_result(), main = "ANOSIM Rank Dissimilarities", 
+             col = c("#2e8b57", "#d4a017"))
+        grid(col = "#404040", lty = 1)
+        dev.off()
+      }
+    )
     
     output$export_results <- downloadHandler(
       filename = function() paste0("anosim_results_", Sys.Date(), ".csv"),

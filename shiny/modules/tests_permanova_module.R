@@ -64,7 +64,10 @@ permanova_ui <- function(id) {
 
           # Results visualization
           h4("📊 Variance Partitioning", style = "color: #2e8b57; margin: 20px 0 10px 0;"),
-          plotOutput(ns("variance_plot"), width = "100%", height = "500px")
+          plotOutput(ns("variance_plot"), width = "100%", height = "500px"),
+          div(class = "action-buttons", style = "margin-top: 10px;",
+            downloadButton(ns("download_plot"), "📊 Download Plot", class = "btn-sm")
+          )
         ),
         div(
           class = "results-panel",
@@ -296,6 +299,39 @@ permanova_server <- function(id, data, env_data) {
       height = 500
     )
 
+    # Download plot
+    output$download_plot <- downloadHandler(
+      filename = function() paste0("permanova_variance_plot_", Sys.Date(), ".png"),
+      content = function(file) {
+        png(file, width = 1200, height = 1000, res = 150)
+        r2_vals <- permanova_result()$R2
+        labels <- rownames(permanova_result())
+        
+        par(
+          family = "sans", bg = "#252526", fg = "#cccccc",
+          col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+          mar = c(5, 8, 4, 2)
+        )
+        
+        barplot(r2_vals * 100,
+          horiz = TRUE, las = 1,
+          names.arg = labels,
+          col = c(rep("#2e8b57", length(r2_vals) - 1), "#888888"),
+          border = NA,
+          xlab = "Variance Explained (%)",
+          main = "PERMANOVA Variance Partitioning",
+          xlim = c(0, max(r2_vals * 100) * 1.2),
+          cex.names = 0.85,
+          cex.axis = 0.9,
+          cex.lab = 1.0,
+          cex.main = 1.1
+        )
+        
+        grid(col = "#404040", lty = 1)
+        dev.off()
+      }
+    )
+    
     # Export results
     output$export_results <- downloadHandler(
       filename = function() paste0("permanova_results_", Sys.Date(), ".csv"),

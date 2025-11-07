@@ -53,7 +53,10 @@ mantel_envfit_ui <- function(id) {
         div(class = "horizontal-split",
           div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
             uiOutput(ns("mantel_interpretation")),
-            plotOutput(ns("mantel_plot"), width = "100%", height = "400px")
+            plotOutput(ns("mantel_plot"), width = "100%", height = "400px"),
+            div(class = "action-buttons", style = "margin-top: 10px;",
+              downloadButton(ns("download_mantel_plot"), "📊 Download Plot", class = "btn-sm")
+            )
           ),
           
           div(class = "results-panel",
@@ -101,7 +104,10 @@ mantel_envfit_ui <- function(id) {
         div(class = "horizontal-split",
           div(class = "plot-panel", style = "max-width: 100%; overflow: hidden;",
             uiOutput(ns("envfit_interpretation")),
-            plotOutput(ns("envfit_plot"), width = "100%", height = "500px")
+            plotOutput(ns("envfit_plot"), width = "100%", height = "500px"),
+            div(class = "action-buttons", style = "margin-top: 10px;",
+              downloadButton(ns("download_envfit_plot"), "📊 Download Plot", class = "btn-sm")
+            )
           ),
           
           div(class = "results-panel",
@@ -365,5 +371,58 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
       plot(envfit_result(), col = "#d4a017", lwd = 2, cex = 0.8)
       grid(col = "#404040", lty = 1)
     }, res = 96)
+    
+    # Download Mantel plot
+    output$download_mantel_plot <- downloadHandler(
+      filename = function() paste0("mantel_plot_", Sys.Date(), ".png"),
+      content = function(file) {
+        png(file, width = 1200, height = 800, res = 150)
+        
+        dist1 <- vegdist(data(), method = input$distance1)
+        numeric_cols <- sapply(env_data(), is.numeric)
+        env_numeric <- env_data()[, numeric_cols, drop = FALSE]
+        dist2 <- vegdist(env_numeric, method = input$distance2)
+        
+        par(family = "sans", bg = "#252526", fg = "#cccccc", 
+            col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+            mar = c(5, 4, 4, 2))
+        
+        plot(as.vector(dist1), as.vector(dist2),
+             xlab = paste(input$distance1, "distance (species)"),
+             ylab = paste(input$distance2, "distance (environment)"),
+             main = "Mantel Test: Distance-Distance Correlation",
+             pch = 21, bg = "#2e8b5760", col = "#2e8b57", cex = 1.2)
+        
+        abline(lm(as.vector(dist2) ~ as.vector(dist1)), col = "#d4a017", lwd = 2)
+        grid(col = "#404040", lty = 1)
+        
+        legend("topleft", 
+               legend = sprintf("r = %.4f\np = %.4f", mantel_result()$statistic, mantel_result()$signif),
+               bty = "n", text.col = "#2e8b57", cex = 1.0)
+        
+        dev.off()
+      }
+    )
+    
+    # Download envfit plot
+    output$download_envfit_plot <- downloadHandler(
+      filename = function() paste0("envfit_plot_", Sys.Date(), ".png"),
+      content = function(file) {
+        png(file, width = 1200, height = 1000, res = 150)
+        
+        ord <- metaMDS(data(), distance = "bray", trymax = 20, trace = 0)
+        
+        par(family = "sans", bg = "#252526", fg = "#cccccc", 
+            col.axis = "#cccccc", col.lab = "#cccccc", col.main = "#2e8b57",
+            mar = c(5, 4, 4, 2))
+        
+        plot(ord, type = "n", main = "envfit: Environmental Vectors on NMDS")
+        points(ord, pch = 21, bg = "#2e8b5760", col = "#2e8b57", cex = 1.5)
+        plot(envfit_result(), col = "#d4a017", lwd = 2, cex = 0.8)
+        grid(col = "#404040", lty = 1)
+        
+        dev.off()
+      }
+    )
   })
 }
