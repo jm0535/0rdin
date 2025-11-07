@@ -69,6 +69,7 @@ ui <- function(req) {
     use_waiter(),
 
     # Load JavaScript files (with cache-busting version)
+    tags$script(src = "disable-selectize.js?v=1"),
     tags$script(src = "performance-monitor.js?v=1"),
     tags$script(src = "help-loader.js?v=1"),
     tags$script(src = "validation.js?v=3"),
