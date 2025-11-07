@@ -390,7 +390,7 @@ beta_partition_server <- function(id, data, env_data = reactive(NULL),
     # Export plot
     output$export_plot <- downloadHandler(
       filename = function() {
-        sprintf("beta_diversity_%s_%s.pdf", input$index_family, format(Sys.Date(), "%Y%m%d"))
+        sprintf("beta_diversity_%s_%s.%s", input$index_family, format(Sys.Date(), "%Y%m%d"), plot_defaults$export_format)
       },
       content = function(file) {
         p <- create_beta_plot(
@@ -406,8 +406,8 @@ beta_partition_server <- function(id, data, env_data = reactive(NULL),
           plot = p,
           width = input$plot_width,
           height = input$plot_height,
-          dpi = 300,
-          device = "pdf"
+          dpi = plot_defaults$dpi,
+          device = plot_defaults$export_format
         )
       }
     )

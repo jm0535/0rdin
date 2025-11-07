@@ -313,7 +313,7 @@ diversity_indices_server <- function(id, data) {
     
     # Export plot
     output$export_plot <- downloadHandler(
-      filename = function() paste0("diversity_indices_", Sys.Date(), ".png"),
+      filename = function() paste0("diversity_indices_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
         plot_data <- tidyr::pivot_longer(
           indices_results(),
@@ -328,7 +328,8 @@ diversity_indices_server <- function(id, data) {
           theme_bw() +
           scale_fill_manual(values = c("#2e8b57", "#007acc", "#d4a017"))
         
-        ggsave(file, plot = p, width = 12, height = 8, dpi = 300)
+        ggsave(file, plot = p, width = plot_defaults$plot_width, height = plot_defaults$plot_height, 
+               dpi = plot_defaults$dpi, device = plot_defaults$export_format)
       }
     )
     

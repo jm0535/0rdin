@@ -309,9 +309,15 @@ cca_server <- function(id, data, env_data) {
         title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
         grid_color <- if(is_dark) "#404040" else "#cccccc40"
         
-        if(plot_defaults$export_format == "png") png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
-        else if(plot_defaults$export_format == "pdf") pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
-        else svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        if(plot_defaults$export_format == "png") {
+          png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
+        } else if(plot_defaults$export_format == "pdf") {
+          pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        } else if(plot_defaults$export_format == "svg") {
+          svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        } else if(plot_defaults$export_format == "tiff") {
+          tiff(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color, compression = "lzw")
+        }
         
         par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
             col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
