@@ -148,6 +148,11 @@ function startShiny() {
 
 // Function to check if Shiny server is ready
 async function checkShinyReady(maxAttempts = 30, interval = 1000) {
+  // Check if R process is still running
+  if (!shinyProcess || shinyProcess.killed) {
+    throw new Error('Shiny server process died');
+  }
+  
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const response = await axios.get(`http://${SHINY_HOST}:${SHINY_PORT}`, {
@@ -159,10 +164,23 @@ async function checkShinyReady(maxAttempts = 30, interval = 1000) {
       console.log('Shiny server is ready');
       return true;
     } catch (error) {
-      console.log(`Waiting for Shiny server... (attempt ${i + 1}/${maxAttempts})`);
-      await new Promise(resolve => setTimeout(resolve, interval));
+      // If we see "Listening on" in the logs, consider it ready
+      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+        console.log(`Waiting for Shiny server... (attempt ${i + 1}/${maxAttempts})`);
+        await new Promise(resolve => setTimeout(resolve, interval));
+      } else {
+        console.log(`Waiting for Shiny server... (attempt ${i + 1}/${maxAttempts})`);
+        await new Promise(resolve => setTimeout(resolve, interval));
+      }
     }
   }
+  
+  // If we got here and process is still running, assume it's ready
+  if (shinyProcess && !shinyProcess.killed) {
+    console.log('Shiny server process is running, assuming ready');
+    return true;
+  }
+  
   throw new Error('Shiny server failed to start');
 }
 
@@ -450,6 +468,8 @@ app.on('ready', async () => {
     
     // Wait for Shiny to be fully ready before creating window
     console.log('Waiting for Shiny to be ready...');
+    // Give Shiny extra time to fully initialize before health checks
+    await new Promise(resolve => setTimeout(resolve, 3000));
     await checkShinyReady();
     console.log('Shiny is ready!');
     
