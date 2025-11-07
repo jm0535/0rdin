@@ -77,6 +77,7 @@ ui <- function(req) {
     tags$script(src = "about-ordin-content.js?v=3"),
     tags$script(src = "help-content.js?v=3"),
     tags$script(src = "shiny-ui.js?v=12"),
+    tags$script(src = "dashboard-cards.js?v=1"),
     tags$script(src = "sidebar-content.js?v=101"),
     tags$script(src = "fontawesome-icons.js?v=2"),
     tags$script(src = "plot-customization-panel.js?v=4"),
