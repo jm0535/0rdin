@@ -53,25 +53,72 @@ function toggleTheme(theme) {
     body.style.backgroundColor = '#ffffff';
     body.style.color = '#1e1e1e';
     
-    // Modify main content areas
+    // ===== TITLEBAR =====
+    const titlebar = document.querySelector('.titlebar');
+    if (titlebar) {
+      titlebar.style.backgroundColor = '#f3f3f3';
+      titlebar.style.borderBottom = '1px solid #d0d0d0';
+      titlebar.style.color = '#1e1e1e';
+    }
+    
+    const appTitle = document.querySelector('.app-title');
+    if (appTitle) {
+      appTitle.style.color = '#1e1e1e';
+    }
+    
+    const statusBadge = document.querySelector('.status-badge');
+    if (statusBadge) {
+      statusBadge.style.color = '#2e8b57';
+    }
+    
+    // ===== ACTIVITY BAR (Left icon bar) =====
+    const activityBar = document.querySelector('.activity-bar');
+    if (activityBar) {
+      activityBar.style.backgroundColor = '#e8e8e8';
+      activityBar.style.borderRight = '1px solid #d0d0d0';
+    }
+    
+    const activityItems = document.querySelectorAll('.activity-item');
+    activityItems.forEach(item => {
+      item.style.color = '#4a4a4a';
+    });
+    
+    // ===== SIDEBAR =====
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.style.backgroundColor = '#f5f5f5';
+      sidebar.style.borderRight = '1px solid #d0d0d0';
+      sidebar.style.color = '#1e1e1e';
+    }
+    
+    // ===== MAIN CONTENT =====
     const mainContent = document.querySelector('.main-content');
     if (mainContent) {
       mainContent.style.backgroundColor = '#ffffff';
       mainContent.style.color = '#1e1e1e';
     }
     
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
-      sidebar.style.backgroundColor = '#e8e8e8';
-      sidebar.style.borderRight = '1px solid #d0d0d0';
-      sidebar.style.color = '#1e1e1e';
-    }
-    
+    // ===== TABS =====
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(tab => {
       tab.style.backgroundColor = '#ffffff';
       tab.style.color = '#1e1e1e';
     });
+    
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.style.backgroundColor = '#f5f5f5';
+      tab.style.color = '#4a4a4a';
+      tab.style.borderBottom = '1px solid #d0d0d0';
+    });
+    
+    // ===== FOOTER =====
+    const footer = document.querySelector('.footer, footer');
+    if (footer) {
+      footer.style.backgroundColor = '#f3f3f3';
+      footer.style.borderTop = '1px solid #d0d0d0';
+      footer.style.color = '#4a4a4a';
+    }
     
     // Make all cards light
     const cards = document.querySelectorAll('.card');
