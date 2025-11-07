@@ -136,7 +136,68 @@ function toggleTheme(theme) {
       panel.style.border = '1px solid #e0e0e0';
     });
     
-    console.log('Light theme applied with inline styles and card updates');
+    // Update all divs with dark backgrounds (the main issue!)
+    const allDivs = document.querySelectorAll('div');
+    allDivs.forEach(div => {
+      const bgColor = div.style.backgroundColor;
+      // Convert dark backgrounds to light
+      if (bgColor && (
+        bgColor.includes('30, 30, 30') || 
+        bgColor.includes('37, 37, 38') || 
+        bgColor.includes('45, 45, 48') ||
+        bgColor.includes('51, 51, 51') ||
+        bgColor.includes('#1e1e1e') ||
+        bgColor.includes('#252526') ||
+        bgColor.includes('#2d2d30') ||
+        bgColor.includes('#333333')
+      )) {
+        div.style.backgroundColor = '#ffffff';
+        div.style.color = '#1e1e1e';
+        div.style.border = '1px solid #e0e0e0';
+      }
+    });
+    
+    // Update workflow containers specifically
+    const workflows = document.querySelectorAll(
+      '.diversity-estimation-workflow, .nmds-workflow, .pca-workflow, ' +
+      '.diversity-indices-workflow, .beta-partition-workflow, ' +
+      '.permanova-workflow, .anosim-workflow, .mantel-workflow'
+    );
+    workflows.forEach(wf => {
+      wf.style.backgroundColor = '#ffffff';
+      wf.style.color = '#1e1e1e';
+    });
+    
+    // Update config panels, results sections
+    const panels = document.querySelectorAll(
+      '.config-panel, .results-section, .customization-panel, ' +
+      '.settings-section, .help-section'
+    );
+    panels.forEach(panel => {
+      panel.style.backgroundColor = '#f9f9f9';
+      panel.style.color = '#1e1e1e';
+      panel.style.border = '1px solid #e0e0e0';
+    });
+    
+    // Update labels for better contrast
+    const labels = document.querySelectorAll('label');
+    labels.forEach(label => {
+      const currentColor = label.style.color;
+      if (currentColor && (currentColor.includes('#888') || currentColor.includes('#999') || currentColor.includes('#aaa'))) {
+        label.style.color = '#4a4a4a';
+      }
+    });
+    
+    // Update spans with gray text
+    const spans = document.querySelectorAll('span');
+    spans.forEach(span => {
+      const currentColor = span.style.color;
+      if (currentColor && (currentColor.includes('#888') || currentColor.includes('#666') || currentColor.includes('#ccc'))) {
+        span.style.color = '#4a4a4a';
+      }
+    });
+    
+    console.log('Enterprise-grade light theme applied with complete coverage');
     
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
