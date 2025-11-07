@@ -23,10 +23,14 @@ function toggleTheme(theme) {
   const body = document.body;
   const root = document.documentElement;
   
-  if (theme === 'dark') {
+  if (theme === 'dark' || theme === 'Dark') {
     console.log('Applying dark theme...');
     body.classList.remove('light-theme');
     body.classList.add('dark-theme');
+    
+    // Remove all inline styles to let CSS take over
+    body.style.backgroundColor = '';
+    body.style.color = '';
     
     // Set CSS custom properties for dark theme
     root.style.setProperty('--bg-primary', '#1e1e1e');
@@ -34,11 +38,24 @@ function toggleTheme(theme) {
     root.style.setProperty('--text-primary', '#cccccc');
     root.style.setProperty('--text-secondary', '#888888');
     
+    // Clear all inline styles from major elements
+    const elementsToReset = document.querySelectorAll('.titlebar, .activity-bar, .sidebar, .main-content, .tab-content, .footer, .card, .tab');
+    elementsToReset.forEach(el => {
+      el.style.backgroundColor = '';
+      el.style.color = '';
+      el.style.border = '';
+      el.style.borderBottom = '';
+      el.style.borderRight = '';
+      el.style.borderTop = '';
+    });
+    
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
-      Shiny.setInputValue('settings_theme', 'dark');
+      Shiny.setInputValue('settings_theme', 'Dark');
     }
-  } else if (theme === 'light') {
+    
+    console.log('Dark theme restored - all inline styles cleared');
+  } else if (theme === 'light' || theme === 'Light') {
     console.log('Applying light theme...');
     body.classList.remove('dark-theme');
     body.classList.add('light-theme');
@@ -273,11 +290,14 @@ function toggleTheme(theme) {
     
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
-      Shiny.setInputValue('settings_theme', 'light');
+      Shiny.setInputValue('settings_theme', 'Light');
     }
   }
   
   console.log('Theme toggle complete. Body classes:', body.className);
+  
+  // Force a reflow to ensure styles are applied
+  void document.body.offsetHeight;
 }
 
 // Font Size Adjustment
