@@ -507,3 +507,54 @@ body.light-theme .shiny-notification-message {
     border-color: #66bb6a !important;
     color: #2e7d32 !important;
 }
+
+/* ========================================
+   FORCE ALL DARK DIVS TO LIGHT
+   Catches inline styled dark elements
+   ======================================== */
+body.light-theme div[style*="background: #1"],
+body.light-theme div[style*="background: #2"],
+body.light-theme div[style*="background: #3"],
+body.light-theme div[style*="background:#1"],
+body.light-theme div[style*="background:#2"],
+body.light-theme div[style*="background:#3"],
+body.light-theme div[style*="background: rgb(30"],
+body.light-theme div[style*="background: rgb(37"],
+body.light-theme div[style*="background: rgb(45"],
+body.light-theme div[style*="background: rgb(51"],
+body.light-theme div[style*="background: linear-gradient"] {
+    background: #f9f9f9 !important;
+    color: #333333 !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+/* Specific overrides for info/help boxes */
+body.light-theme div[style*="background: #1e5f3f"],
+body.light-theme div[style*="background: #25704a"],
+body.light-theme div[style*="background: #2e8b57"],
+body.light-theme div[style*="background: linear-gradient(135deg, #2e8b57"] {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f2 100%) !important;
+    color: #1b5e20 !important;
+    border-left: 4px solid #2e8b57 !important;
+}
+
+/* Force light background on ALL divs with dark inline styles */
+body.light-theme div[style*="252526"],
+body.light-theme div[style*="2d2d30"],
+body.light-theme div[style*="1e1e1e"],
+body.light-theme div[style*="333333"] {
+    background: #ffffff !important;
+    color: #333333 !important;
+}
+
+/* Text color overrides for dark text on dark backgrounds */
+body.light-theme div[style*="color: #888"],
+body.light-theme div[style*="color: #ccc"],
+body.light-theme div[style*="color: #666"],
+body.light-theme p[style*="color: #888"],
+body.light-theme p[style*="color: #ccc"],
+body.light-theme p[style*="color: #666"],
+body.light-theme h4[style*="color: #ccc"],
+body.light-theme span[style*="color: #888"] {
+    color: #333333 !important;
+}
