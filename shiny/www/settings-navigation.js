@@ -143,12 +143,20 @@ function toggleTheme(theme) {
       }
     });
     
-    // Update form controls
+    // Update form controls - including dropdowns
     const inputs = document.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
-      input.style.backgroundColor = '#ffffff';
-      input.style.color = '#1e1e1e';
-      input.style.border = '1px solid #d0d0d0';
+      input.style.backgroundColor = '#ffffff !important';
+      input.style.color = '#1e1e1e !important';
+      input.style.border = '1px solid #d0d0d0 !important';
+    });
+    
+    // Force update ALL select dropdowns
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => {
+      select.style.setProperty('background-color', '#ffffff', 'important');
+      select.style.setProperty('color', '#1e1e1e', 'important');
+      select.style.setProperty('border', '1px solid #d0d0d0', 'important');
     });
     
     // Update buttons
@@ -183,24 +191,41 @@ function toggleTheme(theme) {
       panel.style.border = '1px solid #e0e0e0';
     });
     
-    // Update all divs with dark backgrounds (the main issue!)
+    // Update ALL divs with dark backgrounds - AGGRESSIVE MODE
     const allDivs = document.querySelectorAll('div');
     allDivs.forEach(div => {
-      const bgColor = div.style.backgroundColor;
-      // Convert dark backgrounds to light
-      if (bgColor && (
-        bgColor.includes('30, 30, 30') || 
-        bgColor.includes('37, 37, 38') || 
-        bgColor.includes('45, 45, 48') ||
-        bgColor.includes('51, 51, 51') ||
-        bgColor.includes('#1e1e1e') ||
-        bgColor.includes('#252526') ||
-        bgColor.includes('#2d2d30') ||
-        bgColor.includes('#333333')
+      const computedBg = window.getComputedStyle(div).backgroundColor;
+      const inlineBg = div.style.backgroundColor;
+      
+      // Check both computed and inline styles
+      const bgToCheck = inlineBg || computedBg;
+      
+      // Convert ANY dark background to light
+      if (bgToCheck && (
+        bgToCheck.includes('30, 30, 30') || 
+        bgToCheck.includes('37, 37, 38') || 
+        bgToCheck.includes('45, 45, 48') ||
+        bgToCheck.includes('51, 51, 51') ||
+        bgToCheck.includes('33, 33, 33') ||
+        bgToCheck.includes('40, 40, 40') ||
+        bgToCheck.includes('#1e1e1e') ||
+        bgToCheck.includes('#252526') ||
+        bgToCheck.includes('#2d2d30') ||
+        bgToCheck.includes('#333333') ||
+        bgToCheck.includes('#282828') ||
+        bgToCheck.includes('rgba(0, 0, 0') ||
+        bgToCheck.includes('rgb(30, 30, 30)') ||
+        bgToCheck.includes('rgb(37, 37, 38)') ||
+        bgToCheck.includes('rgb(45, 45, 48)') ||
+        bgToCheck.includes('rgb(51, 51, 51)') ||
+        bgToCheck.includes('rgb(33, 33, 33)') ||
+        bgToCheck.includes('rgb(40, 40, 40)')
       )) {
         div.style.backgroundColor = '#ffffff';
         div.style.color = '#1e1e1e';
-        div.style.border = '1px solid #e0e0e0';
+        if (!div.style.border) {
+          div.style.border = '1px solid #e0e0e0';
+        }
       }
     });
     
