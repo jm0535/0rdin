@@ -78,6 +78,7 @@ ui <- function(req) {
     tags$script(src = "help-content.js?v=3"),
     tags$script(src = "shiny-ui.js?v=12"),
     tags$script(src = "dashboard-cards.js?v=1"),
+    tags$script(src = "settings-navigation.js?v=1"),
     tags$script(src = "sidebar-content.js?v=101"),
     tags$script(src = "fontawesome-icons.js?v=2"),
     tags$script(src = "plot-customization-panel.js?v=4"),
@@ -649,6 +650,22 @@ ui <- function(req) {
             id = "tab-settings", class = "tab-content", style = "display: none;",
             h2(style = "color: #2e8b57; margin-bottom: 20px;", "⚙️ Settings"),
 
+            # Settings Navigation Sidebar
+            div(style = "display: flex; gap: 20px;",
+              # Sidebar
+              div(style = "width: 200px; flex-shrink: 0;",
+                div(class = "settings-nav",
+                  div(class = "settings-nav-item active", onclick = "showSettingsSection('appearance')", "🌨️ Appearance"),
+                  div(class = "settings-nav-item", onclick = "showSettingsSection('plot-defaults')", "🎨 Plot Defaults"),
+                  div(class = "settings-nav-item", onclick = "showSettingsSection('analysis-defaults')", "🧪 Analysis Defaults"),
+                  div(class = "settings-nav-item", onclick = "showSettingsSection('data-management')", "📊 Data Management"),
+                  div(class = "settings-nav-item", onclick = "showSettingsSection('performance')", "⚡ Performance"),
+                  div(class = "settings-nav-item", onclick = "showSettingsSection('advanced')", "🔧 Advanced")
+                )
+              ),
+              # Content Area
+              div(style = "flex: 1;",
+
             # APPEARANCE SETTINGS
             div(
               id = "settings-appearance", class = "settings-section",
@@ -663,7 +680,8 @@ ui <- function(req) {
                     selectInput("settings_theme", NULL,
                       choices = c("Dark" = "dark", "Light" = "light"),
                       selected = "dark",
-                      width = "100%"
+                      width = "100%",
+                      selectize = FALSE
                     )
                   ),
                   div(
@@ -672,7 +690,8 @@ ui <- function(req) {
                     selectInput("settings_font", NULL,
                       choices = c("System" = "system", "Sans" = "sans", "Serif" = "serif", "Mono" = "mono"),
                       selected = "system",
-                      width = "100%"
+                      width = "100%",
+                      selectize = FALSE
                     )
                   ),
                   div(
@@ -709,7 +728,8 @@ ui <- function(req) {
                         "Classic" = "classic", "Light" = "light", "Void" = "void"
                       ),
                       selected = "bw",
-                      width = "100%"
+                      width = "100%",
+                      selectize = FALSE
                     )
                   ),
                   div(
@@ -723,7 +743,8 @@ ui <- function(req) {
                     selectInput("settings_plot_format", NULL,
                       choices = c("PDF" = "pdf", "PNG" = "png", "SVG" = "svg", "TIFF" = "tiff"),
                       selected = "pdf",
-                      width = "100%"
+                      width = "100%",
+                      selectize = FALSE
                     )
                   ),
                   div(
@@ -763,7 +784,8 @@ ui <- function(req) {
                         "Manhattan" = "manhattan", "Canberra" = "canberra"
                       ),
                       selected = "bray",
-                      width = "100%"
+                      width = "100%",
+                      selectize = FALSE
                     )
                   ),
                   div(
@@ -831,7 +853,8 @@ ui <- function(req) {
                     selectInput("settings_performance", NULL,
                       choices = c("Standard" = "standard", "High Performance" = "high", "Eco" = "eco"),
                       selected = "standard",
-                      width = "100%"
+                      width = "100%",
+                      selectize = FALSE
                     )
                   ),
                   div(
@@ -889,6 +912,8 @@ ui <- function(req) {
                 style = "background: #2e8b57; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer;"
               )
             )
+            ) # Close content area
+            ) # Close flex container
           ), # CLOSES SETTINGS TAB
 
           # HELP TAB
