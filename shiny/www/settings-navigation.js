@@ -23,7 +23,10 @@ function toggleTheme(theme) {
   const body = document.body;
   const root = document.documentElement;
   
-  if (theme === 'dark' || theme === 'Dark') {
+  // Normalize theme to lowercase for comparison
+  const normalizedTheme = theme ? theme.toLowerCase() : 'dark';
+  
+  if (normalizedTheme === 'dark') {
     console.log('Applying dark theme...');
     body.classList.remove('light-theme');
     body.classList.add('dark-theme');
@@ -51,11 +54,11 @@ function toggleTheme(theme) {
     
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
-      Shiny.setInputValue('settings_theme', 'Dark');
+      Shiny.setInputValue('settings_theme', 'dark');
     }
     
     console.log('Dark theme restored - all inline styles cleared');
-  } else if (theme === 'light' || theme === 'Light') {
+  } else if (normalizedTheme === 'light') {
     console.log('Applying light theme...');
     body.classList.remove('dark-theme');
     body.classList.add('light-theme');
@@ -290,7 +293,7 @@ function toggleTheme(theme) {
     
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
-      Shiny.setInputValue('settings_theme', 'Light');
+      Shiny.setInputValue('settings_theme', 'light');
     }
   }
   
