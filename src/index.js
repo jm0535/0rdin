@@ -11,7 +11,7 @@ if (require('electron-squirrel-startup')) {
 let mainWindow;
 let splashWindow;
 let rShinyProcess;
-const SHINY_PORT = 9054;
+const SHINY_PORT = 9056;
 const SHINY_HOST = '127.0.0.1';
 
 // Function to find R executable
@@ -23,7 +23,15 @@ function getRPath() {
   if (platform === 'win32') {
     // Windows - try portable R first, then system R
     // When packaged, use process.resourcesPath to get correct resources folder
-    const baseDir = app.isPackaged ? process.resourcesPath : path.join(__dirname, '..');
+    // Fix for packaged app path resolution issue
+    let baseDir;
+    if (app.isPackaged) {
+      // In packaged app, resources are in process.resourcesPath, not inside app.asar
+      baseDir = process.resourcesPath;
+    } else {
+      // In development, use __dirname
+      baseDir = path.join(__dirname, '..');
+    }
     // Use Rscript.exe for packaged (we use -e flag), R.exe for dev
     const rExeName = app.isPackaged ? 'Rscript.exe' : 'R.exe';
     const rWinPath = path.join(baseDir, 'r-win', 'R-Portable', 'App', 'R-Portable', 'R-4.5.1', 'bin', rExeName);
@@ -72,7 +80,15 @@ function startShiny() {
   return new Promise((resolve, reject) => {
     const rPath = getRPath();
     // Use correct paths for packaged app
-    const baseDir = app.isPackaged ? process.resourcesPath : path.join(__dirname, '..');
+    // Fix for packaged app path resolution issue
+    let baseDir;
+    if (app.isPackaged) {
+      // In packaged app, resources are in process.resourcesPath, not inside app.asar
+      baseDir = process.resourcesPath;
+    } else {
+      // In development, use __dirname
+      baseDir = path.join(__dirname, '..');
+    }
     const shinyDir = path.join(baseDir, 'shiny');
     
     console.log('Starting R Shiny server...');
@@ -86,7 +102,7 @@ function startShiny() {
     
     if (app.isPackaged) {
       // Packaged: run app.R directly from shiny folder
-      rArgs = ['--vanilla', '-e', `shiny::runApp(port=9054, host='127.0.0.1', launch.browser=FALSE)`];
+      rArgs = ['--vanilla', '-e', `shiny::runApp(port=9056, host='127.0.0.1', launch.browser=FALSE)`];
       rCwd = shinyDir;
       console.log('Running packaged mode');
     } else {
@@ -300,9 +316,9 @@ function createSplashScreen() {
       <div class="splash-container">
         <div class="logo-container">
           <div class="logo-glow"></div>
-          <div class="logo">Ö</div>
+          <div class="logo">\u00D6</div>
         </div>
-        <div class="app-name">ÖRDIN</div>
+        <div class="app-name">\u00D6RDIN</div>
         <div class="tagline">Community Ecology Analysis Platform</div>
         <div class="loading-container">
           <div class="loading-bar-bg">
@@ -334,7 +350,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
-    title: 'Ördin',
+    title: '\u00D6rdin',
     frame: false,  // Remove OS title bar to use custom title bar
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: {
@@ -369,10 +385,16 @@ function createWindow() {
   console.log(`Loading URL: http://${SHINY_HOST}:${SHINY_PORT}`);
   mainWindow.loadURL(`http://${SHINY_HOST}:${SHINY_PORT}`);
   
-  // Close splash screen after a short delay
+  // Close splash screen when main window content loads
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Main window content loaded successfully');
+    closeSplashScreen();
+  });
+  
+  // Fallback: Close splash screen after 5 seconds if not already closed
   setTimeout(() => {
     closeSplashScreen();
-  }, 2000);
+  }, 5000);
   
   // DevTools disabled for production - uncomment next line for debugging:
   // mainWindow.webContents.openDevTools();
@@ -430,7 +452,7 @@ app.on('ready', async () => {
     createWindow();
   } catch (error) {
     console.error('Failed to start application:', error);
-    dialog.showErrorBox('Startup Error', `Failed to start Ördin:\n${error.message}`);
+    dialog.showErrorBox('Startup Error', `Failed to start \u00D6rdin:\n${error.message}`);
     closeSplashScreen();
     app.quit();
   }

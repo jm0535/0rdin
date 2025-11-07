@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ordin</id>
+    <version>3.0.0</version>
+    <title>Ördin</title>
+    <authors>Ordin</authors>
+    <owners>Ordin</owners>
+    <description>A Community Ecology Analysis Platform</description>
+    <summary>Enterprise-Grade Community Ecology Analysis Platform with Advanced UI/UX</summary>
+    <projectUrl>https://github.com/jm0535/0rdin</projectUrl>
+    <licenseUrl>https://github.com/jm0535/0rdin/blob/main/LICENSE</licenseUrl>
+    <iconUrl>https://raw.githubusercontent.com/jm0535/0rdin/main/build/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright © 2025 Ordin</copyright>
+    <tags>ecology community-ecology ordination diversity R shiny</tags>
+  </metadata>
+  <files>
+    <file src="out\Ördin-win32-x64\**\*.*" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*;*.xml;*.nuspec"/>
+  </files>
+</package>
