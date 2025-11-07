@@ -21,12 +21,19 @@ function showSettingsSection(sectionId) {
 function toggleTheme(theme) {
   console.log('toggleTheme called with:', theme);
   const body = document.body;
+  const root = document.documentElement;
   
   if (theme === 'dark') {
     console.log('Applying dark theme...');
     body.classList.remove('light-theme');
     body.classList.add('dark-theme');
-    console.log('Body classes:', body.className);
+    
+    // Set CSS custom properties for dark theme
+    root.style.setProperty('--bg-primary', '#1e1e1e');
+    root.style.setProperty('--bg-secondary', '#252526');
+    root.style.setProperty('--text-primary', '#cccccc');
+    root.style.setProperty('--text-secondary', '#888888');
+    
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
       Shiny.setInputValue('settings_theme', 'dark');
@@ -35,17 +42,45 @@ function toggleTheme(theme) {
     console.log('Applying light theme...');
     body.classList.remove('dark-theme');
     body.classList.add('light-theme');
-    console.log('Body classes:', body.className);
+    
+    // Set CSS custom properties for light theme
+    root.style.setProperty('--bg-primary', '#ffffff');
+    root.style.setProperty('--bg-secondary', '#f5f5f5');
+    root.style.setProperty('--text-primary', '#1e1e1e');
+    root.style.setProperty('--text-secondary', '#4a4a4a');
+    
+    // Directly modify body background
+    body.style.backgroundColor = '#ffffff';
+    body.style.color = '#1e1e1e';
+    
+    // Modify main content areas
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.style.backgroundColor = '#ffffff';
+      mainContent.style.color = '#1e1e1e';
+    }
+    
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.style.backgroundColor = '#e8e8e8';
+      sidebar.style.borderRight = '1px solid #d0d0d0';
+    }
+    
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(tab => {
+      tab.style.backgroundColor = '#ffffff';
+      tab.style.color = '#1e1e1e';
+    });
+    
+    console.log('Light theme applied with inline styles');
+    
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
       Shiny.setInputValue('settings_theme', 'light');
     }
   }
   
-  // Force a style recalculation
-  body.style.display = 'none';
-  body.offsetHeight; // Trigger reflow
-  body.style.display = '';
+  console.log('Theme toggle complete. Body classes:', body.className);
 }
 
 // Font Size Adjustment
