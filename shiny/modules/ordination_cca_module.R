@@ -303,24 +303,17 @@ cca_server <- function(id, data, env_data) {
     output$export_plot <- downloadHandler(
       filename = function() paste0("cca_plot_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
-        is_dark <- plot_defaults$theme == "dark"
-        bg_color <- if(is_dark) "#1a1a1a" else "white"
-        fg_color <- if(is_dark) "#cccccc" else "#1e1e1e"
-        title_color <- if(is_dark) "#5fd38d" else "#2e8b57"
-        grid_color <- if(is_dark) "#404040" else "#cccccc40"
+        # Dark theme colors
+        bg_color <- "#1e1e1e"
+        fg_color <- "#cccccc"
         
-        if(plot_defaults$export_format == "png") {
-          png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color)
-        } else if(plot_defaults$export_format == "pdf") {
-          pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
-        } else if(plot_defaults$export_format == "svg") {
-          svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
-        } else if(plot_defaults$export_format == "tiff") {
-          tiff(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, bg = bg_color, compression = "lzw")
-        }
+        if(plot_defaults$export_format == "png") png(file, width = plot_defaults$plot_width * plot_defaults$plot_dpi, height = plot_defaults$plot_height * plot_defaults$plot_dpi, res = plot_defaults$plot_dpi, bg = bg_color)
+        if(plot_defaults$export_format == "pdf") pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        if(plot_defaults$export_format == "svg") svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height, bg = bg_color)
+        if(plot_defaults$export_format == "tiff") tiff(file, width = plot_defaults$plot_width * plot_defaults$plot_dpi, height = plot_defaults$plot_height * plot_defaults$plot_dpi, res = plot_defaults$plot_dpi, bg = bg_color, compression = "lzw")
         
         par(family = plot_defaults$font_family, bg = bg_color, fg = fg_color, col.axis = fg_color,
-            col.lab = fg_color, col.main = title_color, cex = plot_defaults$base_size / 12,
+            col.lab = fg_color, col.main = "#2e8b57", cex = plot_defaults$base_size / 12,
             cex.main = plot_defaults$title_size / 12, lwd = plot_defaults$axis_lwd)
         
         if(plot_defaults$equal_aspect) {
