@@ -64,6 +64,7 @@ function toggleTheme(theme) {
     if (sidebar) {
       sidebar.style.backgroundColor = '#e8e8e8';
       sidebar.style.borderRight = '1px solid #d0d0d0';
+      sidebar.style.color = '#1e1e1e';
     }
     
     const tabContents = document.querySelectorAll('.tab-content');
@@ -72,7 +73,70 @@ function toggleTheme(theme) {
       tab.style.color = '#1e1e1e';
     });
     
-    console.log('Light theme applied with inline styles');
+    // Make all cards light
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      card.style.backgroundColor = '#f9f9f9';
+      card.style.color = '#1e1e1e';
+      card.style.border = '1px solid #e0e0e0';
+    });
+    
+    // Update all headings for better contrast
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    headings.forEach(heading => {
+      heading.style.color = '#1e1e1e';
+    });
+    
+    // Update all paragraphs
+    const paragraphs = document.querySelectorAll('p');
+    paragraphs.forEach(p => {
+      const currentColor = p.style.color;
+      if (currentColor && (currentColor.includes('#888') || currentColor.includes('#666') || currentColor.includes('#ccc'))) {
+        p.style.color = '#4a4a4a';
+      }
+    });
+    
+    // Update form controls
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      input.style.backgroundColor = '#ffffff';
+      input.style.color = '#1e1e1e';
+      input.style.border = '1px solid #d0d0d0';
+    });
+    
+    // Update buttons
+    const buttons = document.querySelectorAll('button, .btn');
+    buttons.forEach(button => {
+      // Don't change green action buttons
+      if (!button.style.backgroundColor || !button.style.backgroundColor.includes('46, 139, 87')) {
+        button.style.backgroundColor = '#f0f0f0';
+        button.style.color = '#1e1e1e';
+        button.style.border = '1px solid #d0d0d0';
+      }
+    });
+    
+    // Update section headers
+    const sectionHeaders = document.querySelectorAll('.section-header');
+    sectionHeaders.forEach(header => {
+      header.style.backgroundColor = '#f0f0f0';
+      header.style.color = '#1e1e1e';
+    });
+    
+    // Update sidebar items
+    const items = document.querySelectorAll('.item');
+    items.forEach(item => {
+      item.style.color = '#1e1e1e';
+    });
+    
+    // Update results panels
+    const resultsPanels = document.querySelectorAll('.results-panel, .results-section');
+    resultsPanels.forEach(panel => {
+      panel.style.backgroundColor = '#f9f9f9';
+      panel.style.color = '#1e1e1e';
+      panel.style.border = '1px solid #e0e0e0';
+    });
+    
+    console.log('Light theme applied with inline styles and card updates');
     
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
