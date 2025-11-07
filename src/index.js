@@ -149,7 +149,7 @@ function startShiny() {
 // Function to check if Shiny server is ready
 async function checkShinyReady(maxAttempts = 30, interval = 1000) {
   // Check if R process is still running
-  if (!shinyProcess || shinyProcess.killed) {
+  if (!rShinyProcess || rShinyProcess.killed) {
     throw new Error('Shiny server process died');
   }
   
@@ -176,7 +176,7 @@ async function checkShinyReady(maxAttempts = 30, interval = 1000) {
   }
   
   // If we got here and process is still running, assume it's ready
-  if (shinyProcess && !shinyProcess.killed) {
+  if (rShinyProcess && !rShinyProcess.killed) {
     console.log('Shiny server process is running, assuming ready');
     return true;
   }
