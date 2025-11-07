@@ -1200,6 +1200,15 @@ div.shiny-input-container + div.shiny-input-container {
     margin-top: 12px !important;
 }
 
+/* FORCE DISABLE SELECTIZE - Use plain HTML select for all dropdowns */
+.selectize-control {
+    display: none !important;
+}
+
+.shiny-input-container select {
+    display: block !important;
+}
+
 /* Select dropdowns with custom arrow */
 select.form-control,
 .shiny-input-container select {
