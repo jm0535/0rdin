@@ -1489,6 +1489,95 @@ body.light-theme .form-control {
     border: 1px solid #d0d0d0 !important;
 }
 
+/* TABS - Force light theme */
+body.light-theme .nav-tabs,
+body.light-theme .tab,
+body.light-theme [role="tab"] {
+    background: #e8e8e8 !important;
+    color: #1e1e1e !important;
+    border-color: #d0d0d0 !important;
+}
+
+body.light-theme .nav-tabs .active,
+body.light-theme .tab.active,
+body.light-theme [role="tab"][aria-selected="true"] {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+    border-bottom-color: #ffffff !important;
+}
+
+/* BUTTONS - Force light theme */
+body.light-theme button,
+body.light-theme .btn,
+body.light-theme .action-button {
+    background: #f0f0f0 !important;
+    color: #1e1e1e !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme button:hover,
+body.light-theme .btn:hover {
+    background: #e0e0e0 !important;
+}
+
+/* Keep green action buttons green */
+body.light-theme button[style*="2e8b57"],
+body.light-theme .btn-primary {
+    background: #2e8b57 !important;
+    color: #ffffff !important;
+}
+
+/* SIDEBAR ITEMS - Force light */
+body.light-theme .item,
+body.light-theme .sidebar .item {
+    background: transparent !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme .item:hover,
+body.light-theme .sidebar .item:hover {
+    background: #e0e0e0 !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme .item.active,
+body.light-theme .sidebar .item.active {
+    background: #d0d0d0 !important;
+    color: #1e1e1e !important;
+}
+
+/* DROPDOWNS - Force white */
+body.light-theme select.form-control,
+body.light-theme .selectize-input,
+body.light-theme .shiny-input-container select {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+/* INFO BOXES - Light backgrounds */
+body.light-theme .info-box,
+body.light-theme .alert,
+body.light-theme .well {
+    background: #e8f5e9 !important;
+    color: #1e1e1e !important;
+    border: 1px solid #c8e6c9 !important;
+}
+
+/* PANELS - Light backgrounds */
+body.light-theme .panel,
+body.light-theme .box {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+/* BADGES - Light theme */
+body.light-theme .badge {
+    background: #e0e0e0 !important;
+    color: #1e1e1e !important;
+}
+
 /* ========================================
    WORKFLOW LAYOUTS - Enterprise Grade
    VERTICAL FLOW: Config → Results → Customization
