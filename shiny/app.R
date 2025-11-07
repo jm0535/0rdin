@@ -564,7 +564,8 @@ ui <- function(req) {
               choices = c(
                 "Diversity Estimation (iNEXT)" = "estimation",
                 "Diversity Indices (Shannon, Simpson)" = "indices"
-              )
+              ),
+              selectize = FALSE
             ),
             conditionalPanel(
               "input.diversity_method == 'estimation'",
@@ -581,6 +582,7 @@ ui <- function(req) {
             id = "tab-ordination", class = "tab-content", style = "display: none;",
             h2(style = "color: #2e8b57; margin-bottom: 20px;", "🗺️ Ordination Analysis"),
             selectInput("ordination_method", "Select Method:",
+              selectize = FALSE,
               choices = c(
                 "NMDS" = "nmds",
                 "PCA" = "pca",
@@ -609,6 +611,7 @@ ui <- function(req) {
             id = "tab-tests", class = "tab-content", style = "display: none;",
             h2(style = "color: #2e8b57; margin-bottom: 20px;", "🧪 Statistical Tests"),
             selectInput("test_method", "Select Test:",
+              selectize = FALSE,
               choices = c(
                 "PERMANOVA" = "permanova",
                 "ANOSIM" = "anosim",
