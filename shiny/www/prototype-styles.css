@@ -1313,6 +1313,116 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* ========================================
+   LIGHT THEME STYLES
+   ======================================== */
+body.light-theme {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme #app-container {
+    background: #f5f5f5 !important;
+}
+
+body.light-theme .sidebar {
+    background: #e8e8e8 !important;
+    border-right: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme .activity-bar {
+    background: #2c2c2c !important;
+}
+
+body.light-theme .main-content {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme .tab-content {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme h1, 
+body.light-theme h2, 
+body.light-theme h3, 
+body.light-theme h4 {
+    color: #1e1e1e !important;
+}
+
+body.light-theme .card {
+    background: #f9f9f9 !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme .form-control,
+body.light-theme select,
+body.light-theme input,
+body.light-theme textarea {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme .btn,
+body.light-theme button {
+    background: #f0f0f0 !important;
+    color: #1e1e1e !important;
+    border: 1px solid #d0d0d0 !important;
+}
+
+body.light-theme .btn:hover,
+body.light-theme button:hover {
+    background: #e0e0e0 !important;
+}
+
+body.light-theme .section-header {
+    color: #1e1e1e !important;
+    background: #f0f0f0 !important;
+}
+
+body.light-theme .item {
+    color: #1e1e1e !important;
+}
+
+body.light-theme .item:hover {
+    background: #e8e8e8 !important;
+}
+
+body.light-theme .results-panel {
+    background: #f9f9f9 !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme .results-section {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+body.light-theme table {
+    background: #ffffff !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme th {
+    background: #f0f0f0 !important;
+    color: #1e1e1e !important;
+}
+
+body.light-theme td {
+    border-color: #e0e0e0 !important;
+}
+
+body.light-theme .settings-section {
+    background: #ffffff !important;
+}
+
+body.light-theme label {
+    color: #4a4a4a !important;
+}
+
+/* ========================================
    WORKFLOW LAYOUTS - Enterprise Grade
    VERTICAL FLOW: Config → Results → Customization
    ======================================== */
