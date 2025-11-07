@@ -1,5 +1,5 @@
 // Settings page navigation
-// Handles switching between different settings sections
+// Handles switching between different settings sections using the existing sidebar
 
 function showSettingsSection(sectionId) {
   console.log('Switching to settings section:', sectionId);
@@ -15,18 +15,34 @@ function showSettingsSection(sectionId) {
   if (targetSection) {
     targetSection.style.display = 'block';
   }
+}
+
+// Dark/Light Theme Toggle
+function toggleTheme(theme) {
+  console.log('Toggling theme to:', theme);
+  const body = document.body;
   
-  // Update navigation active state
-  const navItems = document.querySelectorAll('.settings-nav-item');
-  navItems.forEach(item => {
-    item.classList.remove('active');
-  });
-  
-  // Add active class to clicked item
-  event.target.classList.add('active');
+  if (theme === 'dark') {
+    body.classList.remove('light-theme');
+    body.classList.add('dark-theme');
+    // Update Shiny input
+    if (typeof Shiny !== 'undefined') {
+      Shiny.setInputValue('settings_theme', 'dark');
+    }
+  } else if (theme === 'light') {
+    body.classList.remove('dark-theme');
+    body.classList.add('light-theme');
+    // Update Shiny input
+    if (typeof Shiny !== 'undefined') {
+      Shiny.setInputValue('settings_theme', 'light');
+    }
+  }
 }
 
 // Initialize settings page
 $(document).ready(function() {
   console.log('Settings navigation initialized');
+  
+  // Show appearance section by default
+  showSettingsSection('appearance');
 });

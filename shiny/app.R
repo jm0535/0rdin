@@ -650,22 +650,6 @@ ui <- function(req) {
             id = "tab-settings", class = "tab-content", style = "display: none;",
             h2(style = "color: #2e8b57; margin-bottom: 20px;", "⚙️ Settings"),
 
-            # Settings Navigation Sidebar
-            div(style = "display: flex; gap: 20px;",
-              # Sidebar
-              div(style = "width: 200px; flex-shrink: 0;",
-                div(class = "settings-nav",
-                  div(class = "settings-nav-item active", onclick = "showSettingsSection('appearance')", "🌨️ Appearance"),
-                  div(class = "settings-nav-item", onclick = "showSettingsSection('plot-defaults')", "🎨 Plot Defaults"),
-                  div(class = "settings-nav-item", onclick = "showSettingsSection('analysis-defaults')", "🧪 Analysis Defaults"),
-                  div(class = "settings-nav-item", onclick = "showSettingsSection('data-management')", "📊 Data Management"),
-                  div(class = "settings-nav-item", onclick = "showSettingsSection('performance')", "⚡ Performance"),
-                  div(class = "settings-nav-item", onclick = "showSettingsSection('advanced')", "🔧 Advanced")
-                )
-              ),
-              # Content Area
-              div(style = "flex: 1;",
-
             # APPEARANCE SETTINGS
             div(
               id = "settings-appearance", class = "settings-section",
@@ -912,8 +896,6 @@ ui <- function(req) {
                 style = "background: #2e8b57; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer;"
               )
             )
-            ) # Close content area
-            ) # Close flex container
           ), # CLOSES SETTINGS TAB
 
           # HELP TAB
