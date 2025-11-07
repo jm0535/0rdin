@@ -78,14 +78,12 @@ ui <- function(req) {
     tags$script(src = "help-content.js?v=3"),
     tags$script(src = "shiny-ui.js?v=12"),
     tags$script(src = "dashboard-cards.js?v=1"),
-    tags$script(src = "settings-navigation.js?v=1"),
     tags$script(src = "sidebar-content.js?v=101"),
     tags$script(src = "fontawesome-icons.js?v=2"),
     tags$script(src = "plot-customization-panel.js?v=4"),
 
     # Load CSS files
     tags$link(rel = "stylesheet", href = "help-styles.css?v=1"),
-    tags$link(rel = "stylesheet", href = "light-theme-complete.css?v=1"),
 
     # Remove waiter overlay after page loads using JavaScript
     tags$script(HTML('
