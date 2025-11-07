@@ -19,24 +19,33 @@ function showSettingsSection(sectionId) {
 
 // Dark/Light Theme Toggle
 function toggleTheme(theme) {
-  console.log('Toggling theme to:', theme);
+  console.log('toggleTheme called with:', theme);
   const body = document.body;
   
   if (theme === 'dark') {
+    console.log('Applying dark theme...');
     body.classList.remove('light-theme');
     body.classList.add('dark-theme');
+    console.log('Body classes:', body.className);
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
       Shiny.setInputValue('settings_theme', 'dark');
     }
   } else if (theme === 'light') {
+    console.log('Applying light theme...');
     body.classList.remove('dark-theme');
     body.classList.add('light-theme');
+    console.log('Body classes:', body.className);
     // Update Shiny input
     if (typeof Shiny !== 'undefined') {
       Shiny.setInputValue('settings_theme', 'light');
     }
   }
+  
+  // Force a style recalculation
+  body.style.display = 'none';
+  body.offsetHeight; // Trigger reflow
+  body.style.display = '';
 }
 
 // Font Size Adjustment

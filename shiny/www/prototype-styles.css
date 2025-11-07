@@ -1315,13 +1315,20 @@ input[type="number"]::-webkit-outer-spin-button {
 /* ========================================
    LIGHT THEME STYLES
    ======================================== */
+body.light-theme,
+body.light-theme * {
+    transition: background-color 0.3s, color 0.3s;
+}
+
 body.light-theme {
     background: #ffffff !important;
     color: #1e1e1e !important;
 }
 
-body.light-theme #app-container {
+body.light-theme #app-container,
+body.light-theme .app-container {
     background: #f5f5f5 !important;
+    color: #1e1e1e !important;
 }
 
 body.light-theme .sidebar {
