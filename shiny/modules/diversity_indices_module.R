@@ -86,38 +86,7 @@ diversity_indices_ui <- function(id) {
           # Interpretation box
           uiOutput(ns("indices_interpretation")),
           
-          plotOutput(ns("indices_plot"), width = "100%", height = "400px"),
-          
-          # Export options
-          div(
-            style = "background: #2d2d30; padding: 16px; margin-top: 16px; border-radius: 4px; border: 1px solid #3e3e42;",
-            h4(style = "color: #2e8b57; margin-top: 0; margin-bottom: 12px; font-size: 14px; font-weight: 600;", "📥 EXPORT OPTIONS"),
-            
-            div(
-              style = "display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;",
-              
-              div(
-                tags$label(style = "color: #888; font-size: 12px; display: block; margin-bottom: 4px;", "Format"),
-                selectInput(ns("export_format"), NULL, choices = c("PNG" = "png", "PDF" = "pdf", "SVG" = "svg", "TIFF" = "tiff"), selected = "png", width = "100%", selectize = FALSE)
-              ),
-              div(
-                tags$label(style = "color: #888; font-size: 12px; display: block; margin-bottom: 4px;", "DPI"),
-                selectInput(ns("export_dpi"), NULL, choices = c("150" = 150, "300" = 300, "600" = 600), selected = 300, width = "100%", selectize = FALSE)
-              ),
-              div(
-                tags$label(style = "color: #888; font-size: 12px; display: block; margin-bottom: 4px;", "Width (in)"),
-                numericInput(ns("export_width"), NULL, value = 12, min = 4, max = 20, step = 1, width = "100%")
-              ),
-              div(
-                tags$label(style = "color: #888; font-size: 12px; display: block; margin-bottom: 4px;", "Height (in)"),
-                numericInput(ns("export_height"), NULL, value = 8, min = 4, max = 20, step = 1, width = "100%")
-              )
-            ),
-            
-            div(style = "margin-top: 12px;",
-              downloadButton(ns("export_plot_download"), "💾 Download Plot", style = "background: #2e8b57; color: white; border: none; padding: 8px 16px; width: 100%; font-weight: 600;")
-            )
-          )
+          plotOutput(ns("indices_plot"), width = "100%", height = "500px")
         ),
         
         # Results Panel (30%)
@@ -337,9 +306,9 @@ diversity_indices_server <- function(id, data) {
       summary_df
     }, digits = 4)
     
-    # Export plot with user-selected format
-    output$export_plot_download <- downloadHandler(
-      filename = function() paste0("diversity_indices_", Sys.Date(), ".", input$export_format),
+    # Export plot
+    output$export_plot <- downloadHandler(
+      filename = function() paste0("diversity_indices_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
         plot_data <- tidyr::pivot_longer(
           indices_results(),
@@ -354,8 +323,8 @@ diversity_indices_server <- function(id, data) {
           theme_bw() +
           scale_fill_manual(values = c("#2e8b57", "#007acc", "#d4a017"))
         
-        ggsave(file, plot = p, width = input$export_width, height = input$export_height, 
-               dpi = as.numeric(input$export_dpi), device = input$export_format)
+        ggsave(file, plot = p, width = plot_defaults$plot_width, height = plot_defaults$plot_height, 
+               dpi = plot_defaults$dpi, device = plot_defaults$export_format)
       }
     )
     
