@@ -39,6 +39,31 @@ function toggleTheme(theme) {
   }
 }
 
+// Font Size Adjustment
+function adjustFontSize(action) {
+  console.log('Adjusting font size:', action);
+  const root = document.documentElement;
+  const currentSize = parseFloat(getComputedStyle(root).fontSize);
+  
+  if (action === 'increase') {
+    root.style.fontSize = (currentSize + 1) + 'px';
+  } else if (action === 'decrease') {
+    root.style.fontSize = Math.max(12, currentSize - 1) + 'px';
+  }
+}
+
+// Reset Zoom
+function resetZoom() {
+  console.log('Resetting zoom');
+  const root = document.documentElement;
+  root.style.fontSize = '14px';
+  
+  // Update Shiny slider if it exists
+  if (typeof Shiny !== 'undefined') {
+    Shiny.setInputValue('settings_zoom', 100);
+  }
+}
+
 // Initialize settings page
 $(document).ready(function() {
   console.log('Settings navigation initialized');

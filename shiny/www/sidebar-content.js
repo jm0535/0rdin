@@ -336,12 +336,12 @@ function getSidebarSettings() {
     <div class="section">
       <div class="section-header">▼ APPEARANCE</div>
       <div class="section-content">
-        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🌙 Dark Theme <span class="badge success">ON</span></div>
-        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">☀️ Light Theme</div>
+        <div class="item" onclick="toggleTheme('dark'); showSettingsSection('appearance');" style="cursor: pointer;">🌙 Dark Theme <span class="badge success">ON</span></div>
+        <div class="item" onclick="toggleTheme('light'); showSettingsSection('appearance');" style="cursor: pointer;">☀️ Light Theme</div>
         <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🎨 Custom Colors</div>
-        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🔤 Increase Font Size</div>
-        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🔥 Decrease Font Size</div>
-        <div class="item" onclick="showSettingsSection('appearance')" style="cursor: pointer;">🔄 Reset Zoom</div>
+        <div class="item" onclick="adjustFontSize('increase'); showSettingsSection('appearance');" style="cursor: pointer;">🔤 Increase Font Size</div>
+        <div class="item" onclick="adjustFontSize('decrease'); showSettingsSection('appearance');" style="cursor: pointer;">🔥 Decrease Font Size</div>
+        <div class="item" onclick="resetZoom(); showSettingsSection('appearance');" style="cursor: pointer;">🔄 Reset Zoom</div>
       </div>
     </div>
     <div class="section">
