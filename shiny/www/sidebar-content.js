@@ -453,6 +453,46 @@ function getSidebarHelp() {
   `;
 }
 
+// ============== FONT SIZE AND ZOOM FUNCTIONS ==============
+function adjustFontSize(action) {
+  console.log('Adjusting font size:', action);
+  const root = document.documentElement;
+  const currentSize = parseFloat(getComputedStyle(root).fontSize);
+  
+  if (action === 'increase') {
+    root.style.fontSize = (currentSize + 1) + 'px';
+  } else if (action === 'decrease') {
+    root.style.fontSize = Math.max(12, currentSize - 1) + 'px';
+  }
+}
+
+function resetZoom() {
+  console.log('Resetting zoom');
+  const root = document.documentElement;
+  root.style.fontSize = '14px';
+  
+  // Update Shiny slider if it exists
+  if (typeof Shiny !== 'undefined') {
+    Shiny.setInputValue('settings_zoom', 100);
+  }
+}
+
+// ============== SHINY MESSAGE HANDLERS ==============
+// Add message handlers when document is ready
+$(document).ready(function() {
+  if (typeof Shiny !== 'undefined') {
+    Shiny.addCustomMessageHandler('applyFont', function(font) {
+      console.log('Applying font from Shiny:', font);
+      const body = document.body;
+      body.style.fontFamily = font === 'system' ? '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' :
+                              font === 'sans' ? 'Arial, Helvetica, sans-serif' :
+                              font === 'serif' ? 'Georgia, "Times New Roman", serif' :
+                              font === 'mono' ? '"Courier New", Courier, monospace' :
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    });
+  }
+});
+
 // ============== SETTINGS SECTION NAVIGATION ==============
 function showSettingsSection(sectionName) {
   console.log('Showing settings section:', sectionName);
