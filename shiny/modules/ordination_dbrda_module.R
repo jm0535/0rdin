@@ -32,7 +32,8 @@ dbrda_ui <- function(id) {
                    choices = c("Bray-Curtis" = "bray", "Jaccard" = "jaccard", 
                               "Euclidean" = "euclidean", "Manhattan" = "manhattan",
                               "Canberra" = "canberra", "Kulczynski" = "kulczynski"),
-                   selected = "bray"),
+                   selected = "bray",
+                   selectize = FALSE),
         
         # Environmental variables selection
         uiOutput(ns("env_vars_ui")),
@@ -40,7 +41,8 @@ dbrda_ui <- function(id) {
         # Scaling
         selectInput(ns("scaling"), "Scaling:",
                    choices = c("Type 1 (sites)" = 1, "Type 2 (species)" = 2),
-                   selected = 2),
+                   selected = 2,
+                   selectize = FALSE),
         
         # Permutation tests
         numericInput(ns("permutations"), "Permutations:", value = 999, min = 99, max = 9999, step = 100),

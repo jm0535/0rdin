@@ -32,7 +32,8 @@ cap_ui <- function(id) {
                    choices = c("Bray-Curtis" = "bray", "Jaccard" = "jaccard", 
                               "Euclidean" = "euclidean", "Manhattan" = "manhattan",
                               "Canberra" = "canberra", "Gower" = "gower"),
-                   selected = "bray"),
+                   selected = "bray",
+                   selectize = FALSE),
         
         # Environmental variables selection
         uiOutput(ns("env_vars_ui")),

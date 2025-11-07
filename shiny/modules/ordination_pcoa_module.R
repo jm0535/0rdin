@@ -23,7 +23,8 @@ pcoa_ui <- function(id) {
       
       selectInput(ns("distance"), "Distance:",
                  choices = c("Bray-Curtis" = "bray", "Jaccard" = "jaccard", 
-                            "Euclidean" = "euclidean")),
+                            "Euclidean" = "euclidean"),
+                 selectize = FALSE),
       actionButton(ns("run_pcoa"), "▶ Run PCoA", class = "btn-success", style = "width: 100%;")
     ),
     div(class = "horizontal-split",

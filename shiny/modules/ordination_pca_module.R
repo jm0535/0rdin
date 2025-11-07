@@ -43,7 +43,8 @@ pca_ui <- function(id) {
             "Correlation (standardized)" = "correlation",
             "Covariance (unstandardized)" = "covariance"
           ),
-          selected = "correlation"
+          selected = "correlation",
+          selectize = FALSE
         ),
         tags$small("Correlation-based PCA scales variables to equal variance."),
         
