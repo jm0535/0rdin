@@ -1377,6 +1377,14 @@ server <- function(input, output, session) {
   observeEvent(input$settings_theme, {
     session$sendCustomMessage("applyTheme", input$settings_theme)
   })
+  
+  # Apply Appearance Settings button
+  observeEvent(input$settings_save_appearance, {
+    session$sendCustomMessage("applyTheme", input$settings_theme)
+    session$sendCustomMessage("applyFont", input$settings_font)
+    session$sendCustomMessage("setZoom", input$settings_zoom / 100)
+    showNotification("✅ Appearance settings applied!", type = "message", duration = 2)
+  })
 
   # UI Zoom slider
   observeEvent(input$settings_zoom, {

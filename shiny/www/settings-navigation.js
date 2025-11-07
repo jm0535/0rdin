@@ -77,5 +77,15 @@ $(document).ready(function() {
       console.log('Applying theme from Shiny:', theme);
       toggleTheme(theme);
     });
+    
+    Shiny.addCustomMessageHandler('applyFont', function(font) {
+      console.log('Applying font from Shiny:', font);
+      const body = document.body;
+      body.style.fontFamily = font === 'system' ? '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' :
+                              font === 'sans' ? 'Arial, Helvetica, sans-serif' :
+                              font === 'serif' ? 'Georgia, "Times New Roman", serif' :
+                              font === 'mono' ? '"Courier New", Courier, monospace' :
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    });
   }
 });
