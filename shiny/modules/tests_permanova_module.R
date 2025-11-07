@@ -303,9 +303,17 @@ permanova_server <- function(id, data, env_data) {
 
     # Download plot
     output$download_plot <- downloadHandler(
-      filename = function() paste0("permanova_variance_plot_", Sys.Date(), ".png"),
+      filename = function() paste0("permanova_variance_plot_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
-        png(file, width = 1200, height = 1000, res = 150)
+        if(plot_defaults$export_format == "png") {
+          png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi)
+        } else if(plot_defaults$export_format == "pdf") {
+          pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height)
+        } else if(plot_defaults$export_format == "svg") {
+          svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height)
+        } else if(plot_defaults$export_format == "tiff") {
+          tiff(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, compression = "lzw")
+        }
         r2_vals <- permanova_result()$R2
         labels <- rownames(permanova_result())
         

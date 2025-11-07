@@ -377,9 +377,17 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
     
     # Download Mantel plot
     output$download_mantel_plot <- downloadHandler(
-      filename = function() paste0("mantel_plot_", Sys.Date(), ".png"),
+      filename = function() paste0("mantel_plot_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
-        png(file, width = 1200, height = 800, res = 150)
+        if(plot_defaults$export_format == "png") {
+          png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi)
+        } else if(plot_defaults$export_format == "pdf") {
+          pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height)
+        } else if(plot_defaults$export_format == "svg") {
+          svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height)
+        } else if(plot_defaults$export_format == "tiff") {
+          tiff(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, compression = "lzw")
+        }
         
         dist1 <- vegdist(data(), method = input$distance1)
         numeric_cols <- sapply(env_data(), is.numeric)
@@ -409,9 +417,17 @@ mantel_envfit_server <- function(id, data, env_data, ordination_result = NULL) {
     
     # Download envfit plot
     output$download_envfit_plot <- downloadHandler(
-      filename = function() paste0("envfit_plot_", Sys.Date(), ".png"),
+      filename = function() paste0("envfit_plot_", Sys.Date(), ".", plot_defaults$export_format),
       content = function(file) {
-        png(file, width = 1200, height = 1000, res = 150)
+        if(plot_defaults$export_format == "png") {
+          png(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi)
+        } else if(plot_defaults$export_format == "pdf") {
+          pdf(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height)
+        } else if(plot_defaults$export_format == "svg") {
+          svg(file, width = plot_defaults$plot_width, height = plot_defaults$plot_height)
+        } else if(plot_defaults$export_format == "tiff") {
+          tiff(file, width = plot_defaults$plot_width * plot_defaults$dpi, height = plot_defaults$plot_height * plot_defaults$dpi, res = plot_defaults$dpi, compression = "lzw")
+        }
         
         ord <- metaMDS(data(), distance = "bray", trymax = 20, trace = 0)
         
