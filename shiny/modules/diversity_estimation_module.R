@@ -163,7 +163,7 @@ diversity_estimation_ui <- function(id) {
             selected = 1
           ),
           
-          plotOutput(ns("inext_plot"), width = "100%", height = "500px"),
+          plotOutput(ns("inext_plot"), width = "100%", height = "400px"),
           
           # Export options
           div(
