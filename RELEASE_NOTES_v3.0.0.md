@@ -38,19 +38,17 @@ Export controls are consistently available across **all 15+ analysis modules**:
 
 ## 📦 Download Options
 
-### Windows (Recommended)
+### Windows
 
-**Option 1: Portable Version** (No installation required)
+**Portable Version** (Recommended - No installation required)
 - **File**: `Ordin-win32-x64-3.0.0.zip` (770 MB)
 - **Benefits**: Extract and run instantly, no admin rights needed, perfect for USB drives
 - **How to use**: Extract ZIP → Double-click `ordin.exe` → Start analyzing!
+- **Includes**: R 4.5.1 and all required packages - completely self-contained!
 
-**Option 2: Traditional Installer**
-- **File**: `Ordin-3.0.0-Setup.exe` (770 MB)
-- **Benefits**: System-wide installation, Start Menu integration, Desktop shortcut
-- **How to use**: Run installer → Follow wizard → Launch from Start Menu
-
-Both versions include **R 4.5.1** and all required packages - completely self-contained!
+**Traditional Installer**
+- Coming in a future update
+- Portable version works perfectly in the meantime!
 
 ### Linux
 
@@ -159,7 +157,7 @@ MIT License - Free and open source
 
 ## 🎯 Quick Start
 
-### Windows Portable (Recommended)
+### Windows Portable
 
 1. Download `Ordin-win32-x64-3.0.0.zip`
 2. Extract to any folder
@@ -167,12 +165,7 @@ MIT License - Free and open source
 4. Load sample data or your own CSV files
 5. Run analyses and export plots with custom settings!
 
-### Windows Installer
-
-1. Download `Ordin-3.0.0-Setup.exe`
-2. Run the installer
-3. Launch from Start Menu
-4. Start analyzing!
+**Note**: Traditional installer coming in a future update!
 
 ---
 
