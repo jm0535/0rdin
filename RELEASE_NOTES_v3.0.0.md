@@ -41,7 +41,7 @@ Export controls are consistently available across **all 15+ analysis modules**:
 ### Windows
 
 **Portable Version** (Recommended - No installation required)
-- **File**: `Ordin-win32-x64-3.0.0.zip` (770 MB)
+- **File**: `Ordin-win32-x64-3.0.0.zip` (333 MB)
 - **Benefits**: Extract and run instantly, no admin rights needed, perfect for USB drives
 - **How to use**: Extract ZIP → Double-click `ordin.exe` → Start analyzing!
 - **Includes**: R 4.5.1 and all required packages - completely self-contained!
@@ -52,12 +52,12 @@ Export controls are consistently available across **all 15+ analysis modules**:
 
 ### Linux
 
-**Debian/Ubuntu**: `ordin_3.0.0_amd64.deb` (85 MB)
+**Debian/Ubuntu**: `ordin_3.0.0_amd64.deb` (272 MB)
 ```bash
 sudo dpkg -i ordin_3.0.0_amd64.deb
 ```
 
-**Fedora/RHEL**: `ordin-3.0.0-1.x86_64.rpm` (88 MB)
+**Fedora/RHEL**: `ordin-3.0.0-1.x86_64.rpm` (279 MB)
 ```bash
 sudo dnf install ordin-3.0.0-1.x86_64.rpm
 ```
