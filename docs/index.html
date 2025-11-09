@@ -50,8 +50,8 @@
                     </h1>
                     <p class="hero-subtitle">Next-Gen Open-Source Community Ecology Analysis Platform</p>
                     <p class="hero-description">
-                        Combine R's statistical power with modern UX design. Real-time plot customization, 
-                        9 ordination methods, comprehensive diversity analysis—all in a sleek desktop application.
+                        Combine R's statistical power with modern UX design. Real-time plot customization with flexible export (PNG/PDF/SVG/TIFF), 
+                        9 ordination methods, comprehensive diversity analysis—all in an enterprise-grade desktop application.
                     </p>
                     <div class="hero-buttons">
                         <a href="#download" class="btn btn-primary">
@@ -96,13 +96,13 @@
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-palette"></i></div>
                     <h3>Real-Time Customization</h3>
-                    <p>18+ plot controls: themes, fonts, colors—instant updates without re-running</p>
+                    <p>20+ plot controls in right sidebar: themes, fonts, colors, export settings—instant updates without re-running</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-file-export"></i></div>
-                    <h3>Publication Quality</h3>
-                    <p>Export PNG, PDF, SVG, TIFF at up to 600 DPI for journals</p>
+                    <h3>Flexible Export Options</h3>
+                    <p>Choose format (PNG/PDF/SVG/TIFF), DPI (72-600), width, and height directly from the right sidebar for every plot</p>
                 </div>
                 
                 <div class="feature-card">
@@ -173,6 +173,9 @@
                     <a href="https://github.com/jm0535/0rdin/releases/download/v3.0.0/Ordin-win32-x64-3.0.0.zip" class="btn btn-download" style="background: #007acc;">
                         <i class="fas fa-star"></i> Download Portable ZIP (770 MB)
                     </a>
+                    <a href="https://github.com/jm0535/0rdin/releases/download/v3.0.0/Ordin-3.0.0-Setup.exe" class="btn btn-download" style="background: #2e8b57; margin-top: 10px;">
+                        <i class="fas fa-download"></i> Download Installer (770 MB)
+                    </a>
                     <div class="download-details">
                         <p><strong>✨ Portable Version (Recommended):</strong> Extract and run instantly - no installation needed!</p>
                         <p><strong>Features:</strong></p>
@@ -185,7 +188,7 @@
                         </ul>
                         <p style="margin-top: 12px;"><strong>Requirements:</strong> Windows 10 or later (64-bit)</p>
                         <p class="status-badge"><i class="fas fa-check-circle"></i> <strong>TESTED & WORKING</strong></p>
-                        <p style="margin-top: 12px; color: #888; font-size: 0.9em;"><i class="fas fa-info-circle"></i> <strong>Installer versions (.exe and .msi) coming soon</strong></p>
+                        <p style="margin-top: 12px;"><strong>Installer Available:</strong> <code>Ordin-3.0.0-Setup.exe</code> for traditional installation</p>
                     </div>
                 </div>
                 
@@ -240,7 +243,7 @@
             <div class="download-note">
                 <p><i class="fas fa-star"></i> <strong>Windows Users:</strong> Download the Portable ZIP - fully self-contained with R 4.5.1, no installation required!</p>
                 <p><i class="fas fa-info-circle"></i> <strong>Linux:</strong> Requires R 4.0+ installed on your system. Shiny app and dependencies are bundled.</p>
-                <p><i class="fas fa-clock"></i> <strong>Windows Installers (.exe and .msi):</strong> Coming soon in a future update.</p>
+                <p><i class="fas fa-check-circle"></i> <strong>Windows Installer:</strong> Now available! Choose between portable ZIP or traditional installer.</p>
                 <p>Need older versions? <a href="https://github.com/jm0535/0rdin/releases">View all releases</a></p>
             </div>
         </div>
@@ -260,11 +263,13 @@
             <div class="install-content">
                 <!-- Windows -->
                 <div id="windows" class="tab-content active">
-                    <h3>✨ Windows - Portable Version (Recommended)</h3>
+                    <h3>✨ Windows - Two Installation Options</h3>
                     <div class="install-note" style="background: #007acc; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <p style="margin: 0; font-size: 1.1em;"><strong>⚡ NO INSTALLATION REQUIRED!</strong></p>
-                        <p style="margin: 8px 0 0 0;">Just download, extract, and run - it's that simple!</p>
+                        <p style="margin: 0; font-size: 1.1em;"><strong>⚡ PORTABLE VERSION (Recommended):</strong> No installation required!</p>
+                        <p style="margin: 8px 0 0 0;">Or use the traditional installer for system-wide installation</p>
                     </div>
+                    
+                    <h4 style="color: #007acc; margin-top: 30px;">Option 1: Portable Version (Recommended)</h4>
                     <div class="install-steps">
                         <div class="step">
                             <span class="step-number">1</span>
@@ -305,7 +310,41 @@
                             <li>Perfect for USB drives</li>
                             <li>Run multiple versions side-by-side</li>
                         </ul>
-                        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;"><strong>Note:</strong> Traditional installer versions (.exe and .msi) are coming in a future update.</p>
+                    </div>
+                    
+                    <h4 style="color: #2e8b57; margin-top: 40px;">Option 2: Traditional Installer</h4>
+                    <div class="install-steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h4>Download the Installer</h4>
+                                <p>Download <code>Ordin-3.0.0-Setup.exe</code> (770 MB) from the download button above</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h4>Run the Installer</h4>
+                                <p>Double-click the installer → Follow the installation wizard → Choose installation location</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h4>Launch from Start Menu</h4>
+                                <p>After installation, find Ördin in your Start Menu or Desktop shortcut</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="install-note" style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <p><strong>✅ Installer Benefits:</strong></p>
+                        <ul style="margin: 10px 0 10px 20px; line-height: 1.8;">
+                            <li>System-wide installation</li>
+                            <li>Start Menu integration</li>
+                            <li>Desktop shortcut</li>
+                            <li>Automatic file associations</li>
+                            <li>Easy uninstall via Control Panel</li>
+                        </ul>
                     </div>
                 </div>
                 
