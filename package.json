@@ -67,9 +67,9 @@
             "loadingGif": "./build/install-spinner.gif",
             "authors": "Ordin",
             "description": "A Community Ecology Analysis Platform",
-            "title": "Ördin Installer",
+            "title": "Ordin Installer",
             "exe": "ordin.exe",
-            "setupExe": "Ördin-3.0.0 Setup.exe"
+            "setupExe": "Ordin-3.0.0-Setup.exe"
           },
           "platforms": ["win32"]
         },
