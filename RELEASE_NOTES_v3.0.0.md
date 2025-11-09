@@ -120,12 +120,12 @@ Coming soon - requires macOS build system
 
 ## 🐛 Bug Fixes
 
-- ✅ Fixed installer filename (removed special characters)
 - ✅ Fixed Mantel test numeric validation
 - ✅ Fixed envfit mixed data type handling
 - ✅ Fixed environmental variable selection UI
 - ✅ Removed all debug console output
 - ✅ Fixed window dragging on Windows
+- ✅ All modules now use flexible export system from right sidebar
 
 ---
 
