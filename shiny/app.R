@@ -24,6 +24,10 @@ source("R/error_handler.R")
 source("R/performance.R")
 
 # Source all modules
+source("services/DataService.R")
+
+# Source all modules
+source("modules/import_module.R")
 source("modules/ordination_module.R")
 source("modules/ordination_pca_module.R")
 source("modules/ordination_ca_module.R")
@@ -346,15 +350,25 @@ ui <- function(req) {
 # SERVER
 server <- function(input, output, session) {
   # ============== REACTIVE DATA STORAGE ==============
-  # Store loaded data reactively so modules can access it
-  species_data <- reactiveVal(NULL)
-  env_data <- reactiveVal(NULL)
-  phylo_tree <- reactiveVal(NULL)
-  trait_data <- reactiveVal(NULL)
+  # ============== SERVICES ==============
+  # Initialize DataService (R6)
+  data_service <- DataService$new()
+
+  # Reactive bindings for backward compatibility with modules
+  # Modules expect reactive expressions, so we pass the service's reactive fields
+  species_data <- data_service$species_data
+  env_data <- data_service$env_data
+  phylo_tree <- data_service$phylo_tree
+  trait_data <- data_service$trait_data
+
+
 
   # ============== MODULE SERVERS (WITH DATA) ==============
   # Call module servers and pass reactive data
   # NOTE: NMDS, CCA, RDA, db-RDA, and CAP modules accept env_data parameter for constrained ordination
+
+  # Data Import logic
+  import_server("import", data_service)
 
   # Diversity modules
   diversity_estimation_server("diversity_est", data = species_data)
@@ -638,117 +652,9 @@ server <- function(input, output, session) {
   })
 
   # ============== SAMPLE DATA LOADING ==============
-  observeEvent(input$load_sample, {
-    req(input$sample_dataset)
+  # ============== SAMPLE DATA LOADING ==============
+  # Handled by import_module via DataService
 
-    if (input$sample_dataset == "dune") {
-      data(dune, package = "vegan")
-      species_data(as.data.frame(dune))
-
-      # Also load dune.env environmental data
-      data(dune.env, package = "vegan")
-      env_data(as.data.frame(dune.env))
-
-      showNotification("✅ Dune meadow data + environmental data loaded successfully!", type = "message", duration = 3)
-    } else if (input$sample_dataset == "varespec") {
-      data(varespec, package = "vegan")
-      species_data(as.data.frame(varespec))
-
-      showNotification("✅ Varespec data loaded successfully!", type = "message", duration = 3)
-    } else if (input$sample_dataset == "BCI") {
-      data(BCI, package = "vegan")
-      species_data(as.data.frame(BCI))
-
-      showNotification("✅ BCI data loaded successfully!", type = "message", duration = 3)
-    } else if (input$sample_dataset == "phylo_example") {
-      # Load phylocom dataset from picante package
-      data(phylocom, package = "picante")
-
-      # Extract community matrix and phylogeny
-      species_data(as.data.frame(phylocom$sample))
-      phylo_tree(phylocom$phylo)
-
-      showNotification(
-        "✅ Phylocom dataset loaded! (Real phylogenetic data from picante package)",
-        type = "message", duration = 4
-      )
-    } else if (input$sample_dataset == "func_example") {
-      # Load phylocom dataset as base
-      data(phylocom, package = "picante")
-      species_data(as.data.frame(phylocom$sample))
-
-      # Use the traits from phylocom dataset
-      trait_data(phylocom$traits)
-      showNotification(
-        "✅ Functional example loaded! (Phylocom dataset with real trait data)",
-        type = "message", duration = 4
-      )
-    } else if (input$sample_dataset == "temporal_example") {
-      # Load BBS temporal data from betapart package
-      library(betapart)
-      data(bbsData, package = "betapart")
-
-      # bbs1980 = Time 1, bbs2000 = Time 2 (same 49 US states, 20 years apart)
-      # For now, load Time 1 as the main dataset
-      species_data(as.data.frame(bbs1980))
-
-      # Store both time periods in a special reactive for temporal analysis
-      # Note: This would need special handling in beta_partition_module
-
-      cat("BBS temporal data loaded:", nrow(bbs1980), "sites (US states)\n")
-      cat("Time 1 (1980-1985):", sum(bbs1980 > 0), "presences\n")
-      cat("Time 2 (2000-2005):", sum(bbs2000 > 0), "presences\n")
-
-      showNotification(
-        "✅ Temporal dataset loaded! (US Breeding Bird Survey: 1980s vs 2000s)",
-        type = "message", duration = 4
-      )
-    } else if (input$sample_dataset == "ciliates_incidence") {
-      cat("Loading ciliates incidence dataset...\n")
-
-      # Load from sample-data folder
-      ciliates <- read.csv("../sample-data/ciliates-incidence-raw.csv", row.names = 1)
-      species_data(as.data.frame(ciliates))
-
-      cat("Ciliates incidence data loaded:", nrow(ciliates), "sites ×", ncol(ciliates), "species\n")
-      cat("Data type: Presence/Absence (0/1)\n")
-
-      showNotification(
-        "✅ Ciliates incidence data loaded! (Presence/Absence)",
-        type = "message", duration = 3
-      )
-    } else if (input$sample_dataset == "ant_incidence") {
-      cat("Loading ant incidence frequency dataset...\n")
-
-      # Load from sample-data folder
-      ants <- read.csv("../sample-data/ant-incidence-freq.csv", row.names = 1)
-      species_data(as.data.frame(ants))
-
-      cat("Ant incidence data loaded:", nrow(ants), "sites ×", ncol(ants), "species\n")
-      cat("Data type: Incidence frequency (for iNEXT)\n")
-
-      showNotification(
-        "✅ Ant incidence data loaded! (Incidence frequency format)",
-        type = "message", duration = 3
-      )
-    } else if (input$sample_dataset == "plant_presence") {
-      cat("Loading plant presence dataset...\n")
-
-      # Load from sample-data folder
-      plants <- read.csv("../sample-data/plant-presence.csv", row.names = 1)
-      species_data(as.data.frame(plants))
-
-      cat("Plant presence data loaded:", nrow(plants), "sites ×", ncol(plants), "species\n")
-      cat("Data type: Presence/Absence (0/1)\n")
-
-      showNotification(
-        "✅ Plant presence data loaded! (Presence/Absence)",
-        type = "message", duration = 3
-      )
-    }
-
-    cat("=== SAMPLE DATA LOADING COMPLETE ===", "\n\n")
-  })
 
   # ============== FILE UPLOAD HANDLING ==============
   # ============== SETTINGS HANDLERS ==============
