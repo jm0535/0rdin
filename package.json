@@ -10,7 +10,8 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "publish": "electron-forge publish",
+    "lint": "standard"
   },
   "keywords": [
     "community-ecology",
@@ -33,6 +34,7 @@
   "homepage": "https://github.com/jm0535/0rdin#readme",
   "dependencies": {
     "axios": "^1.6.0",
+    "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {
@@ -71,7 +73,9 @@
             "exe": "ordin.exe",
             "setupExe": "Ordin-3.0.0-Setup.exe"
           },
-          "platforms": ["win32"]
+          "platforms": [
+            "win32"
+          ]
         },
         {
           "name": "@electron-forge/maker-zip",
@@ -88,11 +92,16 @@
               "maintainer": "Ordin",
               "homepage": "https://github.com/jmoses/ordin",
               "icon": "./build/icon.png",
-              "categories": ["Science", "Education"],
+              "categories": [
+                "Science",
+                "Education"
+              ],
               "section": "science"
             }
           },
-          "platforms": ["linux"]
+          "platforms": [
+            "linux"
+          ]
         },
         {
           "name": "@electron-forge/maker-rpm",
@@ -100,10 +109,15 @@
             "options": {
               "homepage": "https://github.com/jmoses/ordin",
               "icon": "./build/icon.png",
-              "categories": ["Science", "Education"]
+              "categories": [
+                "Science",
+                "Education"
+              ]
             }
           },
-          "platforms": ["linux"]
+          "platforms": [
+            "linux"
+          ]
         }
       ]
     }

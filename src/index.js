@@ -2,6 +2,14 @@ const path = require('path');
 const { spawn } = require('child_process');
 const axios = require('axios');
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const log = require('electron-log');
+
+// Configure logging
+log.transports.file.level = 'info';
+log.transports.console.level = 'info';
+// Optionally, redirect console to electron-log
+// console.log = log.log;
+// console.error = log.error;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling
 if (require('electron-squirrel-startup')) {
@@ -19,7 +27,7 @@ function getRPath() {
   const platform = process.platform;
   const fs = require('fs');
   let rPath;
-  
+
   if (platform === 'win32') {
     // Windows - try portable R first, then system R
     // When packaged, use process.resourcesPath to get correct resources folder
@@ -35,12 +43,12 @@ function getRPath() {
     // Use Rscript.exe for packaged (we use -e flag), R.exe for dev
     const rExeName = app.isPackaged ? 'Rscript.exe' : 'R.exe';
     const rWinPath = path.join(baseDir, 'r-win', 'R-Portable', 'App', 'R-Portable', 'R-4.5.1', 'bin', rExeName);
-    
-    console.log('Checking for R at:', rWinPath);
-    
+
+    log.info('Checking for R at:', rWinPath);
+
     if (fs.existsSync(rWinPath)) {
       rPath = rWinPath;
-      console.log('Found bundled R!');
+      log.info('Found bundled R!');
     } else {
       // Try common system R locations
       const systemRPaths = [
@@ -49,15 +57,15 @@ function getRPath() {
         'C:\\Program Files\\R\\R-4.3.3\\bin\\R.exe',
         'C:\\Program Files\\R\\R-4.2.3\\bin\\R.exe',
       ];
-      
+
       for (const testPath of systemRPaths) {
         if (fs.existsSync(testPath)) {
           rPath = testPath;
-          console.log(`Found R at: ${rPath}`);
+          log.info(`Found R at: ${rPath}`);
           break;
         }
       }
-      
+
       // Fallback to 'R' command
       if (!rPath) {
         rPath = 'R';
@@ -71,7 +79,7 @@ function getRPath() {
     // Linux (including WSL)
     rPath = 'R';  // Use system R from PATH
   }
-  
+
   return rPath;
 }
 
@@ -90,97 +98,112 @@ function startShiny() {
       baseDir = path.join(__dirname, '..');
     }
     const shinyDir = path.join(baseDir, 'shiny');
-    
-    console.log('Starting R Shiny server...');
-    console.log('R Path:', rPath);
-    console.log('Shiny Dir:', shinyDir);
-    
+
+    log.info('Starting R Shiny server...');
+    log.info('R Path:', rPath);
+    log.info('Shiny Dir:', shinyDir);
+
     // For packaged app, run shiny directly with Rscript
     // For dev, use start-shiny.R script
     let rArgs;
     let rCwd;
-    
+
     if (app.isPackaged) {
       // Packaged: run app.R directly from shiny folder
-      rArgs = ['--vanilla', '-e', `shiny::runApp(port=9056, host='127.0.0.1', launch.browser=FALSE)`];
+      rArgs = ['--vanilla', '-e', `shiny::runApp(port=${SHINY_PORT}, host='${SHINY_HOST}', launch.browser=FALSE)`];
       rCwd = shinyDir;
-      console.log('Running packaged mode');
+      log.info('Running packaged mode');
     } else {
       // Development: use start-shiny.R
       const scriptPath = path.join(__dirname, 'start-shiny.R');
       rArgs = ['--vanilla', '-f', scriptPath];
       rCwd = path.join(__dirname, '..');
-      console.log('Running development mode');
+      log.info('Running development mode');
     }
-    
+
     rShinyProcess = spawn(rPath, rArgs, {
       cwd: rCwd,
       env: process.env
     });
-    
+
+    // Helper to handle ready state
+    const onReady = () => {
+      log.info('Shiny server started successfully (detected via output)');
+      resolve();
+    };
+
     rShinyProcess.stdout.on('data', (data) => {
-      console.log(`R stdout: ${data}`);
+      log.info(`R stdout: ${data}`);
       if (data.toString().includes('Listening on')) {
-        console.log('Shiny server started successfully');
-        resolve();
+        onReady();
       }
     });
-    
+
     rShinyProcess.stderr.on('data', (data) => {
-      console.error(`R stderr: ${data}`);
+      log.error(`R stderr: ${data}`);
+      // R Shiny often prints 'Listening on' to stderr
+      if (data.toString().includes('Listening on')) {
+        onReady();
+      }
     });
-    
+
     rShinyProcess.on('error', (error) => {
-      console.error('Failed to start R process:', error);
+      log.error('Failed to start R process:', error);
       reject(error);
     });
-    
+
     rShinyProcess.on('close', (code) => {
-      console.log(`R process exited with code ${code}`);
+      log.info(`R process exited with code ${code}`);
     });
-    
-    // Timeout fallback
+
+    // Timeout fallback - check if port is open after a delay
+    // Increased to 10s to allow for initial R startup time
     setTimeout(() => {
-      checkShinyReady().then(resolve).catch(reject);
-    }, 5000);
+      log.info('Startup timeout reached, checking connectivity...');
+      checkShinyReady(5, 1000).then(() => {
+        log.info('Shiny server connectivity confirmed via fallback');
+        resolve();
+      }).catch((err) => {
+        // Don't reject yet, let the main ready loop handle it
+        log.warn('Fallback check failed, but process is running. Creating window anyway to attempt load.', err);
+        resolve();
+      });
+    }, 10000);
   });
 }
 
 // Function to check if Shiny server is ready
 async function checkShinyReady(maxAttempts = 30, interval = 1000) {
   // Check if R process is still running
-  if (!rShinyProcess || rShinyProcess.killed) {
-    throw new Error('Shiny server process died');
+  if (!rShinyProcess || rShinyProcess.exitCode !== null) {
+    throw new Error(`Shiny server process exited with code ${rShinyProcess ? rShinyProcess.exitCode : 'unknown'}`);
   }
-  
+
   for (let i = 0; i < maxAttempts; i++) {
+    // Double check process status before every attempt
+    if (rShinyProcess.exitCode !== null) {
+      throw new Error(`Shiny server process exited unexpectedly with code ${rShinyProcess.exitCode}`);
+    }
+
     try {
-      const response = await axios.get(`http://${SHINY_HOST}:${SHINY_PORT}`, {
-        timeout: 5000,
-        validateStatus: function (status) {
-          return status < 500; // Accept any status < 500 as success
-        }
+      await axios.get(`http://${SHINY_HOST}:${SHINY_PORT}`, {
+        timeout: 2000,
+        validateStatus: status => status < 500
       });
-      console.log('Shiny server is ready');
+      log.info('Shiny server is ready (HTTP 200 OK)');
       return true;
     } catch (error) {
-      // If we see "Listening on" in the logs, consider it ready
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-        console.log(`Waiting for Shiny server... (attempt ${i + 1}/${maxAttempts})`);
-        await new Promise(resolve => setTimeout(resolve, interval));
-      } else {
-        console.log(`Waiting for Shiny server... (attempt ${i + 1}/${maxAttempts})`);
-        await new Promise(resolve => setTimeout(resolve, interval));
-      }
+      log.info(`Waiting for Shiny server... (attempt ${i + 1}/${maxAttempts}) - ${error.message}`);
+      await new Promise(resolve => setTimeout(resolve, interval));
     }
   }
-  
-  // If we got here and process is still running, assume it's ready
-  if (rShinyProcess && !rShinyProcess.killed) {
-    console.log('Shiny server process is running, assuming ready');
+
+  // If we got here and process is still running, check one last time
+  if (rShinyProcess && rShinyProcess.exitCode === null) {
+    log.info('Shiny server process is running but not responding to HTTP. Assuming ready.');
     return true;
   }
-  
+
   throw new Error('Shiny server failed to start');
 }
 
@@ -199,7 +222,7 @@ function createSplashScreen() {
       contextIsolation: true
     }
   });
-  
+
   // Create splash screen HTML
   const splashHTML = `
     <!DOCTYPE html>
@@ -353,9 +376,9 @@ function createSplashScreen() {
     </body>
     </html>
   `;
-  
+
   splashWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(splashHTML)}`);
-  
+
   // Remove menu bar
   splashWindow.setMenuBarVisibility(false);
 }
@@ -387,11 +410,11 @@ function createWindow() {
     show: true,  // SHOW IMMEDIATELY - removed delay
     autoHideMenuBar: true  // Automatically hide menu bar
   });
-  
+
   // Completely remove the menu bar
   mainWindow.setMenuBarVisibility(false);
   mainWindow.removeMenu();
-  
+
   // Set Content Security Policy
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({
@@ -403,34 +426,34 @@ function createWindow() {
       }
     });
   });
-  
+
   // Load the Shiny app
-  console.log(`Loading URL: http://${SHINY_HOST}:${SHINY_PORT}`);
+  log.info(`Loading URL: http://${SHINY_HOST}:${SHINY_PORT}`);
   mainWindow.loadURL(`http://${SHINY_HOST}:${SHINY_PORT}`);
-  
+
   // Close splash screen when main window content loads
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('Main window content loaded successfully');
+    log.info('Main window content loaded successfully');
     closeSplashScreen();
   });
-  
+
   // Fallback: Close splash screen after 5 seconds if not already closed
   setTimeout(() => {
     closeSplashScreen();
   }, 5000);
-  
+
   // DevTools disabled for production - uncomment next line for debugging:
   // mainWindow.webContents.openDevTools();
-  
+
   // Log when content loads
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('Main window content loaded successfully');
+    log.info('Main window content loaded successfully');
   });
-  
+
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    console.error('Failed to load:', errorCode, errorDescription);
+    log.error('Failed to load:', errorCode, errorDescription);
   });
-  
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -460,24 +483,17 @@ app.on('ready', async () => {
   try {
     // Show splash screen immediately
     createSplashScreen();
-    
+
     // Start Shiny server in background
-    console.log('Starting Shiny server...');
+    log.info('Starting Shiny server...');
     await startShiny();
-    console.log('Shiny server started');
-    
-    // Wait for Shiny to be fully ready before creating window
-    console.log('Waiting for Shiny to be ready...');
-    // Give Shiny extra time to fully initialize before health checks
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await checkShinyReady();
-    console.log('Shiny is ready!');
-    
+    log.info('Shiny server started');
+
     // Create main window
     createWindow();
   } catch (error) {
-    console.error('Failed to start application:', error);
-    dialog.showErrorBox('Startup Error', `Failed to start \u00D6rdin:\n${error.message}`);
+    log.error('Failed to start application:', error);
+    dialog.showErrorBox('Startup Error', `Failed to start \u00D6rdin:\n${error.message}\n\nCheck logs for details.`);
     closeSplashScreen();
     app.quit();
   }
@@ -498,12 +514,19 @@ app.on('activate', () => {
 app.on('will-quit', () => {
   // Kill R Shiny process
   if (rShinyProcess) {
-    console.log('Stopping R Shiny server...');
-    rShinyProcess.kill();
+    log.info('Stopping R Shiny server...');
+    rShinyProcess.kill('SIGKILL');
   }
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught exception:', error);
+  log.error('Uncaught exception:', error);
+  dialog.showErrorBox('Unexpected Error', `An error occurred:\n${error.message}\n\nCheck logs for details.`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  dialog.showErrorBox('Unhandled Rejection', `An unhandled promise rejection occurred:\n${reason}\n\nCheck logs for details.`);
 });
