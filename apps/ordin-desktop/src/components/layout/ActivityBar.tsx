@@ -20,7 +20,7 @@ export function ActivityBar() {
   const setCommandOpen = useOrdinStore((s) => s.setCommandOpen);
   const setPluginOpen = useOrdinStore((s) => s.setPluginOpen);
   const activePlugins = new Set((project.meta.plugins ?? []).map((x) => x.id));
-  const isActive = (id: string) => activePlugins.size === 0 ? true : activePlugins.has(id);
+  const isActive = (id: string) => activePlugins.has(id);
   const visibleItems = items.filter((it) => {
     if (it.id === 'classification') return isActive('classification');
     if (it.id === 'traits') return isActive('traits');

@@ -16,23 +16,16 @@ export function PluginMarketplace() {
   const project = useOrdinStore((s) => s.project);
   const [q, setQ] = useState('');
   const active = new Set((project.meta.plugins ?? []).map((p) => p.id));
-  const isActiveId = (id: string) => active.size === 0 ? true : active.has(id);
-  const activeCount = active.size === 0 ? AVAILABLE.length : active.size;
+  const isActiveId = (id: string) => active.has(id);
+  const activeCount = active.size;
 
   const toggle = (p: typeof AVAILABLE[number]) => {
     // @ts-ignore
     useOrdinStore.setState((s: any) => {
       if (!s.project.meta.plugins) s.project.meta.plugins = [];
-      // empty → treat as all active (migration) — init with all before toggling
-      const isEmpty = s.project.meta.plugins.length === 0;
-      const currentlyActive = isEmpty ? true : s.project.meta.plugins.some((x: any) => x.id === p.id);
-      if (currentlyActive) {
-        if (isEmpty) {
-          s.project.meta.plugins = AVAILABLE.filter((x) => x.id !== p.id).map((x) => ({ id: x.id, version: x.ver }));
-        } else {
-          const idx = s.project.meta.plugins.findIndex((x: any) => x.id === p.id);
-          if (idx >= 0) s.project.meta.plugins.splice(idx, 1);
-        }
+      const idx = s.project.meta.plugins.findIndex((x: any) => x.id === p.id);
+      if (idx >= 0) {
+        s.project.meta.plugins.splice(idx, 1);
         if (s.project.view.activePanel === p.panel) s.project.view.activePanel = 'dashboard';
       } else {
         s.project.meta.plugins.push({ id: p.id, version: p.ver });
