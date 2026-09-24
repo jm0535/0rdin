@@ -75,16 +75,17 @@ export function PluginMarketplace() {
                     <Button variant="ghost" className="h-7 text-xs" disabled><Check size={12} className="mr-1" /> Installed</Button>
                   ) : (
                     <Button variant="subtle" className="h-7 text-xs" onClick={() => {
-                      const { useOrdinStore: store } = require('@ordin/core');
                       // @ts-ignore
-                      store.setState((s: any) => {
+                      useOrdinStore.setState((s: any) => {
                         if (!s.project.meta.plugins) s.project.meta.plugins = [];
-                        s.project.meta.plugins.push({ id: p.id, version: p.ver });
+                        if (!s.project.meta.plugins.find((x: any) => x.id === p.id)) {
+                          s.project.meta.plugins.push({ id: p.id, version: p.ver });
+                        }
                         s.project.meta.modified = new Date().toISOString();
                       });
                     }}><Download size={12} className="mr-1" /> Install</Button>
                   )}
-                  <Button variant="ghost" className="h-7 text-xs" onClick={() => useOrdinStore.getState().setPanel(p.panel as any)}>Open</Button>
+                  <Button variant="ghost" className="h-7 text-xs" onClick={() => { useOrdinStore.getState().setPanel(p.panel as any); setOpen(false); }}>Open</Button>
                 </div>
               </Card>
             );
