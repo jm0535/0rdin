@@ -1,5 +1,9 @@
 @import "@fontsource-variable/ibm-plex-sans";
 @import "@fontsource/ibm-plex-mono";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
 body { font-family: "IBM Plex Sans Variable", system-ui, -apple-system, sans-serif; background: #1e1e1e; color: #cccccc; }
