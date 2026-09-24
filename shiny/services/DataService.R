@@ -91,6 +91,26 @@ DataService <- R6::R6Class("DataService",
           stop("Unsupported file format")
         )
 
+        # Validate BEFORE storing (validators live in shiny/R/error_handler.R;
+        # the exists() guard keeps DataService usable when sourced standalone)
+        if (type == "species" && exists("validate_species_data", mode = "function")) {
+          check <- validate_species_data(data)
+          if (!isTRUE(check$valid)) {
+            return(list(success = FALSE,
+                        message = paste("Species data rejected:", check$message)))
+          }
+        }
+        if (type == "env" && exists("validate_env_data", mode = "function")) {
+          sp <- self$species_data()
+          if (!is.null(sp)) {
+            check <- validate_env_data(sp, data)
+            if (!isTRUE(check$valid)) {
+              return(list(success = FALSE,
+                          message = paste("Environmental data rejected:", check$message)))
+            }
+          }
+        }
+
         switch(type,
           "species" = self$species_data(data),
           "env" = self$env_data(data),

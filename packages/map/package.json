@@ -1,0 +1,13 @@
+{
+  "name": "@ordin/map",
+  "version": "4.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit", "build": "tsc -b" },
+  "dependencies": {
+    "maplibre-gl": "^6.10.0",
+    "pmtiles": "^4.3.0",
+    "deck.gl": "^9.1.14"
+  },
+  "devDependencies": { "typescript": "~5.8.3" }
+}

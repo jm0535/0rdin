@@ -1,7 +1,13 @@
 # Start Shiny server
 
 # Install required packages if not already installed
-required_packages <- c("shiny", "shinydashboard", "bslib", "DT", "vegan", "iNEXT", "ggplot2", "dplyr", "tidyr", "shinyFeedback")
+# Keep in sync with shiny/DESCRIPTION (Imports section)
+required_packages <- c(
+  "shiny", "vegan", "iNEXT", "ggplot2", "DT", "shinyjs", "waiter",
+  "shinyFeedback", "readr", "readxl", "dplyr", "tidyr", "yaml", "digest",
+  "jsonlite", "R6", "promises", "future", "rmarkdown", "knitr",
+  "ape", "picante", "betapart", "patchwork"
+)
 
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -12,7 +18,6 @@ for (pkg in required_packages) {
 
 # Load required packages
 library(shiny)
-library(shinydashboard)
 library(shinyFeedback)
 
 # Set working directory to shiny folder

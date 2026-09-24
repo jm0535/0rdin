@@ -29,22 +29,58 @@ debounced_input <- function(input_reactive, millis = 1000) {
 }
 
 #' Async Ordination
-#' 
-#' Runs ordination asynchronously using promises
+#'
+#' Runs ordination asynchronously using promises + future.
+#' Requires a concurrent future plan (see the `future::plan()` setup in
+#' `shiny/app.R`); with the default sequential plan this would block the
+#' Shiny session and defeat the purpose.
 #' @param data Species data
 #' @param method Ordination method
-#' @param ... Additional arguments
-#' @return Promise that resolves to ordination result
-async_ordination <- function(data, method = "nmds", ...) {
-  promises::future_promise({
-    switch(method,
-      "nmds" = vegan::metaMDS(data, ...),
-      "pca" = vegan::rda(data, ...),
-      "ca" = vegan::cca(data, ...),
-      "dca" = vegan::decorana(data, ...),
-      stop("Unknown method: ", method)
-    )
-  })
+#' @param distance Distance metric (used by methods that support it)
+#' @param k Number of dimensions (NMDS)
+#' @param trymax NMDS restart limit
+#' @param autotransform NMDS autotransform flag
+#' @param trace NMDS trace level
+#' @return Promise that resolves to the ordination result
+async_ordination <- function(data, method = "nmds", distance = "bray", k = 2,
+                             trymax = 20, autotransform = FALSE, trace = 0) {
+  promises::future_promise(
+    {
+      switch(method,
+        "nmds" = vegan::metaMDS(data,
+          distance = distance, k = k, trymax = trymax,
+          autotransform = autotransform, trace = trace
+        ),
+        "pca" = vegan::rda(data),
+        "ca" = vegan::cca(data),
+        "dca" = vegan::decorana(data),
+        stop("Unknown method: ", method)
+      )
+    },
+    # Explicit so workers load what they need regardless of global analysis
+    packages = c("vegan"),
+    # Reproducible random starts across sessions
+    seed = TRUE
+  )
+}
+
+#' Async PERMANOVA
+#'
+#' Runs adonis2() in a background R process so permutation tests never freeze
+#' the Shiny session.
+#' @param comm Species community matrix
+#' @param env Environmental data frame (right-hand side of the formula)
+#' @param permutations Number of permutations
+#' @param distance Distance metric
+#' @return Promise that resolves to an adonis2 result
+async_permanova <- function(comm, env, permutations = 999, distance = "bray") {
+  promises::future_promise(
+    {
+      vegan::adonis2(comm ~ ., data = env, permutations = permutations, method = distance)
+    },
+    packages = c("vegan"),
+    seed = TRUE
+  )
 }
 
 #' Batch Process Sites
@@ -166,11 +202,15 @@ optimize_dataset <- function(data, max_sites = 500, method = "random") {
 #' @param n_tries Number of random starts
 #' @return Best NMDS result
 parallel_nmds <- function(data, k = 2, n_tries = 20) {
-  if (requireNamespace("future", quietly = TRUE) && 
+  if (requireNamespace("future", quietly = TRUE) &&
       requireNamespace("furrr", quietly = TRUE)) {
-    
+
+    # Switch to a parallel plan only for the duration of this call so the
+    # app-wide plan configured in shiny/app.R is left untouched.
+    old_plan <- future::plan()
+    on.exit(future::plan(old_plan), add = TRUE)
     future::plan(future::multisession, workers = 4)
-    
+
     results <- furrr::future_map(seq_len(n_tries), function(i) {
       vegan::metaMDS(data, k = k, trymax = 1, trace = 0)
     })

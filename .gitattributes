@@ -25,3 +25,6 @@
 *.gif binary
 *.ico binary
 *.icns binary
+
+# JavaScript sources must stay UTF-8 + LF (regression guard for the shiny-ui.js UTF-16 incident)
+*.js text eol=lf

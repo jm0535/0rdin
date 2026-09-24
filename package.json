@@ -1,125 +1,68 @@
 {
   "name": "ordin",
-  "productName": "Ördin",
-  "version": "3.0.0",
-  "description": "A Community Ecology Analysis Platform - Enterprise-Grade v3.0 with Advanced UI/UX, Multi-Format Export, Keyboard Shortcuts, Auto-Save, Data Preview, Loading Screens, and Full Accessibility Support",
-  "main": "src/index.js",
-  "author": "Ordin <ordin@pnguot.ac.pg>",
-  "license": "MIT",
-  "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "standard"
-  },
-  "keywords": [
-    "community-ecology",
-    "ecology",
-    "ordination",
-    "diversity",
-    "vegan",
-    "iNEXT",
-    "R",
-    "shiny",
-    "electron"
+  "version": "4.0.0",
+  "private": true,
+  "description": "Ördin — cloud-native community ecology platform (Geolibre-stack: Tauri + React + Vite + MapLibre + DuckDB-WASM + webR). Runs in browser, desktop, and Jupyter.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "workers/*"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jm0535/0rdin.git"
+  "scripts": {
+    "postinstall": "node scripts/apply-dependency-patches.mjs",
+    "dev": "npm run dev -w ordin-desktop",
+    "build": "npm run build -w ordin-desktop",
+    "preview": "npm run preview -w ordin-desktop",
+    "tauri": "npm run tauri -w ordin-desktop",
+    "tauri:dev": "npm run tauri:dev -w ordin-desktop",
+    "lint": "eslint apps packages workers tests",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces",
+    "test:frontend": "node --import tsx --test tests/*.test.ts",
+    "legacy:start": "npm run start --workspace=ordin --if-present",
+    "legacy:electron": "node --version && npx --yes electron-forge start --help 2>&1 | head"
   },
-  "bugs": {
-    "url": "https://github.com/jm0535/0rdin/issues"
-  },
-  "homepage": "https://github.com/jm0535/0rdin#readme",
   "dependencies": {
-    "axios": "^1.6.0",
-    "electron-log": "^5.4.3",
-    "electron-squirrel-startup": "^1.0.0"
+    "patch-package": "^8.0.1"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^7.2.0",
-    "@electron-forge/maker-deb": "^7.2.0",
-    "@electron-forge/maker-rpm": "^7.2.0",
-    "@electron-forge/maker-squirrel": "^7.2.0",
-    "@electron-forge/maker-zip": "^7.2.0",
-    "electron": "^28.0.0"
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.6.2",
+    "eslint": "^9.11.0",
+    "fflate": "^0.8.3",
+    "linkedom": "^0.18.13",
+    "tsx": "^4.23.13",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.70.0"
   },
-  "config": {
-    "forge": {
-      "packagerConfig": {
-        "name": "Ördin",
-        "executableName": "ordin",
-        "icon": "./build/icon",
-        "asar": true,
-        "asarUnpack": [
-          "**/node_modules/native-*/**/*"
-        ],
-        "extraResource": [
-          "r-win",
-          "shiny"
-        ]
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "ordin",
-            "setupIcon": "./build/icon.ico",
-            "loadingGif": "./build/install-spinner.gif",
-            "authors": "Ordin",
-            "description": "A Community Ecology Analysis Platform",
-            "title": "Ordin Installer",
-            "exe": "ordin.exe",
-            "setupExe": "Ordin-3.0.0-Setup.exe"
-          },
-          "platforms": [
-            "win32"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin",
-            "win32",
-            "linux"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "options": {
-              "maintainer": "Ordin",
-              "homepage": "https://github.com/jmoses/ordin",
-              "icon": "./build/icon.png",
-              "categories": [
-                "Science",
-                "Education"
-              ],
-              "section": "science"
-            }
-          },
-          "platforms": [
-            "linux"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {
-            "options": {
-              "homepage": "https://github.com/jmoses/ordin",
-              "icon": "./build/icon.png",
-              "categories": [
-                "Science",
-                "Education"
-              ]
-            }
-          },
-          "platforms": [
-            "linux"
-          ]
-        }
-      ]
-    }
-  }
+  "overrides": {
+    "@loaders.gl/compression": { "fflate": "^0.8.3" },
+    "brace-expansion": "^5.0.9",
+    "fast-uri": "^3.1.7",
+    "miniflare": { "undici": "^7.16.0" },
+    "sweepline-intersections": "^1.5.0",
+    "sweep-line-intersections": "^1.5.0",
+    "textura-compressor": { "image-size": "^2.0.4" },
+    "uuid": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "allowScripts": {
+    "@google/genai": true,
+    "core-js": true,
+    "esbuild": true,
+    "protobufjs": true,
+    "sharp": true,
+    "workerd": true
+  },
+  "trustedDependencies": [
+    "@google/genai",
+    "core-js",
+    "esbuild",
+    "protobufjs",
+    "sharp",
+    "workerd"
+  ]
 }
