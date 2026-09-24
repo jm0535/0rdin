@@ -15,9 +15,17 @@ const items: { id: PanelId; icon: React.ComponentType<any>; label: string; kbd?:
 
 export function ActivityBar() {
   const active = useOrdinStore((s) => s.project.view.activePanel);
+  const project = useOrdinStore((s) => s.project);
   const setPanel = useOrdinStore((s) => s.setPanel);
   const setCommandOpen = useOrdinStore((s) => s.setCommandOpen);
   const setPluginOpen = useOrdinStore((s) => s.setPluginOpen);
+  const activePlugins = new Set((project.meta.plugins ?? []).map((x) => x.id));
+  const isActive = (id: string) => activePlugins.size === 0 ? true : activePlugins.has(id);
+  const visibleItems = items.filter((it) => {
+    if (it.id === 'classification') return isActive('classification');
+    if (it.id === 'traits') return isActive('traits');
+    return true;
+  });
   return (
     <div className="w-[52px] shrink-0 bg-[#181818] border-r border-[#2d2d30] flex flex-col items-center py-2 gap-0.5 select-none">
       {/* top search trigger — popup, not a panel */}
@@ -29,7 +37,7 @@ export function ActivityBar() {
         <SearchIcon size={18} />
       </button>
       <div className="w-6 h-px bg-[#2d2d30] my-1" />
-      {items.map((it) => {
+      {visibleItems.map((it) => {
         const Icon = it.icon;
         const isActive = active === it.id;
         return (

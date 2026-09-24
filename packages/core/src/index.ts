@@ -66,7 +66,7 @@ export type OrdinProject = {
 
 export const defaultProject = (): OrdinProject => ({
   version: '4.0',
-  meta: { name: 'Untitled', created: new Date().toISOString(), modified: new Date().toISOString(), plugins: [] },
+  meta: { name: 'Untitled', created: new Date().toISOString(), modified: new Date().toISOString(), plugins: [{ id: 'classification', version: '1.0.0' }, { id: 'traits', version: '1.0.0' }, { id: 'varpart', version: '0.9.0' }, { id: 'div-compare', version: '0.9.0' }] },
   data: { species: null, env: null, traits: null },
   analyses: {},
   view: { activePanel: 'dashboard', mapStyle: 'https://demotiles.maplibre.org/style.json', theme: 'dark' },
