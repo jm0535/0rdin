@@ -154,7 +154,7 @@ export function DiversityPanel() {
   const [plotType, setPlotType] = useState<'1'|'2'|'3'>('1');
   const qVals = [q0 && 0, q1 && 1, q2 && 2].filter(v=> v!==false) as number[];
   const [plotSettings, setPlotSettings] = useState(defaultDiversitySettings);
-  const [useRealWebR, setUseRealWebR] = useState(true);
+  const [useRealWebR, setUseRealWebR] = useState(false); // default OFF for instant preview — real webR is 15-30s first load (WASM + iNEXT); user opts in
   const webrReady = useOrdinStore((s)=> s.webrReady);
   const setWebRReady = useOrdinStore((s)=> s.setWebRReady);
 
