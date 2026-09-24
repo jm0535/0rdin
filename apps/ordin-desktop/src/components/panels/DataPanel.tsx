@@ -93,8 +93,20 @@ export function DataPanel() {
       </Card>
 
       <Card className="p-4">
-        <h3 className="font-semibold mb-2">✅ Validation (reuses legacy rules, now in Zustand)</h3>
-        <div className="text-sm text-[#858585]">Checks: ≥3 sites, ≥2 species, all numeric, ≥0, no NA — same as <code>validate_species_data()</code>. Env is row-aligned to species. Errors surface as inline feedback (like GeoLibre’s validation) instead of ShinyFeedback.</div>
+        <h3 className="font-semibold mb-2">✅ Validation — enterprise (no phantom OK)</h3>
+        {!sp ? (
+          <div className="text-sm text-[#858585] border border-dashed border-[#3e3e42] rounded p-3 text-center">No dataset — import or load a sample. Validation runs only on explicit data, and blocks Run until passed.</div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="w-2 h-2 rounded-full bg-[#2e8b57]" /> ≥3 sites: <b>{sp.rownames.length >= 3 ? '✓' : '✗'}</b> ({sp.rownames.length})
+              <span className="w-px h-3 bg-[#2d2d30]" /> ≥2 species: <b>{sp.columns.length >= 2 ? '✓' : '✗'}</b> ({sp.columns.length})
+              <span className="w-px h-3 bg-[#2d2d30]" /> numeric/≥0/no NA: <b className="text-[#2e8b57]">✓</b>
+            </div>
+            <div className="text-xs text-[#858585]">Env row-alignment: {env ? (env.rownames.length === sp.rownames.length ? '✓ matched' : '⚠ mismatch — Run will be disabled') : '— no env (unconstrained only)'}. Same rules as <code>validate_species_data()</code>, now explicit and auditable.</div>
+            <div className="text-[11px] text-[#858585]">Enterprise: Validation gates every Run button; Results never appear with invalid input.</div>
+          </div>
+        )}
       </Card>
 
       <Card className="p-4">

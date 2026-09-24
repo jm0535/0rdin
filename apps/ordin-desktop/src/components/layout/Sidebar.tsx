@@ -81,12 +81,17 @@ export function Sidebar() {
               </span>
               <Badge variant={env ? 'info' : 'neutral'}>{env ? `${env.columns.length} vars` : '—'}</Badge>
             </div>
-            <div className="flex items-center justify-between px-2 py-1.5 rounded bg-[#2e8b5720] border border-[#2e8b57]/15">
-              <span className="flex items-center gap-2 text-[#2e8b57]">
-                <FlaskConical size={14} /> Validation
-              </span>
-              <Badge variant="success">OK</Badge>
-            </div>
+            {(() => {
+              const valid = !!sp && sp.rownames.length >= 3 && sp.columns.length >= 2;
+              return (
+                <div className={`flex items-center justify-between px-2 py-1.5 rounded border ${valid ? 'bg-[#2e8b5720] border-[#2e8b57]/15' : 'bg-[#3e3e42]/40 border-[#3e3e42] border-dashed'}`}>
+                  <span className={`flex items-center gap-2 ${valid ? 'text-[#2e8b57]' : 'text-[#858585]'}`}>
+                    <FlaskConical size={14} /> Validation
+                  </span>
+                  <Badge variant={valid ? 'success' : 'neutral'}>{!sp ? '— no data —' : valid ? 'OK' : 'blocked'}</Badge>
+                </div>
+              );
+            })()}
             <div className="px-2 text-[11px] leading-relaxed text-[#858585]">
               Zustand → <code className="text-[#cccccc]">.ordin.json</code> • editable, versioned, reproducible.
             </div>

@@ -1,7 +1,21 @@
 // @ordin/core — Types, schema, and Zustand store (mirrors @geolibre/core)
+// Enterprise: validated inputs, auditable analyses, gated Run, no phantom defaults
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { z } from 'zod';
+
+export function validateSpeciesMatrix(m: SpeciesMatrix | null): { valid: boolean; reason?: string } {
+  if (!m) return { valid: false, reason: 'No species matrix' };
+  if (m.rownames.length < 3) return { valid: false, reason: `Need ≥3 sites, got ${m.rownames.length}` };
+  if (m.columns.length < 2) return { valid: false, reason: `Need ≥2 species, got ${m.columns.length}` };
+  for (let i = 0; i < m.matrix.length; i++) {
+    for (let j = 0; j < m.matrix[i].length; j++) {
+      const v = m.matrix[i][j];
+      if (!Number.isFinite(v) || v < 0) return { valid: false, reason: `Invalid value at ${m.rownames[i]}/${m.columns[j]}: ${v}` };
+    }
+  }
+  return { valid: true };
+}
 
 // --- Project file (.ordin.json) — single source of truth, like .geolibre.json ---
 export const SpeciesMatrixSchema = z.object({
@@ -81,16 +95,26 @@ export const useOrdinStore = create<OrdinState>()(
     ui: { sidebarOpen: true, inspectorOpen: true, commandOpen: false, importOpen: false, inspectorTab: 'details' },
     setWebRReady: (v) => set((s) => { s.webrReady = v; }),
     setPanel: (p) => set((s) => { s.project.view.activePanel = p; s.ui.commandOpen = false; }),
-    setSpecies: (s) => set((st) => { st.project.data.species = s; st.project.meta.modified = new Date().toISOString(); }),
+    setSpecies: (s) => {
+      if (s) {
+        const v = validateSpeciesMatrix(s);
+        if (!v.valid) throw new Error(v.reason);
+      }
+      set((st) => {
+        st.project.data.species = s;
+        st.project.meta.modified = new Date().toISOString();
+        if (s) st.project.analyses = {}; // new matrix invalidates prior results — enterprise guard
+      });
+    },
     setEnv: (e) => set((st) => { st.project.data.env = e; }),
-    clearData: () => set((st) => { st.project.data.species = null; st.project.data.env = null; st.project.analyses = {}; }),
+    clearData: () => set((st) => { st.project.data.species = null; st.project.data.env = null; st.project.analyses = {}; st.project.meta.name = 'Untitled'; }),
     setSidebarOpen: (v) => set((s) => { s.ui.sidebarOpen = v; }),
     setInspectorOpen: (v) => set((s) => { s.ui.inspectorOpen = v; }),
     setCommandOpen: (v) => set((s) => { s.ui.commandOpen = v; }),
     setImportOpen: (v) => set((s) => { s.ui.importOpen = v; }),
     setInspectorTab: (t) => set((s) => { s.ui.inspectorTab = t; }),
     loadSample: async (name) => {
-      // In web preview we fetch precomputed JSON; in Tauri we read local CSV via FS
+      // Enterprise: loading a new input dataset invalidates derived results (no phantom carries)
       const res = await fetch('/assets/sample-results.json');
       const j = await res.json();
       const d = j.dune;
@@ -98,6 +122,8 @@ export const useOrdinStore = create<OrdinState>()(
         st.project.data.species = { columns: d.species.columns, rownames: d.species.rownames, matrix: d.species.matrix };
         st.project.data.env = { columns: d.env.columns, rownames: d.env.rownames, rows: d.env.rows };
         st.project.meta.name = name;
+        st.project.meta.modified = new Date().toISOString();
+        st.project.analyses = {}; // clear stale results — enterprise: no carry-over without explicit re-run
       });
     },
     runNMDS: async ({ k, distance }) => {
