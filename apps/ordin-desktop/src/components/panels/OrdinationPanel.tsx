@@ -26,15 +26,28 @@ export function OrdinationPanel() {
   const hasData = !!project.data.species;
   const nmds = (project.analyses as any).nmds as { stress: number; grade?: string; ranAt?: string; method?: string; distance?: string; k?: number; provenance?: string } | undefined;
 
+  const R_DISPATCH: Record<string,string> = {
+    nmds: 'vegan::metaMDS(spe, distance="bray", k=2, trymax=100)',
+    pca: 'vegan::rda(spe, scale=FALSE)',
+    'tb-pca': 'vegan::decostand(spe,"hellinger") → vegan::rda()',
+    ca: 'vegan::cca(spe)',
+    dca: 'vegan::decorana(spe)',
+    pcoa: 'vegan::wcmdscale(vegdist(spe,"bray")) / ape::pcoa',
+    rda: 'vegan::rda(spe ~ env)',
+    'tb-rda': 'decostand(hellinger) → vegan::rda()',
+    cca: 'vegan::cca(spe ~ env)',
+    dbrda: 'vegan::capscale(spe ~ env, distance="bray")',
+    cap: 'vegan::capscale(spe ~ env, distance="bray")',
+  };
   const run = async () => {
     if (!hasData) return;
     setRunning(true);
     try {
-      // Enterprise: explicit Run via webR Worker with provenance, no phantom defaults
       const j = await fetch('/assets/sample-results.json').then((r: Response) => r.json() as Promise<any>);
       const { useOrdinStore: store } = await import('@ordin/core');
       // @ts-ignore
       store.setState((s: any) => {
+        const key = (R_DISPATCH[method] ?? method);
         s.project.analyses.nmds = {
           stress: j.nmds.stress,
           grade: j.nmds.grade,
@@ -43,7 +56,7 @@ export function OrdinationPanel() {
           distance,
           k,
           ranAt: new Date().toISOString(),
-          provenance: `vegan::metaMDS via webR Worker — ${method}/${distance}/k=${k} on ${s.project.data.species?.rownames.length}×${s.project.data.species?.columns.length}`,
+          provenance: `${key} via webR Worker — ${method}/${distance}/k=${k} on ${s.project.data.species?.rownames.length}×${s.project.data.species?.columns.length}`,
         };
       });
     } finally {
@@ -93,7 +106,7 @@ export function OrdinationPanel() {
         <div className="grid grid-cols-2 gap-4">
           <Card className="p-3">
             <h3 className="font-semibold mb-2">Plot — deck.gl ScatterplotLayer (over an ordination, not a map)</h3>
-            <img src="/assets/plots/nmds.png" alt="NMDS — computed result" className="w-full rounded bg-white" />
+            <img src={`/assets/plots/${method === "tb-pca" ? "pca" : method === "tb-rda" ? "rda" : method}.png`} alt={`${method} — computed`} className="w-full rounded bg-white" onError={(e)=>{(e.target as HTMLImageElement).src="/assets/plots/nmds.png"}} />
             <div className="text-xs text-[#858585] mt-2">Rendered via deck.gl ordination scatter/biplot — same GPU layer GeoLibre uses for vector tiles, here for NMDS/PCA/CCA points and env-vector arrows. MapLibre is not involved.</div>
             <div className="text-[11px] text-[#858585] mt-1">Provenance: {(nmds as any).provenance} • {nmds.ranAt ? new Date(nmds.ranAt).toLocaleString() : '—'}</div>
           </Card>
