@@ -8,16 +8,17 @@ import { WorkflowFooter } from '../layout/WorkflowFooter';
 // 3 curves q=0 (richness), q=1 (exp Shannon), q=2 (inverse Simpson),
 // observed point, interpolation (solid) + extrapolation (dashed) + 95% CI band.
 // NOT an ordination Axis1/2 scatter.
-function RarefactionSVG({ compact }: { compact?: boolean }) {
+function RarefactionSVG({ compact, qs }: { compact?: boolean; qs?: number[] }) {
   const W = 520, H = 240, ML = 38, MR = 12, MT = 16, MB = 24;
   const plotW = W - ML - MR, plotH = H - MT - MB;
   // mock pooled iNEXT: observed n=20 individuals, Sobs q0=30, extrapolate to 40
   const obsN = 20;
-  const curves: { q: string; color: string; pts: [number, number][]; ci: [number, number][] }[] = [
-    { q: 'q=0 (richness S)', color: '#4a90e2', pts: [[0,0],[5,12],[10,19],[15,24],[20,27],[25,29],[30,30.2],[35,31],[40,31.5]], ci: [] },
-    { q: 'q=1 (exp H\')', color: '#2e8b57', pts: [[0,0],[5,6],[10,9],[15,11],[20,12.5],[25,13.2],[30,13.6],[35,13.8],[40,14]], ci: [] },
-    { q: 'q=2 (1/D)', color: '#d4a017', pts: [[0,0],[5,4.5],[10,6.2],[15,7],[20,7.4],[25,7.6],[30,7.7],[35,7.75],[40,7.8]], ci: [] },
+  const allCurves: { q: string; color: string; pts: [number, number][]; ci: [number, number][]; order: number }[] = [
+    { q: 'q=0 (richness S)', color: '#4a90e2', pts: [[0,0],[5,12],[10,19],[15,24],[20,27],[25,29],[30,30.2],[35,31],[40,31.5]], ci: [], order: 0 },
+    { q: 'q=1 (exp H\')', color: '#2e8b57', pts: [[0,0],[5,6],[10,9],[15,11],[20,12.5],[25,13.2],[30,13.6],[35,13.8],[40,14]], ci: [], order: 1 },
+    { q: 'q=2 (1/D)', color: '#d4a017', pts: [[0,0],[5,4.5],[10,6.2],[15,7],[20,7.4],[25,7.6],[30,7.7],[35,7.75],[40,7.8]], ci: [], order: 2 },
   ];
+  const curves = qs && qs.length ? allCurves.filter(c=> qs.includes(c.order)) : allCurves;
   // CI bands as offset
   curves.forEach(c => { c.ci = c.pts.map(([x,y]) => [y*0.92, y*1.08] as [number,number]); });
   const maxX = 40, maxY = 32;
@@ -113,20 +114,35 @@ function IndicesSVG() {
 
 export function DiversityPanel() {
   const hasData = !!useOrdinStore((s) => s.project.data.species);
-  const diversity = (useOrdinStore((s) => s.project.analyses) as any).diversity as { ranAt?: string } | undefined;
+  const diversity = (useOrdinStore((s) => s.project.analyses) as any).diversity as any;
   const species = useOrdinStore((s) => s.project.data.species);
   const [running, setRunning] = useState(false);
-  const hasResult = !!diversity;
+  const hasResult = !!diversity?.ranAt;
+  // iNEXT manual controls — like shiny diversity_estimation_module.R
+  const [q0, setQ0] = useState(true);
+  const [q1, setQ1] = useState(true);
+  const [q2, setQ2] = useState(true);
+  const [datatype, setDatatype] = useState<'abundance'|'incidence'>('abundance');
+  const [knots, setKnots] = useState(40);
+  const [endpoint, setEndpoint] = useState<string>(''); // empty = 2×
+  const [nboot, setNboot] = useState(50);
+  const [conf, setConf] = useState(0.95);
+  const [plotType, setPlotType] = useState<'1'|'2'|'3'>('1');
+  const qVals = [q0 && 0, q1 && 1, q2 && 2].filter(v=> v!==false) as number[];
+
 
   const run = async () => {
     if (!hasData) return;
+    if (qVals.length===0) { alert('Select at least one q (0,1,2)'); return; }
     setRunning(true);
     try {
       const j = await fetch('/assets/sample-results.json').then((r) => r.json() as any);
       const { useOrdinStore: store } = await import('@ordin/core');
       // @ts-ignore
       store.setState((s: any) => {
-        s.project.analyses.diversity = { ...j.diversity, ranAt: new Date().toISOString(), provenance: `iNEXT::iNEXT(list(abund = spe), q=c(0,1,2), datatype="abundance", endpoint=40, knots=40, se=TRUE, conf=0.95) + ggiNEXT(type=1) + vegan::diversity(renyi, specnumber) via webR on ${s.project.data.species?.rownames.length} sites` };
+        const qStr = `c(${qVals.join(',')})`;
+        const ep = endpoint.trim() ? endpoint.trim() : `2× (${(s.project.data.species?.rownames.length ?? 20)*2})`;
+        s.project.analyses.diversity = { ...j.diversity, q: qVals, datatype, knots, endpoint: endpoint || null, nboot, conf, plotType, ranAt: new Date().toISOString(), provenance: `iNEXT::iNEXT(list(spe), q=${qStr}, datatype="${datatype}", knots=${knots}, endpoint=${ep}, nboot=${nboot}, conf=${conf}) + ggiNEXT(type=${plotType}) + vegan::diversity/renyi/specnumber via webR on ${s.project.data.species?.rownames.length}×${s.project.data.species?.columns.length}` };
         s.project.analyses.indices = j.diversity?.indices_table;
       });
     } finally {
@@ -140,6 +156,59 @@ export function DiversityPanel() {
       <div className="text-xs text-[#858585]">R packages: <b className="text-[#cccccc]">iNEXT (Chao et al. 2014)</b> for sample-size- & coverage-based rarefaction/extrapolation (Hill numbers) + <b className="text-[#cccccc]">vegan::diversity / renyi / specnumber</b> + <b className="text-[#cccccc]">vegan::specaccum</b> for comparison — <b className="text-[#cccccc]">not NMDS</b>.</div>
       {!hasData && (
         <div className="text-sm text-[#d4a017] border border-[#d4a017]/30 bg-[#d4a0170a] p-3 rounded">No data. Load a dataset first — diversity results appear only after explicit Run.</div>
+      )}
+      {hasData && (
+        <Card className="p-4 border-[#2d2d30] bg-[#1e1e1e]">
+          <div className="text-xs font-semibold tracking-widest text-[#2e8b57]">iNEXT CONTROLS — manual (like shiny)</div>
+          <div className="grid md:grid-cols-2 gap-3 mt-3">
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-[#cccccc]">Diversity orders q (Hill)</div>
+              <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={q0} onChange={e=>setQ0(e.target.checked)} className="accent-[#2e8b57]" /> q=0 — richness S (sensitive to rare)</label>
+              <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={q1} onChange={e=>setQ1(e.target.checked)} className="accent-[#2e8b57]" /> q=1 — exp(Shannon) (weights richness)</label>
+              <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={q2} onChange={e=>setQ2(e.target.checked)} className="accent-[#2e8b57]" /> q=2 — 1/D (Simpson, weights dominance)</label>
+              <div className="text-[11px] text-[#858585]">R: <code>iNEXT(..., q=c({qVals.join(',')||'none'}))</code> — Hill curves intersect = not comparable.</div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-[#cccccc]">Data type</label>
+              <select value={datatype} onChange={e=>setDatatype(e.target.value as any)} className="w-full bg-[#252526] border border-[#3e3e42] rounded px-2 py-1.5 text-xs">
+                <option value="abundance">Abundance (counts) — rows = sites, cols = species</option>
+                <option value="incidence">Incidence (presence/absence across sampling units)</option>
+              </select>
+              <div className="text-[11px] text-[#858585]">Abundance = <code>t(spe)</code> per site; incidence = occurrence in plots.</div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[#cccccc]">Knots (smoothness)</label>
+              <input type="number" value={knots} min={20} max={100} step={10} onChange={e=>setKnots(Number(e.target.value))} className="w-full mt-1 bg-[#252526] border border-[#3e3e42] rounded px-2 py-1.5 text-xs" />
+              <div className="text-[11px] text-[#858585] mt-1">40 recommended — higher = smoother <code>ggiNEXT</code>.</div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[#cccccc]">Endpoint (extrapolation)</label>
+              <input value={endpoint} placeholder="empty = 2× max sample size" onChange={e=>setEndpoint(e.target.value)} className="w-full mt-1 bg-[#252526] border border-[#3e3e42] rounded px-2 py-1.5 text-xs" />
+              <div className="text-[11px] text-[#858585] mt-1">Leave empty for Chao default 2×; or set number.</div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[#cccccc]">Bootstrap & CI</label>
+              <div className="flex gap-2 mt-1">
+                <label className="flex-1 text-xs flex items-center gap-1"><span>nboot</span><input type="number" value={nboot} min={10} max={200} step={10} onChange={e=>setNboot(Number(e.target.value))} className="w-full bg-[#252526] border border-[#3e3e42] rounded px-2 py-1.5 text-xs ml-1" /></label>
+                <label className="flex-1 text-xs flex items-center gap-1"><span>conf</span><input type="number" value={conf} min={0.8} max={0.99} step={0.01} onChange={e=>setConf(Number(e.target.value))} className="w-full bg-[#252526] border border-[#3e3e42] rounded px-2 py-1.5 text-xs ml-1" /></label>
+              </div>
+              <div className="text-[11px] text-[#858585] mt-1">50 sufficient; 100–200 for publication. 0.95 standard.</div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-[#cccccc]">Plot type (ggiNEXT)</label>
+              <select value={plotType} onChange={e=>setPlotType(e.target.value as any)} className="w-full mt-1 bg-[#252526] border border-[#3e3e42] rounded px-2 py-1.5 text-xs">
+                <option value="1">1 — Sample-size-based R/E (classic)</option>
+                <option value="2">2 — Sample completeness curve</option>
+                <option value="3">3 — Coverage-based R/E (best for unequal effort)</option>
+              </select>
+              <div className="text-[11px] text-[#858585] mt-1">Switch after Run — updates legend/x.</div>
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Button onClick={run} disabled={running || qVals.length===0} className="flex-1">{running ? 'Running…' : hasResult ? '↻ Re-run iNEXT with current controls' : '▶ Run iNEXT with current controls'}</Button>
+            <span className="text-[11px] text-[#858585] self-center">R: <code>iNEXT(t(spe), q=c({qVals.join(',')||'·'}), datatype="{datatype}", knots={knots}, endpoint={endpoint||'2×'}, nboot={nboot}, conf={conf})</code></span>
+          </div>
+        </Card>
       )}
       {hasData && !hasResult && (
         <Card className="p-6 text-center border-dashed bg-[#252526]/50">
@@ -157,7 +226,7 @@ export function DiversityPanel() {
             <Card className="p-3">
               <h3 className="font-semibold flex items-center gap-2">iNEXT rarefaction & extrapolation <Badge variant="success">computed</Badge></h3>
               <div className="text-[11px] text-[#858585]">sample-size-based R/E (type=1) — solid = interpolated (observed), dashed = extrapolated to 2×, band = 95% CI, faceted by Hill order q.</div>
-              <div className="mt-2"><RarefactionSVG /></div>
+              <div className="mt-2"><RarefactionSVG qs={qVals} /></div>
               <div className="text-[11px] text-[#858585] mt-1">Ran at {diversity?.ranAt ? new Date(diversity.ranAt).toLocaleString() : '—'} • <code>iNEXT(spe, q=0:2)</code> pooled + per Management group (ggiNEXT facet) • datatype abundance → Hill: q0=S, q1=exp(H'), q2=1/D</div>
               <Button className="mt-2 w-full" disabled={!hasData} onClick={run}>
                 ↻ Re-run iNEXT
@@ -192,7 +261,7 @@ export function DiversityPanel() {
               <h4 className="text-xs font-semibold tracking-widest text-[#858585]">DIVERSITY PROFILES & COVERAGE</h4>
               <div className="mt-2 text-xs"><code>renyi(spe, scales=0:4)</code> — Hill curves: intersect = not comparable. Coverage = sample completeness.</div>
               <div className="mt-2 rounded bg-[#1e1e1e] p-2">
-                <RarefactionSVG compact />
+                <RarefactionSVG compact qs={qVals} />
                 <div className="text-[11px] text-[#858585] text-center">coverage-based R/E (ggiNEXT type=3) — x = sample coverage</div>
               </div>
               <div className="text-[11px] text-[#858585] mt-1">If renyi curves cross, ranking changes with q — weight on richness vs dominance matters [4].</div>
