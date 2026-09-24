@@ -11,7 +11,9 @@ export default defineConfig({
     cors: true,
     hmr: { host: 'localhost' },
     allowedHosts: true,
-    headers: { 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp' },
+    // COOP/COEP needed for SharedArrayBuffer (DuckDB/webR) breaks E2B iframe preview;
+    // keep preview unblocked. Tauri prod sets these in tauri.conf.json instead.
+    // headers: { 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp' },
   },
   preview: { host: '0.0.0.0', port: 9054, cors: true, allowedHosts: true },
   optimizeDeps: { exclude: ['webr', '@duckdb/duckdb-wasm'] },
