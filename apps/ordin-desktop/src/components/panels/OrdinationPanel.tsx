@@ -70,9 +70,9 @@ export function OrdinationPanel() {
 
       <div className="grid grid-cols-2 gap-4">
         <Card className="p-3">
-          <h3 className="font-semibold mb-2">Plot — deck.gl ScatterplotLayer</h3>
+          <h3 className="font-semibold mb-2">Plot — deck.gl ScatterplotLayer (over an ordination, not a map)</h3>
           <img src="/assets/plots/nmds.png" alt="NMDS" className="w-full rounded bg-white" />
-          <div className="text-xs text-[#858585] mt-2">Rendered via deck.gl on MapLibre — like GeoLibre’s WebGPU viz.</div>
+          <div className="text-xs text-[#858585] mt-2">Rendered via deck.gl ordination scatter/biplot — same GPU layer GeoLibre uses for vector tiles, here for NMDS/PCA/CCA points and env-vector arrows. MapLibre is not involved.</div>
         </Card>
         <Card className="p-3">
           <h3 className="font-semibold mb-2">Stats</h3>

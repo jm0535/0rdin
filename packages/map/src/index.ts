@@ -1,4 +1,6 @@
-// @ordin/map — MapLibre lifecycle (mirrors @geolibre/map)
+// @ordin/map — OPTIONAL MapLibre lifecycle (only if env has lon/lat).
+// Mirrors @geolibre/map but is SECONDARY in Ördin — the primary viz is deck.gl ordination biplots,
+// not map tiles. Keep this package lightweight and optional.
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 

@@ -1,6 +1,5 @@
 import { useOrdinStore } from '@ordin/core';
 import { Card, Button, Badge } from '@ordin/ui';
-import { MapView } from '../map/MapView';
 import { useState } from 'react';
 
 // Minimal dropzone stub if react-dropzone not installed (fallback)
@@ -39,7 +38,7 @@ export function DataPanel() {
         <Card className="p-4">
           <h3 className="font-semibold mb-2">Import</h3>
           <FallbackDrop onFile={onFile} />
-          <div className="text-xs text-[#858585] mt-2">Parquet/CSV streamed via DuckDB-WASM (HTTP range) — same as GeoLibre’s PMTiles/GeoParquet.</div>
+          <div className="text-xs text-[#858585] mt-2\">Parquet/CSV queried in-browser via DuckDB-WASM — same SQL Workspace pattern GeoLibre uses for geospatial tables, here for species/environment tables (no tile server).</div>
         </Card>
         <Card className="p-4">
           <h3 className="font-semibold mb-2">Sample Datasets</h3>
@@ -94,15 +93,14 @@ export function DataPanel() {
       </Card>
 
       <Card className="p-4">
-        <h3 className="font-semibold mb-2">🗺️ Sites Map (MapLibre — new in 4.0)</h3>
-        <MapView />
-        <div className="text-xs text-[#858585] mt-2">If env has lon/lat, sites render as MapLibre + deck.gl scatterplot (like GeoLibre’s vector tiles).</div>
+        <h3 className="font-semibold mb-2">✅ Validation (reuses legacy rules, now in Zustand)</h3>
+        <div className="text-sm text-[#858585]">Checks: ≥3 sites, ≥2 species, all numeric, ≥0, no NA — same as <code>validate_species_data()</code>. Env is row-aligned to species. Errors surface as inline feedback (like GeoLibre’s validation) instead of ShinyFeedback.</div>
       </Card>
 
       <Card className="p-4">
-        <h3 className="font-semibold mb-2">🧮 SQL Workspace (DuckDB-WASM)</h3>
+        <h3 className="font-semibold mb-2">🧮 SQL Workspace (DuckDB-WASM — GeoLibre pattern, now for ecology tables)</h3>
         <pre className="bg-[#1e1e1e] p-3 rounded text-xs overflow-auto">
-{`-- Try in the real SQL workspace (packages/map + DuckDB):
+{`-- DuckDB-WASM SQL Workspace on ecology tables (same engine GeoLibre uses, no map):
 SELECT Management, COUNT(*) AS n_sites, AVG(Moisture) AS mean_moisture
 FROM read_csv('sample-data/dune_environment.csv', header=true)
 GROUP BY Management;`}

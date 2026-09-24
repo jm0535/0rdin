@@ -2,7 +2,7 @@
   "name": "ordin",
   "version": "4.0.0",
   "private": true,
-  "description": "Ördin — cloud-native community ecology platform (Geolibre-stack: Tauri + React + Vite + MapLibre + DuckDB-WASM + webR). Runs in browser, desktop, and Jupyter.",
+  "description": "Ördin — Next-Gen Community Ecology statistical app, rebuilt on GeoLibre's stack (Tauri + React + Vite + Zustand + DuckDB-WASM + deck.gl + webR). Statistical first; MapLibre only optional for lon/lat site maps.",
   "workspaces": [
     "apps/*",
     "packages/*",

@@ -31,8 +31,11 @@ export function Sidebar() {
           </div>
         </div>
         <div>
-          <div className="text-[11px] text-[#858585] px-2 mb-1">▼ LAYERS</div>
-          <div className="px-2 py-1 text-[#858585]">MapLibre layers (PMTiles, GeoJSON) — new in 4.0</div>
+          <div className="text-[11px] text-[#858585] px-2 mb-1">▼ ANALYSES</div>
+          <div className="px-2 py-1 flex items-center justify-between"><span>⬡ Ordination</span><span className="text-xs bg-[#2e8b5720] text-[#2e8b57] px-1.5 py-0.5 rounded">9</span></div>
+          <div className="px-2 py-1 flex items-center justify-between"><span>≋ Diversity</span><span className="text-xs bg-[#3e3e42] px-1.5 py-0.5 rounded">iNEXT</span></div>
+          <div className="px-2 py-1 flex items-center justify-between"><span>∷ Beta</span><span className="text-xs bg-[#3e3e42] px-1.5 py-0.5 rounded">betapart</span></div>
+          <div className="px-2 py-1 text-[#858585] text-xs mt-1">deck.gl draws ordination biplots (MapLibre only if env has lon/lat — optional)</div>
         </div>
       </div>
       <div className="mt-auto p-2 border-t border-[#2d2d30] text-xs text-[#858585]">

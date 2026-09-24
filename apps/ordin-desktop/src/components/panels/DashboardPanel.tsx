@@ -8,7 +8,7 @@ export function DashboardPanel() {
       <div className="text-center py-8">
         <div className="text-6xl font-black text-[#2e8b57]">Ö</div>
         <h1 className="text-3xl font-bold mt-2">Ördin 4.0</h1>
-        <p className="text-[#858585] mt-1">GeoLibre Edition — Tauri + React + Vite + MapLibre + DuckDB-WASM + webR</p>
+        <p className="text-[#858585] mt-1">Next-Gen Community Ecology — statistical engine rebuilt on GeoLibre's stack (Tauri + React + Vite + Zustand + DuckDB-WASM + webR)</p>
         <div className="flex justify-center gap-2 mt-4">
           <Badge variant="success">Open Source</Badge>
           <Badge variant="info">Cloud-Native</Badge>
@@ -20,7 +20,7 @@ export function DashboardPanel() {
         {[
           { v: '9', k: 'Ordination Methods', c: 'from-[#2e8b57] to-[#1e5f3f]' },
           { v: 'WASM', k: 'webR + DuckDB', c: 'from-[#4a90e2] to-[#2563a8]' },
-          { v: 'MapLibre', k: 'Site Map', c: 'from-[#ffa500] to-[#cc8400]' },
+          { v: 'deck.gl', k: 'Ordination Biplots', c: 'from-[#ffa500] to-[#cc8400]' },
           { v: '4.0', k: 'Tauri Shell', c: 'from-[#9b59b6] to-[#6c3483]' },
         ].map((x) => (
           <Card key={x.k} className={`p-4 text-center bg-gradient-to-br ${x.c} border-0`}>
@@ -49,21 +49,14 @@ export function DashboardPanel() {
       </div>
 
       <Card className="p-4">
-        <h3 className="font-semibold text-[#2e8b57]">How this mirrors GeoLibre</h3>
+        <h3 className="font-semibold text-[#2e8b57]">How this reuses GeoLibre's stack (not its product)</h3>
+        <p className="text-sm text-[#858585] mt-1">Same Tauri shell, Vite bundling, Zustand state, DuckDB-WASM SQL workspace, deck.gl rendering, and webR/Worker bridge — repurposed for <b>statistical</b> workflows. MapLibre is optional (only if env has lon/lat); deck.gl here draws ordination scatters/biplots, DuckDB queries species/env tables (CSV/Parquet), webR runs vegan/iNEXT/betapart.</p>
         <ul className="list-disc pl-5 text-sm text-[#858585] space-y-1 mt-2">
-          <li>
-            <code className="text-white">apps/ordin-desktop</code> = <code className="text-white">apps/geolibre-desktop</code> (Vite + Tauri)
-          </li>
-          <li>
-            <code className="text-white">packages/core</code> holds the single <code className="text-white">.ordin.json</code> schema + Zustand store — like <code className="text-white">.geolibre.json</code>
-          </li>
-          <li>
-            <code className="text-white">packages/map</code> wraps MapLibre lifecycle; PMTiles-ready
-          </li>
-          <li>
-            <code className="text-white">packages/processing</code> is the WASM bridge — here webR (vegan/iNEXT), in GeoLibre Whitebox
-          </li>
-          <li>Shared <code className="text-white">workers/*</code> and <code className="text-white">SQL Workspace</code> via DuckDB-WASM</li>
+          <li><code className="text-white">apps/ordin-desktop</code> mirrors <code className="text-white">apps/geolibre-desktop</code> (Tauri + Vite + React 18)</li>
+          <li><code className="text-white">packages/core</code> holds the single <code className="text-white">.ordin.json</code> + Zustand store — same shape as <code className="text-white">.geolibre.json</code></li>
+          <li><code className="text-white">packages/processing</code> is the WASM bridge — webR (vegan/iNEXT) here vs Whitebox there</li>
+          <li><code className="text-white">packages/ui</code> + deck.gl layers = ordination biplots (not map tiles); <code className="text-white">packages/map</code> is secondary, only for lon/lat env</li>
+          <li><code className="text-white">workers/*</code> + <code className="text-white">SQL Workspace</code> via DuckDB-WASM on ecology tables</li>
         </ul>
       </Card>
     </div>

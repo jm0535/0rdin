@@ -21,8 +21,8 @@ export default function App() {
       <div className="h-8 flex items-center px-3 bg-[#181818] border-b border-[#2d2d30] text-xs select-none" data-tauri-drag-region>
         <span className="font-bold tracking-wide">Ö</span>
         <span className="ml-2 font-semibold">Ördin 4.0</span>
-        <span className="ml-2 text-[#858585]">— GeoLibre Edition</span>
-        <span className="ml-auto text-[#858585]">Tauri + React + Vite + MapLibre + DuckDB-WASM + webR</span>
+        <span className="ml-2 text-[#858585]">— Community Ecology, rebuilt on GeoLibre's stack</span>
+        <span className="ml-auto text-[#858585]">Tauri + React + Vite + Zustand + DuckDB-WASM + webR (vegan/iNEXT)</span>
       </div>
 
       <div className="flex flex-1 min-h-0">

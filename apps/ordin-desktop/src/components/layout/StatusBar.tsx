@@ -11,8 +11,8 @@ export function StatusBar() {
       <span className="opacity-60">|</span>
       <span>webR {webrReady ? 'ready' : 'loading…'}</span>
       <span className="opacity-60">|</span>
-      <span>Ördin 4.0 — GeoLibre stack</span>
-      <span className="ml-auto">Tauri • DuckDB-WASM • MapLibre</span>
+      <span>Ördin 4.0 — statistical engine (vegan/iNEXT/betapart via webR)</span>
+      <span className="ml-auto">Tauri • DuckDB-WASM • deck.gl • webR</span>
     </div>
   );
 }

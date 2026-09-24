@@ -10,7 +10,7 @@ export function Toolbar() {
     tests: 'Tests — PERMANOVA / ANOSIM / Mantel / envfit',
     beta: 'Beta — turnover / nestedness (betapart)',
     results: 'Results — .ordin.json project',
-    settings: 'Settings — theme, map style, webR',
+    settings: 'Settings — theme, webR, reproducibility',
     help: 'Help — SQL Workspace + docs',
   };
   return (
