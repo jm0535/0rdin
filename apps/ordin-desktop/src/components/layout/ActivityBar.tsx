@@ -31,7 +31,7 @@ export function ActivityBar() {
       {/* top search trigger — popup, not a panel */}
       <button
         onClick={() => setCommandOpen(true)}
-        title="Command palette — ⌘K"
+        title="Command palette"
         className="w-9 h-9 rounded-lg flex items-center justify-center text-[#858585] hover:text-white hover:bg-[#2a2a2a] transition-colors mb-1"
       >
         <SearchIcon size={18} />
@@ -44,7 +44,7 @@ export function ActivityBar() {
           <button
             key={it.id}
             onClick={() => setPanel(it.id)}
-            title={`${it.label} — ${it.kbd}`}
+            title={it.label}
             className={`relative w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
               isActive ? 'bg-[#2e8b57] text-white shadow-sm' : 'text-[#858585] hover:text-white hover:bg-[#2a2a2a]'
             }`}
@@ -56,7 +56,7 @@ export function ActivityBar() {
       })}
       <button
         onClick={() => setPluginOpen(true)}
-        title="Plugins — Marketplace (AnaDat-R extensions) — like jamovi +Modules"
+        title="Plugins"
         className="w-9 h-9 rounded-lg flex items-center justify-center text-[#858585] hover:text-white hover:bg-[#2a2a2a] mt-1 border border-dashed border-[#2d2d30] hover:border-[#3e3e42]"
       >
         <Puzzle size={18} />
