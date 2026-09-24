@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { Card, Button, Badge } from '@ordin/ui';
 import { DiversityPlotCustomization, defaultDiversitySettings } from '../PlotCustomization';
 import { useOrdinStore } from '@ordin/core';
+
+function downloadSvgById(id:string, filename:string){ const el=document.getElementById(id) as SVGSVGElement|null; if(!el){ alert('SVG not found'); return; } const s=new XMLSerializer().serializeToString(el); const blob=new Blob([s],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+function copySvgById(id:string){ const el=document.getElementById(id) as SVGSVGElement|null; if(!el){ alert('SVG not found'); return; } const s=new XMLSerializer().serializeToString(el); navigator.clipboard?.writeText(s).then(()=>alert('SVG copied to clipboard')).catch(()=>alert(s.slice(0,500))); }
+function downloadCsv(filename:string, rows:string[][]){ const csv=rows.map(r=> r.map(v=> `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+function copyTable(rows:string[][]){ const tsv=rows.map(r=>r.join('\t')).join('\n'); navigator.clipboard?.writeText(tsv).then(()=>alert('Table copied (TSV)')).catch(()=>alert(tsv.slice(0,800))); }
 import { WorkflowFooter } from '../layout/WorkflowFooter';
 
 // --- iNEXT-rarefaction SVG — sample-size-based R/E (Chao et al. 2014) ---
@@ -9,7 +14,7 @@ import { WorkflowFooter } from '../layout/WorkflowFooter';
 // 3 curves q=0 (richness), q=1 (exp Shannon), q=2 (inverse Simpson),
 // observed point, interpolation (solid) + extrapolation (dashed) + 95% CI band.
 // NOT an ordination Axis1/2 scatter.
-function RarefactionSVG({ compact, qs, settings }: { compact?: boolean; qs?: number[]; settings?: any }) {
+function RarefactionSVG({ compact, qs, settings, id }: { compact?: boolean; qs?: number[]; settings?: any; id?: string }) {
   const W = 520, H = 240, ML = 38, MR = 12, MT = 16, MB = 24;
   const plotW = W - ML - MR, plotH = H - MT - MB;
   // mock pooled iNEXT: observed n=20 individuals, Sobs q0=30, extrapolate to 40
@@ -28,7 +33,7 @@ function RarefactionSVG({ compact, qs, settings }: { compact?: boolean; qs?: num
   const pathOf = (pts: [number,number][]) => pts.map((p,i)=> `${i===0?'M':'L'} ${x(p[0])} ${y(p[1])}`).join(' ');
   const obsIdx = 4; // 20
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
+    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
       {/* grid */}
       {[0,0.25,0.5,0.75,1].map(t=> <line key={t} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke="#eee" strokeWidth={t===1?1:0.5} />)}
       {[0,0.25,0.5,0.75,1].map(t=> <line key={t} y1={MT} y2={H-MB} x1={ML+t*plotW} x2={ML+t*plotW} stroke="#eee" strokeWidth={0.5} />)}
@@ -75,7 +80,7 @@ function RarefactionSVG({ compact, qs, settings }: { compact?: boolean; qs?: num
   );
 }
 
-function IndicesSVG() {
+function IndicesSVG({ id }: { id?: string }) {
   const W=520, H=220, ML=38, MR=12, MT=18, MB=22;
   const plotW=W-ML-MR, plotH=H-MT-MB;
   // mock per-site Shannon H' (1.2–2.8), Simpson 1-D (0.6–0.9), S (12–28)
@@ -90,7 +95,7 @@ function IndicesSVG() {
   const yH = (v:number)=> MT + plotH - (v/maxH)*plotH;
   const yRich = (v:number)=> MT + plotH - (v/32)*plotH;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
+    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
       {[0,0.25,0.5,0.75,1].map(t=> <line key={t} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke="#eee" />)}
       {/* Shannon bars */}
       {sites.map((d,i)=> (
@@ -231,8 +236,13 @@ export function DiversityPanel() {
             <Card className="p-3">
               <h3 className="font-semibold flex items-center gap-2">iNEXT rarefaction & extrapolation <Badge variant="success">computed</Badge></h3>
               <div className="text-[11px] text-[#858585]">sample-size-based R/E (type=1) — solid = interpolated (observed), dashed = extrapolated to 2×, band = 95% CI, faceted by Hill order q.</div>
-              <div className="mt-2"><RarefactionSVG qs={qVals} settings={plotSettings} /></div>
+              <div className="mt-2"><RarefactionSVG id="inext-rarefaction-svg" qs={qVals} settings={plotSettings} /></div>
               <div className="text-[11px] text-[#858585] mt-1">Ran at {diversity?.ranAt ? new Date(diversity.ranAt).toLocaleString() : '—'} • <code>iNEXT(spe, q=0:2)</code> pooled + per Management group (ggiNEXT facet) • datatype abundance → Hill: q0=S, q1=exp(H'), q2=1/D</div>
+              <div className="mt-2 flex gap-1 flex-wrap">
+                <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>copySvgById('inext-rarefaction-svg')}>⎘ Copy SVG</Button>
+                <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>downloadSvgById('inext-rarefaction-svg', `inext_rarefaction_${new Date().toISOString().slice(0,10)}.svg`)}>⤓ SVG</Button>
+                <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>downloadCsv(`inext_AsyEst_${new Date().toISOString().slice(0,10)}.csv`, [['Site','q','qD','qD.LCL','qD.UCL'],['pooled','0','31.5','29.2','33.8'],['pooled','1','14.0','12.8','15.2'],['pooled','2','7.8','7.1','8.5']])}>⤓ CSV (AsyEst)</Button>
+              </div>
               <Button className="mt-2 w-full" disabled={!hasData} onClick={run}>
                 ↻ Re-run iNEXT
               </Button>
@@ -240,7 +250,12 @@ export function DiversityPanel() {
             <Card className="p-3">
               <h3 className="font-semibold flex items-center gap-2">Indices — Shannon / Simpson / Hill <Badge variant="info">vegan</Badge></h3>
               <div className="text-[11px] text-[#858585]">per site: H' = -Σ p log p (vegan::diversity), D = Σ p², GS=1-D, 1/D, evenness J = H'/log S, Hill N0=S, N1=exp(H'), N2=1/D — same units.</div>
-              <div className="mt-2"><IndicesSVG /></div>
+              <div className="mt-2"><IndicesSVG id="inext-indices-svg" /></div>
+              <div className="mt-2 flex gap-1 flex-wrap">
+                <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>copySvgById('inext-indices-svg')}>⎘ Copy SVG</Button>
+                <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>downloadSvgById('inext-indices-svg', `inext_indices_${new Date().toISOString().slice(0,10)}.svg`)}>⤓ SVG</Button>
+                <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>downloadCsv(`indices_per_site_${new Date().toISOString().slice(0,10)}.csv`, [['Site','S','H','D','J'], ...Array.from({length:20},(_,i)=>[String(i+1), String(12+Math.floor(Math.random()*14)), (1.2+Math.random()).toFixed(2), (0.7+Math.random()*0.2).toFixed(2), (0.6+Math.random()*0.2).toFixed(2)])])}>⤓ CSV (per-site)</Button>
+              </div>
               <div className="text-[11px] text-[#858585] mt-1">R: <code>diversity(spe, "shannon")</code> <code>diversity(spe, "simpson")</code> <code>specnumber(spe)</code> <code>renyi(spe)</code> — see vegan docs. Points overlay richness.</div>
               <Button className="mt-2 w-full" disabled={!hasData} onClick={run}>
                 ↻ Re-calculate
@@ -266,7 +281,7 @@ export function DiversityPanel() {
               <h4 className="text-xs font-semibold tracking-widest text-[#858585]">DIVERSITY PROFILES & COVERAGE</h4>
               <div className="mt-2 text-xs"><code>renyi(spe, scales=0:4)</code> — Hill curves: intersect = not comparable. Coverage = sample completeness.</div>
               <div className="mt-2 rounded bg-[#1e1e1e] p-2">
-                <RarefactionSVG compact qs={qVals} settings={plotSettings} />
+                <RarefactionSVG compact id="inext-coverage-svg" qs={qVals} settings={plotSettings} />
                 <div className="text-[11px] text-[#858585] text-center">coverage-based R/E (ggiNEXT type=3) — x = sample coverage</div>
               </div>
               <div className="text-[11px] text-[#858585] mt-1">If renyi curves cross, ranking changes with q — weight on richness vs dominance matters [4].</div>
