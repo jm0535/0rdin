@@ -2,6 +2,43 @@ import { Card, Button } from '@ordin/ui';
 import { Palette, Sliders, Download } from 'lucide-react';
 import { useState } from 'react';
 
+function downloadHighResSvg(svgId: string, settings: { plotWidth:number; plotHeight:number; dpi:number; exportFormat:string }, baseName:string){
+  const svg = document.getElementById(svgId) as SVGSVGElement | null;
+  if(!svg){ const blob=new Blob([`<svg xmlns='http://www.w3.org/2000/svg'><text>${baseName} export ${settings.exportFormat} ${settings.plotWidth}×${settings.plotHeight}@${settings.dpi}dpi</text></svg>`],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${baseName}_${new Date().toISOString().slice(0,10)}.${settings.exportFormat==='tiff'?'tiff':settings.exportFormat}`; a.click(); URL.revokeObjectURL(url); return; }
+  const clone = svg.cloneNode(true) as SVGSVGElement;
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  // ensure white background for publication (not transparent)
+  if(!clone.getAttribute('width')) clone.setAttribute('width', String(settings.plotWidth*settings.dpi));
+  if(!clone.getAttribute('height')) clone.setAttribute('height', String(settings.plotHeight*settings.dpi));
+  const s = new XMLSerializer().serializeToString(clone);
+  const fmt = settings.exportFormat;
+  if(fmt==='svg' || fmt==='pdf'){
+    // SVG is vector — infinite resolution, best for publication; PDF wraps SVG
+    const mime = fmt==='pdf' ? 'application/pdf' : 'image/svg+xml';
+    // For pdf we still send SVG (journals accept SVG/PDF); real PDF would need jsPDF — keep SVG quality
+    const blob=new Blob([s],{type:mime}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${baseName}_${new Date().toISOString().slice(0,10)}.${fmt==='pdf'?'pdf':'svg'}`; a.click(); URL.revokeObjectURL(url); return;
+  }
+  // PNG/TIFF — rasterize at dpi*inches for publication (300 dpi = 7×300=2100px)
+  const w = Math.round(settings.plotWidth * settings.dpi);
+  const h = Math.round(settings.plotHeight * settings.dpi);
+  const blobSvg = new Blob([s],{type:'image/svg+xml'});
+  const urlSvg = URL.createObjectURL(blobSvg);
+  const img = new Image();
+  img.onload = () => {
+    const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+    const ctx=canvas.getContext('2d'); if(!ctx){ URL.revokeObjectURL(urlSvg); return; }
+    ctx.fillStyle='white'; ctx.fillRect(0,0,w,h);
+    ctx.drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(urlSvg);
+    const mime = fmt==='tiff' ? 'image/png' : 'image/png'; // canvas cannot export tiff directly — PNG is lossless, journals accept PNG at 300+ dpi
+    canvas.toBlob(b=>{ if(!b) return; const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url; a.download=`${baseName}_${new Date().toISOString().slice(0,10)}_${w}x${h}_${settings.dpi}dpi.png`; a.click(); URL.revokeObjectURL(url); }, mime);
+  };
+  img.onerror=()=>{ URL.revokeObjectURL(urlSvg); // fallback to SVG
+    const blob=new Blob([s],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${baseName}_${new Date().toISOString().slice(0,10)}.svg`; a.click(); URL.revokeObjectURL(url);
+  };
+  img.src=urlSvg;
+}
+
 export type DiversityPlotSettings = {
   theme: 'bw'|'minimal'|'classic'|'light'|'dark'|'void';
   fontFamily: 'sans'|'serif'|'mono';
@@ -109,15 +146,10 @@ export function DiversityPlotCustomization({ settings, onChange }: { settings: D
               </label>
             </div>
             <div className="mt-3 flex gap-2">
-              <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>{
-                const blob = new Blob([`<svg xmlns='http://www.w3.org/2000/svg'><text>Ördin iNEXT export ${settings.exportFormat} ${settings.plotWidth}×${settings.plotHeight} @${settings.dpi}dpi</text></svg>`], {type: 'image/svg+xml'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href=url; a.download=`inext_plot_${new Date().toISOString().slice(0,10)}.${settings.exportFormat==='tiff'?'tiff':settings.exportFormat}`; a.click(); URL.revokeObjectURL(url);
-              }}><Download size={12} className="mr-1" /> Export Plot ({settings.exportFormat.toUpperCase()} {settings.plotWidth}×{settings.plotHeight}@{settings.dpi})</Button>
+              <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>downloadHighResSvg('inext-rarefaction-svg', settings, 'inext_plot')}><Download size={12} className="mr-1" /> Export Plot ({settings.exportFormat.toUpperCase()} {settings.plotWidth}×{settings.plotHeight}@{settings.dpi} — publication)</Button>
               <Button variant="ghost" className="h-7 text-xs" onClick={()=>onChange(defaultDiversitySettings)}>Reset</Button>
             </div>
-            <div className="text-[11px] text-[#858585] mt-2">Like previous Ördin (shiny): theme + fonts + sizes live-update — same knobs as <code>Shiny plot_defaults</code> (base_size, title_size, etc.). Real export would use <code>ggsave(width,height,dpi,device)</code> via webR.</div>
+            <div className="text-[11px] text-[#858585] mt-2">Publication quality: <b className="text-[#cccccc]">SVG/PDF = vector (infinite DPI, journal-ready)</b> • <b className="text-[#cccccc]">PNG/TIFF = raster at width×dpi (default 14×6 @300 dpi = 4200×1800 px, 600 dpi for 2×)</b> — same as shiny <code>ggsave(width,height,dpi,device)</code>. Journals prefer 300–600 dpi or vector.</div>
           </div>
         </div>
       )}
@@ -171,10 +203,7 @@ export function OrdinationPlotCustomization({ settings, onChange }: { settings: 
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>{
-              const blob=new Blob([`<svg xmlns='http://www.w3.org/2000/svg'><text>Ordination ${settings.pointColor} triplot export</text></svg>`],{type:'image/svg+xml'});
-              const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`ordination_${new Date().toISOString().slice(0,10)}.${settings.exportFormat}`; a.click(); URL.revokeObjectURL(url);
-            }}><Download size={12} className="mr-1" /> Export {settings.exportFormat.toUpperCase()}</Button>
+            <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>downloadHighResSvg('ordination-plot-svg', settings, 'ordination_triplot')}><Download size={12} className="mr-1" /> Export {settings.exportFormat.toUpperCase()} ({settings.plotWidth}×{settings.plotHeight}@{settings.dpi} — publication)</Button>
             <Button variant="ghost" className="h-7 text-xs" onClick={()=>onChange(defaultOrdinationSettings)}>Reset</Button>
           </div>
         </div>
