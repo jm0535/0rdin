@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, Button, Badge } from '@ordin/ui';
 import { DiversityPlotCustomization, defaultDiversitySettings } from '../PlotCustomization';
-import { runInextViaWebR, getWebR } from '@ordin/processing';
+import { runInextViaWebR } from '@ordin/processing';
 import { useOrdinStore } from '@ordin/core';
 
 function downloadSvgById(id:string, filename:string){ const el=document.getElementById(id) as SVGSVGElement|null; if(!el){ alert('SVG not found'); return; } const s=new XMLSerializer().serializeToString(el); const blob=new Blob([s],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
@@ -157,6 +157,9 @@ export function DiversityPanel() {
   const [useRealWebR, setUseRealWebR] = useState(false); // default OFF for instant preview — real webR is 15-30s first load (WASM + iNEXT); user opts in
   const webrReady = useOrdinStore((s)=> s.webrReady);
   const setWebRReady = useOrdinStore((s)=> s.setWebRReady);
+  const isCrossIsolated = typeof crossOriginIsolated !== 'undefined' ? crossOriginIsolated : false;
+  const isTauri = typeof window !== 'undefined' && (window as any).__TAURI__ !== undefined;
+  const realRAvailable = isTauri || isCrossIsolated; // web app prod needs COOP/COEP, Tauri bundles it
 
 
   const run = async () => {
@@ -213,8 +216,8 @@ export function DiversityPanel() {
         <Card className="p-4 border-[#2d2d30] bg-[#1e1e1e]">
           <div className="text-xs font-semibold tracking-widest text-[#2e8b57] flex items-center gap-2">iNEXT CONTROLS — manual (like shiny) <span className={`ml-auto text-[11px] px-2 py-0.5 rounded-full border ${webrReady ? 'bg-[#2e8b57]/20 text-[#2e8b57] border-[#2e8b57]/30' : 'bg-[#d4a017]/15 text-[#d4a017] border-[#d4a017]/30'}`}>{webrReady ? 'webR ready' : 'webR loading…'}</span></div>
           <div className="mt-3 flex items-center gap-2 p-2 rounded bg-[#252526] border border-[#3e3e42]">
-            <label className="flex items-center gap-2 text-xs font-medium flex-1"><input type="checkbox" checked={useRealWebR} onChange={e=>setUseRealWebR(e.target.checked)} className="accent-[#2e8b57]" /> Use REAL iNEXT via webR (webr 0.4 + iNEXT R package) — live R on your data</label>
-            <span className="text-[11px] text-[#858585]">{useRealWebR ? 'ON → will try real R, fallback to mock if preview lacks COOP/COEP' : 'OFF → instant mock (preview-safe)'}</span>
+            <label className="flex items-center gap-2 text-xs font-medium flex-1"><input type="checkbox" checked={useRealWebR} onChange={e=>setUseRealWebR(e.target.checked)} disabled={!realRAvailable} className="accent-[#2e8b57] disabled:opacity-50" /> Use REAL iNEXT via webR (webr 0.4 + iNEXT) — live R on your data {realRAvailable ? '' : '(needs COOP/COEP — Tauri or prod web)'}</label>
+            <span className={`text-[11px] px-1.5 py-0.5 rounded ${realRAvailable ? 'bg-[#2e8b57]/20 text-[#2e8b57]' : 'bg-[#d4a017]/20 text-[#d4a017]'}`}>{realRAvailable ? (useRealWebR ? 'ON → real R (available here)' : 'OFF → mock') : 'preview iframe — mock only (prod web + Tauri will have real R)'}</span>
           </div>
           <div className="text-[11px] text-[#858585] mt-1">Toggle OFF for instant preview (mock dune, no 30 MB download). Toggle ON tries <code>library(iNEXT); iNEXT(t(spe), q, datatype, knots, endpoint, nboot, conf)</code> via webR Worker — first ON needs ~15–30s to init webr + install iNEXT (Tauri, needs COOP/COEP; preview without COOP/COEP will fallback to mock with warning).</div>
           <div className="grid md:grid-cols-2 gap-3 mt-3">
