@@ -1,6 +1,7 @@
 import { Card, Button } from '@ordin/ui';
 import { useOrdinStore } from '@ordin/core';
 import { useState } from 'react';
+import { WorkflowFooter } from '../layout/WorkflowFooter';
 
 export function TestsPanel() {
   const hasData = !!useOrdinStore((s) => s.project.data.species);
@@ -59,6 +60,7 @@ export function TestsPanel() {
           </Card>
         ))}
       </div>
+      <WorkflowFooter />
     </div>
   );
 }

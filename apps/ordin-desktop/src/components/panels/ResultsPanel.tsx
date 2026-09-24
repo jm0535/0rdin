@@ -1,5 +1,6 @@
 import { Card, Badge, Button } from '@ordin/ui';
 import { useOrdinStore } from '@ordin/core';
+import { WorkflowFooter } from '../layout/WorkflowFooter';
 export function ResultsPanel() {
   const project = useOrdinStore((s) => s.project);
   const hasData = !!project.data.species;
@@ -55,6 +56,7 @@ export function ResultsPanel() {
           <div className="text-[11px] text-[#858585]">Provenance: each analysis entry stores <code>method/distance/k</code> + <code>ranAt</code> + <code>provenance</code>. Re-running never silently overwrites without audit — inspect this JSON before sharing.</div>
         </>
       )}
+      <WorkflowFooter />
     </div>
   );
 }

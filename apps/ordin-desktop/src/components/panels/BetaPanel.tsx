@@ -1,6 +1,7 @@
 import { Card, Button } from '@ordin/ui';
 import { useOrdinStore } from '@ordin/core';
 import { useState } from 'react';
+import { WorkflowFooter } from '../layout/WorkflowFooter';
 
 export function BetaPanel() {
   const hasData = !!useOrdinStore((s) => s.project.data.species);
@@ -45,6 +46,7 @@ export function BetaPanel() {
           </Button>
         </Card>
       )}
+      <WorkflowFooter />
     </div>
   );
 }

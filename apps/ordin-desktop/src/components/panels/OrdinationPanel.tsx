@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useOrdinStore } from '@ordin/core';
 import { Card, Button } from '@ordin/ui';
+import { WorkflowFooter } from '../layout/WorkflowFooter';
 
 const METHODS = [
   { id: 'nmds', label: 'NMDS' },
@@ -101,6 +102,7 @@ export function OrdinationPanel() {
       )}
 
       <div className="text-xs text-[#858585]">Other methods (PCA, CA, DCA, PCoA, CCA, RDA, dbRDA, CAP) reuse the same webR bridge — swap `vegan::rda` / `cca` / `dbrda` in the worker. Each requires explicit Run; nothing pre-rendered.</div>
+      <WorkflowFooter />
     </div>
   );
 }

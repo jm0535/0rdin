@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, Button } from '@ordin/ui';
 import { useOrdinStore } from '@ordin/core';
+import { WorkflowFooter } from '../layout/WorkflowFooter';
 
 export function DiversityPanel() {
   const hasData = !!useOrdinStore((s) => s.project.data.species);
@@ -58,6 +59,7 @@ export function DiversityPanel() {
           </Card>
         </div>
       )}
+      <WorkflowFooter />
     </div>
   );
 }

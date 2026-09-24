@@ -1,6 +1,7 @@
 import { useOrdinStore } from '@ordin/core';
 import { Card, Button, Badge } from '@ordin/ui';
 import { useState } from 'react';
+import { WorkflowFooter } from '../layout/WorkflowFooter';
 
 // Minimal dropzone stub if react-dropzone not installed (fallback)
 function FallbackDrop({ onFile }: { onFile: (f: File) => void }) {
@@ -38,7 +39,7 @@ export function DataPanel() {
         <Card className="p-4">
           <h3 className="font-semibold mb-2">Import</h3>
           <FallbackDrop onFile={onFile} />
-          <div className="text-xs text-[#858585] mt-2\">Parquet/CSV queried in-browser via DuckDB-WASM — same SQL Workspace pattern GeoLibre uses for geospatial tables, here for species/environment tables (no tile server).</div>
+          <div className="text-xs text-[#858585] mt-2">Parquet/CSV queried in-browser via DuckDB-WASM — same SQL Workspace pattern GeoLibre uses for geospatial tables, here for species/environment tables (no tile server).</div>
         </Card>
         <Card className="p-4">
           <h3 className="font-semibold mb-2">Sample Datasets</h3>
@@ -118,6 +119,7 @@ FROM read_csv('sample-data/dune_environment.csv', header=true)
 GROUP BY Management;`}
         </pre>
       </Card>
+      <WorkflowFooter />
     </div>
   );
 }
