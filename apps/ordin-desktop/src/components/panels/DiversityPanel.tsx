@@ -14,24 +14,41 @@ import { WorkflowFooter } from '../layout/WorkflowFooter';
 // 3 curves q=0 (richness), q=1 (exp Shannon), q=2 (inverse Simpson),
 // observed point, interpolation (solid) + extrapolation (dashed) + 95% CI band.
 // NOT an ordination Axis1/2 scatter.
-function RarefactionSVG({ compact, qs, settings, id }: { compact?: boolean; qs?: number[]; settings?: any; id?: string }) {
+function RarefactionSVG({ compact, qs, settings, id, plotType }: { compact?: boolean; qs?: number[]; settings?: any; id?: string; plotType?: '1'|'2'|'3' }) {
   const W = 520, H = 240, ML = 38, MR = 12, MT = 16, MB = 24;
   const plotW = W - ML - MR, plotH = H - MT - MB;
-  // mock pooled iNEXT: observed n=20 individuals, Sobs q0=30, extrapolate to 40
+  const pt = plotType ?? '1';
+  // mock pooled iNEXT per ggiNEXT type — like shiny plot_type 1/2/3
   const obsN = 20;
-  const allCurves: { q: string; color: string; pts: [number, number][]; ci: [number, number][]; order: number }[] = [
+  const type1Curves: { q: string; color: string; pts: [number, number][]; ci: [number, number][]; order: number }[] = [
     { q: 'q=0 (richness S)', color: '#4a90e2', pts: [[0,0],[5,12],[10,19],[15,24],[20,27],[25,29],[30,30.2],[35,31],[40,31.5]], ci: [], order: 0 },
     { q: 'q=1 (exp H\')', color: '#2e8b57', pts: [[0,0],[5,6],[10,9],[15,11],[20,12.5],[25,13.2],[30,13.6],[35,13.8],[40,14]], ci: [], order: 1 },
     { q: 'q=2 (1/D)', color: '#d4a017', pts: [[0,0],[5,4.5],[10,6.2],[15,7],[20,7.4],[25,7.6],[30,7.7],[35,7.75],[40,7.8]], ci: [], order: 2 },
   ];
+  // type 2: sample completeness (y = coverage 0-1 vs n)
+  const type2Curves = [
+    { q: 'q=0', color: '#4a90e2', pts: [[0,0],[5,0.55],[10,0.72],[15,0.82],[20,0.88],[25,0.92],[30,0.95],[35,0.97],[40,0.98]], ci: [], order: 0 },
+    { q: 'q=1', color: '#2e8b57', pts: [[0,0],[5,0.52],[10,0.70],[15,0.80],[20,0.86],[25,0.90],[30,0.93],[35,0.95],[40,0.96]], ci: [], order: 1 },
+    { q: 'q=2', color: '#d4a017', pts: [[0,0],[5,0.48],[10,0.66],[15,0.77],[20,0.84],[25,0.88],[30,0.91],[35,0.93],[40,0.95]], ci: [], order: 2 },
+  ] as typeof type1Curves;
+  // type 3: coverage-based R/E (x = coverage 0-1, y = diversity)
+  const type3Curves = [
+    { q: 'q=0 (richness S)', color: '#4a90e2', pts: [[0,0],[0.4,12],[0.6,19],[0.75,24],[0.88,27],[0.92,29],[0.95,30.2],[0.97,31],[0.98,31.5]], ci: [], order: 0 },
+    { q: 'q=1 (exp H\')', color: '#2e8b57', pts: [[0,0],[0.4,6],[0.6,9],[0.75,11],[0.88,12.5],[0.92,13.2],[0.95,13.6],[0.97,13.8],[0.98,14]], ci: [], order: 1 },
+    { q: 'q=2 (1/D)', color: '#d4a017', pts: [[0,0],[0.4,4.5],[0.6,6.2],[0.75,7],[0.88,7.4],[0.92,7.6],[0.95,7.7],[0.97,7.75],[0.98,7.8]], ci: [], order: 2 },
+  ] as typeof type1Curves;
+  const allCurves = pt==='2' ? type2Curves : pt==='3' ? type3Curves : type1Curves;
   const curves = qs && qs.length ? allCurves.filter(c=> qs.includes(c.order)) : allCurves;
-  // CI bands as offset
   curves.forEach(c => { c.ci = c.pts.map(([x,y]) => [y*0.92, y*1.08] as [number,number]); });
-  const maxX = 40, maxY = 32;
+  const isCoverageX = pt==='3';
+  const isCoverageY = pt==='2';
+  const maxX = isCoverageX ? 1 : 40;
+  const maxY = isCoverageY ? 1 : 32;
   const x = (v: number) => ML + (v/maxX)*plotW;
   const y = (v: number) => MT + plotH - (v/maxY)*plotH;
   const pathOf = (pts: [number,number][]) => pts.map((p,i)=> `${i===0?'M':'L'} ${x(p[0])} ${y(p[1])}`).join(' ');
-  const obsIdx = 4; // 20
+  const obsVal = isCoverageX ? 0.88 : 20;
+  const obsIdx = 4;
   return (
     <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
       {/* grid */}
@@ -62,20 +79,20 @@ function RarefactionSVG({ compact, qs, settings, id }: { compact?: boolean; qs?:
       {/* axes */}
       <line x1={ML} y1={H-MB} x2={W-MR} y2={H-MB} stroke="#333" />
       <line x1={ML} y1={MT} x2={ML} y2={H-MB} stroke="#333" />
-      {/* ticks */}
-      {[0,10,20,30,40].map(v=> <g key={v}><line x1={x(v)} y1={H-MB} x2={x(v)} y2={H-MB+4} stroke="#333" /><text x={x(v)} y={H-6} textAnchor="middle" fontSize={9} fill="#333">{v}</text></g>)}
-      {[0,8,16,24,32].map(v=> <g key={v}><line x1={ML-4} y1={y(v)} x2={ML} y2={y(v)} stroke="#333" /><text x={ML-6} y={y(v)+3} textAnchor="end" fontSize={9} fill="#333">{v}</text></g>)}
-      <text x={W/2} y={H-2} textAnchor="middle" fontSize={8} fill="#555">Number of individuals (rarefied + extrapolated)</text>
-      <text transform={`rotate(-90 ${12} ${H/2})`} x={12} y={H/2} textAnchor="middle" fontSize={8} fill="#555">Hill diversity qD</text>
-      {!compact && <text x={ML} y={MT-4} fontSize={9} fontWeight={700} fill="#2e8b57">iNEXT (sample-size-based R/E)</text>}
+      {/* ticks — dynamic per ggiNEXT type */}
+      {(isCoverageX ? [0,0.2,0.4,0.6,0.8,1] : [0,10,20,30,40]).map(v=> <g key={v}><line x1={x(v)} y1={H-MB} x2={x(v)} y2={H-MB+4} stroke="#333" /><text x={x(v)} y={H-6} textAnchor="middle" fontSize={9} fill="#333">{isCoverageX ? v.toFixed(1) : v}</text></g>)}
+      {(isCoverageY ? [0,0.2,0.4,0.6,0.8,1] : [0,8,16,24,32]).map(v=> <g key={v}><line x1={ML-4} y1={y(v)} x2={ML} y2={y(v)} stroke="#333" /><text x={ML-6} y={y(v)+3} textAnchor="end" fontSize={9} fill="#333">{isCoverageY ? v.toFixed(1) : v}</text></g>)}
+      <text x={W/2} y={H-2} textAnchor="middle" fontSize={8} fill="#555">{isCoverageX ? 'Sample coverage (0–1)' : 'Number of individuals (rarefied + extrapolated)'}</text>
+      <text transform={`rotate(-90 ${12} ${H/2})`} x={12} y={H/2} textAnchor="middle" fontSize={8} fill="#555">{isCoverageY ? 'Sample coverage' : 'Hill diversity qD'}</text>
+      {!compact && <text x={ML} y={MT-4} fontSize={9} fontWeight={700} fill="#2e8b57">{pt==='1' ? 'iNEXT (sample-size-based R/E)' : pt==='2' ? 'iNEXT (sample completeness)' : 'iNEXT (coverage-based R/E)'}</text>}
       {/* legend */}
       <g transform={`translate(${W-MR-118} ${MT+6})`}>
         {curves.map((c,i)=><g key={c.q} transform={`translate(0 ${i*12})`}><line x1={0} y1={4} x2={14} y2={4} stroke={c.color} strokeWidth={2} /><text x={18} y={7} fontSize={8} fill="#333">{c.q}</text></g>)}
         <g transform="translate(0 38)"><line x1={0} y1={4} x2={14} y2={4} stroke="#333" strokeWidth={1.5} strokeDasharray="6 4" /><text x={18} y={7} fontSize={7} fill="#666">extrapolated</text></g>
       </g>
       {/* observed vertical */}
-      <line x1={x(obsN)} y1={MT} x2={x(obsN)} y2={H-MB} stroke="#999" strokeDasharray="3 3" opacity={0.6} />
-      <text x={x(obsN)} y={MT+8} textAnchor="middle" fontSize={7} fill="#666">observed</text>
+      <line x1={x(obsVal)} y1={MT} x2={x(obsVal)} y2={H-MB} stroke="#999" strokeDasharray="3 3" opacity={0.6} />
+      <text x={x(obsVal)} y={MT+8} textAnchor="middle" fontSize={7} fill="#666">observed</text>
     </svg>
   );
 }
@@ -235,8 +252,8 @@ export function DiversityPanel() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             <Card className="p-3">
               <h3 className="font-semibold flex items-center gap-2">iNEXT rarefaction & extrapolation <Badge variant="success">computed</Badge></h3>
-              <div className="text-[11px] text-[#858585]">sample-size-based R/E (type=1) — solid = interpolated (observed), dashed = extrapolated to 2×, band = 95% CI, faceted by Hill order q.</div>
-              <div className="mt-2"><RarefactionSVG id="inext-rarefaction-svg" qs={qVals} settings={plotSettings} /></div>
+              <div className="text-[11px] text-[#858585]">{plotType==='1' ? 'sample-size-based R/E (type=1) — solid = interpolated (observed), dashed = extrapolated to 2×, band = 95% CI' : plotType==='2' ? 'sample completeness (type=2) — coverage vs sample size, band = 95% CI' : 'coverage-based R/E (type=3) — solid = interpolated, dashed = extrapolated, x = coverage'} — faceted by Hill order q.</div>
+              <div className="mt-2"><RarefactionSVG id="inext-rarefaction-svg" qs={qVals} settings={plotSettings} plotType={plotType} /></div>
               <div className="text-[11px] text-[#858585] mt-1">Ran at {diversity?.ranAt ? new Date(diversity.ranAt).toLocaleString() : '—'} • <code>iNEXT(spe, q=0:2)</code> pooled + per Management group (ggiNEXT facet) • datatype abundance → Hill: q0=S, q1=exp(H'), q2=1/D</div>
               <div className="mt-2 flex gap-1 flex-wrap">
                 <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>copySvgById('inext-rarefaction-svg')}>⎘ Copy SVG</Button>
@@ -281,7 +298,7 @@ export function DiversityPanel() {
               <h4 className="text-xs font-semibold tracking-widest text-[#858585]">DIVERSITY PROFILES & COVERAGE</h4>
               <div className="mt-2 text-xs"><code>renyi(spe, scales=0:4)</code> — Hill curves: intersect = not comparable. Coverage = sample completeness.</div>
               <div className="mt-2 rounded bg-[#1e1e1e] p-2">
-                <RarefactionSVG compact id="inext-coverage-svg" qs={qVals} settings={plotSettings} />
+                <RarefactionSVG compact id="inext-coverage-svg" qs={qVals} settings={plotSettings} plotType="3" />
                 <div className="text-[11px] text-[#858585] text-center">coverage-based R/E (ggiNEXT type=3) — x = sample coverage</div>
               </div>
               <div className="text-[11px] text-[#858585] mt-1">If renyi curves cross, ranking changes with q — weight on richness vs dominance matters [4].</div>
