@@ -59,17 +59,36 @@ type OrdinState = {
   // webr status
   webrReady: boolean;
   setWebRReady: (v: boolean) => void;
+  // ui state — new: sidebars + popups (distinct from GeoLibre's map-centric ui)
+  ui: {
+    sidebarOpen: boolean;
+    inspectorOpen: boolean;
+    commandOpen: boolean;
+    importOpen: boolean;
+    inspectorTab: 'details' | 'env' | 'sql';
+  };
+  setSidebarOpen: (v: boolean) => void;
+  setInspectorOpen: (v: boolean) => void;
+  setCommandOpen: (v: boolean) => void;
+  setImportOpen: (v: boolean) => void;
+  setInspectorTab: (t: 'details' | 'env' | 'sql') => void;
 };
 
 export const useOrdinStore = create<OrdinState>()(
   immer((set, get) => ({
     project: defaultProject(),
     webrReady: false,
+    ui: { sidebarOpen: true, inspectorOpen: true, commandOpen: false, importOpen: false, inspectorTab: 'details' },
     setWebRReady: (v) => set((s) => { s.webrReady = v; }),
-    setPanel: (p) => set((s) => { s.project.view.activePanel = p; }),
+    setPanel: (p) => set((s) => { s.project.view.activePanel = p; s.ui.commandOpen = false; }),
     setSpecies: (s) => set((st) => { st.project.data.species = s; st.project.meta.modified = new Date().toISOString(); }),
     setEnv: (e) => set((st) => { st.project.data.env = e; }),
     clearData: () => set((st) => { st.project.data.species = null; st.project.data.env = null; st.project.analyses = {}; }),
+    setSidebarOpen: (v) => set((s) => { s.ui.sidebarOpen = v; }),
+    setInspectorOpen: (v) => set((s) => { s.ui.inspectorOpen = v; }),
+    setCommandOpen: (v) => set((s) => { s.ui.commandOpen = v; }),
+    setImportOpen: (v) => set((s) => { s.ui.importOpen = v; }),
+    setInspectorTab: (t) => set((s) => { s.ui.inspectorTab = t; }),
     loadSample: async (name) => {
       // In web preview we fetch precomputed JSON; in Tauri we read local CSV via FS
       const res = await fetch('/assets/sample-results.json');
