@@ -56,27 +56,36 @@ export function DataPanel() {
   };
 
   const handleCellEdit = (rowIdx: number, colIdx: number, value: string) => {
-    if (!sp) return;
-    const num = Number(value);
-    if (!Number.isFinite(num) || num < 0) return;
-    const newMatrix = sp.matrix.map((r) => [...r]);
-    newMatrix[rowIdx][colIdx] = num;
-    setSpecies({ ...sp, matrix: newMatrix });
+    try {
+      if (!sp) return;
+      const num = Number(value);
+      if (value.trim() === '' || !Number.isFinite(num) || num < 0) return;
+      const newMatrix = sp.matrix.map((r) => [...r]);
+      if (rowIdx < 0 || rowIdx >= newMatrix.length || colIdx < 0 || colIdx >= newMatrix[0].length) return;
+      newMatrix[rowIdx][colIdx] = num;
+      setSpecies({ ...sp, matrix: newMatrix });
+    } catch (e) { console.error('handleCellEdit failed', e); }
   };
 
   const handleEnvEdit = (rowIdx: number, colIdx: number, value: string) => {
-    if (!env) return;
-    const newRows = env.rows.map((r) => [...r]);
-    newRows[rowIdx][colIdx] = value;
-    setEnv({ ...env, rows: newRows });
+    try {
+      if (!env) return;
+      const newRows = env.rows.map((r) => [...r]);
+      if (rowIdx < 0 || rowIdx >= newRows.length || colIdx < 0 || colIdx >= newRows[0].length) return;
+      newRows[rowIdx][colIdx] = value;
+      setEnv({ ...env, rows: newRows });
+    } catch (e) { console.error('handleEnvEdit failed', e); }
   };
 
   const handleTraitsEdit = (rowIdx: number, colIdx: number, value: string) => {
-    if (!traits) return;
-    const num = Number(value);
-    const newMatrix = traits.matrix.map((r) => [...r]);
-    newMatrix[rowIdx][colIdx] = Number.isFinite(num) ? num : 0;
-    setTraits({ ...traits, matrix: newMatrix });
+    try {
+      if (!traits) return;
+      const num = Number(value);
+      const newMatrix = traits.matrix.map((r) => [...r]);
+      if (rowIdx < 0 || rowIdx >= newMatrix.length || colIdx < 0 || colIdx >= newMatrix[0].length) return;
+      newMatrix[rowIdx][colIdx] = Number.isFinite(num) ? num : 0;
+      setTraits({ ...traits, matrix: newMatrix });
+    } catch (e) { console.error('handleTraitsEdit failed', e); }
   };
 
   const addRow = () => {

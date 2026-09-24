@@ -19,6 +19,7 @@ import { ResultsPanel } from './components/panels/ResultsPanel';
 import { SettingsPanel } from './components/panels/SettingsPanel';
 import { HelpPanel } from './components/panels/HelpPanel';
 import { PluginMarketplace } from './components/layout/PluginMarketplace';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { PanelLeft, PanelRight } from 'lucide-react';
 
 export default function App() {
@@ -81,17 +82,19 @@ export default function App() {
           <div className="flex-1 overflow-auto p-4 md:p-5 scroll-smooth">
             {/* subtle distinct background: paper grid, not map */}
             <div className="max-w-[1120px] mx-auto">
-              {panel === 'dashboard' && <DashboardPanel />}
-              {panel === 'data' && <DataPanel />}
-              {panel === 'ordination' && <OrdinationPanel />}
-              {panel === 'diversity' && <DiversityPanel />}
-              {panel === 'tests' && <TestsPanel />}
-              {panel === 'beta' && <BetaPanel />}
-              {panel === 'classification' && <ClassificationPanel />}
-              {panel === 'traits' && <TraitsPanel />}
-              {panel === 'results' && <ResultsPanel />}
-              {panel === 'settings' && <SettingsPanel />}
-              {panel === 'help' && <HelpPanel />}
+              <ErrorBoundary>
+                {panel === 'dashboard' && <DashboardPanel />}
+                {panel === 'data' && <DataPanel />}
+                {panel === 'ordination' && <OrdinationPanel />}
+                {panel === 'diversity' && <DiversityPanel />}
+                {panel === 'tests' && <TestsPanel />}
+                {panel === 'beta' && <BetaPanel />}
+                {panel === 'classification' && <ClassificationPanel />}
+                {panel === 'traits' && <TraitsPanel />}
+                {panel === 'results' && <ResultsPanel />}
+                {panel === 'settings' && <SettingsPanel />}
+                {panel === 'help' && <HelpPanel />}
+              </ErrorBoundary>
             </div>
           </div>
         </div>
