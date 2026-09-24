@@ -359,7 +359,7 @@ export function DataPanel() {
               </table>
             )}
             <div className="p-2 flex items-center justify-between text-[11px] text-[#858585] border-t border-[#2d2d30] bg-[#252526]/50">
-              <span>Showing {Math.min(previewRows, filteredSpeciesRows.length)}/{filteredSpeciesRows.length} sites (filtered) • {sp!.columns.length} taxa • {transform} → {distance}</span>
+              <span>Showing {Math.min(previewRows, filteredSpeciesRows.length)}/{filteredSpeciesRows.length} sites (filtered) • {sp ? `${sp.columns.length} taxa` : "0 taxa"} • {transform} → {distance}</span>
               <Button variant="ghost" className="h-6 text-xs" onClick={() => setPreviewRows((r) => (r === 25 ? 50 : r === 50 ? 100 : 25))}>Rows: {previewRows} ⇅</Button>
             </div>
           </div>

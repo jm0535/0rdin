@@ -1,5 +1,5 @@
 import { useOrdinStore, type PanelId } from '@ordin/core';
-import { LayoutDashboard, Database, Leaf, Orbit, FlaskConical, Split, BarChart3, GitBranch, Beaker, Settings, HelpCircle, Search as SearchIcon } from 'lucide-react';
+import { LayoutDashboard, Database, Leaf, Orbit, FlaskConical, Split, BarChart3, GitBranch, Beaker, Puzzle, Settings, HelpCircle, Search as SearchIcon } from 'lucide-react';
 
 const items: { id: PanelId; icon: React.ComponentType<any>; label: string; kbd?: string }[] = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', kbd: '1' },
@@ -17,6 +17,7 @@ export function ActivityBar() {
   const active = useOrdinStore((s) => s.project.view.activePanel);
   const setPanel = useOrdinStore((s) => s.setPanel);
   const setCommandOpen = useOrdinStore((s) => s.setCommandOpen);
+  const setPluginOpen = useOrdinStore((s) => s.setPluginOpen);
   return (
     <div className="w-[52px] shrink-0 bg-[#181818] border-r border-[#2d2d30] flex flex-col items-center py-2 gap-0.5 select-none">
       {/* top search trigger — popup, not a panel */}
@@ -45,6 +46,13 @@ export function ActivityBar() {
           </button>
         );
       })}
+      <button
+        onClick={() => setPluginOpen(true)}
+        title="Plugins — Marketplace (AnaDat-R extensions) — like jamovi +Modules"
+        className="w-9 h-9 rounded-lg flex items-center justify-center text-[#858585] hover:text-white hover:bg-[#2a2a2a] mt-1 border border-dashed border-[#2d2d30] hover:border-[#3e3e42]"
+      >
+        <Puzzle size={18} />
+      </button>
       <div className="mt-auto flex flex-col gap-0.5 w-full items-center pt-2 border-t border-[#2d2d30]/60">
         <button
           onClick={() => setPanel('settings')}
