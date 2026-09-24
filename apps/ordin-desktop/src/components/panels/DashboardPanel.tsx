@@ -23,7 +23,7 @@ export function DashboardPanel() {
               Ördin 4
             </h1>
             <p className="text-[#858585] mt-2 max-w-[60ch] leading-relaxed">
-              Statistical workbench rebuilt on <b className="text-[#cccccc]">Tauri + React + Vite + Zustand + DuckDB-WASM + webR</b> — same hardcore stack GeoLibre uses for geospatial, now repurposed for
+              Statistical workbench rebuilt on <b className="text-[#cccccc]">Tauri + React + Vite + Zustand + DuckDB-WASM + webR</b> for
               <b className="text-[#cccccc]"> ordination • diversity • tests • beta</b>. No map tiles by default; deck.gl draws ordination biplots, DuckDB queries your species tables, webR runs vegan / iNEXT / betapart in a Worker.
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
@@ -106,23 +106,23 @@ export function DashboardPanel() {
         })}
       </div>
 
-      {/* stack — distinct copy, not GeoLibre's marketing */}
+      {/* stack */}
       <Card className="p-5">
         <h3 className="font-semibold flex items-center gap-2">
-          <Database size={16} className="text-[#2e8b57]" /> How this reuses GeoLibre's <em>stack</em> — not its product
+          <Database size={16} className="text-[#2e8b57]" /> Stack
         </h3>
         <p className="text-sm text-[#858585] mt-2 leading-relaxed">
-          We copied the <b className="text-[#cccccc]">engineering</b> (Tauri shell, Vite, Zustand, DuckDB-WASM, deck.gl, webR/Workers, .json project file, SQL Workspace) — not the geospatial product. In Ördin, <b className="text-[#cccccc]">deck.gl = ordination scatters & biplot arrows</b>, <b className="text-[#cccccc]">DuckDB = ecology tables</b>, <b className="text-[#cccccc]">webR = vegan / iNEXT / betapart</b>. Sidebars & popups follow the same VS Code-like UX GeoLibre popularized (Explorer • Command palette • Inspector), but the content is purely statistical.
+          <b className="text-[#cccccc]">deck.gl = ordination scatters & biplot arrows</b>, <b className="text-[#cccccc]">DuckDB = ecology tables</b>, <b className="text-[#cccccc]">webR = vegan / iNEXT / betapart</b>. Sidebars & popups provide Explorer, Command palette and Inspector for a focused statistical workflow.
         </p>
         <div className="grid md:grid-cols-2 gap-3 mt-4 text-sm">
           <div className="rounded-lg border border-[#2d2d30] bg-[#1e1e1e] p-3">
             <div className="text-xs font-semibold tracking-widest text-[#858585]">STACK MAPPING</div>
             <ul className="mt-2 space-y-1 text-[#858585]">
               <li>
-                <code className="text-white">apps/ordin-desktop</code> — Vite + Tauri (like Geolibre’s desktop)
+                <code className="text-white">apps/ordin-desktop</code> — Vite + Tauri
               </li>
               <li>
-                <code className="text-white">packages/core</code> — Zustand + <code className="text-white">.ordin.json</code> (like <code className="text-white">.geolibre.json</code>)
+                <code className="text-white">packages/core</code> — Zustand + <code className="text-white">.ordin.json</code>
               </li>
               <li>
                 <code className="text-white">packages/processing</code> — webR bridge (vs Whitebox)

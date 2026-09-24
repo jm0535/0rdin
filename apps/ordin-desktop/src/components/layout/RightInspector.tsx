@@ -140,7 +140,7 @@ SELECT Management, AVG(Moisture) FROM read_csv('dune_env.csv') GROUP BY 1`}
               <h3 className="font-semibold text-sm flex items-center gap-1.5">
                 <Database size={14} className="text-[#4a90e2]" /> SQL Workspace
               </h3>
-              <div className="text-xs text-[#858585] mt-1">DuckDB-WASM in-browser — no server. Same engine GeoLibre uses, here on ecology tables.</div>
+              <div className="text-xs text-[#858585] mt-1">DuckDB-WASM in-browser — no server. Runs directly on your ecology tables.</div>
               <pre className="mt-3 bg-[#1e1e1e] p-2 rounded text-[11px] overflow-auto">
                 {`SELECT Management,
   COUNT(*) AS n,

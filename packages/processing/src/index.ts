@@ -1,4 +1,4 @@
-// @ordin/processing — Client-side ecology kernels (mirrors @geolibre/processing)
+// @ordin/processing — Client-side ecology kernels
 // Primary: webR (vegan/iNEXT) in a Worker. Fallback: pure-JS for simple indices.
 
 export function brayCurtis(a: number[], b: number[]): number {
@@ -20,7 +20,7 @@ export function simpson(row: number[]): number {
   return 1 - s / (n * (n - 1));
 }
 
-// webR bridge — mirrors GeoLibre's Whitebox WASM bridge
+// webR bridge — WASM bridge
 export type WebRStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 let webr: any = null;

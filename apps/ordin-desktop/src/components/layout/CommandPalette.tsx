@@ -110,7 +110,7 @@ export function CommandPalette() {
           </div>
         </div>
 
-        <div className="text-[11px] text-[#858585] px-2">Stack: Tauri • React • Vite • Zustand • DuckDB-WASM • deck.gl • webR — same stack as GeoLibre, distinct product (statistical, not GIS).</div>
+        <div className="text-[11px] text-[#858585] px-2">Stack: Tauri • React • Vite • Zustand • DuckDB-WASM • deck.gl • webR</div>
       </div>
     </Dialog>
   );

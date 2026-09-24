@@ -184,7 +184,7 @@ export function DataPanel() {
         <Card className="p-4">
           <h3 className="font-semibold mb-2 flex items-center gap-1.5"><Database size={14} className="text-[#2e8b57]" /> Import — DuckDB</h3>
           <FallbackDrop onFile={onFile} />
-          <div className="text-xs text-[#858585] mt-2">Parquet/CSV via <code>read_csv / read_parquet</code> — same engine GeoLibre uses for geospatial, here for ecology tables. Drag Parquet for large BCI (50×225) — virtualized.</div>
+          <div className="text-xs text-[#858585] mt-2">Parquet/CSV via <code>read_csv / read_parquet</code> — drag Parquet for large BCI (50×225) — virtualized.</div>
           <div className="mt-3 flex items-center gap-2 text-xs">
             <span className="text-[#858585]">Transform:</span>
             <select value={transform} onChange={(e) => setTransform(e.target.value as any)} className="bg-[#1e1e1e] border border-[#3e3e42] rounded px-2 py-1 text-xs flex-1">
@@ -462,9 +462,9 @@ export function DataPanel() {
       </Card>
 
       <Card className="p-4">
-        <h3 className="font-semibold mb-2 flex items-center gap-1"><Beaker size={14} className="text-[#4a90e2]" /> 🧮 SQL Workspace (DuckDB-WASM — GeoLibre pattern, now for ecology tables)</h3>
+        <h3 className="font-semibold mb-2 flex items-center gap-1"><Beaker size={14} className="text-[#4a90e2]" /> 🧮 SQL Workspace (DuckDB-WASM)</h3>
         <pre className="bg-[#1e1e1e] p-3 rounded text-xs overflow-auto">
-{`-- DuckDB-WASM SQL on Base (Species + Env + Traits) — same engine GeoLibre uses, no map:
+{`-- DuckDB-WASM SQL on Base (Species + Env + Traits):
 SELECT Management, COUNT(*) AS n_sites, AVG(Moisture) AS mean_moisture
 FROM read_csv('sample-data/dune_environment.csv', header=true) GROUP BY Management;
 -- Join species → CWM via Traits:

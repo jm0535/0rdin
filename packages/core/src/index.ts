@@ -1,4 +1,4 @@
-// @ordin/core — Types, schema, and Zustand store (mirrors @geolibre/core)
+// @ordin/core — Types, schema, and Zustand store
 // Enterprise: validated inputs, auditable analyses, gated Run, no phantom defaults
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
@@ -17,7 +17,7 @@ export function validateSpeciesMatrix(m: SpeciesMatrix | null): { valid: boolean
   return { valid: true };
 }
 
-// --- Project file (.ordin.json) — single source of truth, like .geolibre.json ---
+// --- Project file (.ordin.json) — single source of truth ---
 export const SpeciesMatrixSchema = z.object({
   columns: z.array(z.string()),
   rownames: z.array(z.string()),
@@ -72,7 +72,7 @@ export const defaultProject = (): OrdinProject => ({
   view: { activePanel: 'dashboard', mapStyle: 'https://demotiles.maplibre.org/style.json', theme: 'dark' },
 });
 
-// --- Zustand store (single, like GeoLibre's useStore) ---
+// --- Zustand store ---
 type OrdinState = {
   project: OrdinProject;
   // actions
@@ -86,7 +86,7 @@ type OrdinState = {
   // webr status
   webrReady: boolean;
   setWebRReady: (v: boolean) => void;
-  // ui state — new: sidebars + popups (distinct from GeoLibre's map-centric ui)
+  // ui state — sidebars + popups
   ui: {
     sidebarOpen: boolean;
     inspectorOpen: boolean;

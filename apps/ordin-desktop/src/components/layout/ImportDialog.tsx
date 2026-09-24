@@ -87,7 +87,7 @@ export function ImportDialog() {
             <pre className="mt-2 bg-[#1e1e1e] p-2 rounded text-[11px] overflow-auto">
               {`SELECT * FROM read_csv('your.csv', header=true) LIMIT 5;`}
             </pre>
-            <div className="text-[11px] text-[#858585] mt-2">Same pattern GeoLibre exposes — here on ecology tables.</div>
+            <div className="text-[11px] text-[#858585] mt-2">Runs directly on your ecology tables.</div>
           </Card>
         </div>
 

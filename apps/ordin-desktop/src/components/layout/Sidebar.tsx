@@ -34,7 +34,7 @@ function Section({ title, defaultOpen = true, children }: { title: string; defau
   );
 }
 
-// Enterprise workflow helpers — how R/Python scripts and JASP/jamovi do it
+// Enterprise workflow helpers
 function useWorkflow() {
   const project = useOrdinStore((s) => s.project);
   const sp = project.data.species;
@@ -108,7 +108,7 @@ function useWorkflow() {
       icon: BarChart3,
       status: !hasAnyResult ? (!hasData ? ('blocked' as const) : ('ready' as const)) : ('done' as const),
       badge: hasAnyResult ? `${Object.keys(project.analyses).length} analyses` : '— none yet —',
-      hint: hasAnyResult ? 'Reproducible bundle — download & share' : 'Appears only after at least one explicit Run (JASP-like live stack, but gated for audit)',
+      hint: hasAnyResult ? 'Reproducible bundle — download & share' : 'Appears only after at least one explicit Run (gated for audit)',
       requires: '≥1 analysis',
     },
   ];
@@ -142,7 +142,7 @@ export function Sidebar() {
         </span>
       </div>
 
-      {/* progress — enterprise like JASP's left data / right results split */}
+      {/* progress */}
       <div className="p-3 border-b border-[#2d2d30] bg-[#252526]/60">
         <div className="flex items-center justify-between text-xs">
           <span className="text-[#858585] flex items-center gap-1">
@@ -154,7 +154,7 @@ export function Sidebar() {
           <div className="h-full bg-[#2e8b57] transition-all" style={{ width: `${(done / 6) * 100}%` }} />
         </div>
         <div className="mt-2 text-[11px] leading-relaxed text-[#858585]">
-          Like <b className="text-[#cccccc]">JASP/jamovi</b>: data left, results right — but here <b className="text-[#cccccc]">gated & auditable</b> (R/Python style): load → validate → explicit <code>Run</code> → Results stack with provenance. Not live until you ask.
+          Data left, results right — <b className="text-[#cccccc]">gated & auditable</b>: load → validate → explicit <code>Run</code> → Results stack with provenance. Not live until you ask.
         </div>
       </div>
 
@@ -203,8 +203,8 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* quick actions — JASP-like ribbon shortcuts */}
-        <Section title="QUICK ACTIONS — like JASP ribbon">
+        {/* quick actions */}
+        <Section title="QUICK ACTIONS">
           <div className="grid grid-cols-2 gap-1.5">
             <Button variant="subtle" className="h-7 text-xs justify-start" onClick={() => setPanel('data')}>
               <FileSpreadsheet size={12} className="mr-1" /> Data
@@ -220,7 +220,7 @@ export function Sidebar() {
             </Button>
           </div>
           <div className="mt-2 rounded-md bg-[#1e1e1e] border border-[#2d2d30] p-2 text-[11px] leading-relaxed text-[#858585]">
-            <b className="text-[#cccccc]">R equivalent:</b> <code className="text-white">dune &lt;- read.csv(); iNEXT(dune); beta.pair(dune); metaMDS(dune); adonis2(dune ~ Management)</code> — here each stage maps to a panel with explicit <code>Run</code>, provenance, and <code>.ordin.json</code> lineage. JASP auto-updates live; Ördin gates for enterprise audit but preserves the left→right feel.
+            <b className="text-[#cccccc]">R equivalent:</b> <code className="text-white">dune &lt;- read.csv(); iNEXT(dune); beta.pair(dune); metaMDS(dune); adonis2(dune ~ Management)</code> — here each stage maps to a panel with explicit <code>Run</code>, provenance, and <code>.ordin.json</code> lineage. Ordin gates for enterprise audit.
           </div>
         </Section>
 

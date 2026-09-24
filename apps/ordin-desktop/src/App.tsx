@@ -27,7 +27,7 @@ export default function App() {
   const ui = useOrdinStore((s) => s.ui);
   const set = useOrdinStore((s) => s);
 
-  // global hotkeys — distinct from GeoLibre's map shortcuts, statistical-focused
+  // global hotkeys — statistical-focused
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
@@ -48,7 +48,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-[#121214] text-[#cccccc] selection:bg-[#2e8b57]/30">
-      {/* Titlebar — Tauri drag region, Ördin-branded not GeoLibre: forest + data */}
+      {/* Titlebar — Tauri drag region */}
       <div className="h-8 flex items-center px-3 bg-[#0f0f0f] border-b border-[#2d2d30] text-xs select-none shrink-0" data-tauri-drag-region>
         <span className="w-2 h-2 rounded-full bg-[#2e8b57] shadow-[0_0_8px_rgba(46,139,87,0.6)]" />
         <span className="ml-2 font-semibold tracking-tight">Ördin 4</span>
@@ -99,7 +99,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* right inspector — popups / details, distinct from GeoLibre's layer properties */}
+        {/* right inspector — popups / details */}
         {ui.inspectorOpen ? (
           <RightInspector />
         ) : (

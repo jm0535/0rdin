@@ -109,7 +109,7 @@ export function OrdinationPanel() {
           <Card className="p-3">
             <h3 className="font-semibold mb-2">Plot — deck.gl ScatterplotLayer (over an ordination, not a map)</h3>
             <img src={`/assets/plots/${method === "tb-pca" ? "pca" : method === "tb-rda" ? "rda" : method}.png`} alt={`${method} — computed`} className="w-full rounded bg-white" onError={(e)=>{(e.target as HTMLImageElement).src="/assets/plots/nmds.png"}} />
-            <div className="text-xs text-[#858585] mt-2">Rendered via deck.gl ordination scatter/biplot — same GPU layer GeoLibre uses for vector tiles, here for NMDS/PCA/CCA points and env-vector arrows. MapLibre is not involved.</div>
+            <div className="text-xs text-[#858585] mt-2">Rendered via deck.gl ordination scatter/biplot — NMDS/PCA/CCA points and env-vector arrows. MapLibre is not involved.</div>
             <div className="text-[11px] text-[#858585] mt-1">Provenance: {(nmds as any).provenance} • {nmds.ranAt ? new Date(nmds.ranAt).toLocaleString() : '—'}</div>
           </Card>
           <Card className="p-3">
@@ -136,7 +136,7 @@ export function OrdinationPanel() {
               <span className="text-[11px] px-2 py-1 rounded bg-[#2e8b57] text-white">Scaling 1</span>
               <span className="text-[11px] px-2 py-1 rounded bg-[#1e1e1e] border border-[#3e3e42] text-[#858585]">Scaling 2</span>
             </div>
-            <div className="text-[11px] text-[#858585] mt-2"> deck.gl: Scatter (sites) + Text (species) + Line (env) — same GPU layers as GeoLibre tiles, here for biplots.</div>
+            <div className="text-[11px] text-[#858585] mt-2"> deck.gl: Scatter (sites) + Text (species) + Line (env) — biplot layers.</div>
           </Card>
           <Card className="p-3">
             <h4 className="text-xs font-semibold tracking-widest text-[#858585]">SUPPLEMENTARY VARIABLES (envfit)</h4>

@@ -48,7 +48,7 @@ export function WorkflowFooter() {
             variant={nextBlocked ? 'ghost' : 'subtle'}
             className={`h-7 text-xs ${nextBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={!!nextBlocked}
-            title={nextBlocked ? 'Requires Data — import & validate first' : hasAny ? 'Next step (JASP-like: results stack)' : 'Next step'}
+            title={nextBlocked ? 'Requires Data — import & validate first' : hasAny ? 'Next step' : 'Next step'}
             onClick={() => !nextBlocked && setPanel(next.id)}
           >
             {next.label} <ArrowRight size={12} className="ml-1" />

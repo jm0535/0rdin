@@ -48,8 +48,8 @@ export function PluginMarketplace() {
         <div className="sticky top-0 bg-[#252526] border-b border-[#2d2d30] p-4 flex items-center gap-3">
           <Puzzle size={18} className="text-[#2e8b57]" />
           <div>
-            <div className="font-semibold">Plugin Marketplace — like GeoLibre & jamovi +Modules</div>
-            <div className="text-xs text-[#858585]">All plugins are <b className="text-[#cccccc]">bundled — no install, no download</b>. Just <b className="text-[#cccccc]">Activate</b> to show the panel (GeoLibre-style toggle). Deactivate hides it from the rail. Versions pinned in <code>.ordin.json</code> for reproducibility.</div>
+            <div className="font-semibold">Plugin Marketplace</div>
+            <div className="text-xs text-[#858585]">All plugins are <b className="text-[#cccccc]">bundled — no install, no download</b>. Just <b className="text-[#cccccc]">Activate</b> to show the panel. Deactivate hides it from the rail. Versions pinned in <code>.ordin.json</code> for reproducibility.</div>
           </div>
           <button onClick={() => setOpen(false)} className="ml-auto w-7 h-7 grid place-items-center rounded hover:bg-[#2a2a2a] text-[#858585]"><X size={16} /></button>
         </div>
@@ -65,7 +65,7 @@ export function PluginMarketplace() {
           </div>
 
           <Card className="p-3 bg-[#2e8b5720] border-[#2e8b57]/20">
-            <div className="text-xs font-semibold text-[#2e8b57]">manifest.schema.json — how plugins work (GeoLibre-style)</div>
+            <div className="text-xs font-semibold text-[#2e8b57]">manifest.schema.json — how plugins work</div>
             <pre className="mt-1 bg-[#1e1e1e] p-2 rounded text-[10px] overflow-auto">{`{
   "id": "twinspan",
   "version": "1.0.0",
@@ -75,7 +75,7 @@ export function PluginMarketplace() {
   "duckdb": {"tables":["species","env"]},
   "permissions": ["webR:run","fs:read"]
 }`}</pre>
-            <div className="text-[11px] text-[#858585] mt-2">Toggle = <code>project.meta.plugins</code> (like GeoLibre <code>enabledPlugins</code>). No download — bundle is already in the app. Opening a plugin auto-closes this window.</div>
+            <div className="text-[11px] text-[#858585] mt-2">Toggle = <code>project.meta.plugins</code>. No download — bundle is already in the app. Opening a plugin auto-closes this window.</div>
           </Card>
 
           {filtered.map((p) => {
@@ -100,7 +100,7 @@ export function PluginMarketplace() {
                       onClick={() => toggle(p)}
                       role="switch"
                       aria-checked={isActive}
-                      title={isActive ? 'Deactivate — hides from rail' : 'Activate — shows in rail (GeoLibre-style)'}
+                      title={isActive ? 'Deactivate — hides from rail' : 'Activate — shows in rail'}
                       className={`relative w-9 h-5 rounded-full transition-colors ${isActive ? 'bg-[#2e8b57]' : 'bg-[#3e3e42]'}`}
                     >
                       <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${isActive ? 'translate-x-4' : 'translate-x-0'}`} />
@@ -133,7 +133,7 @@ export function PluginMarketplace() {
           {filtered.length === 0 && <div className="text-xs text-[#858585] text-center py-6">No plugins match “{q}”.</div>}
 
           <div className="text-[11px] text-[#858585] border border-[#2d2d30] rounded p-2 bg-[#252526]/50">
-            Plugins run in <b className="text-[#cccccc]">webR Workers</b> (Comlink, 30s timeout, per-plugin namespace) + <b className="text-[#cccccc]">DuckDB</b> views. Toggle state persisted in <code>.ordin.json → meta.plugins</code> (like GeoLibre) — re-open on another machine restores same active set. Tauri prod would verify signature on enable.
+            Plugins run in <b className="text-[#cccccc]">webR Workers</b> (Comlink, 30s timeout, per-plugin namespace) + <b className="text-[#cccccc]">DuckDB</b> views. Toggle state persisted in <code>.ordin.json → meta.plugins</code> — re-open on another machine restores same active set. Tauri prod would verify signature on enable.
           </div>
         </div>
       </div>

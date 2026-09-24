@@ -2,7 +2,7 @@ export function SettingsPanel() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold text-[#2e8b57]">⚙ Settings — theme, webR, reproducibility</h2>
-      <p className="text-sm text-[#858585]">Reproducibility is first-class: every run is exportable as <code>.ordin.json</code> (like GeoLibre's <code>.geolibre.json</code>).</p>
+      <p className="text-sm text-[#858585]">Reproducibility is first-class: every run is exportable as <code>.ordin.json</code>.</p>
       <div className="bg-[#252526] border border-[#3e3e42] rounded p-4 space-y-3">
         <div>
           <label className="text-sm block mb-1">Theme</label>
