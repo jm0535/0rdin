@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useOrdinStore } from '@ordin/core';
 import { Card, Button } from '@ordin/ui';
+import { OrdinationPlotCustomization, defaultOrdinationSettings } from '../PlotCustomization';
 import { WorkflowFooter } from '../layout/WorkflowFooter';
 
 const METHODS = [
@@ -18,6 +19,7 @@ const METHODS = [
 ] as const;
 
 export function OrdinationPanel() {
+  const [plotSettings, setPlotSettings] = useState(defaultOrdinationSettings);
   const [method, setMethod] = useState<(typeof METHODS)[number]['id']>('nmds');
   const [k, setK] = useState(2);
   const [distance, setDistance] = useState('bray');
@@ -146,6 +148,7 @@ export function OrdinationPanel() {
         </div>
       )}
 
+      {hasData && nmds && <OrdinationPlotCustomization settings={plotSettings} onChange={setPlotSettings} />}
       <Card className="p-3 border border-[#2d2d30] bg-[#1e1e1e]">
         <div className="text-xs font-semibold tracking-widest text-[#858585]">THREE APPROACHES (Legendre & Legendre 2012) — pick one per analysis</div>
         <div className="grid md:grid-cols-3 gap-2 mt-2 text-xs">

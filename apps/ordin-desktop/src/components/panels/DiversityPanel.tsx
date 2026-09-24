@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card, Button, Badge } from '@ordin/ui';
+import { DiversityPlotCustomization, defaultDiversitySettings } from '../PlotCustomization';
 import { useOrdinStore } from '@ordin/core';
 import { WorkflowFooter } from '../layout/WorkflowFooter';
 
@@ -8,7 +9,7 @@ import { WorkflowFooter } from '../layout/WorkflowFooter';
 // 3 curves q=0 (richness), q=1 (exp Shannon), q=2 (inverse Simpson),
 // observed point, interpolation (solid) + extrapolation (dashed) + 95% CI band.
 // NOT an ordination Axis1/2 scatter.
-function RarefactionSVG({ compact, qs }: { compact?: boolean; qs?: number[] }) {
+function RarefactionSVG({ compact, qs, settings }: { compact?: boolean; qs?: number[]; settings?: any }) {
   const W = 520, H = 240, ML = 38, MR = 12, MT = 16, MB = 24;
   const plotW = W - ML - MR, plotH = H - MT - MB;
   // mock pooled iNEXT: observed n=20 individuals, Sobs q0=30, extrapolate to 40
@@ -31,14 +32,14 @@ function RarefactionSVG({ compact, qs }: { compact?: boolean; qs?: number[] }) {
       {/* grid */}
       {[0,0.25,0.5,0.75,1].map(t=> <line key={t} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke="#eee" strokeWidth={t===1?1:0.5} />)}
       {[0,0.25,0.5,0.75,1].map(t=> <line key={t} y1={MT} y2={H-MB} x1={ML+t*plotW} x2={ML+t*plotW} stroke="#eee" strokeWidth={0.5} />)}
-      {/* CI bands */}
-      {curves.map(c=>{
+      {/* CI bands — controlled by Show CI + alpha */}
+      {(settings?.showCI ?? true) && curves.map(c=>{
         const pts=c.pts; const ci=c.ci;
         const upper = pts.map((p,i)=> [p[0], ci[i][1]] as [number,number]);
         const lower = pts.map((p,i)=> [p[0], ci[i][0]] as [number,number]);
         const band = [...upper, ...[...lower].reverse()];
         const d = band.map((p,i)=> `${i===0?'M':'L'} ${x(p[0])} ${y(p[1])}`).join(' ') + ' Z';
-        return <path key={c.q} d={d} fill={c.color} opacity={0.10} />;
+        return <path key={c.q} d={d} fill={c.color} opacity={settings?.ciAlpha ?? 0.3} />;
       })}
       {/* curves: solid = interpolation (x<=obs), dashed = extrapolation (x>obs) */}
       {curves.map(c=>{
@@ -46,13 +47,13 @@ function RarefactionSVG({ compact, qs }: { compact?: boolean; qs?: number[] }) {
         const extrap = c.pts.filter(p=>p[0]>=obsN);
         return (
           <g key={c.q}>
-            <path d={pathOf(interp)} fill="none" stroke={c.color} strokeWidth={2} />
-            <path d={pathOf(extrap)} fill="none" stroke={c.color} strokeWidth={2} strokeDasharray="6 4" opacity={0.9} />
+            <path d={pathOf(interp)} fill="none" stroke={c.color} strokeWidth={settings?.lineSize ?? 2} />
+            <path d={pathOf(extrap)} fill="none" stroke={c.color} strokeWidth={settings?.lineSize ?? 2} strokeDasharray="6 4" opacity={0.9} />
           </g>
         );
       })}
       {/* observed point */}
-      {[curves[0].pts[obsIdx], curves[1].pts[obsIdx], curves[2].pts[obsIdx]].map((p,i)=> <circle key={i} cx={x(p[0])} cy={y(p[1])} r={compact?2.5:3.5} fill={['#4a90e2','#2e8b57','#d4a017'][i]} stroke="white" strokeWidth={1.2} />)}
+      {[curves[0].pts[obsIdx], curves[1].pts[obsIdx], curves[2].pts[obsIdx]].map((p,i)=> <circle key={i} cx={x(p[0])} cy={y(p[1])} r={settings?.pointSize ?? (compact?2.5:3.5)} fill={['#4a90e2','#2e8b57','#d4a017'][i]} stroke="white" strokeWidth={1.2} />)}
       {/* axes */}
       <line x1={ML} y1={H-MB} x2={W-MR} y2={H-MB} stroke="#333" />
       <line x1={ML} y1={MT} x2={ML} y2={H-MB} stroke="#333" />
@@ -129,6 +130,7 @@ export function DiversityPanel() {
   const [conf, setConf] = useState(0.95);
   const [plotType, setPlotType] = useState<'1'|'2'|'3'>('1');
   const qVals = [q0 && 0, q1 && 1, q2 && 2].filter(v=> v!==false) as number[];
+  const [plotSettings, setPlotSettings] = useState(defaultDiversitySettings);
 
 
   const run = async () => {
@@ -158,6 +160,7 @@ export function DiversityPanel() {
         <div className="text-sm text-[#d4a017] border border-[#d4a017]/30 bg-[#d4a0170a] p-3 rounded">No data. Load a dataset first — diversity results appear only after explicit Run.</div>
       )}
       {hasData && (
+        <>
         <Card className="p-4 border-[#2d2d30] bg-[#1e1e1e]">
           <div className="text-xs font-semibold tracking-widest text-[#2e8b57]">iNEXT CONTROLS — manual (like shiny)</div>
           <div className="grid md:grid-cols-2 gap-3 mt-3">
@@ -209,6 +212,8 @@ export function DiversityPanel() {
             <span className="text-[11px] text-[#858585] self-center">R: <code>iNEXT(t(spe), q=c({qVals.join(',')||'·'}), datatype="{datatype}", knots={knots}, endpoint={endpoint||'2×'}, nboot={nboot}, conf={conf})</code></span>
           </div>
         </Card>
+        {hasResult && <DiversityPlotCustomization settings={plotSettings} onChange={setPlotSettings} />}
+        </>
       )}
       {hasData && !hasResult && (
         <Card className="p-6 text-center border-dashed bg-[#252526]/50">
@@ -226,7 +231,7 @@ export function DiversityPanel() {
             <Card className="p-3">
               <h3 className="font-semibold flex items-center gap-2">iNEXT rarefaction & extrapolation <Badge variant="success">computed</Badge></h3>
               <div className="text-[11px] text-[#858585]">sample-size-based R/E (type=1) — solid = interpolated (observed), dashed = extrapolated to 2×, band = 95% CI, faceted by Hill order q.</div>
-              <div className="mt-2"><RarefactionSVG qs={qVals} /></div>
+              <div className="mt-2"><RarefactionSVG qs={qVals} settings={plotSettings} /></div>
               <div className="text-[11px] text-[#858585] mt-1">Ran at {diversity?.ranAt ? new Date(diversity.ranAt).toLocaleString() : '—'} • <code>iNEXT(spe, q=0:2)</code> pooled + per Management group (ggiNEXT facet) • datatype abundance → Hill: q0=S, q1=exp(H'), q2=1/D</div>
               <Button className="mt-2 w-full" disabled={!hasData} onClick={run}>
                 ↻ Re-run iNEXT
@@ -261,7 +266,7 @@ export function DiversityPanel() {
               <h4 className="text-xs font-semibold tracking-widest text-[#858585]">DIVERSITY PROFILES & COVERAGE</h4>
               <div className="mt-2 text-xs"><code>renyi(spe, scales=0:4)</code> — Hill curves: intersect = not comparable. Coverage = sample completeness.</div>
               <div className="mt-2 rounded bg-[#1e1e1e] p-2">
-                <RarefactionSVG compact qs={qVals} />
+                <RarefactionSVG compact qs={qVals} settings={plotSettings} />
                 <div className="text-[11px] text-[#858585] text-center">coverage-based R/E (ggiNEXT type=3) — x = sample coverage</div>
               </div>
               <div className="text-[11px] text-[#858585] mt-1">If renyi curves cross, ranking changes with q — weight on richness vs dominance matters [4].</div>
