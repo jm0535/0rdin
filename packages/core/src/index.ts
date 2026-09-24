@@ -31,31 +31,43 @@ export const EnvTableSchema = z.object({
 export type SpeciesMatrix = z.infer<typeof SpeciesMatrixSchema>;
 export type EnvTable = z.infer<typeof EnvTableSchema>;
 
-export type PanelId = 'dashboard' | 'data' | 'diversity' | 'ordination' | 'tests' | 'beta' | 'results' | 'settings' | 'help';
+export type PanelId = 'dashboard' | 'data' | 'diversity' | 'ordination' | 'tests' | 'beta' | 'classification' | 'traits' | 'results' | 'settings' | 'help';
 
 export type OrdinProject = {
   version: '4.0';
-  meta: { name: string; created: string; modified: string };
+  meta: { name: string; created: string; modified: string; plugins?: { id: string; version: string }[] };
   data: {
     species: SpeciesMatrix | null;
     env: EnvTable | null;
+    traits?: SpeciesMatrix | null; // taxa × traits, for CWM / RLQ
   };
   analyses: {
-    nmds?: { stress: number; points: [number, number][]; method: string; distance: string };
-    pca?: { eigenvalues: number[]; variance: number[]; scores: [number, number][] };
-    // stubs for parity — filled as webR completes
+    nmds?: { stress: number; points: [number, number][]; method: string; distance: string; ranAt?: string; provenance?: string };
+    pca?: { eigenvalues: number[]; variance: number[]; scores: [number, number][]; ranAt?: string };
     ca?: unknown; dca?: unknown; pcoa?: unknown; cca?: unknown; rda?: unknown; dbrda?: unknown; cap?: unknown;
-    permanova?: unknown; anosim?: unknown; mantel?: unknown; envfit?: unknown;
-    inext?: unknown; indices?: unknown;
-    beta?: { sor: number; sim: number; sne: number; turnover_pct: number; nestedness_pct: number };
+    diversity?: unknown; indices?: unknown;
+    beta?: { sor: number; sim: number; sne: number; turnover_pct: number; nestedness_pct: number; ranAt?: string };
+    // classification
+    cluster?: { method: string; k: number; groups: number[]; cophenetic?: number; silhouette?: number; ranAt?: string } | null;
+    twinspan?: { levels: number; groups: number[]; indicatorSpecies?: string[]; ranAt?: string } | null;
+    kmeans?: { k: number; groups: number[]; totss?: number; ranAt?: string } | null;
+    // inferential ordination
+    varpart?: { fractions?: number[]; ranAt?: string } | null;
+    forwardSel?: { selected: string[]; ranAt?: string } | null;
+    permanova_nmds?: unknown; permanova?: unknown; anosim?: unknown; mantel?: unknown; envfit?: unknown;
+    inext?: unknown;
+    // traits
+    cwm?: { matrix?: number[][]; ranAt?: string } | null;
+    fourthcorner?: { pvalues?: number[]; ranAt?: string } | null;
+    rlq?: { eig?: number[]; ranAt?: string } | null;
   };
   view: { activePanel: PanelId; mapStyle: string; theme: 'dark' | 'light' };
 };
 
 export const defaultProject = (): OrdinProject => ({
   version: '4.0',
-  meta: { name: 'Untitled', created: new Date().toISOString(), modified: new Date().toISOString() },
-  data: { species: null, env: null },
+  meta: { name: 'Untitled', created: new Date().toISOString(), modified: new Date().toISOString(), plugins: [] },
+  data: { species: null, env: null, traits: null },
   analyses: {},
   view: { activePanel: 'dashboard', mapStyle: 'https://demotiles.maplibre.org/style.json', theme: 'dark' },
 });
@@ -67,6 +79,7 @@ type OrdinState = {
   setPanel: (p: PanelId) => void;
   setSpecies: (s: SpeciesMatrix | null) => void;
   setEnv: (e: EnvTable | null) => void;
+  setTraits: (t: SpeciesMatrix | null) => void;
   loadSample: (name: 'dune' | 'varespec' | 'BCI') => Promise<void>;
   runNMDS: (opts: { k: number; distance: string }) => Promise<void>;
   clearData: () => void;
@@ -79,12 +92,14 @@ type OrdinState = {
     inspectorOpen: boolean;
     commandOpen: boolean;
     importOpen: boolean;
+    pluginOpen: boolean;
     inspectorTab: 'details' | 'env' | 'sql';
   };
   setSidebarOpen: (v: boolean) => void;
   setInspectorOpen: (v: boolean) => void;
   setCommandOpen: (v: boolean) => void;
   setImportOpen: (v: boolean) => void;
+  setPluginOpen: (v: boolean) => void;
   setInspectorTab: (t: 'details' | 'env' | 'sql') => void;
 };
 
@@ -92,7 +107,7 @@ export const useOrdinStore = create<OrdinState>()(
   immer((set, get) => ({
     project: defaultProject(),
     webrReady: false,
-    ui: { sidebarOpen: true, inspectorOpen: true, commandOpen: false, importOpen: false, inspectorTab: 'details' },
+    ui: { sidebarOpen: true, inspectorOpen: true, commandOpen: false, importOpen: false, pluginOpen: false, inspectorTab: 'details' },
     setWebRReady: (v) => set((s) => { s.webrReady = v; }),
     setPanel: (p) => set((s) => { s.project.view.activePanel = p; s.ui.commandOpen = false; }),
     setSpecies: (s) => {
@@ -106,12 +121,14 @@ export const useOrdinStore = create<OrdinState>()(
         if (s) st.project.analyses = {}; // new matrix invalidates prior results — enterprise guard
       });
     },
-    setEnv: (e) => set((st) => { st.project.data.env = e; }),
-    clearData: () => set((st) => { st.project.data.species = null; st.project.data.env = null; st.project.analyses = {}; st.project.meta.name = 'Untitled'; }),
+    setEnv: (e) => set((st) => { st.project.data.env = e; st.project.meta.modified = new Date().toISOString(); }),
+    setTraits: (t) => set((st) => { st.project.data.traits = t; st.project.meta.modified = new Date().toISOString(); }),
+    clearData: () => set((st) => { st.project.data.species = null; st.project.data.env = null; st.project.data.traits = null; st.project.analyses = {}; st.project.meta.name = 'Untitled'; }),
     setSidebarOpen: (v) => set((s) => { s.ui.sidebarOpen = v; }),
     setInspectorOpen: (v) => set((s) => { s.ui.inspectorOpen = v; }),
     setCommandOpen: (v) => set((s) => { s.ui.commandOpen = v; }),
     setImportOpen: (v) => set((s) => { s.ui.importOpen = v; }),
+    setPluginOpen: (v) => set((s) => { s.ui.pluginOpen = v; }),
     setInspectorTab: (t) => set((s) => { s.ui.inspectorTab = t; }),
     loadSample: async (name) => {
       // Enterprise: loading a new input dataset invalidates derived results (no phantom carries)

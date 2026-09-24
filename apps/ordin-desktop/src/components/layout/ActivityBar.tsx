@@ -1,5 +1,5 @@
 import { useOrdinStore, type PanelId } from '@ordin/core';
-import { LayoutDashboard, Database, Leaf, Orbit, FlaskConical, Split, BarChart3, Settings, HelpCircle, Search as SearchIcon } from 'lucide-react';
+import { LayoutDashboard, Database, Leaf, Orbit, FlaskConical, Split, BarChart3, GitBranch, Beaker, Settings, HelpCircle, Search as SearchIcon } from 'lucide-react';
 
 const items: { id: PanelId; icon: React.ComponentType<any>; label: string; kbd?: string }[] = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', kbd: '1' },
@@ -8,7 +8,9 @@ const items: { id: PanelId; icon: React.ComponentType<any>; label: string; kbd?:
   { id: 'beta', icon: Split, label: 'Beta', kbd: '4' },
   { id: 'ordination', icon: Orbit, label: 'Ordination', kbd: '5' },
   { id: 'tests', icon: FlaskConical, label: 'Tests', kbd: '6' },
-  { id: 'results', icon: BarChart3, label: 'Results', kbd: '7' },
+  { id: 'classification', icon: GitBranch, label: 'Classification', kbd: '7' },
+  { id: 'traits', icon: Beaker, label: 'Traits', kbd: '8' },
+  { id: 'results', icon: BarChart3, label: 'Results', kbd: '9' },
 ];
 
 export function ActivityBar() {

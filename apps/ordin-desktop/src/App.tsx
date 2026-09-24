@@ -13,9 +13,12 @@ import { OrdinationPanel } from './components/panels/OrdinationPanel';
 import { DiversityPanel } from './components/panels/DiversityPanel';
 import { TestsPanel } from './components/panels/TestsPanel';
 import { BetaPanel } from './components/panels/BetaPanel';
+import { ClassificationPanel } from './components/panels/ClassificationPanel';
+import { TraitsPanel } from './components/panels/TraitsPanel';
 import { ResultsPanel } from './components/panels/ResultsPanel';
 import { SettingsPanel } from './components/panels/SettingsPanel';
 import { HelpPanel } from './components/panels/HelpPanel';
+import { PluginMarketplace } from './components/layout/PluginMarketplace';
 import { PanelLeft, PanelRight } from 'lucide-react';
 
 export default function App() {
@@ -84,6 +87,8 @@ export default function App() {
               {panel === 'diversity' && <DiversityPanel />}
               {panel === 'tests' && <TestsPanel />}
               {panel === 'beta' && <BetaPanel />}
+              {panel === 'classification' && <ClassificationPanel />}
+              {panel === 'traits' && <TraitsPanel />}
               {panel === 'results' && <ResultsPanel />}
               {panel === 'settings' && <SettingsPanel />}
               {panel === 'help' && <HelpPanel />}
@@ -109,9 +114,10 @@ export default function App() {
 
       <StatusBar />
 
-      {/* popups — command palette + import dialog live above everything */}
+      {/* popups — command palette + import dialog + plugin marketplace live above everything */}
       <CommandPalette />
       <ImportDialog />
+      <PluginMarketplace />
     </div>
   );
 }

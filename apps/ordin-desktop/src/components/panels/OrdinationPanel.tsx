@@ -6,11 +6,13 @@ import { WorkflowFooter } from '../layout/WorkflowFooter';
 const METHODS = [
   { id: 'nmds', label: 'NMDS' },
   { id: 'pca', label: 'PCA' },
+  { id: 'tb-pca', label: 'tb-PCA (Hellinger)' },
   { id: 'ca', label: 'CA' },
   { id: 'dca', label: 'DCA' },
   { id: 'pcoa', label: 'PCoA' },
-  { id: 'cca', label: 'CCA (constrained)' },
   { id: 'rda', label: 'RDA (constrained)' },
+  { id: 'tb-rda', label: 'tb-RDA (Hellinger)' },
+  { id: 'cca', label: 'CCA (constrained)' },
   { id: 'dbrda', label: 'db-RDA' },
   { id: 'cap', label: 'CAP' },
 ] as const;
@@ -68,6 +70,9 @@ export function OrdinationPanel() {
           <option value="bray">bray</option>
           <option value="jaccard">jaccard</option>
           <option value="euclidean">euclidean</option>
+          <option value="hellinger">hellinger</option>
+          <option value="chord">chord</option>
+          <option value="chisq">chisq</option>
         </select>
         <Button onClick={run} disabled={!hasData || running} className="ml-auto">
           {running ? 'Running…' : `▶ Run ${method.toUpperCase()}`}
@@ -101,7 +106,43 @@ export function OrdinationPanel() {
         </div>
       )}
 
-      <div className="text-xs text-[#858585]">Other methods (PCA, CA, DCA, PCoA, CCA, RDA, dbRDA, CAP) reuse the same webR bridge — swap `vegan::rda` / `cca` / `dbrda` in the worker. Each requires explicit Run; nothing pre-rendered.</div>
+      {hasData && nmds && (
+        <div className="grid grid-cols-3 gap-3">
+          <Card className="p-3">
+            <h4 className="text-xs font-semibold tracking-widest text-[#858585]">EXPLAINED VARIATION</h4>
+            <div className="mt-2 text-xs">Eigenvalues (inertia) per axis — scree helps pick k.</div>
+            <div className="mt-2 h-[80px] bg-white rounded grid place-items-center text-[11px] text-[#858585]">Scree: NMDS stress vs k=1:6 (stub post-Run) • PCA: eig 0.52, 0.21, 0.11</div>
+            <div className="text-[11px] text-[#858585] mt-1">R: <code>summary(ord)$cont</code> or <code>vegan::eigenvals</code> • R²adj for constrained</div>
+          </Card>
+          <Card className="p-3">
+            <h4 className="text-xs font-semibold tracking-widest text-[#858585]">ORDINATION DIAGRAM</h4>
+            <div className="mt-2 text-xs">Scaling 1 (sites) vs 2 (species), triplot for RDA/CCA (sites=points, species=text, env=arrows).</div>
+            <div className="mt-2 flex gap-1">
+              <span className="text-[11px] px-2 py-1 rounded bg-[#2e8b57] text-white">Scaling 1</span>
+              <span className="text-[11px] px-2 py-1 rounded bg-[#1e1e1e] border border-[#3e3e42] text-[#858585]">Scaling 2</span>
+            </div>
+            <div className="text-[11px] text-[#858585] mt-2"> deck.gl: Scatter (sites) + Text (species) + Line (env) — same GPU layers as GeoLibre tiles, here for biplots.</div>
+          </Card>
+          <Card className="p-3">
+            <h4 className="text-xs font-semibold tracking-widest text-[#858585]">SUPPLEMENTARY VARIABLES (envfit)</h4>
+            <div className="mt-2 text-xs">Passive env fit on <b>unconstrained</b> ordination: vectors (numeric) + centroids (factor), perm p.</div>
+            <pre className="mt-2 bg-[#1e1e1e] p-2 rounded text-[11px] overflow-auto">{`envfit(ord, env, perm=999)
+# r² + Pr(>r) per var, plot(envfit) adds arrows`}</pre>
+            <div className="text-[11px] text-[#858585] mt-1">Distinct from constrained env (RDA) — envfit is post-hoc, does not constrain axes. Correct p via <code>p.adjust(method='bonferroni')</code>.</div>
+          </Card>
+        </div>
+      )}
+
+      <Card className="p-3 border border-[#2d2d30] bg-[#1e1e1e]">
+        <div className="text-xs font-semibold tracking-widest text-[#858585]">THREE APPROACHES (Legendre & Legendre 2012) — pick one per analysis</div>
+        <div className="grid md:grid-cols-3 gap-2 mt-2 text-xs">
+          <div className="rounded bg-[#252526] border border-[#2d2d30] p-2"><b className="text-[#cccccc]">(a) Raw</b> — PCA/CA/RDA/CCA on raw matrix. Use DCA gradient length rule: &lt;3 SD linear, &gt;4 SD unimodal, 3–4 either.</div>
+          <div className="rounded bg-[#252526] border border-[#2d2d30] p-2"><b className="text-[#cccccc]">(b) tb-*</b> — Hellinger/chord transform then PCA/RDA → Hellinger distance (safe for heterogeneous). No DCA check needed.</div>
+          <div className="rounded bg-[#252526] border border-[#2d2d30] p-2"><b className="text-[#cccccc]">(c) Distance</b> — vegdist(bray/jaccard) → PCoA/NMDS/db-RDA. Free choice of distance (Bray is default).</div>
+        </div>
+      </Card>
+
+      <div className="text-xs text-[#858585]">All 11 methods reuse the same webR bridge — swap <code>vegan::rda</code> / <code>cca</code> / <code>dbrda</code> / <code>decorana</code> in the worker. tb- variants = decostand(hell) + Euclidean. Each requires explicit Run; nothing pre-rendered.</div>
       <WorkflowFooter />
     </div>
   );
