@@ -57,19 +57,8 @@ function useWorkflow() {
       requires: null,
     },
     {
-      id: 'ordination' as const,
-      label: '2 — Ordination',
-      desc: 'NMDS·PCA·CA·DCA·PCoA·CCA·RDA',
-      panel: 'ordination' as const,
-      icon: Orbit,
-      status: !hasData ? ('blocked' as const) : hasOrdination ? ('done' as const) : ('ready' as const),
-      badge: hasOrdination ? `stress ${(project.analyses as any).nmds.stress.toFixed(3)}` : '9 methods',
-      hint: !hasData ? 'Needs Data (≥3 sites, ≥2 species)' : hasOrdination ? 'Reran deck.gl biplot ready • Tests/Beta now unlocked' : 'Rank-1 in R: metaMDS(dune) → stress → envfit',
-      requires: 'Data',
-    },
-    {
       id: 'diversity' as const,
-      label: '3 — Diversity',
+      label: '2 — Diversity',
       desc: 'iNEXT · Shannon · Hill',
       panel: 'diversity' as const,
       icon: Leaf,
@@ -79,19 +68,8 @@ function useWorkflow() {
       requires: 'Data',
     },
     {
-      id: 'tests' as const,
-      label: '4 — Tests',
-      desc: 'PERMANOVA · ANOSIM · Mantel · envfit',
-      panel: 'tests' as const,
-      icon: FlaskConical,
-      status: !hasData ? ('blocked' as const) : hasTests ? ('done' as const) : ('ready' as const),
-      badge: hasTests ? 'p < 0.05 available' : 'adonis2',
-      hint: !hasData ? 'Needs Data + env' : hasOrdination ? 'Tests fit on ordination (R: adonis2(dune ~ Management))' : 'Can run without ordination, but best after 2',
-      requires: 'Data (+ Ordination)',
-    },
-    {
       id: 'beta' as const,
-      label: '5 — Beta',
+      label: '3 — Beta',
       desc: 'Sørensen turnover / nestedness',
       panel: 'beta' as const,
       icon: Split,
@@ -99,6 +77,28 @@ function useWorkflow() {
       badge: hasBeta ? `Sør ${((project.analyses as any).beta.sor as number).toFixed(2)}` : 'betapart',
       hint: !hasData ? 'Needs Data' : 'R: betapart::beta.pair',
       requires: 'Data',
+    },
+    {
+      id: 'ordination' as const,
+      label: '4 — Ordination',
+      desc: 'NMDS·PCA·CA·DCA·PCoA·CCA·RDA',
+      panel: 'ordination' as const,
+      icon: Orbit,
+      status: !hasData ? ('blocked' as const) : hasOrdination ? ('done' as const) : ('ready' as const),
+      badge: hasOrdination ? `stress ${(project.analyses as any).nmds.stress.toFixed(3)}` : '9 methods',
+      hint: !hasData ? 'Needs Data (≥3 sites, ≥2 species)' : hasOrdination ? 'Reran deck.gl biplot ready • Tests now unlocked' : 'Rank-1 in R: metaMDS(dune) → stress → envfit',
+      requires: 'Data',
+    },
+    {
+      id: 'tests' as const,
+      label: '5 — Tests',
+      desc: 'PERMANOVA · ANOSIM · Mantel · envfit',
+      panel: 'tests' as const,
+      icon: FlaskConical,
+      status: !hasData ? ('blocked' as const) : hasTests ? ('done' as const) : ('ready' as const),
+      badge: hasTests ? 'p < 0.05 available' : 'adonis2',
+      hint: !hasData ? 'Needs Data + env' : hasOrdination ? 'Tests fit on ordination (R: adonis2(dune ~ Management))' : 'Can run without ordination, but best after 4',
+      requires: 'Data (+ Ordination)',
     },
     {
       id: 'results' as const,
@@ -212,7 +212,7 @@ export function Sidebar() {
             <Button variant="subtle" className="h-7 text-xs justify-start" onClick={() => setImportOpen(true)}>
               <Upload size={12} className="mr-1" /> Import
             </Button>
-            <Button variant="outline" className="h-7 text-xs" onClick={() => setPanel('ordination')}>
+            <Button variant="outline" className="h-7 text-xs" onClick={() => setPanel('diversity')}>
               <Play size={12} className="mr-1" /> Run next
             </Button>
             <Button variant="outline" className="h-7 text-xs" onClick={() => setPanel('results')}>
@@ -220,7 +220,7 @@ export function Sidebar() {
             </Button>
           </div>
           <div className="mt-2 rounded-md bg-[#1e1e1e] border border-[#2d2d30] p-2 text-[11px] leading-relaxed text-[#858585]">
-            <b className="text-[#cccccc]">R equivalent:</b> <code className="text-white">dune &lt;- read.csv(); metaMDS(dune); inext(); adonis2(); beta.pair()</code> — here each stage maps to a panel with explicit <code>Run</code>, provenance, and <code>.ordin.json</code> lineage. JASP auto-updates live; Ördin gates for enterprise audit but preserves the left→right feel.
+            <b className="text-[#cccccc]">R equivalent:</b> <code className="text-white">dune &lt;- read.csv(); iNEXT(dune); beta.pair(dune); metaMDS(dune); adonis2(dune ~ Management)</code> — here each stage maps to a panel with explicit <code>Run</code>, provenance, and <code>.ordin.json</code> lineage. JASP auto-updates live; Ördin gates for enterprise audit but preserves the left→right feel.
           </div>
         </Section>
 

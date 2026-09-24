@@ -4,10 +4,10 @@ import { LayoutDashboard, Database, Leaf, Orbit, FlaskConical, Split, BarChart3,
 const items: { id: PanelId; icon: React.ComponentType<any>; label: string; kbd?: string }[] = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', kbd: '1' },
   { id: 'data', icon: Database, label: 'Data', kbd: '2' },
-  { id: 'ordination', icon: Orbit, label: 'Ordination', kbd: '3' },
-  { id: 'diversity', icon: Leaf, label: 'Diversity', kbd: '4' },
-  { id: 'tests', icon: FlaskConical, label: 'Tests', kbd: '5' },
-  { id: 'beta', icon: Split, label: 'Beta', kbd: '6' },
+  { id: 'diversity', icon: Leaf, label: 'Diversity', kbd: '3' },
+  { id: 'beta', icon: Split, label: 'Beta', kbd: '4' },
+  { id: 'ordination', icon: Orbit, label: 'Ordination', kbd: '5' },
+  { id: 'tests', icon: FlaskConical, label: 'Tests', kbd: '6' },
   { id: 'results', icon: BarChart3, label: 'Results', kbd: '7' },
 ];
 

@@ -87,14 +87,14 @@ ord = pcoa(bc)  # vs R metaMDS — Ordin normalizes on webR/vegan for parity
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  1  Data            Import & validate  → enables everything             │
 │  │   CSV/Parquet via DuckDB (GeoLibre pattern, now for eco tables)     │
-│  ├── 2  Ordination  9 methods via webR · vegan (+ stress)              │ ──┐
-│  │   NMDS·PCA·CA·DCA·PCoA·CCA·RDA·dbRDA·CAP · deck.gl biplot              │   │
-│  ├── 3  Diversity   iNEXT + Shannon/Simpson/Hill · via webR               │   ├─ require hasData (validated matrix)
+│  ├── 2  Diversity   iNEXT + Shannon/Simpson/Hill · via webR             │ ──┐
 │  │                                                                       │   │
-│  ├── 4  Tests       PERMANOVA(adonis2) · ANOSIM · Mantel · envfit        │ ──┘
-│  │                          best after Ordination, needs Data + env        │
-│  ├── 5  Beta        Sørensen = turnover + nestedness · betapart            │
-│  │                                                                         │
+│  ├── 3  Beta        Sørensen = turnover + nestedness · betapart          │   ├─ require hasData (validated matrix)
+│  │                                                                       │   │
+│  ├── 4  Ordination  9 methods via webR · vegan (+ stress)              │   │
+│  │   NMDS·PCA·CA·DCA·PCoA·CCA·RDA·dbRDA·CAP · deck.gl biplot              │   │
+│  ├── 5  Tests       PERMANOVA(adonis2) · ANOSIM · Mantel · envfit        │ ──┘
+│  │                          best after Ordination (4), needs Data + env    │
 │  └─► 6  Results     .ordin.json (auditable) · APA export & share           │
 │                     requires ≥1 explicit Run  (blocked → ready → done)      │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -106,10 +106,10 @@ ord = pcoa(bc)  # vs R metaMDS — Ordin normalizes on webR/vegan for parity
 | Step | Requires | Why (R/Python) | UI signal |
 |---|---|---|---|
 | **1 Data** | — | `read.csv` + `validate_species_data()` | Progress `0/6`, badge `— empty —` → `20×30` on success, `WORKSPACE live` green OK |
-| **2 Ordination** | Data valid (≥3×≥2) | `vegdist` / `metaMDS` needs matrix | `Lock` dashed blocked until Data → then badge `9 methods` / `stress 0.186` when done, hint `Rank-1 in R: metaMDS(dune) → stress → envfit` |
-| **3 Diversity** | Data | `iNEXT(species)` | Same gating, badge `iNEXT` → `iNEXT done` |
-| **4 Tests** | Data (+ Ordination recommended) | `adonis2(dune ~ Management)`; envfit overlays ordination | `Requires Data (+ Ordination)` — runs without ord but warns; badge `adonis2` → `p < 0.05 available` |
-| **5 Beta** | Data | `betapart::beta.pair` | `betapart` → `Sør 0.64` |
+| **2 Diversity** | Data | `iNEXT(species)` | `Lock` dashed blocked until Data → then badge `iNEXT` → `iNEXT done`, hint `R: iNEXT(species) + vegan::diversity` |
+| **3 Beta** | Data | `betapart::beta.pair` | `Lock` blocked until Data → badge `betapart` → `Sør 0.64` |
+| **4 Ordination** | Data valid (≥3×≥2) | `vegdist` / `metaMDS` needs matrix | `Lock` dashed blocked until Data → then badge `9 methods` / `stress 0.186` when done, hint `Rank-1 in R: metaMDS(dune) → stress → envfit` |
+| **5 Tests** | Data (+ Ordination 4) | `adonis2(dune ~ Management)`; envfit overlays ordination | `Requires Data (+ Ordination)` — runs without ord but warns; badge `adonis2` → `p < 0.05 available` |
 | **6 Results** | ≥1 analysis | Reproducible report | `— none yet —` → `3 analyses`, Download .ordin.json only when hasAnyResult |
 
 ## 5. UI implementation
@@ -123,20 +123,20 @@ ord = pcoa(bc)  # vs R metaMDS — Ordin normalizes on webR/vegan for parity
   - `active` (current `project.view.activePanel`) → `bg-[#2e8b57] text-white shadow`.
   - `done` (has result) → dot `bg-[#2e8b57] Check`, badge `bg-white/20` (stress / Sør / counts).
 - **Filter** `Filter workflow…` matches `label + desc`.
-- **QUICK ACTIONS — like JASP ribbon** — 2×2 buttons `Data / Import (popup) / Run next / Results` + `R equivalent:` explainer `dune <- read.csv(); metaMDS; iNEXT; adonis2; beta.pair()` — note: each panel has explicit `Run` with provenance + `.ordin.json` lineage; JASP auto-updates live, Ordin gates for audit.
+- **QUICK ACTIONS — like JASP ribbon** — 2×2 buttons `Data / Import (popup) / Run next / Results` + `R equivalent:` explainer `dune <- read.csv(); iNEXT(dune); beta.pair(dune); metaMDS(dune); adonis2(dune ~ Management)` — note: each panel has explicit `Run` with provenance + `.ordin.json` lineage; JASP auto-updates live, Ordin gates for audit.
 - **WORKSPACE — live** — Species `20×30` / Env `5 vars` / Validation `OK|blocked|— no data —` (derived from `validateSpeciesMatrix`), not hardcoded.
 - **Bottom** `Project: dune • .ordin.json • 3 analyses • reproducible`.
 
 ### ActivityBar — app switcher (order = workflow)
 
-`Dashboard (1) | Data (2) | Ordination (3) | Diversity (4) | Tests (5) | Beta (6) | Results (7)` → vertical 52px rail, `⌘K` palette on top, Settings/Help bottom. Aligns with stepper order (changed from diversity↔ordination).
+`Dashboard (1) | Data (2) | Diversity (3) | Beta (4) | Ordination (5) | Tests (6) | Results (7)` → vertical 52px rail, `⌘K` palette on top, Settings/Help bottom. Aligns with stepper order (changed from diversity↔ordination).
 
 ### Center — `WorkflowFooter` on every analysis panel
 
 ```tsx
-// ORDER: [data, ordination, diversity, tests, beta, results]
+// ORDER: [data, diversity, beta, ordination, tests, results]
 // prev/next Buttons, next disabled if !hasData && next !== data
-// breadcrumb Workflow: Data → Ordination → Diversity → Tests → Beta → Results (active bold green)
+// breadcrumb Workflow: Data → Diversity → Beta → Ordination → Tests → Results (active bold green)
 ```
 
 Appears as muted pill `mt-6 rounded-xl border bg[#252526]/60 p-3`. Disabled state `opacity-50 cursor-not-allowed` + title `Requires Data — import & validate first`.

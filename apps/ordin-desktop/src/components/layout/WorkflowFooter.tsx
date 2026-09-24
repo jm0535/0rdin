@@ -4,10 +4,10 @@ import { Button } from '@ordin/ui';
 
 const ORDER: Array<{ id: import('@ordin/core').PanelId; label: string }> = [
   { id: 'data', label: 'Data' },
-  { id: 'ordination', label: 'Ordination' },
   { id: 'diversity', label: 'Diversity' },
-  { id: 'tests', label: 'Tests' },
   { id: 'beta', label: 'Beta' },
+  { id: 'ordination', label: 'Ordination' },
+  { id: 'tests', label: 'Tests' },
   { id: 'results', label: 'Results' },
 ];
 
