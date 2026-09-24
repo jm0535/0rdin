@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, Button, Badge } from '@ordin/ui';
 import { DiversityPlotCustomization, defaultDiversitySettings } from '../PlotCustomization';
+import { runInextViaWebR, getWebR } from '@ordin/processing';
 import { useOrdinStore } from '@ordin/core';
 
 function downloadSvgById(id:string, filename:string){ const el=document.getElementById(id) as SVGSVGElement|null; if(!el){ alert('SVG not found'); return; } const s=new XMLSerializer().serializeToString(el); const blob=new Blob([s],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
@@ -153,6 +154,9 @@ export function DiversityPanel() {
   const [plotType, setPlotType] = useState<'1'|'2'|'3'>('1');
   const qVals = [q0 && 0, q1 && 1, q2 && 2].filter(v=> v!==false) as number[];
   const [plotSettings, setPlotSettings] = useState(defaultDiversitySettings);
+  const [useRealWebR, setUseRealWebR] = useState(true);
+  const webrReady = useOrdinStore((s)=> s.webrReady);
+  const setWebRReady = useOrdinStore((s)=> s.setWebRReady);
 
 
   const run = async () => {
@@ -160,13 +164,36 @@ export function DiversityPanel() {
     if (qVals.length===0) { alert('Select at least one q (0,1,2)'); return; }
     setRunning(true);
     try {
+      const matrix = useOrdinStore.getState().project.data.species?.matrix as number[][] | undefined;
+      const useReal = useRealWebR && !!matrix;
+      if (useReal) {
+        try {
+          // try real iNEXT via webR — first load installs iNEXT (~15s) and needs COOP/COEP
+          const real = await runInextViaWebR(matrix!, { q: qVals, datatype, knots, endpoint: endpoint.trim() ? Number(endpoint) : null, nboot, conf });
+          const { useOrdinStore: store } = await import('@ordin/core');
+          // @ts-ignore
+          store.setState((s: any) => {
+            const qStr = `c(${qVals.join(',')})`;
+            const ep = endpoint.trim() ? endpoint.trim() : `2×`;
+            s.project.analyses.diversity = { iNextEst: real.iNextEst, AsyEst: real.AsyEst, DataInfo: real.DataInfo, q: qVals, datatype, knots, endpoint: endpoint || null, nboot, conf, plotType, ranAt: new Date().toISOString(), provenance: `REAL iNEXT::iNEXT(list(t(spe)), q=${qStr}, datatype="${datatype}", knots=${knots}, endpoint=${ep}, nboot=${nboot}, conf=${conf}) via webR (webr 0.4 + iNEXT) on ${s.project.data.species?.rownames.length}×${s.project.data.species?.columns.length} — live R, not mock` };
+            s.project.analyses.indices = real.AsyEst;
+          });
+          try { setWebRReady(true); } catch {}
+          return;
+        } catch (e:any) {
+          console.warn('real iNEXT via webR failed, falling back to mock (preview without COOP/COEP):', e?.message||e);
+          // fall through to mock — keep webrReady false so UI shows fallback
+        }
+      }
+      // MOCK fallback — precomputed dune, instant, preview-safe (no COOP/COEP, no 30MB download)
       const j = await fetch('/assets/sample-results.json').then((r) => r.json() as any);
       const { useOrdinStore: store } = await import('@ordin/core');
       // @ts-ignore
       store.setState((s: any) => {
         const qStr = `c(${qVals.join(',')})`;
         const ep = endpoint.trim() ? endpoint.trim() : `2× (${(s.project.data.species?.rownames.length ?? 20)*2})`;
-        s.project.analyses.diversity = { ...j.diversity, q: qVals, datatype, knots, endpoint: endpoint || null, nboot, conf, plotType, ranAt: new Date().toISOString(), provenance: `iNEXT::iNEXT(list(spe), q=${qStr}, datatype="${datatype}", knots=${knots}, endpoint=${ep}, nboot=${nboot}, conf=${conf}) + ggiNEXT(type=${plotType}) + vegan::diversity/renyi/specnumber via webR on ${s.project.data.species?.rownames.length}×${s.project.data.species?.columns.length}` };
+        const mockNote = useReal ? ' (MOCK fallback — preview without COOP/COEP; Tauri will run REAL iNEXT)' : '';
+        s.project.analyses.diversity = { ...j.diversity, q: qVals, datatype, knots, endpoint: endpoint || null, nboot, conf, plotType, ranAt: new Date().toISOString(), provenance: `MOCK iNEXT::iNEXT(list(spe), q=${qStr}, datatype="${datatype}", knots=${knots}, endpoint=${ep}, nboot=${nboot}, conf=${conf}) + ggiNEXT(type=${plotType})${mockNote} — precomputed dune for preview; switch ON real webR in Tauri for live R` };
         s.project.analyses.indices = j.diversity?.indices_table;
       });
     } finally {
@@ -184,7 +211,12 @@ export function DiversityPanel() {
       {hasData && (
         <>
         <Card className="p-4 border-[#2d2d30] bg-[#1e1e1e]">
-          <div className="text-xs font-semibold tracking-widest text-[#2e8b57]">iNEXT CONTROLS — manual (like shiny)</div>
+          <div className="text-xs font-semibold tracking-widest text-[#2e8b57] flex items-center gap-2">iNEXT CONTROLS — manual (like shiny) <span className={`ml-auto text-[11px] px-2 py-0.5 rounded-full border ${webrReady ? 'bg-[#2e8b57]/20 text-[#2e8b57] border-[#2e8b57]/30' : 'bg-[#d4a017]/15 text-[#d4a017] border-[#d4a017]/30'}`}>{webrReady ? 'webR ready' : 'webR loading…'}</span></div>
+          <div className="mt-3 flex items-center gap-2 p-2 rounded bg-[#252526] border border-[#3e3e42]">
+            <label className="flex items-center gap-2 text-xs font-medium flex-1"><input type="checkbox" checked={useRealWebR} onChange={e=>setUseRealWebR(e.target.checked)} className="accent-[#2e8b57]" /> Use REAL iNEXT via webR (webr 0.4 + iNEXT R package) — live R on your data</label>
+            <span className="text-[11px] text-[#858585]">{useRealWebR ? 'ON → will try real R, fallback to mock if preview lacks COOP/COEP' : 'OFF → instant mock (preview-safe)'}</span>
+          </div>
+          <div className="text-[11px] text-[#858585] mt-1">Toggle OFF for instant preview (mock dune, no 30 MB download). Toggle ON tries <code>library(iNEXT); iNEXT(t(spe), q, datatype, knots, endpoint, nboot, conf)</code> via webR Worker — first ON needs ~15–30s to init webr + install iNEXT (Tauri, needs COOP/COEP; preview without COOP/COEP will fallback to mock with warning).</div>
           <div className="grid md:grid-cols-2 gap-3 mt-3">
             <div className="space-y-2">
               <div className="text-xs font-medium text-[#cccccc]">Diversity orders q (Hill)</div>

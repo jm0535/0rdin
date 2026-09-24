@@ -56,3 +56,35 @@ export async function runNMDSViaWebR(matrix: number[][], opts: { k: number; dist
   const j = await r.toJs();
   return j;
 }
+
+// iNEXT via webR — real R package, not mock
+export async function runInextViaWebR(
+  matrix: number[][],
+  opts: { q: number[]; datatype: 'abundance'|'incidence'; knots: number; endpoint?: number | null; nboot: number; conf: number }
+): Promise<{ iNextEst: any[]; AsyEst: any[]; DataInfo: any[] }> {
+  const w = await getWebR();
+  // Ensure iNEXT is available in webR (first run installs from repo, ~10s)
+  try { await w.evalRVoid('library(iNEXT)'); } catch {
+    // try install then library — in production webR mounts repo
+    try { await (w as any).installPackages(['iNEXT']); await w.evalRVoid('library(iNEXT)'); } catch {}
+  }
+  const rMatrix = `matrix(c(${matrix.flat().join(',')}), nrow=${matrix.length}, byrow=TRUE)`;
+  const qStr = `c(${opts.q.join(',')})`;
+  const endpointR = opts.endpoint ? String(opts.endpoint) : 'NULL';
+  const rCode = `
+    m <- ${rMatrix}
+    colnames(m) <- paste0("sp", 1:ncol(m))
+    rownames(m) <- paste0("site", 1:nrow(m))
+    # iNEXT expects species x sites (t) — each column is an assemblage
+    out <- iNEXT(x = t(m), q = ${qStr}, datatype = "${opts.datatype}", knots = ${opts.knots}, se = TRUE, conf = ${opts.conf}, nboot = ${opts.nboot}, endpoint = ${endpointR})
+    # simplify to JS-friendly: capture DataInfo, AsyEst, iNextEst head
+    list(
+      DataInfo = as.data.frame(out$DataInfo),
+      AsyEst = as.data.frame(out$AsyEst),
+      iNextEst = head(as.data.frame(out$iNextEst), 20)
+    )
+  `;
+  const r = await w.evalR(rCode);
+  const j = await (r as any).toJs();
+  return j as any;
+}
