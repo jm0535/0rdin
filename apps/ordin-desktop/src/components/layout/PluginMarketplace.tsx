@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useOrdinStore } from '@ordin/core';
 import { Card, Button, Badge } from '@ordin/ui';
-import { Puzzle, Check, Search, X, Power } from 'lucide-react';
+import { Puzzle, Check, Search, X, Power, GitBranch, Beaker, Layers, BarChart3 } from 'lucide-react';
 
-const AVAILABLE = [
-  { id: 'classification', name: 'Classification', ver: '1.0.0', author: 'Ordin Labs', kind: 'classification' as const, desc: 'hclust (all linkages) + TWINSPAN (Oksanen) + K-means + silhouette/IndVal. AnaDat-R Ch. Numerical classification.', r: ['vegan', 'twinspan', 'indicspecies'], panel: 'classification' },
-  { id: 'traits', name: 'Traits — CWM/RLQ', ver: '1.0.0', author: 'Ordin Labs', kind: 'trait' as const, desc: 'CWM, fourth-corner, RLQ (R×L×Q). Requires Traits sheet. AnaDat-R Ch. Species attributes.', r: ['ade4', 'FD'], panel: 'traits' },
-  { id: 'varpart', name: 'Variation Partitioning', ver: '0.9.0', author: 'Community', kind: 'tests' as const, desc: 'varpart + Venn 2–4 groups + ordiR2step. AnaDat-R Ch. Variation partitioning.', r: ['vegan'], panel: 'tests' },
-  { id: 'div-compare', name: 'Diversity Compare', ver: '0.9.0', author: 'Community', kind: 'diversity' as const, desc: 'Hill profiles, evenness, specaccum, rarefy, diversity t-test — AnaDat-R Ch. Comparing diversity.', r: ['vegan','iNEXT'], panel: 'diversity' },
+const AVAILABLE: { id: string; name: string; ver: string; author: string; kind: 'classification'|'trait'|'tests'|'diversity'; desc: string; r: string[]; panel: string; Icon: React.ComponentType<any> }[] = [
+  { id: 'classification', name: 'Classification', ver: '1.0.0', author: 'Ordin Labs', kind: 'classification', desc: 'hclust (all linkages) + TWINSPAN (Oksanen) + K-means + silhouette/IndVal. AnaDat-R Ch. Numerical classification.', r: ['vegan', 'twinspan', 'indicspecies'], panel: 'classification', Icon: GitBranch },
+  { id: 'traits', name: 'Traits — CWM/RLQ', ver: '1.0.0', author: 'Ordin Labs', kind: 'trait', desc: 'CWM, fourth-corner, RLQ (R×L×Q). Requires Traits sheet. AnaDat-R Ch. Species attributes.', r: ['ade4', 'FD'], panel: 'traits', Icon: Beaker },
+  { id: 'varpart', name: 'Variation Partitioning', ver: '0.9.0', author: 'Community', kind: 'tests', desc: 'varpart + Venn 2–4 groups + ordiR2step. AnaDat-R Ch. Variation partitioning.', r: ['vegan'], panel: 'tests', Icon: Layers },
+  { id: 'div-compare', name: 'Diversity Compare', ver: '0.9.0', author: 'Community', kind: 'diversity', desc: 'Hill profiles, evenness, specaccum, rarefy, diversity t-test — AnaDat-R Ch. Comparing diversity.', r: ['vegan','iNEXT'], panel: 'diversity', Icon: BarChart3 },
 ];
 
 export function PluginMarketplace() {
@@ -83,7 +83,7 @@ export function PluginMarketplace() {
             return (
               <Card key={p.id} className={`p-3 flex gap-3 ${isActive ? 'border-[#2e8b57]/30 bg-[#2e8b57]/5' : 'opacity-90'}`}>
                 <div className={`w-10 h-10 rounded-lg border grid place-items-center shrink-0 ${isActive ? 'bg-[#2e8b57]/15 border-[#2e8b57]/20' : 'bg-[#252526] border-[#2d2d30]'}`}>
-                  <Puzzle size={18} className={isActive ? 'text-[#2e8b57]' : 'text-[#858585]'} />
+                  {(() => { const Icon = p.Icon; return <Icon size={18} className={isActive ? 'text-[#2e8b57]' : 'text-[#858585]'} />; })()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium flex items-center gap-2 flex-wrap">
