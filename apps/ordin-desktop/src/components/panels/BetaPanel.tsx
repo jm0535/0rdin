@@ -3,6 +3,7 @@ import { useOrdinStore } from '@ordin/core';
 import { useState } from 'react';
 import { WorkflowFooter } from '../layout/WorkflowFooter';
 import { DiversityPlotCustomization, defaultDiversitySettings, downloadHighResSvg } from '../PlotCustomization';
+import { runBetaViaWebR, betaPartitionJS } from '@ordin/processing';
 
 function BetaPartitionSVG({ beta, id, settings }: { beta: any; id?: string; settings?: any }) {
   const W=520, H=220, ML=40, MR=12, MT=18, MB=28;
@@ -48,15 +49,17 @@ export function BetaPanel() {
     if (!hasData) return;
     setRunning(true);
     try {
-      const j = await fetch('/assets/sample-results.json').then((r) => r.json() as any);
+      const matrix = useOrdinStore.getState().project.data.species!.matrix;
+      // try webR betapart, fallback to pure-JS Baselga incidence — always correct for current data (no dune stub)
+      let res: any;
+      try { res = await runBetaViaWebR(matrix); } catch { const js = betaPartitionJS(matrix); res = { ...js, provenance: 'JS betapart incidence (fallback)' }; }
       const { useOrdinStore: store } = await import('@ordin/core');
       // @ts-ignore
       store.setState((s: any) => {
-        s.project.analyses.beta = { ...j.beta, ranAt: new Date().toISOString(), provenance: 'betapart::beta.pair (Sorensen) + adespatial::beta.div.comp via webR — partitioned into turnover (Podani/Baselga) + nestedness' };
+        s.project.analyses.beta = { sor: res.sor, sim: res.sim, sne: res.sne, turnover_pct: res.turnover_pct, nestedness_pct: res.nestedness_pct, pairs: res.pairs, ranAt: new Date().toISOString(), provenance: res.provenance };
       });
-    } finally {
-      setRunning(false);
-    }
+    } catch(e){ console.error(e); alert('Beta failed: '+String((e as any)?.message||e)); }
+    finally { setRunning(false); }
   };
 
   const downloadCsv = () => {
