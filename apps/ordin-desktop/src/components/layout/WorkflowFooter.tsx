@@ -8,7 +8,6 @@ const ORDER: Array<{ id: import('@ordin/core').PanelId; label: string }> = [
   { id: 'beta', label: 'Beta' },
   { id: 'ordination', label: 'Ordination' },
   { id: 'tests', label: 'Tests' },
-  { id: 'results', label: 'Results' },
 ];
 
 export function WorkflowFooter() {
@@ -20,7 +19,7 @@ export function WorkflowFooter() {
   const hasAny = Object.keys(project.analyses).length > 0;
 
   // only show on workflow-relevant panels
-  if (!['data', 'ordination', 'diversity', 'tests', 'beta', 'results'].includes(active)) return null;
+  if (!['data', 'ordination', 'diversity', 'tests', 'beta'].includes(active)) return null;
 
   const idx = ORDER.findIndex((o) => o.id === active);
   const prev = idx > 0 ? ORDER[idx - 1] : null;
