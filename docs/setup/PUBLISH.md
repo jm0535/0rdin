@@ -25,7 +25,7 @@ git commit -m "Initial commit: Ördin v1.0.0 - Cross-platform biodiversity analy
 
 1. Go to https://github.com/new
 2. **Repository name**: `ordin`
-3. **Description**: "Cross-platform desktop app for biodiversity analysis using R Shiny and Electron"
+3. **Description**: "Browser-native and desktop community ecology workbench — R (vegan, iNEXT, betapart) via webR"
 4. **Public** repository
 5. **Do NOT** initialize with README, .gitignore, or license (we already have them)
 6. Click "Create repository"
@@ -73,7 +73,7 @@ Add these topics for discoverability:
 
 ```bash
 # Windows build
-npm run make
+npm run build && npm run tauri:build -w ordin-desktop
 
 # Save outputs:
 # - out/make/squirrel.windows/x64/Ördin-1.0.0 Setup.exe
@@ -122,7 +122,7 @@ sudo dnf install ordin-1.0.0-1.x86_64.rpm
 - [Developer Guide](https://github.com/jm0535/ordin/blob/main/docs/DEVELOPMENT.md)
 
 ### 🙏 Acknowledgments
-Built with R Shiny, Electron, vegan, and iNEXT packages.
+Built with Tauri, React, Vite, DuckDB-WASM and webR; statistics from vegan, iNEXT and betapart.
 
 ---
 
@@ -168,7 +168,7 @@ Share on:
 
 ### Package Registries
 Consider submitting to:
-- Electron Apps showcase
+- Tauri showcase
 - R package repositories (if creating R package wrapper)
 - Awesome lists on GitHub
 

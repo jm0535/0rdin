@@ -60,30 +60,30 @@ Once published, your site will be at:
 4 platform-specific download cards:
 
 #### Windows
-- **File**: Ordin-3.0.0-Setup.exe
+- **File**: Ordin-4.0.0-Setup.exe
 - **Size**: ~500 MB
 - **Requirements**: Windows 10/11 (64-bit)
-- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/Ordin-3.0.0-Setup.exe
+- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/Ordin-4.0.0-Setup.exe
 
 #### macOS
-- **File**: Ordin-darwin-3.0.0.zip
+- **File**: Ordin-darwin-4.0.0.zip
 - **Size**: ~450 MB
 - **Requirements**: macOS 10.15+ (Intel & Apple Silicon)
-- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/Ordin-darwin-3.0.0.zip
+- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/Ordin-darwin-4.0.0.zip
 
 #### Linux (Debian/Ubuntu)
-- **File**: ordin_3.0.0_amd64.deb
+- **File**: ordin_4.0.0_amd64.deb
 - **Size**: ~400 MB
 - **Requirements**: Ubuntu 20.04+, Debian 11+
-- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/ordin_3.0.0_amd64.deb
-- **Install**: `sudo dpkg -i ordin_3.0.0_amd64.deb`
+- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/ordin_4.0.0_amd64.deb
+- **Install**: `sudo dpkg -i ordin_4.0.0_amd64.deb`
 
 #### Linux (Fedora/RHEL)
-- **File**: ordin-3.0.0-1.x86_64.rpm
+- **File**: ordin-4.0.0-1.x86_64.rpm
 - **Size**: ~400 MB
 - **Requirements**: Fedora 36+, RHEL 9+
-- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/ordin-3.0.0-1.x86_64.rpm
-- **Install**: `sudo dnf install ordin-3.0.0-1.x86_64.rpm`
+- **Link**: https://github.com/jm0535/0rdin/releases/latest/download/ordin-4.0.0-1.x86_64.rpm
+- **Install**: `sudo dnf install ordin-4.0.0-1.x86_64.rpm`
 
 ### Installation Guide
 Tab-based OS-specific guides:
@@ -269,7 +269,7 @@ When you create new releases:
 2. Find download links (search for `releases/latest/download`)
 3. Update version numbers:
    ```html
-   <!-- Example: Change 3.0.0 to 3.1.0 -->
+   <!-- Example: Change 4.0.0 to 4.1.0 -->
    <a href="https://github.com/jm0535/0rdin/releases/latest/download/Ordin-3.1.0-Setup.exe">
    ```
 

@@ -124,13 +124,13 @@ When you build installers and create GitHub releases:
 1. Update download links in `docs/index.html`:
    ```html
    <!-- Change version numbers to match your release -->
-   href="https://github.com/jm0535/0rdin/releases/latest/download/Ordin-3.0.0-Setup.exe"
+   href="https://github.com/jm0535/0rdin/releases/latest/download/Ordin-4.0.0-Setup.exe"
    ```
 
 2. Commit and push:
    ```bash
    git add docs/index.html
-   git commit -m "Update download links to v3.0.0 release"
+   git commit -m "Update download links to v4.0.0 release"
    git push origin main
    ```
 

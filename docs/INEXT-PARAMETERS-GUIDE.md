@@ -259,8 +259,8 @@ datatype = "incidence"   # Incidence-based rarefaction
 - **Example**: "Species A found in 35 of 50 trap-days"
 
 ### See Also:
-- [`INCIDENCE-VS-ABUNDANCE.md`](../INCIDENCE-VS-ABUNDANCE.md) for detailed comparison
-- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](../ESTIMATES-AND-RAREFACTION-TYPES.md) for theory
+- [`INCIDENCE-VS-ABUNDANCE.md`](guides/INCIDENCE-VS-ABUNDANCE.md) for detailed comparison
+- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](guides/ESTIMATES-AND-RAREFACTION-TYPES.md) for theory
 
 ---
 
@@ -617,9 +617,9 @@ facet.var = "Order.q" # Separate panels for clarity
 3. **Chao & Jost (2012)**: Coverage-based rarefaction
 
 ### In This Repository:
-- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](../ESTIMATES-AND-RAREFACTION-TYPES.md)
+- [`ESTIMATES-AND-RAREFACTION-TYPES.md`](guides/ESTIMATES-AND-RAREFACTION-TYPES.md)
 - [`docs/RAREFACTION-QUICK-GUIDE.md`](RAREFACTION-QUICK-GUIDE.md)
-- [`INCIDENCE-VS-ABUNDANCE.md`](../INCIDENCE-VS-ABUNDANCE.md)
+- [`INCIDENCE-VS-ABUNDANCE.md`](guides/INCIDENCE-VS-ABUNDANCE.md)
 
 ---
 

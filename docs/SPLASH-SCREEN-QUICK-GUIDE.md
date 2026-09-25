@@ -1,5 +1,10 @@
 # Splash Screen - Quick Guide
 
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](DOCS-INDEX.md) ·
+> [Quick Start](QUICKSTART.md) · [Architecture](ARCHITECTURE.md).
+
 **What**: Professional loading screen with Ö logo  
 **When**: Displays during app startup  
 **Duration**: 5-9 seconds (typical)
@@ -160,7 +165,7 @@ Want to modify the splash screen? Edit `src/index.js`:
 - **Messages**: Edit `statusMessages` array
 - **Timing**: Adjust `setInterval` and `setTimeout` values
 
-See [`SPLASH-SCREEN-IMPLEMENTATION.md`](SPLASH-SCREEN-IMPLEMENTATION.md) for detailed customization guide.
+See [`SPLASH-SCREEN-IMPLEMENTATION.md`](DOCS-INDEX.md) for detailed customization guide.
 
 ---
 

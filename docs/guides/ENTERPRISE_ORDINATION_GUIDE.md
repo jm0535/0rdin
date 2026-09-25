@@ -1,4 +1,4 @@
-# Enterprise-Grade Ordination Settings - Ördin v3.0
+# Ordination Settings Guide — Ördin 4
 
 ## Overview
 Ördin now implements **publication-quality ordination analysis** with enterprise-grade settings following best practices from vegan R package, CANOCO software, and ter Braak & Legendre's methodologies.

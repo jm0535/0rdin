@@ -1,6 +1,18 @@
-# Ördin GitHub Pages
+# `docs/` — Ördin documentation & landing page
 
-This folder contains the GitHub Pages landing page for Ördin.
+This folder holds **both** the Ördin documentation set and the GitHub Pages
+landing site.
+
+- 📚 **Looking for documentation?** Start at the
+  [Documentation Index](DOCS-INDEX.md), or jump to
+  [Quick Start](QUICKSTART.md), [Architecture](ARCHITECTURE.md),
+  [Development Guide](DEVELOPMENT.md) or the [API Reference](API.md).
+- 🌐 **Working on the website?** The rest of this file covers the landing page
+  (`index.html`, `styles.css`, `script.js`, `_config.yml`).
+
+---
+
+## GitHub Pages landing page
 
 ## 🌐 Live Site
 
@@ -11,19 +23,20 @@ Once published, the site will be available at:
 
 ```
 docs/
-├── index.html           # Main landing page
+├── index.html           # Landing page
+├── index.md             # Markdown landing content
 ├── styles.css           # CSS styling
 ├── script.js            # JavaScript functionality
 ├── _config.yml          # GitHub Pages configuration
+├── DOCS-INDEX.md        # Documentation index (start here)
+├── QUICKSTART.md · ARCHITECTURE.md · DEVELOPMENT.md · API.md · WORKFLOW.md …
+├── guides/              # Analysis and data guides
+├── setup/               # Setup and publishing guides
+├── development/         # Developer-facing documents
 ├── assets/
 │   ├── icon.png         # Ördin logo/icon
-│   └── screenshots/     # Application screenshots
-│       ├── README.md    # Screenshot guide
-│       ├── main-interface.png
-│       ├── ordination.png
-│       ├── diversity.png
-│       ├── customization.png
-│       └── settings.png
+│   ├── ordin4.png
+│   └── screenshots/     # Application screenshots (see its README)
 └── README.md            # This file
 ```
 
@@ -51,8 +64,8 @@ The landing page requires 5 screenshots. See `assets/screenshots/README.md` for 
 
 **To capture screenshots:**
 ```bash
-# Run Ördin
-npm start
+# Run Ördin 4
+npm run dev        # then open http://localhost:9054
 
 # Use your OS screenshot tool:
 # Windows: Win + Shift + S
@@ -65,8 +78,8 @@ Save screenshots to `docs/assets/screenshots/` with exact filenames listed above
 ### Step 3: Commit and Push
 
 ```bash
-# Navigate to repository
-cd c:\Users\UOTSTD933\Documents\workspace\jmoses\github_projects\prototypes\ordin
+# From the repository root
+cd 0rdin
 
 # Add files
 git add docs/
@@ -117,7 +130,7 @@ Edit `index.html` and change download URLs:
 
 ```html
 <!-- Example: Update Windows download link -->
-<a href="https://github.com/jm0535/0rdin/releases/latest/download/Ordin-3.0.0-Setup.exe" 
+<a href="https://github.com/jm0535/0rdin/releases/latest/download/Ordin-4.0.0-Setup.exe" 
    class="btn btn-download">
   <i class="fas fa-download"></i> Download .exe
 </a>

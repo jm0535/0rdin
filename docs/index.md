@@ -6,9 +6,10 @@
 
 **The Next-Gen Way to Analyze Ecological Communities**
 
-[![Download](https://img.shields.io/badge/Download-v3.0.0-brightgreen?style=for-the-badge)](https://github.com/jm0535/0rdin/releases)
+[![Launch](https://img.shields.io/badge/Launch-ordin.in4metrix.dev-2e8b57?style=for-the-badge)](https://ordin.in4metrix.dev)
+[![Download](https://img.shields.io/badge/Download-v4.0.0-brightgreen?style=for-the-badge)](https://github.com/jm0535/0rdin/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/Platform-Win%20|%20Mac%20|%20Linux-lightgrey?style=for-the-badge)](https://github.com/jm0535/0rdin)
+[![Platform](https://img.shields.io/badge/Platform-Web%20|%20Win%20|%20Mac%20|%20Linux-lightgrey?style=for-the-badge)](https://github.com/jm0535/0rdin)
 
 [Features](#features) • [Download](#download) • [Documentation](#documentation) • [Gallery](#gallery)
 
@@ -22,13 +23,15 @@ Most ecological software forces you to choose:
 - ❌ **User-friendly** tools → Lack statistical rigor
 - ❌ **Rigorous** tools → Steep learning curves
 
-**Ördin delivers both.** Next-gen analyses powered by R's trusted packages (vegan, iNEXT, betapart) wrapped in an intuitive, modern interface.
+**Ördin delivers both.** Real R analyses (vegan, iNEXT, betapart) run in WebAssembly through webR — in your browser or in the desktop app — wrapped in a modern, keyboard-driven interface. Nothing to install, no server, your data never leaves your machine.
 
 ### At a Glance
 
 | | Ördin | Typical Software |
 |---|:---:|:---:|
+| **No R install required** | ✅ R runs as WebAssembly | ❌ |
 | **No R coding required** | ✅ | ❌ |
+| **Runs in the browser** | ✅ | ❌ |
 | **Publication-ready exports** | ✅ 600 DPI | ⚠️ Limited |
 | **Real-time plot customization** | ✅ 18+ parameters | ❌ |
 | **Beta diversity partitioning** | ✅ Full suite | ⚠️ Partial |
@@ -88,7 +91,7 @@ Most ecological software forces you to choose:
 <details open>
 <summary><strong>🦠 Beta Diversity Partitioning</strong></summary>
 
-**NEW in v3.0!**
+**Available since v3.0, R-verified in v4.**
 
 - Standard partitioning (turnover + nestedness)
 - Temporal beta diversity
@@ -151,49 +154,51 @@ Most ecological software forces you to choose:
 
 ## Download
 
-### Latest Release: v3.0.0
+### Latest Release: v4.0.0
 
 <div align="center">
 
-| Platform | Download | Size |
-|----------|----------|------|
-| **Windows** | [Setup.exe](https://github.com/jm0535/0rdin/releases) | ~250 MB |
-| **macOS** | [.dmg](https://github.com/jm0535/0rdin/releases) | ~200 MB |
-| **Linux (Debian)** | [.deb](https://github.com/jm0535/0rdin/releases) | ~220 MB |
-| **Linux (Fedora)** | [.rpm](https://github.com/jm0535/0rdin/releases) | ~220 MB |
+| Platform | How to get it |
+|----------|---------------|
+| **Web / PWA** | [Open ordin.in4metrix.dev](https://ordin.in4metrix.dev) — install from the address bar |
+| **Windows** | [Setup.exe](https://github.com/jm0535/0rdin/releases) |
+| **macOS** | [.dmg](https://github.com/jm0535/0rdin/releases) |
+| **Linux (Debian)** | [.deb](https://github.com/jm0535/0rdin/releases) |
+| **Linux (Fedora)** | [.rpm](https://github.com/jm0535/0rdin/releases) |
 
 </div>
 
 **Installation:**
-- **Windows**: Double-click `.exe` installer
-- **macOS**: Open `.dmg` and drag to Applications
-- **Debian/Ubuntu**: `sudo dpkg -i ordin_3.0.0_amd64.deb`
-- **Fedora/RHEL**: `sudo dnf install ordin-3.0.0-1.x86_64.rpm`
+- **Web**: nothing to install — the R runtime is cached on first visit
+- **Windows**: double-click the `.exe` installer
+- **macOS**: open the `.dmg` and drag Ördin to Applications
+- **Debian/Ubuntu**: `sudo dpkg -i ordin_4.0.0_amd64.deb`
+- **Fedora/RHEL**: `sudo dnf install ordin-4.0.0-1.x86_64.rpm`
 
-💡 **No R installation required!** Ördin includes a portable R environment.
+💡 **No R installation required!** Ördin ships R compiled to WebAssembly (webR).
 
 ---
 
 ## Gallery
 
 ### Dashboard
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](assets/screenshots/dashboard.png)
 *Modern interface with quick access to all features*
 
 ### NMDS Ordination
-![NMDS](screenshots/nmds.png)
+![NMDS](assets/screenshots/ordination_results_customization.png)
 *Non-metric multidimensional scaling with confidence ellipses*
 
 ### Diversity Estimation
-![iNEXT](screenshots/inext.png)
+![iNEXT](assets/screenshots/diversity_estimation_results.png)
 *Rarefaction curves with bootstrap confidence intervals*
 
 ### Beta Partitioning
-![Beta](screenshots/beta.png)
+![Beta](assets/screenshots/beta_diversity_partitioning.png)
 *Turnover and nestedness components visualization*
 
 ### Plot Customization
-![Customization](screenshots/customization.png)
+![Customization](assets/screenshots/data_preview.png)
 *Real-time plot editing with 18+ parameters*
 
 ---
@@ -207,16 +212,18 @@ Most ecological software forces you to choose:
 4. **Export** - Download high-resolution plots and data
 
 ### Comprehensive Guides
-- [Installation Guide](setup/SETUP-LINUX.md)
+- [Documentation Index](DOCS-INDEX.md) — everything, organised
+- [Quick Start](QUICKSTART.md)
 - [Data Import Guide](guides/DATA_MANAGEMENT_GUIDE.md)
 - [Ordination Tutorial](guides/ENTERPRISE_ORDINATION_GUIDE.md)
 - [Plot Customization](guides/PLOT-CUSTOMIZATION-GUIDE.md)
-- [Beta Diversity Guide](guides/BIPLOT_GUIDE.md)
+- [Biplot Guide](guides/BIPLOT_GUIDE.md)
 
-### API Reference
-- [R Package Dependencies](development/PROJECT_OVERVIEW.md)
-- [Reproducibility Guide](development/DEVELOPER-GUIDE-REPRODUCIBILITY.md)
-- [Security Audit](development/SECURITY-AUDIT.md)
+### For developers
+- [Architecture](ARCHITECTURE.md)
+- [Development Guide](DEVELOPMENT.md)
+- [API Reference](API.md)
+- [Stack Audit](ORDIN_STACK_AUDIT_2026-09-26.md)
 
 ---
 
@@ -251,21 +258,21 @@ Most ecological software forces you to choose:
 ## Technical Specifications
 
 ### Powered By
-- **Electron** - Cross-platform desktop framework
-- **R Shiny** - Interactive web applications
-- **vegan** - Community ecology analyses
-- **iNEXT** - Diversity estimation
-- **betapart** - Beta diversity partitioning
-- **ggplot2** - Publication-quality graphics
+- **webR** - R 4.4 compiled to WebAssembly
+- **Tauri** - lightweight cross-platform desktop shell
+- **React + Vite + Zustand** - application front end
+- **DuckDB-WASM + Apache Arrow** - in-browser data engine
+- **deck.gl + MapLibre** - optional site maps
+- **vegan / iNEXT / betapart / adespatial** - the statistics
 
 ### System Requirements
-- **OS**: Windows 10+, macOS 10.13+, Linux (64-bit)
+- **Browser**: any recent Chrome, Edge, Firefox or Safari with WebAssembly
+- **OS (desktop build)**: Windows 10+, macOS 11+, Linux (64-bit)
 - **RAM**: 4 GB minimum, 8 GB recommended
-- **Disk**: 500 MB free space
-- **Display**: 1280×720 minimum resolution
+- **Disk**: ~500 MB for the desktop bundle (includes the R runtime)
 
-### R Packages Included
-vegan, iNEXT, betapart, ggplot2, shiny, DT, readr, readxl, dplyr, tidyr, shinyjs, waiter, shinyFeedback, and more...
+### R Packages Available
+vegan, iNEXT, betapart, adespatial, FD, picante, ape, cluster, permute, MASS, mgcv, ggplot2
 
 ---
 
@@ -277,10 +284,10 @@ vegan, iNEXT, betapart, ggplot2, shiny, DT, readr, readxl, dplyr, tidyr, shinyjs
 - **Email**: jimmy.moses@pnguot.ac.pg
 
 ### Contributing
-We welcome contributions! See our [Contributing Guide](.github/CONTRIBUTING.md).
+We welcome contributions! See our [Contributing Guide](../.github/CONTRIBUTING.md).
 
 ### Code of Conduct
-Please read our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
+Please read our [Code of Conduct](../.github/CODE_OF_CONDUCT.md).
 
 ---
 
@@ -289,11 +296,11 @@ Please read our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
 If you use Ördin in your research, please cite:
 
 ```bibtex
-@software{moses2025ordin,
+@software{moses2026ordin,
   author = {Moses, Jimmy},
-  title = {Ördin: A Professional Desktop Application for Community Ecology Analysis},
-  year = {2025},
-  version = {3.0.0},
+  title = {Ördin 4: A Browser-Native and Desktop Workbench for Community Ecology Analysis},
+  year = {2026},
+  version = {4.0.0},
   url = {https://github.com/jm0535/0rdin}
 }
 ```
@@ -318,9 +325,9 @@ Built with ❤️ for the ecology community by [Jimmy Moses](mailto:jimmy.moses@
 - vegan package developers
 - iNEXT package developers
 - betapart package developers
-- R Core Team
-- Electron team
-- Shiny team
+- adespatial package developers
+- R Core Team and the webR team
+- Tauri, React and DuckDB teams
 
 ---
 
@@ -336,4 +343,4 @@ If Ördin helps your research, please consider giving us a star on [GitHub](http
 
 ---
 
-**Last Updated:** January 2025 | **Version:** 3.0.0 | **Status:** Production Ready
+**Last Updated:** September 2026 | **Version:** 4.0.0 | **Status:** Production Ready

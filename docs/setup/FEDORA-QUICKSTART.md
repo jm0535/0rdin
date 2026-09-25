@@ -1,5 +1,10 @@
 # Ördin Quick Start for Fedora
 
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](../DOCS-INDEX.md) ·
+> [Quick Start](../QUICKSTART.md) · [Architecture](../ARCHITECTURE.md).
+
 **Fast setup guide for Fedora Linux users**
 
 ---
@@ -196,8 +201,8 @@ sudo dnf install ordin-1.0.0-1.x86_64.rpm
 ## Documentation
 
 - **Full Linux Guide**: [SETUP-LINUX.md](SETUP-LINUX.md)
-- **General Guide**: [README.md](README.md)
-- **Development**: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+- **General Guide**: [README.md](../../README.md)
+- **Development**: [docs/DEVELOPMENT.md](../DEVELOPMENT.md)
 
 ---
 

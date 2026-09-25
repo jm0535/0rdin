@@ -1,5 +1,10 @@
 # Troubleshooting: Results Not Displaying
 
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](DOCS-INDEX.md) ·
+> [Quick Start](QUICKSTART.md) · [Architecture](ARCHITECTURE.md).
+
 **Issue**: Progress bar shows during analysis, but results don't appear after completion.
 
 **Date**: 2025-10-23  

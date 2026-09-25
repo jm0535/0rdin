@@ -1,5 +1,10 @@
 # Ördin Setup for Windows Subsystem for Linux (WSL)
 
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](../DOCS-INDEX.md) ·
+> [Quick Start](../QUICKSTART.md) · [Architecture](../ARCHITECTURE.md).
+
 Since you have R installed in WSL (Windows Subsystem for Linux) rather than native Windows, follow these steps:
 
 ## Quick Setup (3 Steps)
@@ -146,4 +151,4 @@ npm run make
 3. ⏳ Run `npm start` in PowerShell to launch Ördin
 4. 🎉 Test with `sample-data/example-biodiversity.csv`
 
-**Questions?** Check the main [README.md](README.md) or [GETTING_STARTED.md](GETTING_STARTED.md)
+**Questions?** Check the main [README.md](../../README.md) or [GETTING_STARTED.md](../../.github/GETTING_STARTED.md)

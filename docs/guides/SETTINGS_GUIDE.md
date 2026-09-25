@@ -1,4 +1,9 @@
-# Ördin v3.0 - Comprehensive Settings Guide
+# Ördin 3.0 — Comprehensive Settings Guide (legacy)
+
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](../DOCS-INDEX.md) ·
+> [Quick Start](../QUICKSTART.md) · [Architecture](../ARCHITECTURE.md).
 
 ## Overview
 The enhanced settings sidebar provides enterprise-grade configuration options for the Ördin biodiversity analysis platform. Access settings by clicking the **gear icon (⚙️)** in the top-right corner of the navigation bar.

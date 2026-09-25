@@ -14,14 +14,15 @@ Thank you for your interest in contributing to Ördin! This document provides gu
 ### 🐛 Reporting Bugs
 
 **Before submitting a bug report:**
-- Check the [documentation](README.md) and [troubleshooting guide](docs/QUICKSTART.md)
+- Check the [documentation index](../docs/DOCS-INDEX.md) and the
+  [Quick Start troubleshooting table](../docs/QUICKSTART.md#5-troubleshooting)
 - Search existing issues to avoid duplicates
 
 **When submitting a bug report, include:**
-- Ördin version (from package.json)
-- Operating system and version
-- R version (run `R --version`)
-- Node.js version (run `node --version`)
+- Ördin version (from `package.json`, currently 4.0.0)
+- How you run it: web app, desktop build, or `npm run dev`
+- Browser/OS version (and whether `crossOriginIsolated` is true in the console)
+- Node.js version (run `node --version`) if building from source
 - Steps to reproduce the issue
 - Expected vs actual behavior
 - Screenshots (if applicable)
@@ -30,7 +31,7 @@ Thank you for your interest in contributing to Ördin! This document provides gu
 ### 💡 Suggesting Enhancements
 
 **Before suggesting an enhancement:**
-- Check the [roadmap](CHANGELOG.md) to see if it's already planned
+- Check the [changelog](../CHANGELOG.md) to see if it's already planned
 - Search existing feature requests
 
 **When suggesting an enhancement, include:**
@@ -45,9 +46,9 @@ Thank you for your interest in contributing to Ördin! This document provides gu
 
 Good first issues:
 - Documentation improvements
-- UI/theme tweaks
-- Adding new bootswatch themes
-- Sample datasets
+- UI/theme tweaks in `packages/ui` or the panel components
+- New sample datasets
+- Additional plot customisation controls
 - Bug fixes with clear reproduction steps
 
 #### Development Process
@@ -58,14 +59,12 @@ Good first issues:
    cd ordin
    ```
 
-2. **Set up development environment**
+2. **Set up the development environment** (Node.js ≥ 22)
    ```bash
-   # Windows
-   setup.bat
-   
-   # macOS/Linux
-   ./setup.sh
+   npm install
+   npm run dev          # http://localhost:9054
    ```
+   See [`docs/DEVELOPMENT.md`](../docs/DEVELOPMENT.md) for the full workflow.
 
 3. **Create a feature branch**
    ```bash
@@ -105,81 +104,51 @@ Good first issues:
 
 ## Code Style Guide
 
-### R Code Style
+### TypeScript / React (the v4 app)
+
+```ts
+// Good
+export async function runBeta(matrix: number[][]): Promise<BetaResult> {
+  const result = await runBetaViaWebR(matrix);
+  return result;
+}
+
+// Bad
+export async function RunBeta(matrix:any){return await runBetaViaWebR(matrix)}
+```
+
+**Key points:**
+- TypeScript everywhere, `strict` mode; avoid `any` in exported signatures.
+- 2-space indentation, semicolons, `const` over `let`, no `var`.
+- camelCase for values, PascalCase for components and types.
+- Components stay presentational: state goes through the `@ordin/core` store,
+  statistics through `@ordin/processing` — never import `webr` in a component.
+- Every analysis result must carry a `provenance` string, and the UI must show it.
+- Tailwind utility classes for styling; follow the existing palette
+  (`#121214` background, `#2d2d30` borders, `#2e8b57` accent).
+- Run `npm run lint` and `npm run typecheck` before pushing.
+
+### R inside webR snippets
 
 Follow the [tidyverse style guide](https://style.tidyverse.org/):
 
 ```r
 # Good
-calculate_diversity <- function(data) {
-  result <- iNEXT(data, q = c(0, 1, 2), datatype = "abundance")
-  return(result)
-}
+fit <- vegan::adonis2(dist ~ group, data = env, permutations = 999)
 
 # Bad
-CalculateDiversity<-function(data){
-result<-iNEXT(data,q=c(0,1,2),datatype="abundance")
-return(result)}
+fit<-adonis2(dist~group,data=env,permutations=999)
 ```
 
-**Key points:**
-- Use 2-space indentation
-- Use `<-` for assignment, not `=`
-- Add spaces around operators
-- Use descriptive variable names
-- Comment complex logic
-- Use tidyverse functions where appropriate
+- Fully qualify package functions (`vegan::`, `iNEXT::`) inside webR calls.
+- Only use packages from the allow-list in
+  [`docs/ORDIN_STACK_AUDIT_2026-09-26.md`](../docs/ORDIN_STACK_AUDIT_2026-09-26.md).
+- Always purge webR shelters in a `finally` block.
 
-### JavaScript Code Style
+### Legacy R Shiny code (`shiny/`)
 
-Follow standard JavaScript conventions:
-
-```javascript
-// Good
-function checkShinyReady(maxAttempts = 30, interval = 1000) {
-  return new Promise((resolve, reject) => {
-    // Implementation
-  });
-}
-
-// Bad
-function checkShinyReady(maxAttempts,interval){
-return new Promise((resolve,reject)=>{
-// Implementation
-})}
-```
-
-**Key points:**
-- Use 2-space indentation
-- Use `const` over `let`, avoid `var`
-- Use camelCase for variables and functions
-- Add semicolons
-- Use async/await over callbacks
-- Add JSDoc comments for public functions
-
-### Shiny UI Code Style
-
-```r
-# Good
-ui <- page_sidebar(
-  theme = bs_theme(
-    version = 5,
-    bootswatch = "darkly",
-    primary = "#2e8b57"
-  ),
-  sidebar = sidebar(
-    width = 350,
-    fileInput("dataFile", "Upload CSV")
-  ),
-  card(
-    card_header("Results"),
-    uiOutput("resultsUI")
-  )
-)
-
-# Bad
-ui<-page_sidebar(theme=bs_theme(version=5,bootswatch="darkly",primary="#2e8b57"),sidebar=sidebar(width=350,fileInput("dataFile","Upload CSV")),card(card_header("Results"),uiOutput("resultsUI")))
-```
+Maintenance-only. Keep the existing tidyverse style, 2-space indentation and
+`<-` assignment; see [`CODE_STANDARDS.md`](CODE_STANDARDS.md).
 
 ## Testing Guidelines
 
@@ -187,13 +156,22 @@ ui<-page_sidebar(theme=bs_theme(version=5,bootswatch="darkly",primary="#2e8b57")
 
 Before submitting a PR, test:
 
+**Automated:**
+```bash
+npm run lint
+npm run typecheck
+npm run test:frontend
+```
+
 **Basic Functionality:**
-- [ ] App starts without errors
-- [ ] Sample data loads correctly
-- [ ] iNEXT analysis runs and displays results
+- [ ] `npm run dev` starts without console errors
+- [ ] Sample data (`dune`) loads correctly
+- [ ] iNEXT analysis runs and shows `REAL … via webR` provenance
 - [ ] NMDS analysis runs and displays results
-- [ ] CSV download works
-- [ ] PNG download works
+- [ ] PERMANOVA runs and reports a p-value
+- [ ] CSV/JSON download works
+- [ ] SVG/PNG plot export works
+- [ ] `.ordin` project saves and reloads
 
 **Error Handling:**
 - [ ] Invalid CSV shows error message
@@ -213,92 +191,51 @@ Before submitting a PR, test:
 - [ ] Works on macOS
 - [ ] Build process succeeds
 
-### Automated Tests (Future)
+### Automated Tests
 
-We plan to add:
-- R unit tests using `testthat`
-- JavaScript tests using Jest
-- Integration tests using Spectron
-- CI/CD with GitHub Actions
+- Unit tests: `node:test` + `tsx` in `tests/` (`npm run test:frontend`)
+- End-to-end and accessibility: Playwright + `@axe-core/playwright`
+- Legacy R suite: `testthat` under `shiny/tests/`
+
+CI runs lint, typecheck and the unit tests on every pull request.
 
 ## Adding New Features
 
-### Adding a New Analysis Method
+### Adding a new analysis
 
-1. **Update UI** (`shiny/app.R`):
-   ```r
-   selectInput("analysisType", "Select Analysis",
-     choices = c(
-       "Diversity Estimation (iNEXT)",
-       "Ordination (NMDS via vegan)",
-       "Your New Analysis"  # Add here
-     ))
+1. **Model the result** — add a slot under `OrdinProject['analyses']` in
+   `packages/core/src/index.ts` (include `ranAt` and `provenance`).
+2. **Implement the computation** in `packages/processing/src/index.ts`:
+   a webR call (`run<Name>ViaWebR`) and/or a JavaScript fast path.
+   ```ts
+   export async function runMyAnalysisViaWebR(matrix: number[][]) {
+     const w = await getWebR();
+     await w.evalRVoid('library(vegan)');
+     // … build R code, evaluate, convert with toJs()
+     return { /* typed result */, provenance: 'REAL vegan::myfun via webR' };
+   }
    ```
+3. **Wire the UI** — add controls to the relevant panel in
+   `apps/ordin-desktop/src/components/panels/` and surface the provenance badge.
+4. **Document it** — update `docs/FEATURES-OVERVIEW.md`, add a guide under
+   `docs/guides/` if user-facing, and add a `CHANGELOG.md` entry.
 
-2. **Add analysis logic**:
-   ```r
-   observeEvent(input$runAnalysis, {
-     
-     } else if (input$analysisType == "Your New Analysis") {
-       # Your analysis code here
-       analysis_result <- your_function(abund_matrix)
-       
-       # Create summary
-       summary_df <- data.frame(...)
-       
-       # Create plot
-       plot_obj <- ggplot(...) + ...
-       
-       # Store results
-       results(list(
-         summary = summary_df,
-         plot = plot_obj,
-         type = "YourAnalysis"
-       ))
-     }
-   })
-   ```
+### Adding a new panel
 
-3. **Add required R packages**:
-   - Edit `add-cran-binary-pkgs.R`
-   - Add package to `required_packages`
-   - Add `library()` call in `shiny/app.R`
+See the step-by-step list in
+[`docs/DEVELOPMENT.md`](../docs/DEVELOPMENT.md#adding-a-panel).
 
-4. **Update documentation**:
-   - Add to README.md features list
-   - Update CHANGELOG.md
-   - Add usage example
+### Adding an R package
 
-### Adding a New Theme
+New packages increase the WASM download for every user. Justify the addition
+against the allow-list in
+[`docs/ORDIN_STACK_AUDIT_2026-09-26.md`](../docs/ORDIN_STACK_AUDIT_2026-09-26.md)
+and update that document in the same PR.
 
-1. **Create theme in** `shiny/app.R`:
-   ```r
-   # Option 1: Use bootswatch theme
-   theme = bs_theme(version = 5, bootswatch = "flatly")
-   
-   # Option 2: Custom theme
-   theme = bs_theme(
-     version = 5,
-     bg = "#ffffff",
-     fg = "#000000",
-     primary = "#007bff",
-     # ... more customization
-   )
-   ```
+### Theming
 
-2. **Add theme selector** (optional):
-   ```r
-   # In sidebar
-   selectInput("theme", "Select Theme",
-     choices = c("darkly", "flatly", "cosmo", "united"))
-   
-   # In server
-   observe({
-     session$setCurrentTheme(
-       bs_theme(version = 5, bootswatch = input$theme)
-     )
-   })
-   ```
+Colours and typography live in Tailwind config and `apps/ordin-desktop/src/index.css`.
+Keep dark and light themes in sync and check contrast.
 
 ## Documentation
 
@@ -309,29 +246,21 @@ We plan to add:
 - **README updates**: Keep in sync with code changes
 - **Changelog**: Document all user-facing changes
 
-### Example R Function Documentation
+### Example function documentation
 
-```r
-#' Calculate Species Diversity Using iNEXT
-#'
-#' This function runs iNEXT diversity estimation on an abundance matrix
-#' and returns both the statistical results and a visualization.
-#'
-#' @param abundance_matrix A matrix with sites as rows and species as columns
-#' @param q A numeric vector of diversity orders (default: c(0, 1, 2))
-#'
-#' @return A list containing:
-#'   \item{summary}{Data frame with diversity estimates}
-#'   \item{plot}{ggplot2 object with rarefaction curves}
-#'
-#' @examples
-#' data <- matrix(c(15, 23, 8, 18, 19, 12), nrow = 2)
-#' result <- calculate_diversity(data)
-#'
-#' @export
-calculate_diversity <- function(abundance_matrix, q = c(0, 1, 2)) {
-  # Implementation
-}
+```ts
+/**
+ * Run iNEXT diversity estimation in webR.
+ *
+ * @param matrix Sites × species abundance matrix.
+ * @param opts   Hill orders, data type, knots, endpoint, bootstrap settings.
+ * @returns `DataInfo`, `AsyEst` and `iNextEst` tables plus a provenance string.
+ */
+export async function runInextViaWebR(
+  matrix: number[][],
+  opts: { q: number[]; datatype: 'abundance' | 'incidence'; knots: number;
+          endpoint?: number | null; nboot: number; conf: number },
+) { /* … */ }
 ```
 
 ## Commit Message Guidelines
@@ -407,7 +336,7 @@ Contributors will be:
 
 - Open an issue for general questions
 - Email jimmy.moses@pnguot.ac.pg for private inquiries
-- Check [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for architecture details
+- Check [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) for architecture details
 
 ## License
 

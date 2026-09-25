@@ -36,16 +36,24 @@ This folder contains example datasets for testing Ördin's biodiversity analysis
 - Perfect for testing incidence-based diversity
 - **Use this for incidence_raw examples** (works immediately!)
 
-### 5. ciliates-abundance.csv
-**Ciliate species from iNEXT package**  
-- Source: Chao et al. (2015)
-- Soil ciliate communities
-- High species richness (6,935 species!)
-- **Note**: Very sparse (99.7% zeros), requires filtering
-- See `TROUBLESHOOTING-CILIATES.md` for filtering instructions
-- Use `filter-ciliates-data.R` script to prepare data
+### 5. ciliates-incidence-raw.csv
+**Soil ciliates (after Chao et al. 2015)**  
+- 3 southern-African sites × 300 species
+- **incidence_raw** format (binary 0/1)
+- Sparse — a good stress test for incidence-based estimation
+- Background: [`../docs/TROUBLESHOOTING-CILIATES.md`](../docs/TROUBLESHOOTING-CILIATES.md)
 
-### 6. ant-incidence.csv
+### 6. dune_species.csv + dune_environment.csv
+**The classic `vegan` dune-meadow dataset**  
+- 20 sites × 30 species, plus 5 environmental variables
+- Ideal for ordination (PCA/CA/NMDS), constrained ordination and PERMANOVA
+- Also loadable directly from the Data panel ("Load sample → dune")
+
+### 7. sample_data_species.csv + sample_data_environment.csv
+**Generic paired species/environment example**  
+- Same layout as the dune pair; useful for testing imports
+
+### 8. ant-incidence-freq.csv
 **Ant species incidence data from iNEXT package**  
 - Source: iNEXT package example data
 - **Incidence-frequency format** (presence/absence data)
@@ -74,7 +82,7 @@ Site_2,18,19,12,...
 
 ### Incidence Data (Presence/Absence)
 
-Incidence-frequency data (e.g., ant-incidence.csv):
+Incidence-frequency data (e.g., ant-incidence-freq.csv):
 
 ```csv
 Site,SamplingUnits,Species_A,Species_B,Species_C,...
@@ -94,19 +102,16 @@ Site_2,30,18,8,22,...
 ### iNEXT Analysis (Diversity Estimation)
 
 #### For Abundance Data:
-1. Launch Ördin
-2. Click **"Upload Species Data CSV"**
-3. Select abundance dataset (e.g., `spider-abundance.csv`)
-4. Choose **"Data Type: Abundance (counts)"**
-5. Select **"Diversity Estimation (iNEXT)"**
-6. Click **"Run Analysis"**
+1. Open Ördin (web app, desktop build, or `npm run dev`)
+2. **Data (1)** panel → *Import* → choose e.g. `spider-abundance.csv`
+3. Confirm the detected data type is **abundance**
+4. **Diversity (2)** panel → set `q = 0, 1, 2` → *Run*
 
 #### For Incidence Data:
-1. Launch Ördin
-2. Upload incidence dataset (e.g., `ant-incidence.csv`)
-3. Choose **"Data Type: Incidence (presence/absence)"**
-4. Select **"Diversity Estimation (iNEXT)"**
-5. Click **"Run Analysis"**
+1. Import `ant-incidence-freq.csv` (incidence_freq) or
+   `plant-presence.csv` / `ciliates-incidence-raw.csv` (incidence_raw)
+2. Set the data type accordingly in the Diversity panel
+3. *Run* — curves and asymptotic estimates appear with bootstrap CIs
 
 **Results you'll see:**
 - Diversity indices table (q=0, 1, 2)
@@ -116,10 +121,9 @@ Site_2,30,18,8,22,...
 
 ### NMDS Ordination (Community Similarity)
 
-1. Upload the same CSV file
-2. Choose **"Ordination (NMDS via vegan)"**
-3. Set dimensions (2 recommended)
-4. Click **"Run Analysis"**
+1. Keep the same species table loaded (add `dune_environment.csv` for biplots)
+2. **Ordination (4)** panel → method **NMDS**, distance **Bray-Curtis**, `k = 2`
+3. *Run* — check the stress value and the `REAL vegan::metaMDS via webR` badge
 
 **Results you'll see:**
 - NMDS plot showing site similarity
@@ -140,7 +144,7 @@ Purpose: Quick testing, demonstration
 
 ### spider-abundance.csv
 ```
-Sites: Varies by forest treatment
+Sites: 2 (Girdled, Logged)
 Species: Spider species from tropical forest
 Study: Girdled vs. logged forest comparison
 Purpose: Real ecological research data
@@ -153,14 +157,14 @@ Species: Various bird species
 Purpose: Standard biodiversity analysis example
 ```
 
-### ciliates-abundance.csv
+### ciliates-incidence-raw.csv
 ```
 Sites: Soil sampling locations
 Species: Ciliate protist species
 Purpose: High diversity, complex communities
 ```
 
-### ant-incidence.csv
+### ant-incidence-freq.csv
 ```
 Sites: 5
 Species: 241 ant species
