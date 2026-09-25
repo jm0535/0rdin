@@ -50,7 +50,7 @@ export default function App() {
     <div className="flex flex-col h-screen bg-[#121214] text-[#cccccc] selection:bg-[#2e8b57]/30">
       {/* Titlebar — Tauri drag region */}
       <div className="h-8 flex items-center px-3 bg-[#0f0f0f] border-b border-[#2d2d30] text-xs select-none shrink-0" data-tauri-drag-region>
-        <span className="w-2 h-2 rounded-full bg-[#2e8b57] shadow-[0_0_8px_rgba(46,139,87,0.6)]" />
+        <img src="/favicon-32.png" alt="Ördin" className="w-5 h-5 rounded-sm shadow-[0_0_8px_rgba(46,139,87,0.4)]" />
         <span className="ml-2 font-semibold tracking-tight">Ördin 4</span>
         <span className="ml-2 text-[#858585] hidden sm:inline">— Community Ecology, statistical workbench · Tauri • React • Vite • Zustand • DuckDB-WASM • webR</span>
         <span className="ml-auto hidden md:flex items-center gap-2 text-[#858585]">
