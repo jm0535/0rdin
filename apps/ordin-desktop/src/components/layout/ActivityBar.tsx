@@ -10,7 +10,7 @@ const items: { id: PanelId; icon: React.ComponentType<any>; label: string; kbd?:
   { id: 'tests', icon: FlaskConical, label: 'Tests', kbd: '6' },
   { id: 'classification', icon: GitBranch, label: 'Classification', kbd: '7' },
   { id: 'traits', icon: Beaker, label: 'Traits', kbd: '8' },
-  { id: 'results', icon: BarChart3, label: 'Results', kbd: '9' },
+
 ];
 
 export function ActivityBar() {

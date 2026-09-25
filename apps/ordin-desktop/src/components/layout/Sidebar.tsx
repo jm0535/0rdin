@@ -100,17 +100,7 @@ function useWorkflow() {
       hint: !hasData ? 'Needs Data + env' : hasOrdination ? 'Tests fit on ordination (R: adonis2(dune ~ Management))' : 'Can run without ordination, but best after 4',
       requires: 'Data (+ Ordination)',
     },
-    {
-      id: 'results' as const,
-      label: '6 — Results',
-      desc: '.ordin.json · Export & Report',
-      panel: 'results' as const,
-      icon: BarChart3,
-      status: !hasAnyResult ? (!hasData ? ('blocked' as const) : ('ready' as const)) : ('done' as const),
-      badge: hasAnyResult ? `${Object.keys(project.analyses).length} analyses` : '— none yet —',
-      hint: hasAnyResult ? 'Reproducible bundle — download & share' : 'Appears only after at least one explicit Run (gated for audit)',
-      requires: '≥1 analysis',
-    },
+
   ];
   const done = steps.filter((s) => s.status === 'done').length;
   return { steps, hasData, hasAnyResult, done, total: steps.length };
@@ -148,13 +138,13 @@ export function Sidebar() {
           <span className="text-[#858585] flex items-center gap-1">
             <Eye size={12} /> Workflow
           </span>
-          <span className="text-[#7bd49e] font-medium">{done}/6 done</span>
+          <span className="text-[#7bd49e] font-medium">{done}/5 done</span>
         </div>
         <div className="mt-2 h-1.5 rounded-full bg-[#2d2d30] overflow-hidden">
-          <div className="h-full bg-[#2e8b57] transition-all" style={{ width: `${(done / 6) * 100}%` }} />
+          <div className="h-full bg-[#2e8b57] transition-all" style={{ width: `${(done / 5) * 100}%` }} />
         </div>
         <div className="mt-2 text-[11px] leading-relaxed text-[#858585]">
-          Data left, results right — <b className="text-[#cccccc]">gated & auditable</b>: load → validate → explicit <code>Run</code> → Results stack with provenance. Not live until you ask.
+          Load → validate → <code>Run</code> each analysis — results appear right in that panel with provenance. Not live until you ask.
         </div>
       </div>
 
@@ -215,8 +205,11 @@ export function Sidebar() {
             <Button variant="outline" className="h-7 text-xs" onClick={() => setPanel('diversity')}>
               <Play size={12} className="mr-1" /> Run next
             </Button>
-            <Button variant="outline" className="h-7 text-xs" onClick={() => setPanel('results')}>
-              <BarChart3 size={12} className="mr-1" /> Results
+            <Button variant="outline" className="h-7 text-xs" onClick={() => {
+              const blob = new Blob([JSON.stringify(useOrdinStore.getState().project, null, 2)], {type:'application/json'});
+              const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`\${useOrdinStore.getState().project.meta.name || 'ordin'}.ordin.json`; a.click(); URL.revokeObjectURL(url);
+            }}>
+              <BarChart3 size={12} className="mr-1" /> Export
             </Button>
           </div>
           <div className="mt-2 rounded-md bg-[#1e1e1e] border border-[#2d2d30] p-2 text-[11px] leading-relaxed text-[#858585]">
