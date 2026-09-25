@@ -50,11 +50,15 @@ function RarefactionSVG({ compact, qs, settings, id, plotType }: { compact?: boo
   const pathOf = (pts: [number,number][]) => pts.map((p,i)=> `${i===0?'M':'L'} ${x(p[0])} ${y(p[1])}`).join(' ');
   const obsVal = isCoverageX ? 0.88 : 20;
   const obsIdx = 4;
+  const font = settings?.fontFamily==='serif' ? 'Georgia, serif' : settings?.fontFamily==='mono' ? 'ui-monospace, monospace' : 'IBM Plex Sans, system-ui, sans-serif';
+  const bg = settings?.theme==='dark' ? '#1e1e1e' : settings?.theme==='void' ? 'transparent' : 'white';
+  const fg = settings?.theme==='dark' ? '#cccccc' : '#333';
+  const gridCol = settings?.theme==='dark' ? '#2d2d30' : '#eee';
   return (
-    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
+    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full rounded border" style={{background:bg, fontFamily:font}}>
       {/* grid */}
-      {[0,0.25,0.5,0.75,1].map(t=> <line key={t} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke="#eee" strokeWidth={t===1?1:0.5} />)}
-      {[0,0.25,0.5,0.75,1].map(t=> <line key={t} y1={MT} y2={H-MB} x1={ML+t*plotW} x2={ML+t*plotW} stroke="#eee" strokeWidth={0.5} />)}
+      {[0,0.25,0.5,0.75,1].map(t=> <line key={t} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke={gridCol} strokeWidth={t===1?1:0.5} />)}
+      {[0,0.25,0.5,0.75,1].map(t=> <line key={t} y1={MT} y2={H-MB} x1={ML+t*plotW} x2={ML+t*plotW} stroke={gridCol} strokeWidth={0.5} />)}
       {/* CI bands — controlled by Show CI + alpha */}
       {(settings?.showCI ?? true) && curves.map(c=>{
         const pts=c.pts; const ci=c.ci;
@@ -78,18 +82,18 @@ function RarefactionSVG({ compact, qs, settings, id, plotType }: { compact?: boo
       {/* observed point */}
       {[curves[0].pts[obsIdx], curves[1].pts[obsIdx], curves[2].pts[obsIdx]].map((p,i)=> <circle key={i} cx={x(p[0])} cy={y(p[1])} r={settings?.pointSize ?? (compact?2.5:3.5)} fill={['#4a90e2','#2e8b57','#d4a017'][i]} stroke="white" strokeWidth={1.2} />)}
       {/* axes */}
-      <line x1={ML} y1={H-MB} x2={W-MR} y2={H-MB} stroke="#333" />
-      <line x1={ML} y1={MT} x2={ML} y2={H-MB} stroke="#333" />
+      <line x1={ML} y1={H-MB} x2={W-MR} y2={H-MB} stroke={fg} />
+      <line x1={ML} y1={MT} x2={ML} y2={H-MB} stroke={fg} />
       {/* ticks — dynamic per ggiNEXT type */}
-      {(isCoverageX ? [0,0.2,0.4,0.6,0.8,1] : [0,10,20,30,40]).map(v=> <g key={v}><line x1={x(v)} y1={H-MB} x2={x(v)} y2={H-MB+4} stroke="#333" /><text x={x(v)} y={H-6} textAnchor="middle" fontSize={9} fill="#333">{isCoverageX ? v.toFixed(1) : v}</text></g>)}
-      {(isCoverageY ? [0,0.2,0.4,0.6,0.8,1] : [0,8,16,24,32]).map(v=> <g key={v}><line x1={ML-4} y1={y(v)} x2={ML} y2={y(v)} stroke="#333" /><text x={ML-6} y={y(v)+3} textAnchor="end" fontSize={9} fill="#333">{isCoverageY ? v.toFixed(1) : v}</text></g>)}
-      <text x={W/2} y={H-2} textAnchor="middle" fontSize={8} fill="#555">{isCoverageX ? 'Sample coverage (0–1)' : 'Number of individuals (rarefied + extrapolated)'}</text>
-      <text transform={`rotate(-90 ${12} ${H/2})`} x={12} y={H/2} textAnchor="middle" fontSize={8} fill="#555">{isCoverageY ? 'Sample coverage' : 'Hill diversity qD'}</text>
+      {(isCoverageX ? [0,0.2,0.4,0.6,0.8,1] : [0,10,20,30,40]).map(v=> <g key={v}><line x1={x(v)} y1={H-MB} x2={x(v)} y2={H-MB+4} stroke={fg} /><text x={x(v)} y={H-6} textAnchor="middle" fontSize={9} fill={fg}>{isCoverageX ? v.toFixed(1) : v}</text></g>)}
+      {(isCoverageY ? [0,0.2,0.4,0.6,0.8,1] : [0,8,16,24,32]).map(v=> <g key={v}><line x1={ML-4} y1={y(v)} x2={ML} y2={y(v)} stroke={fg} /><text x={ML-6} y={y(v)+3} textAnchor="end" fontSize={9} fill={fg}>{isCoverageY ? v.toFixed(1) : v}</text></g>)}
+      <text x={W/2} y={H-2} textAnchor="middle" fontSize={8} fill={fg}>{isCoverageX ? 'Sample coverage (0–1)' : 'Number of individuals (rarefied + extrapolated)'}</text>
+      <text transform={`rotate(-90 ${12} ${H/2})`} x={12} y={H/2} textAnchor="middle" fontSize={8} fill={fg}>{isCoverageY ? 'Sample coverage' : 'Hill diversity qD'}</text>
       {!compact && <text x={ML} y={MT-4} fontSize={9} fontWeight={700} fill="#2e8b57">{pt==='1' ? 'iNEXT (sample-size-based R/E)' : pt==='2' ? 'iNEXT (sample completeness)' : 'iNEXT (coverage-based R/E)'}</text>}
       {/* legend */}
       <g transform={`translate(${W-MR-118} ${MT+6})`}>
-        {curves.map((c,i)=><g key={c.q} transform={`translate(0 ${i*12})`}><line x1={0} y1={4} x2={14} y2={4} stroke={c.color} strokeWidth={2} /><text x={18} y={7} fontSize={8} fill="#333">{c.q}</text></g>)}
-        <g transform="translate(0 38)"><line x1={0} y1={4} x2={14} y2={4} stroke="#333" strokeWidth={1.5} strokeDasharray="6 4" /><text x={18} y={7} fontSize={7} fill="#666">extrapolated</text></g>
+        {curves.map((c,i)=><g key={c.q} transform={`translate(0 ${i*12})`}><line x1={0} y1={4} x2={14} y2={4} stroke={c.color} strokeWidth={2} /><text x={18} y={7} fontSize={8} fill={fg}>{c.q}</text></g>)}
+        <g transform="translate(0 38)"><line x1={0} y1={4} x2={14} y2={4} stroke={fg} strokeWidth={1.5} strokeDasharray="6 4" /><text x={18} y={7} fontSize={7} fill="#666">extrapolated</text></g>
       </g>
       {/* observed vertical */}
       <line x1={x(obsVal)} y1={MT} x2={x(obsVal)} y2={H-MB} stroke="#999" strokeDasharray="3 3" opacity={0.6} />
@@ -98,7 +102,7 @@ function RarefactionSVG({ compact, qs, settings, id, plotType }: { compact?: boo
   );
 }
 
-function IndicesSVG({ id }: { id?: string }) {
+function IndicesSVG({ id, settings }: { id?: string; settings?: any }) {
   const W=520, H=220, ML=38, MR=12, MT=18, MB=22;
   const plotW=W-ML-MR, plotH=H-MT-MB;
   // mock per-site Shannon H' (1.2–2.8), Simpson 1-D (0.6–0.9), S (12–28)
@@ -112,9 +116,13 @@ function IndicesSVG({ id }: { id?: string }) {
   const x = (i:number)=> ML + (i/sites.length)*plotW + (plotW/sites.length - barW)/2;
   const yH = (v:number)=> MT + plotH - (v/maxH)*plotH;
   const yRich = (v:number)=> MT + plotH - (v/32)*plotH;
+  const font = settings?.fontFamily==='serif' ? 'Georgia, serif' : settings?.fontFamily==='mono' ? 'ui-monospace, monospace' : 'IBM Plex Sans, system-ui, sans-serif';
+  const bg = settings?.theme==='dark' ? '#1e1e1e' : settings?.theme==='void' ? 'transparent' : 'white';
+  const fg = settings?.theme==='dark' ? '#cccccc' : '#333';
+  const gridCol = settings?.theme==='dark' ? '#2d2d30' : '#eee';
   return (
-    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
-      {[0,0.25,0.5,0.75,1].map(t=> <line key={t} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke="#eee" />)}
+    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full rounded border" style={{background:bg, fontFamily:font}}>
+      {[0,0.25,0.5,0.75,1].map(t=> <line key={t} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke={gridCol} />)}
       {/* Shannon bars */}
       {sites.map((d,i)=> (
         <g key={d.s}>
@@ -122,15 +130,15 @@ function IndicesSVG({ id }: { id?: string }) {
           <circle cx={x(i)+barW/2} cy={yRich(d.rich)-6} r={2} fill="#2e8b57" opacity={0.9} />
         </g>
       ))}
-      <line x1={ML} y1={H-MB} x2={W-MR} y2={H-MB} stroke="#333" />
-      <line x1={ML} y1={MT} x2={ML} y2={H-MB} stroke="#333" />
+      <line x1={ML} y1={H-MB} x2={W-MR} y2={H-MB} stroke={fg} />
+      <line x1={ML} y1={MT} x2={ML} y2={H-MB} stroke={fg} />
       <line x1={W-MR} y1={MT} x2={W-MR} y2={H-MB} stroke="#ccc" />
-      <text x={W/2} y={H-4} textAnchor="middle" fontSize={7} fill="#555">Sites (ordered)</text>
-      <text transform={`rotate(-90 ${10} ${H/2})`} x={10} y={H/2} textAnchor="middle" fontSize={7} fill="#555">Shannon H' (bar) & S (dot) — 1-D Simpson shown as height hue</text>
+      <text x={W/2} y={H-4} textAnchor="middle" fontSize={7} fill={fg}>Sites (ordered)</text>
+      <text transform={`rotate(-90 ${10} ${H/2})`} x={10} y={H/2} textAnchor="middle" fontSize={7} fill={fg}>Shannon H' (bar) & S (dot) — 1-D Simpson shown as height hue</text>
       <text x={ML} y={MT-5} fontSize={9} fontWeight={700} fill="#2e8b57">vegan::diversity per site</text>
       <g transform={`translate(${W-MR-98} ${MT+4})`}>
-        <rect x={0} y={0} width={10} height={8} fill="#4a90e2" /><text x={14} y={7} fontSize={7} fill="#333">H' Shannon</text>
-        <circle cx={5} cy={16} r={3} fill="#2e8b57" /><text x={14} y={19} fontSize={7} fill="#333">S richness</text>
+        <rect x={0} y={0} width={10} height={8} fill="#4a90e2" /><text x={14} y={7} fontSize={7} fill={fg}>H' Shannon</text>
+        <circle cx={5} cy={16} r={3} fill="#2e8b57" /><text x={14} y={19} fontSize={7} fill={fg}>S richness</text>
       </g>
     </svg>
   );
@@ -322,7 +330,7 @@ export function DiversityPanel() {
             <Card className="p-3">
               <h3 className="font-semibold flex items-center gap-2">Indices — Shannon / Simpson / Hill <Badge variant="info">vegan</Badge></h3>
               <div className="text-[11px] text-[#858585]">per site: H' = -Σ p log p (vegan::diversity), D = Σ p², GS=1-D, 1/D, evenness J = H'/log S, Hill N0=S, N1=exp(H'), N2=1/D — same units.</div>
-              <div className="mt-2"><IndicesSVG id="inext-indices-svg" /></div>
+              <div className="mt-2"><IndicesSVG id="inext-indices-svg" settings={plotSettings} /></div>
               <div className="mt-2 flex gap-1 flex-wrap">
                 <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>copySvgById('inext-indices-svg')}>⎘ Copy SVG</Button>
                 <Button variant="subtle" className="h-7 text-xs flex-1" onClick={()=>downloadSvgById('inext-indices-svg', `inext_indices_${new Date().toISOString().slice(0,10)}.svg`)}>⤓ SVG</Button>

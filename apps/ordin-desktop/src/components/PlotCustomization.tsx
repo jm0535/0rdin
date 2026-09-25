@@ -2,7 +2,7 @@ import { Card, Button } from '@ordin/ui';
 import { Palette, Sliders, Download } from 'lucide-react';
 import { useState } from 'react';
 
-function downloadHighResSvg(svgId: string, settings: { plotWidth:number; plotHeight:number; dpi:number; exportFormat:string }, baseName:string){
+export function downloadHighResSvg(svgId: string, settings: { plotWidth:number; plotHeight:number; dpi:number; exportFormat:string }, baseName:string){
   const svg = document.getElementById(svgId) as SVGSVGElement | null;
   if(!svg){ const blob=new Blob([`<svg xmlns='http://www.w3.org/2000/svg'><text>${baseName} export ${settings.exportFormat} ${settings.plotWidth}×${settings.plotHeight}@${settings.dpi}dpi</text></svg>`],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${baseName}_${new Date().toISOString().slice(0,10)}.${settings.exportFormat==='tiff'?'tiff':settings.exportFormat}`; a.click(); URL.revokeObjectURL(url); return; }
   const clone = svg.cloneNode(true) as SVGSVGElement;
