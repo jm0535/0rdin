@@ -13,7 +13,6 @@ export function Toolbar() {
     ordination: { title: 'Ordination', subtitle: '9 methods • NMDS PCA CA DCA PCoA CCA RDA dbRDA CAP • deck.gl biplots' },
     tests: { title: 'Tests', subtitle: 'PERMANOVA • ANOSIM • Mantel • envfit • webR' },
     beta: { title: 'Beta diversity', subtitle: 'Sørensen turnover / nestedness • betapart' },
-    results: { title: 'Results', subtitle: '.ordin.json • exports • report' },
     settings: { title: 'Settings', subtitle: 'Theme • webR • reproducibility' },
     help: { title: 'Help', subtitle: 'SQL Workspace • vegan / iNEXT docs' },
   };
@@ -51,7 +50,7 @@ export function Toolbar() {
         <Button variant="subtle" onClick={() => set.setImportOpen(true)} className="hidden sm:inline-flex">
           <Upload size={14} className="mr-1.5" /> Import
         </Button>
-        <Button variant="ghost" onClick={() => set.setPanel('results')} className="hidden sm:inline-flex h-8">
+        <Button variant="ghost" onClick={() => { const blob=new Blob([JSON.stringify(useOrdinStore.getState().project, null, 2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${useOrdinStore.getState().project.meta.name || 'ordin'}.ordin.json`; a.click(); URL.revokeObjectURL(url); }} className="hidden sm:inline-flex h-8">
           <Download size={14} className="mr-1" /> Export
         </Button>
         <span className="w-px h-5 bg-[#2d2d30] mx-1" />

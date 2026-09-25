@@ -15,7 +15,6 @@ import { TestsPanel } from './components/panels/TestsPanel';
 import { BetaPanel } from './components/panels/BetaPanel';
 import { ClassificationPanel } from './components/panels/ClassificationPanel';
 import { TraitsPanel } from './components/panels/TraitsPanel';
-import { ResultsPanel } from './components/panels/ResultsPanel';
 import { SettingsPanel } from './components/panels/SettingsPanel';
 import { HelpPanel } from './components/panels/HelpPanel';
 import { PluginMarketplace } from './components/layout/PluginMarketplace';
@@ -45,6 +44,11 @@ export default function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [set]);
+
+  // redirect legacy 'results' panel (removed from workflow) → dashboard
+  useEffect(() => {
+    if (panel === 'results' as any) set.setPanel('dashboard');
+  }, [panel, set]);
 
   return (
     <div className="flex flex-col h-screen bg-[#121214] text-[#cccccc] selection:bg-[#2e8b57]/30">
@@ -91,9 +95,9 @@ export default function App() {
                 {panel === 'beta' && <BetaPanel />}
                 {panel === 'classification' && <ClassificationPanel />}
                 {panel === 'traits' && <TraitsPanel />}
-                {panel === 'results' && <ResultsPanel />}
                 {panel === 'settings' && <SettingsPanel />}
                 {panel === 'help' && <HelpPanel />}
+                {(panel as any) === 'results' && <DashboardPanel />}
               </ErrorBoundary>
             </div>
           </div>
