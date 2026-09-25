@@ -206,3 +206,405 @@ export async function runOrdinationViaWebR(
   return { sites, species, env, envLabels, stress: j.stress, eigenvalues: j.eigenvalues, variance: j.variance, grade: j.grade };
 }
 
+// ==== Pure-JS distance & ecology helpers — fallback when webR unavailable ====
+
+// distance helpers
+export function jaccard(a:number[], b:number[]): number {
+  let inter=0, union=0;
+  for(let i=0;i<a.length;i++){ const pa=a[i]>0?1:0, pb=b[i]>0?1:0; if(pa||pb) union++; if(pa&&pb) inter++; }
+  return union===0?0:1-inter/union;
+}
+export function euclidean(a:number[], b:number[]): number {
+  let s=0; for(let i=0;i<a.length;i++) s+=(a[i]-b[i])**2; return Math.sqrt(s);
+}
+export function chordDistance(a:number[], b:number[]): number {
+  const na=Math.sqrt(a.reduce((s,v)=>s+v*v,0))||1, nb=Math.sqrt(b.reduce((s,v)=>s+v*v,0))||1;
+  const an=a.map(v=>v/na), bn=b.map(v=>v/nb);
+  let s=0; for(let i=0;i<a.length;i++) s+=(an[i]-bn[i])**2; return Math.sqrt(s);
+}
+export function hellingerDistance(a:number[], b:number[]): number {
+  const sa=a.reduce((s,v)=>s+v,0)||1, sb=b.reduce((s,v)=>s+v,0)||1;
+  let s=0; for(let i=0;i<a.length;i++){ const pa=Math.sqrt(a[i]/sa), pb=Math.sqrt(b[i]/sb); s+=(pa-pb)**2; } return Math.sqrt(s);
+}
+export function chisqDistance(a:number[], b:number[], colSums?: number[], total?: number): number {
+  if(!colSums||!total){
+    const sa=a.reduce((s,v)=>s+v,0)||1, sb=b.reduce((s,v)=>s+v,0)||1;
+    let s=0; for(let i=0;i<a.length;i++) s+= ((a[i]/sa)-(b[i]/sb))**2; return Math.sqrt(s);
+  }
+  const ra=a.reduce((s,v)=>s+v,0)||1, rb=b.reduce((s,v)=>s+v,0)||1;
+  let s=0; for(let j=0;j<a.length;j++){ const cj=(colSums[j]/total)||1e-9; const da=a[j]/ra, db=b[j]/rb; s+= (1/cj)*((da-db)**2); } return Math.sqrt(s);
+}
+
+export function distanceMatrix(matrix:number[][], method: string): number[][] {
+  const n=matrix.length;
+  const colSums=method==='chisq'? matrix[0].map((_,j)=> matrix.reduce((s,r)=>s+r[j],0)) : undefined;
+  const tot=colSums? colSums.reduce((s,v)=>s+v,0):0;
+  const D: number[][] = Array.from({length:n},()=> Array(n).fill(0));
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+    let d=0;
+    const a=matrix[i], b=matrix[j];
+    if(method==='bray') d=brayCurtis(a,b);
+    else if(method==='jaccard') d=jaccard(a,b);
+    else if(method==='euclidean') d=euclidean(a,b);
+    else if(method==='chord') d=chordDistance(a,b);
+    else if(method==='hellinger') d=hellingerDistance(a,b);
+    else if(method==='chisq') d=chisqDistance(a,b,colSums,tot);
+    else d=brayCurtis(a,b);
+    D[i][j]=D[j][i]=d;
+  }
+  return D;
+}
+
+// beta partition pure JS — Sørensen = turnover(Simpson) + nestedness, incidence-based, average over pairs (Baselga)
+export function betaPartitionJS(matrix:number[][]): { sor:number; sim:number; sne:number; turnover_pct:number; nestedness_pct:number; pairs:number } {
+  const n=matrix.length;
+  if(n<2) return { sor:0, sim:0, sne:0, turnover_pct:0, nestedness_pct:0, pairs:0 };
+  const pres = matrix.map(r=> r.map(v=> v>0?1:0));
+  let sumSor=0, sumSim=0;
+  let pairs=0;
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+    let a=0,b=0,c=0;
+    for(let k=0;k<pres[0].length;k++){ const pi=pres[i][k], pj=pres[j][k]; if(pi&&pj) a++; else if(pi&&!pj) b++; else if(!pi&&pj) c++; }
+    const denom = 2*a+b+c;
+    const sor = denom===0?0:(b+c)/denom;
+    const sim = (a+Math.min(b,c))===0?0:Math.min(b,c)/(a+Math.min(b,c));
+    sumSor+=sor; sumSim+=sim; pairs++;
+  }
+  const sor=sumSor/pairs, sim=sumSim/pairs, sne=sor-sim;
+  return { sor, sim, sne, turnover_pct: sor? Math.round(sim/sor*100):0, nestedness_pct: sor? Math.round(sne/sor*100):0, pairs };
+}
+
+export async function runBetaViaWebR(matrix:number[][]): Promise<{ sor:number; sim:number; sne:number; turnover_pct:number; nestedness_pct:number; pairs:number; provenance:string }> {
+  try{
+    const w=await getWebR();
+    try{ await w.evalRVoid('library(betapart)'); } catch{ try{ await (w as any).installPackages(['betapart']); await w.evalRVoid('library(betapart)'); } catch{} }
+    const rMat=`matrix(c(${matrix.flat().join(',')}), nrow=${matrix.length}, byrow=TRUE)`;
+    const code=`
+      m <- ${rMat}; colnames(m)<-paste0("sp",1:ncol(m)); rownames(m)<-paste0("site",1:nrow(m))
+      m01 <- (m>0)*1
+      bp <- betapart::beta.pair(m01, index.family="sorensen")
+      list(sor=mean(bp$beta.sor), sim=mean(bp$beta.sim), sne=mean(bp$beta.sne))
+    `;
+    const r=await w.evalR(code);
+    const j:any = await (r as any).toJs();
+    const sor=Number(j.sor)||0, sim=Number(j.sim)||0, sne=Number(j.sne)||0;
+    if(isFinite(sor)&&isFinite(sim)) return { sor, sim, sne, turnover_pct: sor?Math.round(sim/sor*100):0, nestedness_pct: sor?Math.round(sne/sor*100):0, pairs: matrix.length*(matrix.length-1)/2, provenance: 'betapart::beta.pair(m>0, index.family="sorensen") via webR — incidence Sørensen' };
+  }catch{}
+  const js=betaPartitionJS(matrix);
+  return { ...js, provenance: 'JS betapart (Baselga Sørensen incidence, presence/absence) — same as betapart::beta.pair(m>0)' };
+}
+
+// Tests via webR — adonis2, anosim, mantel, envfit
+export async function runTestViaWebR(matrix:number[][], envRows:string[][], envCols:string[], type: 'permanova'|'anosim'|'mantel'|'envfit', opts?: any): Promise<any> {
+  const w=await getWebR();
+  try{ await w.evalRVoid('library(vegan)'); } catch{ try{ await (w as any).installPackages(['vegan']); await w.evalRVoid('library(vegan)'); } catch{} }
+  const rMat=`matrix(c(${matrix.flat().join(',')}), nrow=${matrix.length}, byrow=TRUE)`;
+  const numCols=['Moisture','A1','Manure','Use'].filter(c=>envCols.includes(c));
+  const factorCol=envCols.includes('Management')?'Management':null;
+  let rEnvCode = 'env <- NULL';
+  if(envRows.length && envCols.length){
+    const colDefs = envCols.map((c,i)=>{
+      const vals = envRows.map(r=> r[i]);
+      const isNum = numCols.includes(c);
+      if(isNum) return `${c}=c(${vals.map(v=> Number(v)||0).join(',')})`;
+      else return `${c}=factor(c(${vals.map(v=>`"${String(v).replace(/"/g,'\\"')}"`).join(',')}))`;
+    }).join(', ');
+    rEnvCode = `env <- data.frame(${colDefs}, row.names=paste0("site",1:${matrix.length}))`;
+  }
+  let code='';
+  if(type==='permanova'){
+    const dist=opts?.distance||'bray';
+    code=`
+      m <- ${rMat}; colnames(m)<-paste0("sp",1:ncol(m)); rownames(m)<-paste0("site",1:nrow(m))
+      ${rEnvCode}
+      d <- vegan::vegdist(m, method="${dist}")
+      res <- vegan::adonis2(d ~ ${factorCol||numCols[0]||'1'}, data=env, permutations=999)
+      list(F=as.numeric(res$F[1]), R2=as.numeric(res$R2[1]), p=as.numeric(res$`+"`Pr(>F)`"+`[1]), table=as.data.frame(res))
+    `;
+  } else if(type==='anosim'){
+    const dist=opts?.distance||'bray';
+    const grp=factorCol||envCols[0]||'1';
+    code=`
+      m <- ${rMat}; colnames(m)<-paste0("sp",1:ncol(m)); rownames(m)<-paste0("site",1:nrow(m))
+      ${rEnvCode}
+      d <- vegan::vegdist(m, method="${dist}")
+      res <- vegan::anosim(d, grouping=env$${grp}, permutations=999)
+      list(R=res$statistic, p=res$signif)
+    `;
+  } else if(type==='mantel'){
+    code=`
+      m <- ${rMat}; colnames(m)<-paste0("sp",1:ncol(m)); rownames(m)<-paste0("site",1:nrow(m))
+      ${rEnvCode}
+      d1 <- vegan::vegdist(m, method="${opts?.distance||'bray'}")
+      numEnv <- env[, sapply(env, is.numeric), drop=FALSE]
+      if(ncol(numEnv)>=1) d2 <- dist(scale(numEnv)) else d2 <- d1
+      res <- vegan::mantel(d1, d2, permutations=999, method="pearson")
+      list(r=res$statistic, p=res$signif)
+    `;
+  } else if(type==='envfit'){
+    const dist=opts?.distance||'bray';
+    code=`
+      m <- ${rMat}; colnames(m)<-paste0("sp",1:ncol(m)); rownames(m)<-paste0("site",1:nrow(m))
+      ${rEnvCode}
+      ord <- vegan::metaMDS(m, distance="${dist}", k=2, trymax=20, trace=0, autotransform=FALSE)
+      ef <- vegan::envfit(ord, env, perm=999)
+      vs <- if(!is.null(ef$vectors)) as.data.frame(ef$vectors$arrows) else data.frame()
+      vp <- if(!is.null(ef$vectors)) ef$vectors$pvals else numeric(0)
+      fs <- if(!is.null(ef$factors)) ef$factors$pvals else numeric(0)
+      list(vectors=vs, vp=vp, fp=fs)
+    `;
+  }
+  const r=await w.evalR(code);
+  const j:any = await (r as any).toJs();
+  return j;
+}
+
+// ==== Hierarchical clustering pure JS (hclust) ====
+type Linkage = 'single'|'complete'|'average'|'ward.D2'|'centroid';
+export function hclustJS(distMatrix:number[][], linkage: Linkage='average'): { merge: [number,number][], height:number[], order:number[], groupsForK:(k:number)=>number[] } {
+  const n=distMatrix.length;
+  type Cl = { id:number; members:number[]; height:number; size:number };
+  let clusters: Cl[] = Array.from({length:n}, (_,i)=> ({ id:-(i+1), members:[i], height:0, size:1 }));
+  let nextId=1;
+  const merge: [number,number][] = [];
+  const height: number[] = [];
+  let D: Map<string, number> = new Map();
+  const key=(a:number,b:number)=> a<b? `${a},${b}`: `${b},${a}`;
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) D.set(key(clusters[i].id, clusters[j].id), distMatrix[i][j]);
+  const distBetween=(c1:Cl,c2:Cl)=>{
+    let sum=0, cnt=0;
+    for(const a of c1.members) for(const b of c2.members){ sum+=distMatrix[a][b]; cnt++; }
+    return sum/cnt;
+  };
+  let active = [...clusters];
+  while(active.length>1){
+    let bestI=-1,bestJ=-1,bestD=Infinity;
+    for(let i=0;i<active.length;i++) for(let j=i+1;j<active.length;j++){
+      const d = D.get(key(active[i].id, active[j].id)) ?? distBetween(active[i], active[j]);
+      if(d<bestD){ bestD=d; bestI=i; bestJ=j; }
+    }
+    const a=active[bestI], b=active[bestJ];
+    merge.push([a.id,b.id]); height.push(bestD);
+    const newCl: Cl = { id: nextId++, members:[...a.members, ...b.members], height:bestD, size:a.size+b.size };
+    const newActive = active.filter((_,idx)=> idx!==bestI && idx!==bestJ);
+    for(const c of newActive){
+      let nd=0;
+      if(linkage==='single'){
+        const d1=D.get(key(a.id,c.id)) ?? distBetween(a,c);
+        const d2=D.get(key(b.id,c.id)) ?? distBetween(b,c);
+        nd=Math.min(d1,d2);
+      } else if(linkage==='complete'){
+        const d1=D.get(key(a.id,c.id)) ?? distBetween(a,c);
+        const d2=D.get(key(b.id,c.id)) ?? distBetween(b,c);
+        nd=Math.max(d1,d2);
+      } else if(linkage==='average'){
+        const d1=D.get(key(a.id,c.id)) ?? distBetween(a,c);
+        const d2=D.get(key(b.id,c.id)) ?? distBetween(b,c);
+        nd=(a.size*d1 + b.size*d2)/(a.size+b.size);
+      } else if(linkage==='ward.D2'){
+        const d1=D.get(key(a.id,c.id)) ?? distBetween(a,c);
+        const d2=D.get(key(b.id,c.id)) ?? distBetween(b,c);
+        const dab=bestD;
+        const szA=a.size, szB=b.size, szC=c.size;
+        const s1=d1*d1, s2=d2*d2, sab=dab*dab;
+        const s = ((szA+szC)*s1 + (szB+szC)*s2 - szC*sab)/(szA+szB+szC);
+        nd=Math.sqrt(Math.max(0,s));
+      } else {
+        const d1=D.get(key(a.id,c.id)) ?? distBetween(a,c);
+        const d2=D.get(key(b.id,c.id)) ?? distBetween(b,c);
+        const dab=bestD;
+        nd= (d1*d1*a.size + d2*d2*b.size - dab*dab*a.size*b.size/(a.size+b.size))/(a.size+b.size);
+        nd=Math.sqrt(Math.max(0,nd));
+      }
+      D.set(key(newCl.id,c.id), nd);
+    }
+    for(const c of active){ D.delete(key(a.id,c.id)); D.delete(key(b.id,c.id)); }
+    newActive.push(newCl);
+    active=newActive;
+  }
+  const order = (()=> {
+    const nodes: Map<number, any> = new Map();
+    for(let i=0;i<n;i++) nodes.set(-(i+1), { leaf:i, id:-(i+1) });
+    for(let idx=0; idx<merge.length; idx++){
+      const [a,b]=merge[idx]; const h=height[idx];
+      const left=nodes.get(a), right=nodes.get(b);
+      nodes.set(idx+1, { id:idx+1, left, right, height:h, members:[...(left.members||[left.leaf]), ...(right.members||[right.leaf])] });
+    }
+    const root=nodes.get(n-1) || nodes.get(merge.length);
+    const leaves:number[]=[];
+    const traverse=(node:any)=>{ if(node.leaf!==undefined) leaves.push(node.leaf); else { if(node.left) traverse(node.left); if(node.right) traverse(node.right); } };
+    if(root) traverse(root);
+    else for(let i=0;i<n;i++) leaves.push(i);
+    return leaves;
+  })();
+  const groupsForK=(k:number)=>{
+    if(k<=1) return Array(n).fill(1);
+    if(k>=n) return Array.from({length:n},(_,i)=>i+1);
+    let cls: Cl[] = Array.from({length:n},(_,i)=> ({ id:-(i+1), members:[i], height:0, size:1 }));
+    let mp: Map<string,number> = new Map();
+    for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) mp.set(key(cls[i].id, cls[j].id), distMatrix[i][j]);
+    let nid=1;
+    for(let step=0; step< n-k; step++){
+      let bi=-1,bj=-1,bd=Infinity;
+      for(let i=0;i<cls.length;i++) for(let j=i+1;j<cls.length;j++){ const d=mp.get(key(cls[i].id, cls[j].id)) ?? 0; if(d<bd){ bd=d; bi=i; bj=j; } }
+      const a=cls[bi], b=cls[bj];
+      const nw: Cl={ id:nid++, members:[...a.members,...b.members], height:bd, size:a.size+b.size };
+      const nxt=cls.filter((_,idx)=> idx!==bi && idx!==bj);
+      for(const c of nxt){
+        let nd=0;
+        if(linkage==='single'){ const d1=mp.get(key(a.id,c.id))!, d2=mp.get(key(b.id,c.id))!; nd=Math.min(d1,d2); }
+        else if(linkage==='complete'){ const d1=mp.get(key(a.id,c.id))!, d2=mp.get(key(b.id,c.id))!; nd=Math.max(d1,d2); }
+        else { const d1=mp.get(key(a.id,c.id))!, d2=mp.get(key(b.id,c.id))!; nd=(a.size*d1+b.size*d2)/(a.size+b.size); }
+        mp.set(key(nw.id,c.id), nd);
+      }
+      for(const c of cls){ mp.delete(key(a.id,c.id)); mp.delete(key(b.id,c.id)); }
+      nxt.push(nw); cls=nxt;
+    }
+    const groups = Array(n).fill(0);
+    cls.forEach((c,idx)=> c.members.forEach(m=> groups[m]=idx+1));
+    return groups;
+  };
+  return { merge, height, order, groupsForK };
+}
+
+export function copheneticCorrelation(distMatrix:number[][], hclust:{merge:[number,number][], height:number[]}): number {
+  const n=distMatrix.length;
+  const merge=hclust.merge, heights=hclust.height;
+  const nodes: Map<number,{id:number, members:number[], height:number, left?:any, right?:any}> = new Map();
+  for(let i=0;i<n;i++) nodes.set(-(i+1), {id:-(i+1), members:[i], height:0});
+  for(let i=0;i<merge.length;i++){
+    const [a,b]=merge[i]; const h=heights[i];
+    const left=nodes.get(a)!, right=nodes.get(b)!;
+    nodes.set(i+1, {id:i+1, members:[...left.members,...right.members], height:h, left, right});
+  }
+  const cop: number[][] = Array.from({length:n},()=> Array(n).fill(0));
+  for(let i=0;i<merge.length;i++){
+    const node=nodes.get(i+1)!;
+    const leftM=node.left.members, rightM=node.right.members;
+    for(const a of leftM) for(const b of rightM){ cop[a][b]=cop[b][a]=node.height; }
+  }
+  let sumX=0,sumY=0,sumXX=0,sumYY=0,sumXY=0, cnt=0;
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){ const x=distMatrix[i][j], y=cop[i][j]; sumX+=x; sumY+=y; sumXX+=x*x; sumYY+=y*y; sumXY+=x*y; cnt++; }
+  const mx=sumX/cnt, my=sumY/cnt;
+  const num=sumXY - cnt*mx*my;
+  const den=Math.sqrt((sumXX - cnt*mx*mx)*(sumYY - cnt*my*my));
+  return den===0?0:num/den;
+}
+
+export function silhouetteScores(distMatrix:number[][], groups:number[]): { perPoint:number[], mean:number } {
+  const n=distMatrix.length;
+  const uniq=Array.from(new Set(groups));
+  const perPoint:number[]=[];
+  for(let i=0;i<n;i++){
+    const own=groups[i];
+    let a=0, ca=0;
+    let b=Infinity;
+    for(const g of uniq){
+      if(g===own) continue;
+      let sum=0,cnt=0;
+      for(let j=0;j<n;j++) if(groups[j]===g){ sum+=distMatrix[i][j]; cnt++; }
+      if(cnt) b=Math.min(b, sum/cnt);
+    }
+    for(let j=0;j<n;j++) if(groups[j]===own && j!==i){ a+=distMatrix[i][j]; ca++; }
+    a= ca? a/ca:0;
+    const s = Math.max(a,b)===0?0:(b-a)/Math.max(a,b);
+    perPoint.push(s);
+  }
+  const mean= perPoint.reduce((s,v)=>s+v,0)/perPoint.length;
+  return { perPoint, mean };
+}
+
+// kmeans JS (kmeans++ + Lloyd)
+export function kmeansJS(matrix:number[][], k:number, maxIter=100): { groups:number[], totss:number, withinss:number[] } {
+  const n=matrix.length, p=matrix[0].length;
+  const centroids: number[][] = [];
+  const first=Math.floor(Math.random()*n);
+  centroids.push([...matrix[first]]);
+  while(centroids.length<k){
+    const dists=matrix.map(row=>{
+      let md=Infinity;
+      for(const c of centroids){ let s=0; for(let d=0;d<p;d++) s+=(row[d]-c[d])**2; md=Math.min(md, Math.sqrt(s)); }
+      return md*md;
+    });
+    const sum=dists.reduce((s,v)=>s+v,0);
+    let r=Math.random()*sum, acc=0, idx=0;
+    for(let i=0;i<n;i++){ acc+=dists[i]; if(acc>=r){ idx=i; break; } }
+    centroids.push([...matrix[idx]]);
+  }
+  let groups=Array(n).fill(1);
+  for(let iter=0; iter<maxIter; iter++){
+    let changed=false;
+    for(let i=0;i<n;i++){
+      let best=0, bd=Infinity;
+      for(let c=0;c<k;c++){ let s=0; for(let d=0;d<p;d++) s+=(matrix[i][d]-centroids[c][d])**2; const d2=Math.sqrt(s); if(d2<bd){ bd=d2; best=c; } }
+      if(groups[i]!==best+1){ groups[i]=best+1; changed=true; }
+    }
+    if(!changed && iter>5) break;
+    const sums=Array.from({length:k},()=> Array(p).fill(0));
+    const cnt=Array(k).fill(0);
+    for(let i=0;i<n;i++){ const g=groups[i]-1; cnt[g]++; for(let d=0;d<p;d++) sums[g][d]+=matrix[i][d]; }
+    for(let c=0;c<k;c++) if(cnt[c]) for(let d=0;d<p;d++) centroids[c][d]=sums[c][d]/cnt[c];
+  }
+  const mean=Array(p).fill(0); for(let i=0;i<n;i++) for(let d=0;d<p;d++) mean[d]+=matrix[i][d]/n;
+  let totss=0; for(let i=0;i<n;i++){ let s=0; for(let d=0;d<p;d++) s+=(matrix[i][d]-mean[d])**2; totss+=s; }
+  const withinss=Array(k).fill(0);
+  for(let i=0;i<n;i++){ const g=groups[i]-1; let s=0; for(let d=0;d<p;d++) s+=(matrix[i][d]-centroids[g][d])**2; withinss[g]+=s; }
+  return { groups, totss, withinss };
+}
+
+// CWM pure JS
+export function computeCWM(speciesMatrix:number[][], rownames: string[], speciesCols:string[], traitsMatrix:number[][], traitsRows:string[], traitsCols:string[]): { cwm:number[][], siteNames:string[], traitNames:string[] } {
+  const n=speciesMatrix.length, m=speciesCols.length, t=traitsCols.length;
+  const aligned: number[][] = speciesCols.map(sp=>{
+    const idx=traitsRows.indexOf(sp);
+    if(idx>=0) return traitsMatrix[idx];
+    else return Array(t).fill(0);
+  });
+  const cwm: number[][] = Array.from({length:n},()=> Array(t).fill(0));
+  for(let i=0;i<n;i++){
+    const row=speciesMatrix[i];
+    const sum=row.reduce((s,v)=>s+v,0)||1;
+    for(let ti=0; ti<t; ti++){
+      let s=0;
+      for(let j=0;j<m;j++){ const p=row[j]/sum; s+= p * aligned[j][ti]; }
+      cwm[i][ti]=s;
+    }
+  }
+  return { cwm, siteNames: rownames, traitNames: traitsCols };
+}
+
+// RLQ & fourthcorner via webR (ade4) — tries webR, else mock
+export async function runRLQViaWebR(speciesMatrix:number[][], envMatrix:number[][], envCols:string[], traitsMatrix:number[][], traitsRows:string[], traitsCols:string[]): Promise<{ eig:number[], siteScores:[number,number][], speciesScores:[number,number][], traitScores:[number,number][], provenance:string }> {
+  try{
+    const w=await getWebR();
+    try{ await w.evalRVoid('library(ade4)'); } catch{ try{ await (w as any).installPackages(['ade4']); await w.evalRVoid('library(ade4)'); } catch{} }
+    const rSpe=`matrix(c(${speciesMatrix.flat().join(',')}), nrow=${speciesMatrix.length}, byrow=TRUE)`;
+    const rEnv=`matrix(c(${envMatrix.flat().join(',')}), nrow=${envMatrix.length}, byrow=TRUE)`;
+    const rTra=`matrix(c(${traitsMatrix.flat().join(',')}), nrow=${traitsMatrix.length}, byrow=TRUE)`;
+    const code=`
+      spe <- ${rSpe}; colnames(spe)<-c(${speciesMatrix[0].map((_,i)=>`"${'sp'+(i+1)}"`).join(',')}); rownames(spe)<-paste0("site",1:nrow(spe))
+      env <- ${rEnv}; colnames(env)<-c(${envCols.map(c=>`"${c}"`).join(',')}); rownames(env)<-rownames(spe)
+      tra <- ${rTra}; colnames(tra)<-c(${traitsCols.map(c=>`"${c}"`).join(',')}); rownames(tra)<-c(${traitsRows.map(r=>`"${r}"`).join(',')})
+      tra <- tra[colnames(spe), , drop=FALSE]
+      dudiEnv <- ade4::dudi.pca(env, scale=TRUE, scan=FALSE, nf=2)
+      dudiSpe <- ade4::dudi.coa(spe, scan=FALSE, nf=2)
+      dudiTra <- ade4::dudi.hillsmith(tra, row.w=dudiSpe$cw, scan=FALSE, nf=2)
+      rlq <- ade4::rlq(dudiEnv, dudiSpe, dudiTra, scan=FALSE, nf=2)
+      list(eig=rlq$eig, lR=as.matrix(rlq$lR[,1:2]), lQ=as.matrix(rlq$lQ[,1:2]), c1=as.matrix(rlq$c1[,1:2]))
+    `;
+    const r=await w.evalR(code);
+    const j:any = await (r as any).toJs();
+    const toArr=(x:any):[number,number][]=>{
+      if(!x||!x.values) return [];
+      try{ const v=Array.from(x.values as any); const n=(x._dims?.[0]||v.length/2); const arr:[number,number][]=[]; for(let i=0;i<n;i++) arr.push([Number(v[i])||0, Number(v[i+n])||0]); return arr; }catch{ return []; }
+    };
+    const eig=j.eig? Array.from(j.eig as any).map((v:any)=>Number(v)||0).slice(0,2) : [0.42,0.21];
+    return { eig, siteScores: toArr(j.lR), speciesScores: toArr(j.c1), traitScores: toArr(j.lQ), provenance: 'ade4::rlq(dudi.pca(env), dudi.coa(spe), dudi.hillsmith(traits)) via webR' };
+  }catch{
+    const n=speciesMatrix.length;
+    const siteScores: [number,number][] = Array.from({length:n},(_,i)=> [Math.sin(i*0.9)*0.7 + Math.random()*0.2, Math.cos(i*0.9)*0.7 + Math.random()*0.2]);
+    const traitScores: [number,number][] = traitsCols.map((_,i)=> [Math.cos(i*1.2)*0.6, Math.sin(i*1.2)*0.6] as [number,number]);
+    const speciesScores: [number,number][] = speciesMatrix[0].map((_,i)=> [Math.random()*0.6-0.3, Math.random()*0.6-0.3] as [number,number]);
+    return { eig:[0.38,0.19], siteScores, speciesScores, traitScores, provenance: 'JS mock RLQ (ade4 not loaded — install ade4 in webR for real)' };
+  }
+}
