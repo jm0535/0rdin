@@ -1,6 +1,6 @@
 import { Card, Button } from '@ordin/ui';
 import { DiversityPlotCustomization, defaultDiversitySettings, downloadHighResSvg } from '../PlotCustomization';
-import { runTestViaWebR } from '@ordin/processing';
+import { runTestViaWebR, runVarpartViaWebR, runAnovaViaWebR } from '@ordin/processing';
 import { useOrdinStore } from '@ordin/core';
 import { useState } from 'react';
 import { WorkflowFooter } from '../layout/WorkflowFooter';
@@ -75,10 +75,13 @@ export function TestsPanel() {
     if (!hasData) return;
     setRunning('anova');
     try {
+      const matrix = useOrdinStore.getState().project.data.species!.matrix;
+      const env = useOrdinStore.getState().project.data.env;
+      const res = await runAnovaViaWebR(matrix, env?.rows??[], env?.columns??[], 'overall');
       const { useOrdinStore: store } = await import('@ordin/core');
       // @ts-ignore
-      store.setState((s: any) => { s.project.analyses.anova_cca = { F: 4.2, p: 0.001, ranAt: new Date().toISOString() }; });
-    } finally { setRunning(null); }
+      store.setState((s: any) => { s.project.analyses.anova_cca = { F: res.F, p: res.p, ranAt: new Date().toISOString(), provenance: res.provenance }; });
+    } catch(e){ console.error(e); } finally { setRunning(null); }
   };
   const runForward = async () => {
     if (!hasData) return;
@@ -88,9 +91,15 @@ export function TestsPanel() {
   };
   const runVarpart = async () => {
     if (!hasData) return;
-    const { useOrdinStore: store } = await import('@ordin/core');
-    // @ts-ignore
-    store.setState((s: any) => { s.project.analyses.varpart = { fractions: [0.18, 0.12, 0.08], ranAt: new Date().toISOString() }; });
+    setRunning('varpart');
+    try{
+      const matrix = useOrdinStore.getState().project.data.species!.matrix;
+      const env = useOrdinStore.getState().project.data.env;
+      const res = await runVarpartViaWebR(matrix, env?.rows??[], env?.columns??[]);
+      const { useOrdinStore: store } = await import('@ordin/core');
+      // @ts-ignore
+      store.setState((s: any) => { s.project.analyses.varpart = { fractions: res.fractions, ranAt: new Date().toISOString(), provenance: res.provenance }; });
+    }catch(e){ console.error(e); } finally{ setRunning(null); }
   };
 
   return (
