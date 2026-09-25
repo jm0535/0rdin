@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Button, Badge } from '@ordin/ui';
 import { DiversityPlotCustomization, defaultDiversitySettings } from '../PlotCustomization';
 import { runInextViaWebR } from '@ordin/processing';
@@ -160,6 +160,26 @@ export function DiversityPanel() {
   const isCrossIsolated = typeof crossOriginIsolated !== 'undefined' ? crossOriginIsolated : false;
   const isTauri = typeof window !== 'undefined' && (window as any).__TAURI__ !== undefined;
   const realRAvailable = isTauri || isCrossIsolated; // web app prod needs COOP/COEP, Tauri bundles it
+  const [webrLoading, setWebrLoading] = useState(false);
+  const [webrError, setWebrError] = useState<string | null>(null);
+  // auto-preload webR when user opts in, so badge shows real progress before first Run
+  useEffect(() => {
+    if (!useRealWebR || !realRAvailable || webrReady || webrLoading) return;
+    let cancelled = false;
+    setWebrLoading(true); setWebrError(null);
+    (async () => {
+      try {
+        const { getWebR } = await import('@ordin/processing');
+        await getWebR();
+        if (!cancelled) { setWebRReady(true); }
+      } catch (e:any) {
+        if (!cancelled) setWebrError(e?.message || String(e));
+      } finally {
+        if (!cancelled) setWebrLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [useRealWebR, realRAvailable, webrReady, webrLoading, setWebRReady]);
 
 
   const run = async () => {
@@ -214,7 +234,7 @@ export function DiversityPanel() {
       {hasData && (
         <>
         <Card className="p-4 border-[#2d2d30] bg-[#1e1e1e]">
-          <div className="text-xs font-semibold tracking-widest text-[#2e8b57] flex items-center gap-2">iNEXT CONTROLS — manual (like shiny) <span className={`ml-auto text-[11px] px-2 py-0.5 rounded-full border ${webrReady ? 'bg-[#2e8b57]/20 text-[#2e8b57] border-[#2e8b57]/30' : 'bg-[#d4a017]/15 text-[#d4a017] border-[#d4a017]/30'}`}>{webrReady ? 'webR ready' : 'webR loading…'}</span></div>
+          <div className="text-xs font-semibold tracking-widest text-[#2e8b57] flex items-center gap-2">iNEXT CONTROLS — manual (like shiny) <span className={`ml-auto text-[11px] px-2 py-0.5 rounded-full border ${webrReady ? 'bg-[#2e8b57]/20 text-[#2e8b57] border-[#2e8b57]/30' : webrLoading ? 'bg-[#4a90e2]/20 text-[#4a90e2] border-[#4a90e2]/30 animate-pulse' : webrError ? 'bg-[#e06c75]/20 text-[#e06c75] border-[#e06c75]/30' : 'bg-[#3e3e42] text-[#858585] border-[#3e3e42]'}`}>{webrReady ? 'webR ready ✓' : webrLoading ? 'webR loading… (downloading WASM + iNEXT ~30 MB, 15-30s first time)' : webrError ? `webR error: ${webrError.slice(0,60)}` : 'webR idle — toggle ON or Run to init'}</span></div>
           <div className="mt-3 flex items-center gap-2 p-2 rounded bg-[#252526] border border-[#3e3e42]">
             <label className="flex items-center gap-2 text-xs font-medium flex-1"><input type="checkbox" checked={useRealWebR} onChange={e=>setUseRealWebR(e.target.checked)} disabled={!realRAvailable} className="accent-[#2e8b57] disabled:opacity-50" /> Use REAL iNEXT via webR (webr 0.4 + iNEXT) — live R on your data {realRAvailable ? '' : '(needs COOP/COEP — Tauri or prod web)'}</label>
             <span className={`text-[11px] px-1.5 py-0.5 rounded ${realRAvailable ? 'bg-[#2e8b57]/20 text-[#2e8b57]' : 'bg-[#d4a017]/20 text-[#d4a017]'}`}>{realRAvailable ? (useRealWebR ? 'ON → real R (available here)' : 'OFF → mock') : 'preview iframe — mock only (prod web + Tauri will have real R)'}</span>

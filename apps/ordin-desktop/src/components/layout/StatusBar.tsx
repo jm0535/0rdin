@@ -18,7 +18,7 @@ export function StatusBar() {
       </span>
       <span className="opacity-30">|</span>
       <span className="flex items-center gap-1">
-        <Cpu size={11} className="opacity-70" /> webR {webrReady ? 'ready' : 'loading…'}
+        <Cpu size={11} className="opacity-70" /> webR {webrReady ? 'ready ✓' : 'idle (loads on Run)'}
       </span>
       <span className="hidden sm:inline opacity-30">|</span>
       <span className="hidden sm:inline-flex items-center gap-1">
