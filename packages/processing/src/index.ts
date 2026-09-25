@@ -88,3 +88,121 @@ export async function runInextViaWebR(
   const j = await (r as any).toJs();
   return j as any;
 }
+// Ordination via webR — supports all 11 methods, returns site/species/env scores + stats
+export async function runOrdinationViaWebR(
+  matrix: number[][],
+  envMatrix: number[][] | null,
+  envColNames: string[] | null,
+  opts: { method: string; distance: string; k: number }
+): Promise<{ sites: [number,number][]; species: [number,number][]; env: [number,number][]; envLabels: string[]; stress?: number; eigenvalues?: number[]; variance?: number[]; grade?: string }> {
+  const w = await getWebR();
+  try { await w.evalRVoid('library(vegan)'); } catch { try { await (w as any).installPackages(['vegan']); await w.evalRVoid('library(vegan)'); } catch {} }
+  const rMatrix = `matrix(c(${matrix.flat().join(',')}), nrow=${matrix.length}, byrow=TRUE)`;
+  const rEnv = envMatrix && envColNames ? `env <- matrix(c(${envMatrix.flat().join(',')}), nrow=${envMatrix.length}, byrow=TRUE); colnames(env) <- c(${envColNames.map(c=>`"${c}"`).join(',')}); rownames(env) <- paste0("site",1:nrow(env))` : `env <- NULL`;
+  const k = opts.k; const dist = opts.distance; const m = opts.method;
+  let rCode = "";
+  if (m === 'nmds') {
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    ${rEnv}
+    res <- vegan::metaMDS(m, distance="${dist}", k=${k}, trymax=20, trace=0, autotransform=FALSE)
+    s <- as.matrix(res$points); sp <- tryCatch(as.matrix(vegan::scores(res, display="species")), error=function(e) matrix(0, nrow=0,ncol=2))
+    ef <- if (!is.null(env)) tryCatch({ ef <- vegan::envfit(res, env, perm=0); as.matrix(ef$vectors$arrows) }, error=function(e) matrix(0,nrow=0,ncol=2)) else matrix(0,nrow=0,ncol=2)
+    list(sites=s, species=sp, env=ef, envLabels=if(nrow(ef)>0) rownames(ef) else character(0), stress=res$stress, grade=NA)
+    `;
+  } else if (m === 'pca' || m === 'tb-pca') {
+    const trans = m==='tb-pca' ? 'm <- vegan::decostand(m, "hellinger")' : ''
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    ${trans}
+    res <- vegan::rda(m)
+    s <- as.matrix(vegan::scores(res, display="sites", choices=1:2))
+    sp <- as.matrix(vegan::scores(res, display="species", choices=1:2))
+    ev <- vegan::eigenvals(res); va <- 100*ev/sum(ev)
+    list(sites=s, species=sp, env=matrix(0,nrow=0,ncol=2), envLabels=character(0), eigenvalues=as.numeric(ev[1:2]), variance=as.numeric(va[1:2]))
+    `;
+  } else if (m === 'ca') {
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    res <- vegan::cca(m)
+    s <- as.matrix(vegan::scores(res, display="sites", choices=1:2))
+    sp <- as.matrix(vegan::scores(res, display="species", choices=1:2))
+    list(sites=s, species=sp, env=matrix(0,nrow=0,ncol=2), envLabels=character(0))
+    `;
+  } else if (m === 'dca') {
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    res <- vegan::decorana(m)
+    s <- as.matrix(vegan::scores(res, display="sites", choices=1:2))
+    sp <- as.matrix(vegan::scores(res, display="species", choices=1:2))
+    list(sites=s, species=sp, env=matrix(0,nrow=0,ncol=2), envLabels=character(0))
+    `;
+  } else if (m === 'pcoa') {
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    d <- vegan::vegdist(m, method="${dist}")
+    res <- vegan::wcmdscale(d, eig=TRUE)
+    s <- as.matrix(res$points[,1:2])
+    list(sites=s, species=matrix(0,nrow=0,ncol=2), env=matrix(0,nrow=0,ncol=2), envLabels=character(0), eigenvalues=as.numeric(res$eig[1:2]))
+    `;
+  } else if (m === 'rda' || m === 'tb-rda') {
+    const trans2 = m==='tb-rda' ? 'm <- vegan::decostand(m, "hellinger");' : ''
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    ${rEnv}
+    ${trans2}
+    df <- as.data.frame(env)
+    res <- vegan::rda(m ~ ., data=df)
+    s <- as.matrix(vegan::scores(res, display="sites", choices=1:2))
+    sp <- as.matrix(vegan::scores(res, display="species", choices=1:2))
+    bp <- as.matrix(vegan::scores(res, display="bp", choices=1:2))
+    list(sites=s, species=sp, env=bp, envLabels=rownames(bp), eigenvalues=as.numeric(vegan::eigenvals(res)[1:2]))
+    `;
+  } else if (m === 'cca') {
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    ${rEnv}
+    df <- as.data.frame(env)
+    res <- vegan::cca(m ~ ., data=df)
+    s <- as.matrix(vegan::scores(res, display="sites", choices=1:2))
+    sp <- as.matrix(vegan::scores(res, display="species", choices=1:2))
+    bp <- as.matrix(vegan::scores(res, display="bp", choices=1:2))
+    list(sites=s, species=sp, env=bp, envLabels=rownames(bp))
+    `;
+  } else if (m === 'dbrda' || m === 'cap') {
+    rCode = `
+    m <- ${rMatrix}; colnames(m) <- paste0("sp",1:ncol(m)); rownames(m) <- paste0("site",1:nrow(m))
+    ${rEnv}
+    df <- as.data.frame(env)
+    res <- vegan::capscale(m ~ ., data=df, distance="${dist}")
+    s <- as.matrix(vegan::scores(res, display="sites", choices=1:2))
+    sp <- tryCatch(as.matrix(vegan::scores(res, display="species", choices=1:2)), error=function(e) matrix(0,nrow=0,ncol=2))
+    bp <- as.matrix(vegan::scores(res, display="bp", choices=1:2))
+    list(sites=s, species=sp, env=bp, envLabels=rownames(bp))
+    `;
+  } else {
+    rCode = `list(sites=matrix(0,nrow=0,ncol=2), species=matrix(0,nrow=0,ncol=2), env=matrix(0,nrow=0,ncol=2), envLabels=character(0))`
+  }
+  const r = await w.evalR(rCode);
+  const j = await (r as any).toJs();
+  // normalize to JS arrays
+  const toArr = (x:any): [number,number][] => {
+    if (!x || !x.values) return [];
+    // x is R matrix as object with values
+    try {
+      const v = x.values ? Array.from(x.values as any) : [];
+      const dims = x._dims || [v.length/2,2];
+      const n = dims[0];
+      const arr: [number,number][] = [];
+      for (let i=0;i<n;i++) arr.push([Number(v[i])||0, Number(v[i+n])||0]);
+      return arr;
+    } catch { return []; }
+  };
+  // fallback if already array
+  const sites = Array.isArray(j.sites) ? j.sites as [number,number][] : toArr(j.sites);
+  const species = Array.isArray(j.species) ? j.species as [number,number][] : toArr(j.species);
+  const env = Array.isArray(j.env) ? j.env as [number,number][] : toArr(j.env);
+  const envLabels = j.envLabels ? Array.from(j.envLabels as any).map(String) : [];
+  return { sites, species, env, envLabels, stress: j.stress, eigenvalues: j.eigenvalues, variance: j.variance, grade: j.grade };
+}
+
