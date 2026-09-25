@@ -18,9 +18,12 @@ const METHODS = [
   { id: 'cap', label: 'CAP' },
 ] as const;
 
-function OrdinationSVG({ sites, species, speciesLabels, siteGroups, env, envLabels, method, scaling, showSites=true, showSpecies=true, showEnv=true, id, width=520, height=360 }: { sites: [number,number][]; species: [number,number][]; speciesLabels?: string[]; siteGroups?: string[]; env: [number,number][]; envLabels?: string[]; method: string; scaling?: number; showSites?: boolean; showSpecies?: boolean; showEnv?: boolean; id?: string; width?: number; height?: number }) {
+function OrdinationSVG({ sites, species, speciesLabels, siteGroups, env, envLabels, method, scaling, showSites=true, showSpecies=true, showEnv=true, id, width=520, height=360, settings }: { sites: [number,number][]; species: [number,number][]; speciesLabels?: string[]; siteGroups?: string[]; env: [number,number][]; envLabels?: string[]; method: string; scaling?: number; showSites?: boolean; showSpecies?: boolean; showEnv?: boolean; id?: string; width?: number; height?: number; settings?: any }) {
   const W=width, H=height, ML=40, MR=12, MT=14, MB=32;
   const plotW=W-ML-MR, plotH=H-MT-MB;
+  const themeBg = settings?.theme==='dark' ? '#1e1e1e' : settings?.theme==='void' ? 'transparent' : 'white';
+  const fg = settings?.theme==='dark' ? '#cccccc' : '#333';
+  const gridC = settings?.theme==='dark' ? '#2d2d30' : '#f0f0f0';
   if (!sites || sites.length===0) return <div className="h-[360px] grid place-items-center text-xs text-[#858585] bg-white rounded border">No scores yet — click Run</div>;
   // compute bounds
   const allX = [...sites.map(s=>s[0]), ...species.map(s=>s[0]), ...env.map(s=>s[0]), ...env.map(s=> -s[0])];
@@ -37,13 +40,13 @@ function OrdinationSVG({ sites, species, speciesLabels, siteGroups, env, envLabe
   const groupColor: Record<string,string> = { 'SF':'#4a90e2','BF':'#e06c75','HF':'#2e8b57','NM':'#d4a017' };
   const defaultCols = ['#4a90e2','#e06c75','#2e8b57','#d4a017','#9b59b6','#e67e22'];
   return (
-    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full bg-white rounded border">
+    <svg id={id} viewBox={`0 0 ${W} ${H}`} className="w-full rounded border" style={{background: themeBg, fontFamily: settings?.fontFamily==='serif'?'Georgia,serif': settings?.fontFamily==='mono'?'ui-monospace,monospace':'IBM Plex Sans, system-ui'}}>
       {/* grid */}
-      {[0,0.25,0.5,0.75,1].map(t=> <line key={`gx${t}`} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke="#f0f0f0" strokeWidth={0.5} />)}
-      {[0,0.25,0.5,0.75,1].map(t=> <line key={`gy${t}`} y1={MT} y2={H-MB} x1={ML+t*plotW} x2={ML+t*plotW} stroke="#f0f0f0" strokeWidth={0.5} />)}
+      {[0,0.25,0.5,0.75,1].map(t=> <line key={`gx${t}`} x1={ML} x2={W-MR} y1={MT+t*plotH} y2={MT+t*plotH} stroke={gridC} strokeWidth={0.5} />)}
+      {[0,0.25,0.5,0.75,1].map(t=> <line key={`gy${t}`} y1={MT} y2={H-MB} x1={ML+t*plotW} x2={ML+t*plotW} stroke={gridC} strokeWidth={0.5} />)}
       {/* axes through origin */}
-      <line x1={ML} y1={y0} x2={W-MR} y2={y0} stroke="#333" strokeWidth={0.8} />
-      <line x1={x0} y1={MT} x2={x0} y2={H-MB} stroke="#333" strokeWidth={0.8} />
+      <line x1={ML} y1={y0} x2={W-MR} y2={y0} stroke={fg} strokeWidth={0.8} />
+      <line x1={x0} y1={MT} x2={x0} y2={H-MB} stroke={fg} strokeWidth={0.8} />
       {/* env arrows first (behind) */}
       {showEnv && env.map((e,i)=> {
         const x1=x0, y1=y0, x2=xScale(e[0]), y2=yScale(e[1]);
@@ -65,16 +68,18 @@ function OrdinationSVG({ sites, species, speciesLabels, siteGroups, env, envLabe
       {showSites && sites.map((s,i)=> {
         const grp = siteGroups?.[i] ?? '';
         const col = groupColor[grp] ?? defaultCols[i % defaultCols.length];
-        return <circle key={`site${i}`} cx={xScale(s[0])} cy={yScale(s[1])} r={4} fill={col} stroke="white" strokeWidth={1} />;
+        const r = settings?.pointSize ?? 4;
+        const useCol = settings?.pointColor && settings?.pointColor!=='#2e8b57' && !siteGroups ? settings.pointColor : col;
+        return <circle key={`site${i}`} cx={xScale(s[0])} cy={yScale(s[1])} r={r} fill={useCol} stroke="white" strokeWidth={settings?.pointLwd ?? 1} />;
       })}
       {/* axis labels */}
-      <text x={W/2} y={H-8} textAnchor="middle" fontSize={8} fill="#333">{method.toUpperCase()}1</text>
-      <text transform={`rotate(-90 ${12} ${H/2})`} x={12} y={H/2} textAnchor="middle" fontSize={8} fill="#333">{method.toUpperCase()}2</text>
+      <text x={W/2} y={H-8} textAnchor="middle" fontSize={8} fill={fg}>{method.toUpperCase()}1</text>
+      <text transform={`rotate(-90 ${12} ${H/2})`} x={12} y={H/2} textAnchor="middle" fontSize={8} fill={fg}>{method.toUpperCase()}2</text>
       {/* legend for groups */}
       {siteGroups && (
         <g transform={`translate(${W-MR-90} ${MT+4})`}>
           {Array.from(new Set(siteGroups)).slice(0,4).map((g,i)=> (
-            <g key={g} transform={`translate(0 ${i*12})`}><circle cx={4} cy={4} r={4} fill={groupColor[g as string] ?? '#999'} stroke="white" strokeWidth={0.8} /><text x={12} y={7} fontSize={7} fill="#333">{String(g)}</text></g>
+            <g key={g} transform={`translate(0 ${i*12})`}><circle cx={4} cy={4} r={4} fill={groupColor[g as string] ?? '#999'} stroke="white" strokeWidth={0.8} /><text x={12} y={7} fontSize={7} fill={fg}>{String(g)}</text></g>
           ))}
         </g>
       )}
@@ -263,7 +268,7 @@ export function OrdinationPanel() {
           <Card className="p-3">
             <h3 className="font-semibold mb-1 flex items-center gap-2">Plot — {method.toUpperCase()} {plotType==='triplot' ? 'triplot' : plotType==='biplot' ? 'biplot' : 'sites'} (scaling {scaling}) <span className="text-xs font-normal text-[#858585]">{result.method} • {result.distance} • k={String(result.k)} {result.stress ? `• stress ${result.stress.toFixed(3)}` : result.eigenvalues ? `• eig ${result.eigenvalues.map((v:number)=>v.toFixed(2)).join(', ')}` : ''}</span></h3>
             <div className="text-[11px] text-[#858585] mb-2">{plotType==='triplot' ? 'sites (points, coloured by Management) + species (green text) + env vectors (gold arrows) — triplot' : plotType==='biplot' ? 'sites + env vectors — biplot (species hidden)' : 'sites only'} — deck.gl layers emulated in SVG (sites=scatter, species=text, env=arrows). Switch Scaling/Plot type live.</div>
-            <OrdinationSVG id="ordination-plot-svg" sites={result.sites} species={result.species} speciesLabels={result.speciesLabels} siteGroups={result.siteGroups} env={result.env} envLabels={result.envLabels} method={result.method} scaling={scaling} showSites={showSitesEff} showSpecies={showSpeciesEff} showEnv={showEnvEff} />
+            <OrdinationSVG id="ordination-plot-svg" sites={result.sites} species={result.species} speciesLabels={result.speciesLabels} siteGroups={result.siteGroups} env={result.env} envLabels={result.envLabels} method={result.method} scaling={scaling} showSites={showSitesEff} showSpecies={showSpeciesEff} showEnv={showEnvEff} settings={plotSettings} />
             <div className="text-[11px] text-[#858585] mt-2">Provenance: {result.provenance} • {result.ranAt ? new Date(result.ranAt).toLocaleString() : '—'} {result.stress ? `• Stress ${result.stress.toFixed(3)} (${(result.stress<0.1?'Excellent':result.stress<0.15?'Good':'Fair')})` : ''}</div>
           </Card>
           <Card className="p-3">
