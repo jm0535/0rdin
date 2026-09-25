@@ -1,8 +1,58 @@
 # Ördin Project Overview
 
+> **Current release: Ördin 4.0.0** — React + Vite front end, Tauri desktop shell,
+> DuckDB-WASM data engine and R via webR.
+> See [`../ARCHITECTURE.md`](../ARCHITECTURE.md) for the authoritative v4 description
+> and [`../DEVELOPMENT.md`](../DEVELOPMENT.md) for the workflow.
+> The sections after "Legacy v3 architecture" describe the Shiny/Electron app in
+> `shiny/` and `src/`, which is retained for maintenance only.
+
 ## Project Mission
 
-Ördin is an **enterprise-grade community ecology analysis platform** that combines the analytical power of R with modern desktop application design. It provides ecologists, researchers, and students with professional tools for analyzing community composition, diversity patterns, ordination, and ecological indices through an intuitive, cross-platform interface.
+Ördin is an open-source community ecology analysis platform that pairs the
+analytical authority of R (`vegan`, `iNEXT`, `betapart`, `adespatial`) with a
+modern, keyboard-driven interface — and removes the installation barrier by
+running R in WebAssembly.
+
+## v4 structure at a glance
+
+```
+0rdin/
+├── apps/ordin-desktop     # Vite + React application (also the Tauri front end)
+├── packages/core          # OrdinProject schema + Zustand store
+├── packages/processing    # webR bridge + JS statistics
+├── packages/ui            # shared UI primitives
+├── packages/map           # optional MapLibre helper
+├── docs/                  # documentation + GitHub Pages site
+├── sample-data/           # example datasets
+├── scripts/ tools/ ci/    # build helpers, linters, R CI bootstrap
+├── shiny/ src/            # legacy v3 application (maintenance only)
+└── vercel.json            # COOP/COEP headers required by webR/DuckDB-WASM
+```
+
+### v4 components
+
+| Component | Role |
+| --- | --- |
+| `apps/ordin-desktop/src/App.tsx` | Shell: activity bar, sidebar, inspector, status bar, panel routing, hotkeys |
+| `components/panels/*` | Dashboard, Data, Diversity, Ordination, Tests, Beta, Classification, Traits, Settings, Help |
+| `@ordin/core` | `OrdinProject` schema (zod), Zustand store, validation |
+| `@ordin/processing` | `getWebR()` plus `run*ViaWebR()` analyses and JS fast paths |
+| `@ordin/ui` / `@ordin/map` | Presentational primitives / MapLibre helper |
+| Tauri shell | Desktop packaging, bundles webR offline |
+
+### Technology stack (v4)
+
+Tauri 2 · React 18 · TypeScript 5.8 · Vite 6 · Tailwind CSS 3 · Zustand 5 + Immer ·
+zod · DuckDB-WASM 1.33 · Apache Arrow 21 · webR 0.4 · deck.gl 9 · MapLibre GL 6 ·
+Comlink · Node.js ≥ 22.
+
+---
+
+# Legacy v3 architecture
+
+> Everything below documents Ördin 3.0 (R Shiny inside Electron). It is accurate
+> for the `shiny/` and `src/` trees only.
 
 ## Project Structure
 
@@ -243,12 +293,12 @@ Output to out/make/
 ### For End Users (No R Required)
 
 **Windows:**
-1. Download `Ördin-3.0.0 Setup.exe`
+1. Download `Ördin-4.0.0 Setup.exe`
 2. Run installer
 3. Launch from Start Menu or Desktop
 
 **macOS:**
-1. Download `Ordin-darwin-x64-3.0.0.zip`
+1. Download `Ordin-darwin-x64-4.0.0.zip`
 2. Unzip to get `Ördin.app`
 3. Drag to Applications folder
 4. Launch like any Mac app
@@ -379,6 +429,6 @@ npm install @electron-forge/cli@latest --save-dev
 
 ---
 
-**Project Version**: 3.0.0  
+**Project Version**: 4.0.0  
 **Last Updated**: 2025-10-24  
 **Status**: Production Ready ✅

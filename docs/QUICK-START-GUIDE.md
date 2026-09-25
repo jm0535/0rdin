@@ -1,17 +1,22 @@
-# \u00d6rdin v2.0 - Quick Start Guide
+# Ördin 2.x/3.x — Quick Start Guide (legacy)
 
-## \ud83d\ude80 Getting Started in 5 Minutes
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](DOCS-INDEX.md) ·
+> [Quick Start](QUICKSTART.md) · [Architecture](ARCHITECTURE.md).
 
-Welcome to **\u00d6rdin** - your enterprise-grade biodiversity analysis desktop application!
+## 🚀 Getting Started in 5 Minutes
+
+Welcome to **Ördin** - your enterprise-grade biodiversity analysis desktop application!
 
 ---
 
-## \ud83d\udce6 Installation
+## 📦 Installation
 
 ### Windows
-1. Download `\u00d6rdin-2.0.0 Setup.exe`
+1. Download `Ördin-2.0.0 Setup.exe`
 2. Run the installer
-3. Launch \u00d6rdin from Start Menu or Desktop
+3. Launch Ördin from Start Menu or Desktop
 4. **Professional splash screen** appears during startup
 5. Main application window opens automatically
 
@@ -35,11 +40,11 @@ ordin
 
 ---
 
-## \ud83d\udcca Your First Analysis
+## 📊 Your First Analysis
 
 ### Step 1: Prepare Your Data
 
-\u00d6rdin accepts **CSV files** with the following structure:
+Ördin accepts **CSV files** with the following structure:
 
 **For Abundance Data** (individual counts):
 ```csv
@@ -57,7 +62,7 @@ Trap2,0,1,1
 Trap3,1,1,0
 ```
 
-\ud83d\udca1 **Tip**: Try the included sample datasets first! Find them in the "Sample Data" dropdown.
+💡 **Tip**: Try the included sample datasets first! Find them in the "Sample Data" dropdown.
 
 ---
 
@@ -65,14 +70,14 @@ Trap3,1,1,0
 
 1. Click **"Browse"** button in the sidebar
 2. Select your CSV file
-3. \u00d6rdin automatically previews your data
-4. \u2705 Data validation happens in real-time
+3. Ördin automatically previews your data
+4. ✅ Data validation happens in real-time
 
 ---
 
 ### Step 3: Choose Analysis Type
 
-#### \ud83d\udcca **Diversity Estimation** (iNEXT)
+#### 📊 **Diversity Estimation** (iNEXT)
 Calculates species diversity using rarefaction/extrapolation:
 
 **Data Type Selection**:
@@ -85,14 +90,14 @@ Calculates species diversity using rarefaction/extrapolation:
 2. **Sample completeness** (Type 2) - How complete is your survey?
 3. **Coverage-based** (Type 3) - Fair comparison at equal completeness
 
-**Advanced Options** (\u269b\ufe0f Optional):
+**Advanced Options** (⚛️ Optional):
 - **Hill Numbers**: Select q=0 (richness), q=1 (Shannon), q=2 (Simpson)
 - **Knots**: Curve smoothness (10-200, default: 40)
 - **Bootstrap Replicates**: Confidence interval accuracy (10-500, default: 50)
 - **Confidence Level**: CI width (0.80-0.99, default: 0.95)
 - **Extrapolation Endpoint**: How far to extrapolate (default: double sample size)
 
-#### \ud83d\uddfa\ufe0f **Ordination Analysis** (vegan NMDS)
+#### 🗺️ **Ordination Analysis** (vegan NMDS)
 Visualizes community composition patterns:
 
 **Parameters**:
@@ -103,7 +108,7 @@ Visualizes community composition patterns:
 
 ### Step 4: Run Analysis
 
-1. Click **"\u25b6\ufe0f Run Analysis"** button
+1. Click **"▶️ Run Analysis"** button
 2. **Progress indicator** shows real-time status:
    - "Validating data..." (10%)
    - "Checking data quality..." (5%)
@@ -115,13 +120,13 @@ Visualizes community composition patterns:
 
 ### Step 5: Explore Results
 
-#### \ud83d\udcca Summary Table
+#### 📊 Summary Table
 - Interactive table with sorting and filtering
 - Click column headers to sort
 - Use search box to find specific sites/species
 - **Download CSV**: Click "CSV" button in table toolbar
 
-#### \ud83d\udcc8 Visualization
+#### 📈 Visualization
 - High-quality plot with dark theme
 - Shaded confidence intervals (for iNEXT)
 - Professional styling for publications
@@ -134,13 +139,13 @@ Visualizes community composition patterns:
 #### Choose Your Format:
 
 **Raster Formats** (300 DPI):
-- **PNG** \u2192 General use, presentations, web
-- **TIFF** \u2192 Journal submission, archival
-- **JPEG** \u2192 Smaller file size, presentations
+- **PNG** → General use, presentations, web
+- **TIFF** → Journal submission, archival
+- **JPEG** → Smaller file size, presentations
 
 **Vector Formats** (scalable):
-- **SVG** \u2192 Web, infinite zoom, modern journals
-- **PostScript** \u2192 LaTeX documents, academic publishing
+- **SVG** → Web, infinite zoom, modern journals
+- **PostScript** → LaTeX documents, academic publishing
 
 #### Export Steps:
 1. Above the plot, click the **format selector dropdown**
@@ -149,36 +154,36 @@ Visualizes community composition patterns:
 4. File saved as: `ordin_[analysis-type]_plot_[date].[format]`
 
 #### Export Specifications:
-- **Dimensions**: 12" \u00d7 8" (standard publication size)
+- **Dimensions**: 12" × 8" (standard publication size)
 - **Resolution**: 300 DPI for raster formats (journal standard)
 - **Background**: Dark theme (#222222) preserved
 - **Font**: Helvetica family (PostScript compatible)
 
 ---
 
-## \ud83d\udcda Sample Datasets
+## 📚 Sample Datasets
 
-\u00d6rdin includes 4 real research datasets:
+Ördin includes 4 real research datasets:
 
-### 1. \ud83d\udd77\ufe0f **Spider Abundance**
+### 1. 🕷️ **Spider Abundance**
 - **Type**: Abundance data
 - **Description**: Spider communities from Girdled/logged forests
 - **Use for**: Individual-based rarefaction
 - **Recommended**: Plot Type 1 or 3
 
-### 2. \ud83d\udc26 **Bird Abundance**
+### 2. 🐦 **Bird Abundance**
 - **Type**: Abundance data
 - **Description**: Breeding bird surveys from mixed forests
 - **Use for**: Diversity comparison across sites
 - **Recommended**: Plot Type 3 (coverage-based)
 
-### 3. \ud83e\udda0 **Ciliates Abundance**
+### 3. 🦠 **Ciliates Abundance**
 - **Type**: Abundance data
 - **Description**: Soil ciliate communities
 - **Use for**: Microorganism diversity analysis
 - **Recommended**: Plot Type 1 or 2
 
-### 4. \ud83d\udc1c **Ant Incidence**
+### 4. 🐜 **Ant Incidence**
 - **Type**: Incidence-frequency data
 - **Description**: Ant species from Malaysian rainforest (trap-based)
 - **Use for**: Incidence-based rarefaction
@@ -186,7 +191,7 @@ Visualizes community composition patterns:
 
 ---
 
-## \ud83d\udee0\ufe0f Advanced Features
+## 🛠️ Advanced Features
 
 ### iNEXT Advanced Options
 
@@ -195,7 +200,7 @@ Visualizes community composition patterns:
 - **q=1** (Shannon Diversity) - Weighted by abundance
 - **q=2** (Simpson Diversity) - Emphasizes dominant species
 
-\ud83d\udca1 **Tip**: Select multiple to compare diversity perspectives!
+💡 **Tip**: Select multiple to compare diversity perspectives!
 
 #### Knots (10-200)
 - Controls curve smoothness
@@ -216,58 +221,58 @@ Visualizes community composition patterns:
 
 #### Extrapolation Endpoint
 - How far to project beyond your sample
-- **Default**: 2\u00d7 your largest sample size
-- **Conservative**: 1.5\u00d7 sample size
-- **Exploratory**: 3\u00d7 sample size
+- **Default**: 2× your largest sample size
+- **Conservative**: 1.5× sample size
+- **Exploratory**: 3× sample size
 
 ---
 
-## \u2728 What's New in v2.0?
+## ✨ What's New in v2.0?
 
-### \ud83c\udfa8 Professional Splash Screen
-- **Animated \u00d6 logo** during app loading
+### 🎨 Professional Splash Screen
+- **Animated Ö logo** during app loading
 - Rotating status messages
 - Smooth transition to main window
 - Enterprise-grade first impression
 
-### \ud83d\udcbe Publication-Quality Exports
+### 💾 Publication-Quality Exports
 - **5 export formats**: PNG, TIFF, JPEG, SVG, PostScript
 - **300 DPI** raster output (journal standard)
 - **Vector formats** for infinite scalability
-- **Consistent 12"\u00d78"** dimensions
+- **Consistent 12"×8"** dimensions
 
-### \ud83d\udd04 Enhanced Progress Indicators
+### 🔄 Enhanced Progress Indicators
 - Real-time feedback for all data types
 - Incremental progress updates
 - Fixed: Progress not showing for incidence data
 - Validation steps clearly communicated
 
-### \ud83c\udfaf Improved UI/UX
+### 🎯 Improved UI/UX
 - Removed redundant download buttons
 - Contextual export controls (above each plot)
 - Better parameter organization
 - Professional visual hierarchy
 
-### \ud83d\udc1b Critical Fixes
+### 🐛 Critical Fixes
 - **Results display**: 100% reliable, no more stuck welcome page
-- **Logo rendering**: \u00d6 fully visible at all zoom levels
+- **Logo rendering**: Ö fully visible at all zoom levels
 - **Progress feedback**: Immediate response for all analyses
 - **Icon cleanup**: No duplicate download icons
 
 ---
 
-## \ud83d\udd0d Troubleshooting
+## 🔍 Troubleshooting
 
 ### Results Not Showing?
-- \u2705 **Fixed in v2.0!** Results now display reliably
+- ✅ **Fixed in v2.0!** Results now display reliably
 - If issues persist, try refreshing the page (Ctrl+R / Cmd+R)
 
 ### Progress Indicator Not Appearing?
-- \u2705 **Fixed in v2.0!** Progress shows immediately for all data types
+- ✅ **Fixed in v2.0!** Progress shows immediately for all data types
 - Validation steps now provide incremental feedback
 
 ### Logo Cut Off at Top?
-- \u2705 **Fixed in v2.0!** \u00d6 logo fully visible at 100% zoom
+- ✅ **Fixed in v2.0!** Ö logo fully visible at 100% zoom
 - Proper spacing for umlaut dots at all zoom levels
 
 ### Data Upload Fails?
@@ -278,7 +283,7 @@ Visualizes community composition patterns:
 ### Analysis Takes Too Long?
 - Large datasets may take time (normal)
 - Progress bar shows current step
-- For iNEXT: Reduce bootstrap replicates (e.g., 50 \u2192 20)
+- For iNEXT: Reduce bootstrap replicates (e.g., 50 → 20)
 
 ### Plot Export Issues?
 - Ensure you've run analysis first
@@ -287,7 +292,7 @@ Visualizes community composition patterns:
 
 ---
 
-## \ud83d\udcda Further Reading
+## 📚 Further Reading
 
 ### Essential Documentation
 - **README.md** - Installation and setup guide
@@ -307,7 +312,7 @@ Visualizes community composition patterns:
 
 ---
 
-## \ud83d\udcac Support
+## 💬 Support
 
 ### Get Help
 - **GitHub Issues**: [Report bugs or request features](https://github.com/jm0535/0rdin/issues)
@@ -321,14 +326,14 @@ Visualizes community composition patterns:
 
 ---
 
-## \ud83c\udfc6 Best Practices
+## 🏆 Best Practices
 
 ### For Publication-Ready Results:
 
 1. **Use appropriate data type**:
-   - Abundance data \u2192 "Abundance"
-   - Trap-based data \u2192 "Incidence (Frequency)"
-   - Presence/absence matrix \u2192 "Incidence (Raw)"
+   - Abundance data → "Abundance"
+   - Trap-based data → "Incidence (Frequency)"
+   - Presence/absence matrix → "Incidence (Raw)"
 
 2. **Choose the right plot type**:
    - **Type 1** - Standard comparison
@@ -348,15 +353,15 @@ Visualizes community composition patterns:
 5. **Document your analysis**:
    - Download summary CSV for data tables
    - Note all parameter settings used
-   - Include \u00d6rdin version in methods section
+   - Include Ördin version in methods section
 
 ---
 
-## \ud83d\ude80 What's Next?
+## 🚀 What's Next?
 
 ### Future Modules (v2.1+)
 
-\u00d6rdin v2.0 establishes the foundation for expansion:
+Ördin v2.0 establishes the foundation for expansion:
 
 1. **Ordination Module** (v2.1) - Expand from NMDS to 8 methods (PCA, CA, DCA, CCA, RDA, etc.)
 2. **Diversity Indices** (v2.2) - Shannon, Simpson, evenness indices
@@ -368,21 +373,21 @@ See **IMPLEMENTATION-STATUS.md** for complete roadmap!
 
 ---
 
-## \ud83d\udc4f Acknowledgments
+## 👏 Acknowledgments
 
 - **iNEXT team** (Anne Chao, T.C. Hsieh, K.H. Ma) - Rarefaction framework
 - **vegan developers** - Community ecology toolkit
 - **Electron & R Shiny communities** - Development frameworks
-- **You!** - For using \u00d6rdin in your research
+- **You!** - For using Ördin in your research
 
 ---
 
-## \ud83c\udf93 Citation
+## 🎓 Citation
 
-If you use \u00d6rdin in your research:
+If you use Ördin in your research:
 
 ```
-Moses, J. (2025). \u00d6rdin v2.0: Enterprise-grade biodiversity analysis desktop application. 
+Moses, J. (2025). Ördin v2.0: Enterprise-grade biodiversity analysis desktop application. 
 GitHub: https://github.com/jm0535/0rdin
 ```
 
@@ -395,6 +400,6 @@ extrapolation of species diversity (Hill numbers). Methods in Ecology and Evolut
 
 ---
 
-**Happy Analyzing! \ud83c\udf3f\ud83d\udd0d**
+**Happy Analyzing! 🌿🔍**
 
 *Version 2.0.0 | Last Updated: 2025-01-25*

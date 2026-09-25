@@ -1,8 +1,12 @@
 # Ördin Code Standards & Best Practices
 
 **Author:** Jimmy Moses (jimmy.moses@pnguot.ac.pg)  
-**Version:** 3.0  
+**Applies to:** the legacy v3 R Shiny tree (`shiny/`)  
 **Last Updated:** October 29, 2025
+
+> ⚠️ **Legacy document.** Standards for the current TypeScript/React codebase
+> live in [`CONTRIBUTING.md`](CONTRIBUTING.md#code-style-guide) and
+> [`../docs/DEVELOPMENT.md`](../docs/DEVELOPMENT.md#conventions).
 
 ---
 

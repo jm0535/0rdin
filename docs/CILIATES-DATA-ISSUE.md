@@ -1,5 +1,10 @@
 # Ciliates Abundance Data Issue - Diagnostic Report
 
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](DOCS-INDEX.md) ·
+> [Quick Start](QUICKSTART.md) · [Architecture](ARCHITECTURE.md).
+
 **Status**: ❌ Data quality issue identified  
 **Dataset**: `sample-data/ciliates-abundance.csv`  
 **Date**: 2025-10-23

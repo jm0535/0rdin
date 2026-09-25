@@ -1,182 +1,85 @@
-# Quick Start Guide for Ördin
+# Quick Start — Ördin 4
 
-Welcome to **Ördin** - your desktop biodiversity analysis companion!
+Ördin runs R (`vegan`, `iNEXT`, `betapart`) directly in the browser through WebAssembly. **You do not need R installed.**
 
-## First Time Setup
+## 1. Choose how to run it
 
-### 1. Prerequisites Check
+### A. Online (fastest)
 
-Before running Ördin for the first time, ensure you have:
+Open <https://ordin.in4metrix.dev>. The first visit downloads the R runtime once, then caches it — later visits work offline. You can also install it as an app from your browser's address bar (PWA).
 
-- ✅ **Node.js** (v18 or v20 LTS) - [Download here](https://nodejs.org)
-- ✅ **Git** - [Download here](https://git-scm.com)
-- ✅ **R** (v4.0+) - [Download here](https://www.r-project.org/)
+### B. Desktop app
 
-#### Windows Only:
-- ✅ **Cygwin** with `wget` - [Download here](https://cygwin.com)
-- ✅ **Innoextract** - Install via: `choco install innoextract`
+Download the installer for your platform from the [Releases page](https://github.com/jm0535/0rdin/releases) and run it. The desktop build bundles R offline.
 
-### 2. Install Dependencies
-
-Open a terminal in the `ordin` folder and run:
+### C. From source (developers)
 
 ```bash
-npm install
+git clone https://github.com/jm0535/0rdin.git
+cd 0rdin
+npm install     # Node.js >= 22
+npm run dev     # open http://localhost:9054
 ```
 
-This will install all required Node.js packages for Electron.
+See [`DEVELOPMENT.md`](DEVELOPMENT.md) for the full developer workflow.
 
-### 3. Set Up Portable R
+## 2. Prepare your data
 
-#### On Windows (using Cygwin):
-```bash
-cd /cygdrive/c/path/to/ordin
-./get-r-win.sh
+A species matrix is a CSV/Excel table with **sites in rows** and **taxa in columns**:
+
+```csv
+Site,Species_A,Species_B,Species_C
+Site1,12,0,3
+Site2,5,7,0
+Site3,0,4,9
 ```
 
-#### On macOS:
-```bash
-./get-r-mac.sh
-```
+Rules of thumb:
 
-This downloads and extracts a portable R installation (no admin rights needed).
+- First column = site identifiers (unique, no blanks).
+- All other cells numeric, no negatives, no missing values.
+- At least 3 sites and 2 species for most analyses.
+- Environmental data goes in a separate file with the same site column.
+- Trait data is taxa × traits.
 
-### 4. Install R Packages
+Details: [`guides/DATA-STRUCTURE-GUIDE.md`](guides/DATA-STRUCTURE-GUIDE.md) · [`guides/INCIDENCE-VS-ABUNDANCE.md`](guides/INCIDENCE-VS-ABUNDANCE.md)
 
-```bash
-Rscript add-cran-binary-pkgs.R
-```
+No data yet? Open the **Data** panel and load a bundled dataset (`dune`, `varespec`, `BCI`) or pick a file from [`sample-data/`](../sample-data).
 
-This installs all required biodiversity packages:
-- `shiny` - Web application framework
-- `bslib` - Modern UI theming
-- `vegan` - Community ecology package (NMDS ordination)
-- `iNEXT` - Diversity estimation
-- `ggplot2` - Data visualization
-- `DT` - Interactive tables
-- `readr` - CSV file reading
+## 3. Run your first analysis
 
-**Note**: This may take 5-10 minutes depending on your internet connection.
+1. **Data (1)** — import your file (or load a sample). Check the preview grid and, if needed, apply a transformation (Hellinger for ordination of abundances, presence/absence for incidence work).
+2. **Diversity (2)** — set `q = 0, 1, 2`, choose `abundance` or `incidence`, then run. You get rarefaction/extrapolation curves with bootstrap confidence intervals and asymptotic estimates.
+3. **Ordination (4)** — start with NMDS + Bray-Curtis (`k = 2`). Check the stress value: < 0.05 excellent, < 0.1 good, < 0.2 usable, > 0.2 suspect. Use the DCA gradient-length adviser to decide between linear (PCA/RDA) and unimodal (CA/CCA) methods.
+4. **Tests (5)** — run PERMANOVA (`adonis2`) on a grouping variable, and PERMDISP (`betadisper`) to confirm the result is not driven by unequal dispersion.
+5. **Beta (3)** — partition total dissimilarity into turnover and nestedness.
+6. Export the figure (SVG/PNG at your chosen DPI) and the tables (CSV/JSON), or save the whole session as a `.ordin` project.
 
-## Running Ördin
+## 4. Useful shortcuts
 
-### Development Mode
+| Shortcut | Action |
+|---|---|
+| `Ctrl/Cmd + K` | Command palette |
+| `Ctrl/Cmd + B` | Toggle left sidebar |
+| `Ctrl/Cmd + I` | Toggle right inspector |
 
-To test the app during development:
+The **status bar** shows the webR runtime state and the provenance of the current result — always check that a result says `REAL … via webR` before reporting it.
 
-```bash
-npm start
-```
+## 5. Troubleshooting
 
-This opens Ördin in a window with developer tools available (Ctrl+Shift+I).
+| Symptom | Fix |
+|---|---|
+| Results labelled as mock/preview | The page is not cross-origin isolated. Use the deployed site, the desktop app, or the local dev server (all send COOP/COEP headers). |
+| "Analysis unavailable" on first run | The R runtime is still downloading. Wait for the status bar to read *ready*. |
+| Import rejected | Check for non-numeric cells, blank rows, or a missing site column. |
+| Very slow analysis on a big matrix | Reduce permutations/bootstraps first; consider the desktop build for large datasets. |
+| Port 9054 already in use (dev) | `npm run dev -- --port 5173` |
 
-### Building for Production
+More: [`TROUBLESHOOTING-RESULTS-DISPLAY.md`](TROUBLESHOOTING-RESULTS-DISPLAY.md) · [`HELP_GUIDE.md`](HELP_GUIDE.md)
 
-To create a standalone executable:
+## 6. Where to next
 
-```bash
-npm run make
-```
-
-**Output locations:**
-- **Windows**: `out/make/squirrel.windows/x64/Ördin-1.0.0 Setup.exe`
-- **macOS**: `out/make/zip/darwin/x64/Ordin-darwin-x64-1.0.0.zip`
-
-The executable includes everything needed - users don't need R installed!
-
-## Using Ördin
-
-### 1. Prepare Your Data
-
-Create a CSV file with:
-- **First column**: Site/sample names
-- **Other columns**: Species abundances (numeric)
-
-Example: `sample-data/example-biodiversity.csv`
-
-### 2. Upload Data
-
-Click "Upload Species Abundance CSV" and select your file.
-
-### 3. Choose Analysis
-
-**Option A: Diversity Estimation (iNEXT)**
-- Calculates species richness, Shannon, and Simpson diversity
-- Generates rarefaction/extrapolation curves
-- Best for comparing diversity across sites
-
-**Option B: Ordination (NMDS via vegan)**
-- Visualizes similarity between sites
-- Set dimensions (2 recommended for visualization)
-- Lower stress values indicate better fit (< 0.1 is excellent)
-
-### 4. Run Analysis
-
-Click "Run Analysis" and wait for results (usually < 30 seconds).
-
-### 5. Explore Results
-
-- **Summary Table**: Interactive table with key statistics
-- **Visualization**: Plot showing diversity curves or ordination
-- **Downloads**: Export tables (CSV) and plots (PNG)
-
-## Tips & Tricks
-
-### Data Quality
-- Ensure all abundance values are integers (whole numbers)
-- Use `0` for absent species (not blank cells)
-- Remove empty columns before upload
-
-### NMDS Interpretation
-- **Stress < 0.05**: Excellent representation
-- **Stress 0.05-0.1**: Good representation
-- **Stress 0.1-0.2**: Acceptable (usable but some distortion)
-- **Stress > 0.2**: Poor fit - consider fewer dimensions
-
-### Performance
-- Large datasets (>100 species, >50 sites) may take longer
-- For NMDS, fewer dimensions = faster computation
-- Close other applications if Ördin runs slowly
-
-## Troubleshooting
-
-### "Port already in use" error
-Another app is using port 9054. Either:
-- Close the other app, or
-- Edit `src/start-shiny.R` and change `options(shiny.port = 9054)` to a different port
-
-### R packages fail to install
-Try installing manually in RStudio:
-```r
-install.packages(c("shiny", "bslib", "vegan", "iNEXT", "ggplot2", "DT", "readr"))
-```
-
-### App won't start
-1. Check Node.js version: `node -v` (should be v18 or v20)
-2. Reinstall dependencies: `rm -rf node_modules && npm install`
-3. Check R installation: `R --version`
-
-### CSV upload errors
-- Verify CSV format (first column = sites, others = numeric)
-- Check for special characters in column names
-- Ensure file is comma-separated (not semicolon or tab)
-
-## Getting Help
-
-For issues or questions:
-1. Check the [README.md](../README.md) for detailed information
-2. Review sample data in `sample-data/` folder
-3. Contact: Jimmy Moses (jmoses@pnguot.ac.pg)
-
-## Next Steps
-
-- Customize the theme in `shiny/app.R`
-- Add your own logo to `build/icon.png`
-- Explore advanced vegan features (see [vegan documentation](https://github.com/vegandevs/vegan))
-- Try different ordination methods by editing the R code
-
----
-
-**Happy analyzing!** 🌿📊
-
-*Ördin - Bringing Odin's wisdom to your ecological data*
+- [Workflow](WORKFLOW.md) — the full Data → Transform → Choose → Constrain → Test → Visualise path
+- [Features overview](FEATURES-OVERVIEW.md)
+- [Ordination guide](guides/ENTERPRISE_ORDINATION_GUIDE.md) · [CCA/RDA guide](guides/CCA_RDA_GUIDE.md)
+- [iNEXT parameters](INEXT-PARAMETERS-GUIDE.md) · [Publication-quality plots](PUBLICATION-QUALITY-PLOTS.md)

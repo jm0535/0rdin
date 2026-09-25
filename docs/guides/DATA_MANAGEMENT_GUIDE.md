@@ -1,4 +1,4 @@
-# Ördin v3.0 - Data Management Module
+# Ördin 4 — Data Management
 
 ## Overview
 The **Data Management** tab provides a professional, Excel-like interface for importing, editing, and managing community ecology datasets. This module supports dual datasets (species + environment) and cloud integration, following best practices from CANOCO and vegan workflows.

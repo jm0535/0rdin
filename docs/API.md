@@ -1,8 +1,144 @@
-# Ördin API Documentation
+# Ördin API Reference
 
-> Documents the module/service API as implemented in `shiny/` (v3.0).
-> The app is not an installable R package: `shiny/app.R` sources everything
-> with relative paths and runs via `shiny::runApp("shiny")`.
+> Ördin **4.0.0**. Documents the TypeScript API exported by the `@ordin/*` workspace
+> packages in `packages/`. The legacy v3 Shiny module/service API is preserved as an
+> [appendix](#appendix--legacy-v3-shiny-api).
+
+## Package map
+
+| Package | Path | Responsibility |
+| --- | --- | --- |
+| `@ordin/core` | `packages/core` | Project schema, validation, global Zustand store |
+| `@ordin/processing` | `packages/processing` | webR bridge + JavaScript statistics |
+| `@ordin/ui` | `packages/ui` | Shared presentational primitives |
+| `@ordin/map` | `packages/map` | MapLibre helper for optional site maps |
+
+---
+
+## `@ordin/core`
+
+### Types
+
+| Export | Description |
+| --- | --- |
+| `SpeciesMatrixSchema`, `SpeciesMatrix` | zod schema / type for a sites × taxa matrix (`rownames`, `colnames`, `values`) |
+| `EnvTableSchema`, `EnvTable` | zod schema / type for the environmental table |
+| `PanelId` | `'dashboard' \| 'data' \| 'diversity' \| 'ordination' \| 'tests' \| 'beta' \| 'classification' \| 'traits' \| 'results' \| 'settings' \| 'help'` |
+| `OrdinProject` | Serialisable project: `version`, `meta`, `data`, `analyses`, `view` |
+
+### Functions
+
+| Export | Signature | Description |
+| --- | --- | --- |
+| `validateSpeciesMatrix` | `(m: SpeciesMatrix \| null) => { valid: boolean; reason?: string }` | Structural check before an analysis runs |
+| `defaultProject` | `() => OrdinProject` | Empty project (`version: '4.0'`, dashboard panel, dark theme) |
+| `useOrdinStore` | Zustand hook | Global state; see below |
+
+### Store (`useOrdinStore`)
+
+State:
+
+| Key | Description |
+| --- | --- |
+| `project` | The active `OrdinProject` |
+| `webrReady` | `true` once the webR runtime has booted |
+| `ui` | `{ sidebarOpen, inspectorOpen, commandOpen, importOpen, pluginOpen, inspectorTab }` |
+
+Actions:
+
+| Action | Description |
+| --- | --- |
+| `setPanel(panel)` | Switch the active panel |
+| `setSpecies(matrix)` / `setEnv(table)` / `setTraits(matrix)` | Replace a dataset (validated) |
+| `loadSample('dune' \| 'varespec' \| 'BCI')` | Load a bundled dataset |
+| `runNMDS({ k, distance })` | Run NMDS and store the result in `project.analyses.nmds` |
+| `clearData()` | Reset all datasets and analyses |
+| `setWebRReady(v)` | Runtime status, used by the status bar |
+| `setSidebarOpen` / `setInspectorOpen` / `setCommandOpen` / `setImportOpen` / `setPluginOpen` / `setInspectorTab` | UI toggles |
+
+Usage:
+
+```ts
+import { useOrdinStore } from '@ordin/core';
+
+const species = useOrdinStore((s) => s.project.data.species);
+const runNMDS = useOrdinStore((s) => s.runNMDS);
+await runNMDS({ k: 2, distance: 'bray' });
+```
+
+Mutations are applied through Immer producers, so reducers may "mutate" the draft safely.
+
+---
+
+## `@ordin/processing`
+
+### Runtime
+
+| Export | Signature | Description |
+| --- | --- | --- |
+| `WebRStatus` | `'idle' \| 'loading' \| 'ready' \| 'error'` | Runtime state |
+| `getWebR()` | `() => Promise<WebR>` | Boots (once) and returns the shared webR instance |
+
+All `*ViaWebR` helpers return a `provenance` string describing how the number was produced (for example `REAL vegan::adonis2 via webR`). Panels must display it.
+
+### R-backed analyses
+
+| Export | Purpose | R behind it |
+| --- | --- | --- |
+| `runNMDSViaWebR(matrix, { k, distance, trymax? })` | NMDS stress + point scores | `vegan::metaMDS` |
+| `runOrdinationViaWebR(matrix, envMatrix, envColNames, { method, distance, k })` | Site/species/env scores, eigenvalues, variance, DCA grade for NMDS, PCA, tb-PCA, CA, DCA, PCoA, CCA, RDA, db-RDA, CAP | `vegan::metaMDS / rda / cca / decorana / wcmdscale / dbrda / capscale` + `envfit` |
+| `runInextViaWebR(matrix, { q, datatype, knots, endpoint, nboot, conf })` | `DataInfo`, `AsyEst`, `iNextEst` | `iNEXT::iNEXT` |
+| `runBetaViaWebR(matrix)` | Sørensen `sor`, turnover `sim`, nestedness `sne` + percentages | `betapart::beta.multi` / `vegan::vegdist` |
+| `runTestViaWebR(matrix, envRows, envCols, type, opts?)` | `'permanova' \| 'anosim' \| 'mantel' \| 'envfit'` | `vegan::adonis2 / anosim / mantel / envfit` |
+| `runVarpartViaWebR(speciesMatrix, envRows, envCols)` | Variation-partitioning fractions | `vegan::varpart` |
+| `runAnovaViaWebR(speciesMatrix, envRows, envCols, by?)` | Permutation `F` and `p` for constrained models | `vegan::anova.cca` |
+| `runRLQViaWebR(species, env, envCols, traits, traitRows, traitCols)` | Eigenvalues and site/species/trait scores | `ade4` RLQ via `vegan`/`ade4` |
+
+### JavaScript fast paths
+
+Used for instant previews and as a fallback when cross-origin isolation is unavailable.
+
+| Export | Description |
+| --- | --- |
+| `shannon(row)` / `simpson(row)` | Alpha-diversity indices for one site |
+| `brayCurtis(a, b)`, `jaccard(a, b)`, `euclidean(a, b)`, `chordDistance(a, b)`, `hellingerDistance(a, b)`, `chisqDistance(a, b, colSums?, total?)` | Pairwise dissimilarities |
+| `distanceMatrix(matrix, method)` | Full dissimilarity matrix for the methods above |
+| `betaPartitionJS(matrix)` | Baselga partitioning (`sor`, `sim`, `sne`, percentages, pair count) |
+| `hclustJS(distMatrix, linkage)` | Hierarchical clustering; returns `merge`, `height`, `order`, `groupsForK(k)` |
+| `copheneticCorrelation(distMatrix, hclust)` | Clustering quality |
+| `silhouetteScores(distMatrix, groups)` | `{ perPoint, mean }` |
+| `kmeansJS(matrix, k, maxIter?)` | `{ groups, totss, withinss }` |
+| `computeCWM(speciesMatrix, rownames, speciesCols, traitsMatrix, traitsRows, traitsCols)` | Community-weighted means |
+
+---
+
+## `@ordin/ui`
+
+React primitives styled for the Ördin shell: `Button` (`default \| ghost \| outline \| subtle`), `Card`, `Badge` (`success \| info \| warn \| neutral`), `Input`, `Separator` (`horizontal \| vertical`), `Dialog` (`open`, `onOpenChange`), `Sheet` (`side: 'left' \| 'right'`). All accept `className` for Tailwind overrides and forward native props.
+
+---
+
+## `@ordin/map`
+
+| Export | Signature | Description |
+| --- | --- | --- |
+| `MapProps` | type | `container` options: style URL, centre, zoom, points |
+| `createMap(container, opts)` | `=> maplibregl.Map` | Creates the optional site map; only used when the dataset has lon/lat |
+| `maplibregl` | re-export | Direct access to the MapLibre API |
+
+---
+
+## Project file format (`.ordin`)
+
+A `.ordin` bundle serialises the whole `OrdinProject` (schema `version: '4.0'`) together with the imported tables, written by `apps/ordin-desktop/src/lib/downloadOrdin.ts`. Because analyses store their parameters, timestamps (`ranAt`) and `provenance`, reopening a project reproduces the exact reported results.
+
+---
+
+# Appendix — legacy v3 Shiny API
+
+> The following documents `shiny/` (Ördin 3.0). The app is not an installable R
+> package: `shiny/app.R` sources everything with relative paths and runs via
+> `shiny::runApp("shiny")`. Kept for maintenance of the legacy tree only.
 
 ## Architecture Overview
 

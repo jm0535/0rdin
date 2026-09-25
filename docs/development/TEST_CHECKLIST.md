@@ -1,5 +1,10 @@
 # Ördin Data Loading Test Checklist
 
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](../DOCS-INDEX.md) ·
+> [Quick Start](../QUICKSTART.md) · [Architecture](../ARCHITECTURE.md).
+
 ## BEFORE TESTING - RESTART APP
 1. ✅ Kill all R processes: `Get-Process | Where-Object {$_.ProcessName -eq "Rterm" -or $_.ProcessName -eq "R"} | Stop-Process -Force`
 2. ✅ Start app: Run `.\restart_app.ps1` OR manually run `shiny::runApp(port=9054)` in R

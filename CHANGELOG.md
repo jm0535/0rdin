@@ -4,7 +4,55 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Fixed
+### Documentation
+- Full documentation refresh for 4.0: `README.md`, `docs/QUICKSTART.md`,
+  `docs/DEVELOPMENT.md`, `docs/API.md`, `docs/FEATURES-OVERVIEW.md` and
+  `docs/development/PROJECT_OVERVIEW.md` now describe the Tauri/React/webR app.
+- New [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (stack, monorepo layout,
+  data flow, webR bridge, cross-origin isolation) and
+  [`docs/DOCS-INDEX.md`](docs/DOCS-INDEX.md) (complete documentation index).
+- Documents that describe the v3 Shiny/Electron app now carry a *legacy* banner;
+  the v3 Shiny module/service API is preserved as an appendix in `docs/API.md`.
+- Fixed escaped-unicode corruption (`\u00d6` → `Ö`) in three documents and
+  refreshed the GitHub Pages landing content (`docs/index.md`, `docs/README.md`).
+
+## [4.0.0] - 2026-09-25
+
+Complete rewrite. Ördin moves from R Shiny inside Electron to a browser-native
+application that runs R in WebAssembly.
+
+### Added
+- **webR runtime** — `vegan`, `iNEXT`, `betapart`, `adespatial`, `FD`, `picante`
+  execute client-side; no R installation required. Every result carries a
+  provenance string.
+- **New front end** — React 18 + TypeScript + Vite 6 + Tailwind, with a VS
+  Code-inspired shell (activity bar, sidebar, right inspector, status bar,
+  workflow footer, command palette).
+- **Tauri desktop shell** with offline-bundled webR, plus a PWA build.
+- **DuckDB-WASM + Apache Arrow** data engine with a SQL inspector and a
+  virtualised grid.
+- **Workspace packages** `@ordin/core` (project schema + Zustand store),
+  `@ordin/processing` (webR bridge + JS statistics), `@ordin/ui`, `@ordin/map`.
+- **Panels**: Dashboard, Data, Diversity, Ordination, Tests, Beta,
+  Classification, Traits, Settings, Help, plus a plugin marketplace scaffold.
+- **Classification** (hierarchical clustering, k-means, cophenetic correlation,
+  silhouette) and **Traits** (CWM, RLQ, fourth-corner) analyses.
+- **`.ordin` project files** bundling data, analyses, parameters and provenance.
+- **Web deployment** at `ordin.in4metrix.dev` with COOP/COEP headers
+  (`vercel.json`) required for `SharedArrayBuffer`.
+
+### Changed
+- Node.js ≥ 22 is now required; the repository is an npm workspaces monorepo.
+- `npm run dev` (Vite, port 9054) replaces `npm start` (Electron + Shiny).
+- Statistics are invoked through `@ordin/processing`, with JavaScript fast paths
+  for instant previews and a clearly labelled mock mode where cross-origin
+  isolation is unavailable.
+
+### Deprecated
+- The v3 Shiny (`shiny/`) and Electron (`src/`) trees are maintenance-only and
+  are reachable via `npm run legacy:start`.
+
+### Fixed (legacy v3 tree, carried into this release)
 - **Truly asynchronous NMDS**: a `future::multisession` plan is now configured
   at app startup (`shiny/app.R`), so `async_ordination()` actually runs in
   background R processes instead of blocking the Shiny session. The auto-run

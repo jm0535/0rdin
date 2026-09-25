@@ -1,5 +1,10 @@
 # Developer Guide: Implementing Reproducibility in Ördin Modules
 
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](../DOCS-INDEX.md) ·
+> [Quick Start](../QUICKSTART.md) · [Architecture](../ARCHITECTURE.md).
+
 **Author:** Jimmy Moses (jimmy.moses@pnguot.ac.pg)  
 **Date:** October 25, 2025  
 **Version:** 1.0  

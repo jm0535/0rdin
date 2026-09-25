@@ -1,462 +1,155 @@
-# Development Guide for Ördin
+# Development Guide — Ördin 4
 
-This guide is for developers who want to modify, extend, or contribute to the Ördin project.
+For developers modifying, extending or contributing to Ördin. Read [`ARCHITECTURE.md`](ARCHITECTURE.md) first for the big picture.
 
-## Project Architecture
+## Prerequisites
 
-### Technology Stack
+| Tool | Version | Notes |
+|---|---|---|
+| Node.js | **≥ 22** | enforced by `engines` in `package.json` |
+| npm | ≥ 10 | workspaces are required |
+| Git | any recent | |
+| Rust toolchain | stable | only for Tauri desktop builds |
+| R | ≥ 4.4 | only for the legacy `shiny/` app and R CI scripts |
 
-- **Frontend**: R Shiny with {bslib} (Bootstrap 5)
-- **Backend**: R (vegan, iNEXT packages)
-- **Desktop Framework**: Electron
-- **Build System**: Electron Forge
-- **Package Manager**: npm (Node.js)
+Linux desktop builds additionally need the [Tauri system dependencies](https://tauri.app/start/prerequisites/) (WebKitGTK, libsoup, etc.).
 
-### Directory Structure
-
-```
-ordin/
-├── src/                    # Electron main process
-│   ├── index.js           # Main Electron entry point
-│   └── start-shiny.R      # R Shiny server startup
-├── shiny/                 # Shiny application
-│   ├── app.R             # Main Shiny app
-│   └── www/              # Static web assets
-├── build/                # Build assets (icons, etc.)
-├── sample-data/          # Example datasets
-├── docs/                 # Documentation
-├── r-win/               # Portable R for Windows (generated)
-├── r-mac/               # Portable R for macOS (generated)
-├── out/                 # Build output (generated)
-├── package.json         # Node.js configuration
-├── get-r-win.sh        # Windows R setup script
-├── get-r-mac.sh        # macOS R setup script
-└── add-cran-binary-pkgs.R  # R package installer
-```
-
-## Development Workflow
-
-### Setting Up Development Environment
-
-1. **Clone and Install**
-   ```bash
-   git clone <repo-url>
-   cd ordin
-   npm install
-   ```
-
-2. **Set Up R**
-   ```bash
-   # Windows (in Cygwin)
-   ./get-r-win.sh
-   
-   # macOS
-   ./get-r-mac.sh
-   ```
-
-3. **Install R Packages**
-   ```bash
-   Rscript add-cran-binary-pkgs.R
-   ```
-
-### Running in Development Mode
+## Getting started
 
 ```bash
-npm start
+git clone https://github.com/jm0535/0rdin.git
+cd 0rdin
+npm install          # runs scripts/apply-dependency-patches.mjs afterwards
+npm run dev          # http://localhost:9054
 ```
 
-This starts Electron with:
-- Hot reload for Electron changes
-- DevTools open by default
-- Console logging enabled
+The dev server binds to `0.0.0.0:9054` so it can be reached from a VM, container or preview sandbox.
 
-**Pro Tip**: Keep DevTools open to see R console output and JavaScript errors.
+## Workspace scripts
 
-### Making Changes
+| Script | Description |
+|---|---|
+| `npm run dev` | Vite dev server for `apps/ordin-desktop` |
+| `npm run build` | `tsc -b` + Vite production build → `apps/ordin-desktop/dist` |
+| `npm run preview` | Serve the production build on port 9054 |
+| `npm run tauri:dev` | Tauri desktop shell in dev mode |
+| `npm run tauri:build -w ordin-desktop` | Desktop bundles via `scripts/tauri-build.mjs` |
+| `npm run typecheck` | `tsc --noEmit` in every workspace |
+| `npm run lint` | ESLint (flat config) over `apps packages workers tests` |
+| `npm test` | Workspace test suites |
+| `npm run test:frontend` | `node --import tsx --test tests/*.test.ts` |
+| `npm run legacy:start` | Start the legacy v3 Shiny/Electron app |
 
-#### Modifying the Shiny UI
+## Repository layout
 
-Edit `shiny/app.R`:
+```
+apps/ordin-desktop/src
+├── App.tsx                     # shell, hotkeys, panel routing
+├── main.tsx                    # React root
+├── components/layout/          # ActivityBar, Sidebar, RightInspector, StatusBar,
+│                               # Toolbar, CommandPalette, ImportDialog,
+│                               # PluginMarketplace, WorkflowFooter
+├── components/panels/          # Dashboard, Data, Diversity, Ordination, Tests,
+│                               # Beta, Classification, Traits, Results, Settings, Help
+├── components/map/MapView.tsx  # optional MapLibre/deck.gl view
+├── components/PlotCustomization.tsx
+└── lib/downloadOrdin.ts        # .ordin project export
 
-```r
-# Change theme
-ui <- page_sidebar(
-  theme = bs_theme(
-    version = 5, 
-    bootswatch = "darkly",  # Try: flatly, cosmo, united, etc.
-    primary = "#2e8b57"
-  ),
-  # ... rest of UI
-)
+packages/core/src/index.ts        # zod schemas, OrdinProject, Zustand store
+packages/processing/src/index.ts  # webR bridge + JS statistics
+packages/ui/src/index.ts          # Button, Card, Badge, Input, Separator, Dialog, Sheet
+packages/map/src/index.ts         # createMap()
 ```
 
-Available bootswatch themes: darkly, flatly, cosmo, united, sandstone, etc.
+## Conventions
 
-#### Adding New Analysis Methods
+- **TypeScript everywhere**, `strict` mode; no `any` in new public APIs.
+- **State lives in the store.** Panels read with selectors (`useOrdinStore(s => …)`) and write through actions; never mutate `project` directly outside Immer producers.
+- **Statistics live in `@ordin/processing`.** Components must not import `webr` directly.
+- **Provenance is mandatory.** Any function returning results must set a `provenance` string, and panels must surface it.
+- **Styling** uses Tailwind utility classes with the VS Code-inspired palette (`#121214` background, `#2d2d30` borders, `#2e8b57` accent).
+- **Accessibility**: keyboard reachable controls, `aria-*` on custom widgets; the Playwright suite runs `@axe-core/playwright`.
 
-1. Add new choice to `selectInput`:
-   ```r
-   selectInput("analysisType", "Select Analysis",
-     choices = c(
-       "Diversity Estimation (iNEXT)", 
-       "Ordination (NMDS via vegan)",
-       "Your New Method"  # Add here
-     ))
-   ```
+## Adding a panel
 
-2. Add handler in `observeEvent(input$runAnalysis)`:
-   ```r
-   } else if (input$analysisType == "Your New Method") {
-     # Your analysis code
-     # Must set results() with list(summary = df, plot = ggplot_obj)
-   }
-   ```
+1. Add the id to `PanelId` in `packages/core/src/index.ts` and, if it produces output, a slot under `OrdinProject['analyses']`.
+2. Create `apps/ordin-desktop/src/components/panels/MyPanel.tsx`.
+3. Register it in `App.tsx` (render switch) and `ActivityBar.tsx` (icon + label).
+4. Add sidebar controls in `Sidebar.tsx` for the new panel id.
+5. Put the computation in `packages/processing` — JS fast path and/or webR call with provenance.
+6. Document the panel in `docs/FEATURES-OVERVIEW.md` and, if user-facing, add a guide in `docs/guides/`.
 
-#### Modifying Electron Behavior
+## Adding an R-backed analysis
 
-Edit `src/index.js`:
-
-```javascript
-// Change window size
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1600,  // Wider window
-    height: 1000,
-    // ...
-  });
-}
-
-// Change Shiny port
-const SHINY_PORT = 9999;  // Different port
-```
-
-### Testing
-
-#### Manual Testing Checklist
-
-- [ ] Upload sample CSV
-- [ ] Run iNEXT analysis
-- [ ] Run NMDS analysis (2D and 3D)
-- [ ] Download summary CSV
-- [ ] Download plot PNG
-- [ ] Test with invalid CSV (should show error)
-- [ ] Test with empty CSV
-- [ ] Restart app and verify clean startup
-
-#### Automated Tests (Future Enhancement)
-
-Consider adding:
-- Unit tests for R functions (testthat package)
-- Integration tests for Electron (Spectron)
-- CI/CD pipeline (GitHub Actions)
-
-## Building and Distribution
-
-### Development Build
-
-```bash
-npm run package
-```
-
-Creates unpackaged app in `out/` for quick testing.
-
-### Production Build
-
-```bash
-npm run make
-```
-
-Creates installers:
-- Windows: `.exe` installer
-- macOS: `.zip` with `.app` bundle
-
-### Build Configuration
-
-Edit `package.json` under `config.forge`:
-
-```json
-"packagerConfig": {
-  "name": "Ördin",
-  "icon": "./build/icon",  # Icon path (no extension)
-  "asar": true             # Package app in archive
-}
-```
-
-### Code Signing (Optional)
-
-For production distribution:
-
-**macOS:**
-```json
-"packagerConfig": {
-  "osxSign": {
-    "identity": "Developer ID Application: Your Name"
-  },
-  "osxNotarize": {
-    "appleId": "your@email.com",
-    "appleIdPassword": "@keychain:AC_PASSWORD"
+```ts
+export async function runMyAnalysisViaWebR(matrix: number[][]) {
+  const webR = await getWebR();
+  await webR.evalRVoid("library(vegan)");
+  const shelter = await new webR.Shelter();
+  try {
+    await webR.objs.globalEnv.bind('m', matrix);
+    const res = await shelter.evalR(`
+      M <- do.call(rbind, m)
+      fit <- vegan::myfun(M)
+      list(stat = as.numeric(fit$stat))
+    `);
+    const out = await res.toJs();
+    return { /* typed result */, provenance: 'REAL vegan::myfun via webR' };
+  } finally {
+    shelter.purge();
   }
 }
 ```
 
-**Windows:**
-```json
-"packagerConfig": {
-  "certificateFile": "./cert.pfx",
-  "certificatePassword": "password"
-}
+Rules:
+- Only use packages from the allow-list in [`ORDIN_STACK_AUDIT_2026-09-26.md`](ORDIN_STACK_AUDIT_2026-09-26.md) — every added package increases the WASM download.
+- Always free shelters (`finally { shelter.purge() }`).
+- Provide a JS fallback or a clear error when `crossOriginIsolated === false`.
+
+## Testing
+
+```bash
+npm run typecheck
+npm run lint
+npm run test:frontend         # unit tests (node:test + tsx)
+npx playwright test           # end-to-end + accessibility (installs browsers first)
 ```
 
-## Customization Examples
+CI workflows in `.github/workflows/`:
 
-### 1. Adding a Custom Logo
+| Workflow | Purpose |
+|---|---|
+| `test.yml` | install, lint, typecheck, unit tests |
+| `lint-js.yml` | dependency-free UTF-8/JS lint (`tools/lint-js.mjs`) |
+| `test-r.yml` | legacy R suite, bootstrapped by `ci/install-r-packages.R` |
 
-1. Place `logo.png` in `shiny/www/`
-2. Update `shiny/app.R`:
-   ```r
-   ui <- page_sidebar(
-     theme = bs_theme(...),
-     title = tagList(
-       img(src = "logo.png", height = "50px", style = "margin-right: 10px;"),
-       "Ördin: Biodiversity Analysis"
-     ),
-     # ...
-   )
-   ```
-
-### 2. Changing Color Scheme
-
-Edit theme in `shiny/app.R`:
-
-```r
-bs_theme(
-  version = 5, 
-  bootswatch = "flatly",      # Light theme
-  primary = "#3498db",        # Blue
-  secondary = "#2ecc71",      # Green
-  success = "#27ae60",
-  info = "#3498db",
-  warning = "#f39c12",
-  danger = "#e74c3c",
-  "font-scale" = 1.2          # Larger fonts
-)
-```
-
-### 3. Adding New R Packages
-
-1. Add to `add-cran-binary-pkgs.R`:
-   ```r
-   required_packages <- c(
-     "shiny", "bslib", "vegan", "iNEXT",
-     "ggplot2", "DT", "readr",
-     "your_new_package"  # Add here
-   )
-   ```
-
-2. Install:
-   ```bash
-   Rscript add-cran-binary-pkgs.R
-   ```
-
-3. Use in `shiny/app.R`:
-   ```r
-   library(your_new_package)
-   ```
-
-### 4. Custom Plot Styling
-
-Modify plot generation in `shiny/app.R`:
-
-```r
-plot_obj <- ggplot(data, aes(x, y)) +
-  geom_point(size = 5, color = "#2e8b57", alpha = 0.8) +
-  theme_minimal(base_size = 16) +
-  theme(
-    plot.background = element_rect(fill = "#1a1a1a"),
-    panel.background = element_rect(fill = "#2a2a2a"),
-    text = element_text(color = "#ffffff"),
-    axis.text = element_text(color = "#cccccc"),
-    panel.grid = element_line(color = "#444444")
-  ) +
-  labs(title = "Custom Title", subtitle = "Custom Subtitle")
-```
-
-## Performance Optimization
-
-### R Performance
-
-1. **Use data.table for large datasets**:
-   ```r
-   library(data.table)
-   dt <- fread(input$dataFile$datapath)
-   ```
-
-2. **Cache expensive computations**:
-   ```r
-   cached_result <- reactive({
-     # Expensive computation
-   }) %>% bindCache(input$dataFile, input$analysisType)
-   ```
-
-3. **Use parallel processing**:
-   ```r
-   library(parallel)
-   cl <- makeCluster(detectCores() - 1)
-   # Parallel computations
-   stopCluster(cl)
-   ```
-
-### Electron Performance
-
-1. **Lazy load modules**:
-   ```javascript
-   // Instead of require() at top
-   const moduleIOnlyNeedSometimes = () => require('module');
-   ```
-
-2. **Reduce memory usage**:
-   ```javascript
-   mainWindow.webContents.on('dom-ready', () => {
-     mainWindow.webContents.setZoomFactor(1);
-     mainWindow.webContents.setVisualZoomLevelLimits(1, 1);
-   });
-   ```
+Manual QA checklist: [`development/TEST_CHECKLIST.md`](development/TEST_CHECKLIST.md).
 
 ## Debugging
 
-### R Debugging
+- **webR never becomes ready** — check `crossOriginIsolated` in the console. Without COOP/COEP the app stays in mock mode by design.
+- **Port 9054 busy** — `npm run dev -- --port 5173`.
+- **Stale WASM assets** — clear the site's storage (DuckDB uses OPFS) and hard reload.
+- **Type errors after editing a package** — run `npm run typecheck`; project references are built with `tsc -b`.
+- **Native/desktop issues** — run `npm run tauri:dev` and read the Rust console output.
 
-Add to `shiny/app.R`:
+## Releasing
 
-```r
-# Enable console logging
-options(shiny.trace = TRUE)
-options(shiny.fullstacktrace = TRUE)
+1. Update versions in `package.json` and `apps/ordin-desktop/package.json`.
+2. Update [`CHANGELOG.md`](../CHANGELOG.md).
+3. `npm run lint && npm run typecheck && npm test && npm run build`.
+4. `npm run tauri:build -w ordin-desktop` for desktop artefacts.
+5. Tag and push; attach bundles to the GitHub release. See [`setup/PUBLISH.md`](setup/PUBLISH.md).
 
-# Add breakpoints
-browser()  # Execution stops here when running in R console
+Web deployment is automatic: pushing to `main` builds `apps/ordin-desktop` on Vercel using `vercel.json` (COOP/COEP headers included).
 
-# Print debugging
-observeEvent(input$runAnalysis, {
-  cat("Starting analysis...\n")
-  cat("Data dimensions:", dim(data()), "\n")
-  # ...
-})
+## Legacy v3 Shiny + Electron app
+
+The `shiny/` and `src/` trees contain Ördin 3 (R Shiny UI inside an Electron shell). They are kept for reference and bug fixes only; new features go into the v4 app.
+
+```bash
+Rscript install-v3-packages.R    # install R dependencies
+npm run legacy:start             # Electron + Shiny on port 9054
 ```
 
-### Electron Debugging
-
-In `src/index.js`:
-
-```javascript
-// Always show DevTools
-mainWindow.webContents.openDevTools();
-
-// Log all R output
-rShinyProcess.stdout.on('data', (data) => {
-  console.log(`[R] ${data}`);
-});
-
-// Detailed error logging
-mainWindow.webContents.on('crashed', () => {
-  console.error('Window crashed!');
-});
-```
-
-### Common Issues
-
-**Issue**: Shiny server won't start
-- Check: R path in `src/index.js` matches your setup
-- Check: Port 9054 is not in use
-- Solution: Run R directly: `Rscript src/start-shiny.R`
-
-**Issue**: Packages not found
-- Check: `.libPaths()` in R includes portable R library
-- Solution: Run `Rscript add-cran-binary-pkgs.R` again
-
-**Issue**: Electron window is blank
-- Check: DevTools console for JavaScript errors
-- Check: Shiny server is actually running (check terminal output)
-- Solution: Increase timeout in `checkShinyReady()`
-
-## Contributing
-
-### Code Style
-
-**R Code**:
-- Use 2-space indentation
-- Follow [tidyverse style guide](https://style.tidyverse.org/)
-- Add comments for complex logic
-
-**JavaScript**:
-- Use 2-space indentation
-- Use `const` over `let`, avoid `var`
-- Use async/await over callbacks
-
-### Commit Messages
-
-Follow conventional commits:
-```
-feat: Add new diversity index
-fix: Correct NMDS stress calculation
-docs: Update installation guide
-refactor: Simplify data loading logic
-```
-
-### Pull Request Process
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/my-feature`
-3. Make changes and test thoroughly
-4. Commit with clear messages
-5. Push and create PR
-
-## Deployment
-
-### Distributing to Users
-
-**Windows**:
-1. Build: `npm run make`
-2. Share `out/make/squirrel.windows/x64/Ördin-1.0.0 Setup.exe`
-3. Users double-click to install
-
-**macOS**:
-1. Build: `npm run make`
-2. Unzip `out/make/zip/darwin/x64/Ordin-darwin-x64-1.0.0.zip`
-3. Share `Ördin.app`
-4. Users drag to Applications folder
-
-### Auto-Updates (Advanced)
-
-Consider implementing Electron auto-updater:
-
-1. Add to `package.json`:
-   ```json
-   "dependencies": {
-     "electron-updater": "^6.0.0"
-   }
-   ```
-
-2. Add to `src/index.js`:
-   ```javascript
-   const { autoUpdater } = require('electron-updater');
-   
-   app.on('ready', () => {
-     autoUpdater.checkForUpdatesAndNotify();
-   });
-   ```
-
-3. Set up update server (e.g., GitHub Releases)
-
-## Resources
-
-- [Electron Documentation](https://www.electronjs.org/docs)
-- [Shiny Documentation](https://shiny.rstudio.com/)
-- [vegan Package Guide](https://github.com/vegandevs/vegan)
-- [iNEXT Package Guide](https://github.com/JohnsonHsieh/iNEXT)
-- [Bootstrap 5 Themes](https://bootswatch.com/)
-- [bslib Documentation](https://rstudio.github.io/bslib/)
-
-## License
-
-MIT License - See LICENSE file
+Legacy-specific documents are marked with a banner at the top of the file. Its module/service API is documented in [`API.md`](API.md#appendix--legacy-v3-shiny-api).

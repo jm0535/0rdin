@@ -323,4 +323,4 @@ GitHub repository: https://github.com/jm0535/0rdin
 ---
 
 *Last Updated: 2025-10-24*  
-*Version: 3.0.0*
+*Version: 4.0.0*

@@ -13,7 +13,7 @@
 Go to: https://github.com/new
 
 - **Name**: `ordin`
-- **Description**: "Cross-platform desktop app for biodiversity analysis using R Shiny and Electron"
+- **Description**: "Browser-native and desktop community ecology workbench — R (vegan, iNEXT, betapart) via webR"
 - **Visibility**: **Public**
 - **DON'T** initialize with README/license/.gitignore (we have them!)
 - Click **"Create repository"**
@@ -61,7 +61,7 @@ Settings → General:
 
 ```powershell
 # Build binaries first
-npm run make
+npm run build && npm run tauri:build -w ordin-desktop
 ```
 
 Then on GitHub:

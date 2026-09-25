@@ -1,5 +1,15 @@
 # Ördin Setup Guide for Linux Systems
 
+> **Ördin 4 (current):** you only need **Node.js ≥ 22** —
+> `git clone https://github.com/jm0535/0rdin.git && cd 0rdin && npm install && npm run dev`
+> (then open <http://localhost:9054>). R is bundled as WebAssembly, so none of
+> the R/system packages below are required. For desktop builds install the
+> [Tauri prerequisites](https://tauri.app/start/prerequisites/) (Rust,
+> WebKitGTK, libsoup). See [`../DEVELOPMENT.md`](../DEVELOPMENT.md).
+>
+> The remainder of this guide covers the **legacy v3 Shiny + Electron** app in
+> `shiny/`, which does need a local R installation.
+
 Complete installation guide for Ördin on **Debian/Ubuntu**, **Fedora/RHEL**, **Arch**, and other Linux distributions.
 
 ---
@@ -540,7 +550,7 @@ ls -lh out/make/
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
+See [`CONTRIBUTING.md`](../../.github/CONTRIBUTING.md) for guidelines.
 
 **Linux-specific contributions welcome**:
 - Testing on more distributions
@@ -552,16 +562,16 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
 
 ## Support
 
-- **Documentation**: [README.md](README.md)
-- **Quick Start**: [GETTING_STARTED.md](GETTING_STARTED.md)
-- **Development**: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+- **Documentation**: [README.md](../../README.md)
+- **Quick Start**: [GETTING_STARTED.md](../../.github/GETTING_STARTED.md)
+- **Development**: [docs/DEVELOPMENT.md](../DEVELOPMENT.md)
 - **Email**: jimmy.moses@pnguot.ac.pg
 
 ---
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file
+MIT License - See [LICENSE](../../LICENSE) file
 
 ---
 

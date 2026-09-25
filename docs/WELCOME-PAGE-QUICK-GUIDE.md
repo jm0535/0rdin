@@ -1,6 +1,11 @@
 # Welcome Page - Quick Guide
 
-**What**: Professional welcome screen for \u00d6rdin  
+> ⚠️ **Legacy document (Ördin 3.x).** This describes the R Shiny + Electron
+> application in `shiny/` and `src/`, which is kept for maintenance only.
+> For the current release see [Documentation Index](DOCS-INDEX.md) ·
+> [Quick Start](QUICKSTART.md) · [Architecture](ARCHITECTURE.md).
+
+**What**: Professional welcome screen for Ördin  
 **When**: Shows before analysis, hides when results appear  
 **Status**: ✅ Implemented
 
@@ -13,10 +18,10 @@
 ```
 ┌─────────────────────────────────────────────┐
 │                                             │
-│                   \u00d6                        │
+│                   Ö                        │
 │          (Large Green Logo)                 │
 │                                             │
-│         Welcome to \u00d6rdin                   │
+│         Welcome to Ördin                   │
 │                                             │
 │  Professional biodiversity analysis platform│
 │    powered by iNEXT and vegan packages      │
@@ -80,7 +85,7 @@ Welcome page **disappears** → Results table and plots **appear**
 
 ## Customization
 
-Want to change colors, text, or features? See [`WELCOME-PAGE-FEATURE.md`](WELCOME-PAGE-FEATURE.md) for detailed customization guide.
+Want to change colors, text, or features? See [`WELCOME-PAGE-FEATURE.md`](DOCS-INDEX.md) for detailed customization guide.
 
 ---
 

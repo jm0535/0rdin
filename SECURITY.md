@@ -4,12 +4,11 @@
 
 We release patches for security vulnerabilities in the following versions:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 3.0.x   | :white_check_mark: |
-| 2.3.x   | :x:                |
-| 2.2.x   | :x:                |
-| < 2.0   | :x:                |
+| Version | Supported          | Notes |
+| ------- | ------------------ | ----- |
+| 4.0.x   | :white_check_mark: | Current release (Tauri + React + webR) |
+| 3.0.x   | :warning:          | Legacy Shiny/Electron app — critical fixes only |
+| < 3.0   | :x:                | Unsupported |
 
 ## Reporting a Vulnerability
 
