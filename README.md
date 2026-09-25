@@ -350,8 +350,8 @@ Share the generated installer with users. The app includes a portable R installa
 ordin/
 ├── src/
 │   ├── index.js          # Electron main process
-│   ├── start-shiny.R     # R Shiny server startup script
-│   └── helpers.js        # Utility functions
+│   ├── preload.js        # Electron preload (context bridge)
+│   └── start-shiny.R     # R Shiny server startup script
 ├── shiny/
 │   ├── app.R             # Main Shiny application
 │   └── www/              # Static assets (logo, etc.)
@@ -426,8 +426,8 @@ npm install
 - Rebuild: `npm run make`
 
 ### Port Already in Use
-- The app uses port 8888 by default
-- Change it in `src/start-shiny.R`: `options(shiny.port = 8888)`
+- The app uses port 9054 by default
+- Change it in `src/start-shiny.R`: `options(shiny.port = 9054)`
 
 ## Community Ecology Analysis in Ördin
 
@@ -528,10 +528,6 @@ Detailed guides organized in the [`docs/`](docs/) directory:
 ### 📜 Version History
 
 - [CHANGELOG.md](CHANGELOG.md) - Complete version history and release notes
-
-### 🗄️ Archived Documentation
-
-Historical documentation and implementation logs are preserved in the [`archive/`](archive/) directory for reference.
 
 ## License
 

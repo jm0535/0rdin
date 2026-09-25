@@ -415,7 +415,7 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-### Port 8888 already in use
+### Port 9054 already in use
 
 Edit `src/start-shiny.R`:
 ```r
@@ -441,10 +441,10 @@ npm start
 **Option 2**: Run Shiny directly (no Electron)
 ```bash
 cd /path/to/ordin/shiny
-R -e "shiny::runApp(port=8888, host='0.0.0.0')"
+R -e "shiny::runApp(port=9054, host='0.0.0.0')"
 ```
 
-Then access via browser: `http://server-ip:8888`
+Then access via browser: `http://server-ip:9054`
 
 ---
 
@@ -474,11 +474,11 @@ If running Shiny server mode on a network:
 
 ```bash
 # Fedora/RHEL (firewalld)
-sudo firewall-cmd --add-port=8888/tcp --permanent
+sudo firewall-cmd --add-port=9054/tcp --permanent
 sudo firewall-cmd --reload
 
 # Ubuntu/Debian (ufw)
-sudo ufw allow 8888/tcp
+sudo ufw allow 9054/tcp
 ```
 
 ---

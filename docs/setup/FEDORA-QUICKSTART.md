@@ -120,7 +120,7 @@ sudo nano /etc/selinux/config
 
 ### Firewall (if running server mode)
 ```bash
-sudo firewall-cmd --add-port=8888/tcp --permanent
+sudo firewall-cmd --add-port=9054/tcp --permanent
 sudo firewall-cmd --reload
 ```
 

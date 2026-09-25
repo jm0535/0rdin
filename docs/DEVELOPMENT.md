@@ -367,7 +367,7 @@ mainWindow.webContents.on('crashed', () => {
 
 **Issue**: Shiny server won't start
 - Check: R path in `src/index.js` matches your setup
-- Check: Port 8888 is not in use
+- Check: Port 9054 is not in use
 - Solution: Run R directly: `Rscript src/start-shiny.R`
 
 **Issue**: Packages not found

@@ -53,7 +53,7 @@ This guide ensures **all analysis modules** in Ördin include comprehensive repr
 ### Step 1: Source Reproducibility Utilities in Your Module
 
 ```r
-# In your module server function (e.g., ordination_nmds_module.R)
+# In your module server function (e.g., ordination_module.R)
 source("utils/reproducibility.R", local = TRUE)
 ```
 
@@ -237,13 +237,13 @@ repro_code <- paste0(
 ## Complete Example: NMDS Module
 
 See the reference implementation in:
-- **Module:** `shiny/modules/ordination_nmds_module.R` (lines 443-459)
+- **Module:** `shiny/modules/ordination_module.R`
 - **Template:** `shiny/templates/nmds_report.Rmd`
 
 ### Key Code from NMDS Module:
 
 ```r
-# In ordination_nmds_module.R
+# In ordination_module.R
 metadata <- captureAnalysisMetadata(
   dataset_name = "Community Data",
   n_sites = nrow(data()),

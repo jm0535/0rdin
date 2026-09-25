@@ -1,0 +1,51 @@
+{
+  "name": "ordin-desktop",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 9054",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 9054",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "node ../../scripts/tauri-build.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^9.1.14",
+    "@deck.gl/geo-layers": "^9.1.14",
+    "@deck.gl/layers": "^9.1.14",
+    "@duckdb/duckdb-wasm": "1.33.1-dev57.0",
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@ordin/core": "*",
+    "@ordin/map": "*",
+    "@ordin/processing": "*",
+    "@ordin/ui": "*",
+    "@tanstack/react-virtual": "^3.14.13",
+    "apache-arrow": "^21.2.0",
+    "comlink": "^4.4.2",
+    "deck.gl": "^9.1.14",
+    "i18next": "^26.4.2",
+    "lucide-react": "^0.468.0",
+    "maplibre-gl": "^6.10.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "webr": "^0.4.2",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-pwa": "^0.21.1",
+    "vite-plugin-wasm": "^3.4.1"
+  }
+}

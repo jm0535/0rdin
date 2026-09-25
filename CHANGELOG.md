@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Truly asynchronous NMDS**: a `future::multisession` plan is now configured
+  at app startup (`shiny/app.R`), so `async_ordination()` actually runs in
+  background R processes instead of blocking the Shiny session. The auto-run
+  PERMANOVA after NMDS is now async too (`async_permanova()`), and the promise
+  chain in `ordination_module.R` uses explicit `promises::then/finally`
+  handlers. Covered by a new test suite (`shiny/tests/testthat/test-async.R`).
+- **UTF-16 source file**: `shiny/www/shiny-ui.js` converted to UTF-8;
+  `.gitattributes` and the new dependency-free `npm run lint`
+  (`tools/lint-js.mjs`) now guard against non-UTF-8 JS regressions.
+- **CI**: `test.yml` referenced a nonexistent `add-cran-binary-pkgs.R`; both R
+  workflows now share `ci/install-r-packages.R`. `npm run lint` previously
+  invoked `standard`, which was never a dependency (lint job could not pass).
+- **Dependency sync**: `shiny/DESCRIPTION` now declares the packages the code
+  actually uses (`promises`, `future`, `R6`, `jsonlite`, `rmarkdown`, `knitr`,
+  `ape`, `picante`, `betapart`, `patchwork`); `tinytex` moved to Suggests and
+  guarded with `requireNamespace()`. `src/start-shiny.R` no longer
+  installs/loads `shinydashboard` (unused).
+- **Data validation**: `DataService$load_file()` now validates species/env
+  uploads (via `validate_species_data()`/`validate_env_data()`) before
+  storing them — previously validation was skipped.
+- **Offline assets**: Font Awesome 6.5.1 is bundled in
+  `shiny/www/fontawesome/` (was a cdnjs.cloudflare.com dependency).
+- **Docs drift**: port 8888 → 9054 across docs, removed references to
+  nonexistent `src/helpers.js` and `archive/`, `docs/API.md` rewritten to
+  document the real module/service API, `shiny/tests/testthat.R` no longer
+  calls `test_check("ordin")` (the app is not an installed package).
+
+### Removed
+- Dead code: superseded `shiny/modules/ordination_nmds_module.R` (duplicate of
+  `ordination_module.R`), legacy `R/modules/` tree, obsolete top-level
+  `tests/` + `test_data_loading.R` (targeted the removed legacy API),
+  unreferenced `shiny/modules/plot_customization_module.R` (the JS panel of
+  the same name remains), and dead `observeEvent(input$species_file/env_file)`
+  handlers in `app.R`.
+
+### Added
+- `tools/r-syntax-check.mjs` (+ `npm run check-r-syntax`): validate R file
+  syntax via webR without a system R installation.
+- `ci/install-r-packages.R`: shared minimal dependency installer for CI.
+
 ## [3.0.0] - 2025-01-31 (Production Release)
 
 ### 🎉 Production-Ready Release: Enterprise-Grade Community Ecology Platform

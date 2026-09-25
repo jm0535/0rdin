@@ -77,7 +77,7 @@ Then in R:
 install.packages(c("shiny", "bslib", "vegan", "iNEXT", "ggplot2", "DT", "readr"))
 ```
 
-### Port 8888 already in use
+### Port 9054 already in use
 
 Edit `src/start-shiny.R`:
 ```r

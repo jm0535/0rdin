@@ -57,7 +57,7 @@ jobs:
       run: npm ci
     
     - name: Install R packages
-      run: Rscript add-cran-binary-pkgs.R
+      run: Rscript ci/install-r-packages.R
     
     - name: Lint code (if applicable)
       run: npm run lint --if-present

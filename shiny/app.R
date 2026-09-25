@@ -23,6 +23,26 @@ source("config/defaults.R")
 source("R/error_handler.R")
 source("R/performance.R")
 
+# ============== ASYNC BACKEND ==============
+# Configure the future backend used by async_ordination()/async_permanova()
+# (shiny/R/performance.R). multisession = pool of background R processes, so
+# long ordinations/permutation tests never block the Shiny session.
+# Falls back to sequential if workers cannot be started (e.g. restricted hosts).
+if (requireNamespace("future", quietly = TRUE)) {
+  tryCatch(
+    {
+      n_workers <- max(2L, min(4L, parallel::detectCores() - 1L))
+      future::plan(future::multisession, workers = n_workers)
+      cat(sprintf("[ordin] future plan: multisession (%d workers)\n", n_workers))
+    },
+    error = function(e) {
+      warning("multisession future plan unavailable; using sequential: ",
+        conditionMessage(e), call. = FALSE)
+      future::plan(future::sequential)
+    }
+  )
+}
+
 # Source all modules
 source("services/DataService.R")
 
@@ -51,8 +71,9 @@ ui <- function(req) {
       tags$meta(charset = "UTF-8"),
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Ördin v3.0"),
-      # Font Awesome 6.5 CDN
-      tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"),
+      # Font Awesome 6.5 - bundled locally (shiny/www/fontawesome) so the app
+      # works fully offline; was previously a cdnjs.cloudflare.com dependency
+      tags$link(rel = "stylesheet", href = "fontawesome/css/all.min.css?v=6.5.1"),
       tags$link(rel = "stylesheet", href = "prototype-styles.css?v=22"),
       tags$link(rel = "stylesheet", href = "window-controls.css?v=2"),
       # Hide Shiny busy indicator (grey overlay)
@@ -756,76 +777,6 @@ server <- function(input, output, session) {
     session$sendCustomMessage("clearCache", list())
   })
 
-  # ============== FILE UPLOAD HANDLERS ==============
-
-  # Species data file upload
-  observeEvent(input$species_file, {
-    req(input$species_file)
-
-    ext <- tools::file_ext(input$species_file$name)
-
-    loaded_data <- tryCatch(
-      {
-        if (ext == "csv") {
-          read_csv(input$species_file$datapath, show_col_types = FALSE)
-        } else if (ext %in% c("xlsx", "xls")) {
-          read_excel(input$species_file$datapath)
-        }
-      },
-      error = function(e) {
-        showNotification(paste("❌ Error loading file:", e$message), type = "error", duration = 5)
-        NULL
-      }
-    )
-
-    if (!is.null(loaded_data)) {
-      # Store as data frame
-      species_data(as.data.frame(loaded_data)) # Store reactively
-
-      showNotification(
-        paste0(
-          "✅ ", input$species_file$name, " loaded successfully! (",
-          nrow(loaded_data), " rows, ", ncol(loaded_data), " columns)"
-        ),
-        type = "message",
-        duration = 3
-      )
-    }
-  })
-
-  # Environmental data file upload
-  observeEvent(input$env_file, {
-    req(input$env_file)
-
-    ext <- tools::file_ext(input$env_file$name)
-
-    loaded_env <- tryCatch(
-      {
-        if (ext == "csv") {
-          read_csv(input$env_file$datapath, show_col_types = FALSE)
-        } else if (ext %in% c("xlsx", "xls")) {
-          read_excel(input$env_file$datapath)
-        }
-      },
-      error = function(e) {
-        showNotification(paste("❌ Error loading environmental data:", e$message), type = "error")
-        NULL
-      }
-    )
-
-    if (!is.null(loaded_env)) {
-      # Store as data frame
-      env_data(as.data.frame(loaded_env)) # Store reactively
-
-      showNotification(
-        paste0(
-          "✅ Environmental data loaded! (",
-          nrow(loaded_env), " rows, ", ncol(loaded_env), " variables)"
-        ),
-        type = "message"
-      )
-    }
-  })
 }
 
 # Run app

@@ -18,8 +18,7 @@ jobs:
       with:
         node-version: '20.x'
 
-    - name: Install dependencies
-      run: npm ci
-
+    # No npm install needed: tools/lint-js.mjs is dependency-free
+    # (checks UTF-8 encoding + syntax of every JS file in the repo).
     - name: Run Lint
       run: npm run lint

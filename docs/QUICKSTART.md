@@ -141,9 +141,9 @@ Click "Run Analysis" and wait for results (usually < 30 seconds).
 ## Troubleshooting
 
 ### "Port already in use" error
-Another app is using port 8888. Either:
+Another app is using port 9054. Either:
 - Close the other app, or
-- Edit `src/start-shiny.R` and change `options(shiny.port = 8888)` to a different port
+- Edit `src/start-shiny.R` and change `options(shiny.port = 9054)` to a different port
 
 ### R packages fail to install
 Try installing manually in RStudio:

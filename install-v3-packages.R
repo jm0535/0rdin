@@ -119,6 +119,13 @@ v3_packages <- c(
   "DHARMa",           # Residual diagnostics for GLMMs
   "emmeans",          # Estimated marginal means & post-hoc comparisons
   
+  # Asynchronous / parallel computing (Ördin async NMDS + PERMANOVA)
+  "promises",         # Promise-based async programming for Shiny
+  "future",           # Unified parallel computing (multisession workers)
+  "later",            # Event loop scheduling for promise resolution
+  "furrr",            # future + purrr (parallel map helpers)
+  "R6",               # Reference classes (DataService)
+
   # Utilities
   "scales",           # Scale functions for visualization
   "glue",             # String interpolation

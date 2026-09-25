@@ -151,7 +151,7 @@ library(tinytex)    # LaTeX backend (for PDF)
 ordin/
 ├── shiny/
 │   ├── modules/
-│   │   └── ordination_nmds_module.R    [Export handlers implemented]
+│   │   └── ordination_module.R    [Export handlers implemented]
 │   ├── templates/
 │   │   └── nmds_report.Rmd             [PDF template - NEW!]
 │   └── utils/

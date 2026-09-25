@@ -1,0 +1,14 @@
+{
+  "name": "@ordin/processing",
+  "version": "4.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": { "typecheck": "tsc --noEmit", "build": "tsc -b" },
+  "dependencies": {
+    "webr": "^0.4.2",
+    "@turf/helpers": "^7.4.0",
+    "ml-matrix": "^6.12.1",
+    "ml-pca": "^4.1.1"
+  },
+  "devDependencies": { "typescript": "~5.8.3" }
+}

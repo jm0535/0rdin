@@ -150,14 +150,11 @@ test_that("NMDS workflow completes", {
 ### **Running Tests**
 
 ```r
-# Run all tests
-testthat::test_dir("tests/testthat")
+# Run all tests (or: Rscript shiny/tests/testthat.R from anywhere)
+testthat::test_dir("shiny/tests/testthat")
 
 # Run specific test file
-testthat::test_file("tests/testthat/test-ordination.R")
-
-# Check test coverage
-covr::package_coverage()
+testthat::test_file("shiny/tests/testthat/test-ordination.R")
 ```
 
 ---

@@ -249,6 +249,8 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
       d <- data()
       dist_metric <- input$distance
       k_dim <- input$k
+      perm_n <- input$permutations
+      env_df <- env_data()
 
       # Show loading spinner
       waiter_show(html = tagList(
@@ -256,8 +258,8 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
         h3("Running NMDS Analysis (Async)...", style = "color: #2e8b57; margin-top: 20px;")
       ))
 
-      # Run NMDS Asynchronously
-      async_ordination(
+      # Run NMDS in a background R process (future plan set in shiny/app.R)
+      nmds_promise <- async_ordination(
         d,
         method = "nmds",
         distance = dist_metric,
@@ -265,8 +267,10 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
         trymax = 20,
         autotransform = FALSE,
         trace = 0
-      ) %...>% (function(result) {
-        # SUCCESS HANDLER (Main Thread)
+      )
+
+      on_nmds_success <- function(result) {
+        # SUCCESS HANDLER (main thread)
         nmds_result(result)
 
         # Interpret stress
@@ -279,36 +283,44 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
             result$stress,
             stress_interp$grade
           )),
-          type = if(result$stress < 0.20) "message" else "warning",
+          type = if (result$stress < 0.20) "message" else "warning",
           duration = 8
         )
 
-        # Trigger PERMANOVA if env data exists
-        # We do this sequentially for now to keep logic simple, or could chain another promise
-        if (!is.null(env_data())) {
-          # For now, run PERMANOVA synchronously or use a separate button/async call
-          # Running it here keeps existing behavior (auto-run)
-          # Note: This might still freeze briefly.
-          # ideally we'd make this async too.
-          tryCatch({
-            res <- adonis2(d ~ ., data = env_data(), permutations = 999) # Fixed perms for quick auto-run
-            permanova_result(res)
-          }, error = function(e) {
-            showNotification(paste("PERMANOVA failed:", e$message), type = "warning")
-          })
+        # Auto-run PERMANOVA when env data is present - also off the main
+        # thread so permutations never block the session.
+        if (!is.null(env_df)) {
+          permanova_promise <- async_permanova(
+            d, env_df,
+            permutations = perm_n, distance = dist_metric
+          )
+          promises::then(
+            permanova_promise,
+            onFulfilled = function(res) permanova_result(res),
+            onRejected = function(e) {
+              showNotification(paste("PERMANOVA failed:", e$message), type = "warning")
+            }
+          )
         }
-      }) %...!% (function(e) {
-        # ERROR HANDLER (Main Thread)
+      }
+
+      on_nmds_error <- function(e) {
+        # ERROR HANDLER (main thread)
         showNotification(
           paste("❌ NMDS failed:", e$message),
           type = "error",
           duration = 10
         )
-      }) %>%
-        finally(function() {
-          # Cleanup (Always runs)
-          waiter_hide()
-        })
+      }
+
+      # finally() runs the cleanup whether the promise resolves or rejects
+      promises::finally(
+        promises::then(nmds_promise,
+          onFulfilled = on_nmds_success,
+          onRejected = on_nmds_error
+        ),
+        function() waiter_hide()
+      )
     })
 
     # Generate stress interpretation HTML
@@ -545,8 +557,8 @@ nmds_server <- function(id, data, env_data = reactive(NULL)) {
             return()
           }
 
-          # Check if tinytex is installed
-          if (!tinytex::is_tinytex()) {
+          # Check if tinytex is installed (Suggested package, optional feature)
+          if (!requireNamespace("tinytex", quietly = TRUE) || !tinytex::is_tinytex()) {
             waiter_hide()
             showNotification(
               HTML("<strong>⚠️ LaTeX not installed</strong><br/>TinyTeX is required for PDF generation.<br/>Run <code>tinytex::install_tinytex()</code> in R console."),

@@ -57,7 +57,7 @@ ordin/
 - **Entry Point**: `src/index.js`
 - **Purpose**: Creates desktop window, manages R process, handles app lifecycle
 - **Key Features**:
-  - Spawns R Shiny server on port 8888
+  - Spawns R Shiny server on port 9054
   - Waits for Shiny to be ready before showing window
   - Cleans up R process on exit
   - Cross-platform R path detection
@@ -142,7 +142,7 @@ ordin/
 ### `src/start-shiny.R`
 - R script executed by Electron
 - Sets working directory to `shiny/`
-- Configures Shiny port (8888) and host (127.0.0.1)
+- Configures Shiny port (9054) and host (127.0.0.1)
 - Launches `shiny/app.R`
 
 ### `shiny/app.R`
@@ -226,7 +226,7 @@ Output to out/make/
 4. npm start
    ├── Electron starts
    ├── Spawn R process (src/start-shiny.R)
-   ├── Wait for Shiny on http://127.0.0.1:8888
+   ├── Wait for Shiny on http://127.0.0.1:9054
    └── Open BrowserWindow
 
 5. Develop and test
