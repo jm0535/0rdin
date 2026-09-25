@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useOrdinStore, validateSpeciesMatrix } from '@ordin/core';
+import { downloadOrdinJson } from '../../lib/downloadOrdin';
 import {
   ChevronDown,
   ChevronRight,
@@ -205,10 +206,7 @@ export function Sidebar() {
             <Button variant="outline" className="h-7 text-xs" onClick={() => setPanel('diversity')}>
               <Play size={12} className="mr-1" /> Run next
             </Button>
-            <Button variant="outline" className="h-7 text-xs" onClick={() => {
-              const blob = new Blob([JSON.stringify(useOrdinStore.getState().project, null, 2)], {type:'application/json'});
-              const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`\${useOrdinStore.getState().project.meta.name || 'ordin'}.ordin.json`; a.click(); URL.revokeObjectURL(url);
-            }}>
+            <Button variant="outline" className="h-7 text-xs" onClick={downloadOrdinJson}>
               <BarChart3 size={12} className="mr-1" /> Export
             </Button>
           </div>

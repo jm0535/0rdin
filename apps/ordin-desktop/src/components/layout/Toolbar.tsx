@@ -1,4 +1,5 @@
 import { useOrdinStore } from '@ordin/core';
+import { downloadOrdinJson } from '../../lib/downloadOrdin';
 import { Search, Upload, Download, Command, PanelRight, PanelLeft, Sparkles, Beaker } from 'lucide-react';
 import { Button, Input } from '@ordin/ui';
 
@@ -50,7 +51,7 @@ export function Toolbar() {
         <Button variant="subtle" onClick={() => set.setImportOpen(true)} className="hidden sm:inline-flex">
           <Upload size={14} className="mr-1.5" /> Import
         </Button>
-        <Button variant="ghost" onClick={() => { const blob=new Blob([JSON.stringify(useOrdinStore.getState().project, null, 2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${useOrdinStore.getState().project.meta.name || 'ordin'}.ordin.json`; a.click(); URL.revokeObjectURL(url); }} className="hidden sm:inline-flex h-8">
+        <Button variant="ghost" onClick={downloadOrdinJson} className="hidden sm:inline-flex h-8">
           <Download size={14} className="mr-1" /> Export
         </Button>
         <span className="w-px h-5 bg-[#2d2d30] mx-1" />

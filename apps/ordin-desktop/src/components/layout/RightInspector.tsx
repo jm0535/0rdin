@@ -1,4 +1,5 @@
 import { useOrdinStore } from '@ordin/core';
+import { downloadOrdinJson } from '../../lib/downloadOrdin';
 import { Card, Badge, Button } from '@ordin/ui';
 import { Info, Table, Database, FlaskConical, Download, Copy } from 'lucide-react';
 
@@ -61,7 +62,7 @@ export function RightInspector() {
                 <Button variant="subtle" className="flex-1 text-xs h-7" onClick={() => navigator.clipboard?.writeText(JSON.stringify(project, null, 2))}>
                   <Copy size={12} className="mr-1" /> Copy .ordin.json
                 </Button>
-                <Button variant="outline" className="flex-1 text-xs h-7" onClick={() => { const blob=new Blob([JSON.stringify(useOrdinStore.getState().project, null, 2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${useOrdinStore.getState().project.meta.name || 'ordin'}.ordin.json`; a.click(); URL.revokeObjectURL(url); }}>
+                <Button variant="outline" className="flex-1 text-xs h-7" onClick={downloadOrdinJson}>
                   <Download size={12} className="mr-1" /> Export
                 </Button>
               </div>
